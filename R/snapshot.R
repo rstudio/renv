@@ -756,25 +756,39 @@ renv_snapshot_description_impl <- function(dcf, path = NULL) {
   dcf[["Requirements"]] <- all
 
   # get remotes fields
+  remotes <- renv_snapshot_description_impl_remotes(dcf)
+
+  # only keep relevant fields
+  extra <- c("Repository", "OS_type")
+  all <- c(required, extra, remotes, "Requirements", "Hash")
+  keep <- renv_vector_intersect(all, names(dcf))
+
+  # return as list
+  as.list(dcf[keep])
+
+}
+
+renv_snapshot_description_impl_remotes <- function(dcf) {
+
+  # if this seems to be a cran-like record, only keep remotes
+  # when RemoteSha appears to be a hash (e.g. for r-universe)
+  # note that RemoteSha may be a package version when installed
+  # by e.g. pak
+  if (renv_record_cranlike(dcf)) {
+    sha <- dcf[["RemoteSha"]]
+    if (is.null(sha) || nchar(sha) < 40)
+      return(character())
+  }
+
+  # grab the relevant remotes
   git <- grep("^git", names(dcf), value = TRUE)
-  remotes <- grep("^Remote", names(dcf), value = TRUE)
+  remotes <- grep("^Remote(?!s)", names(dcf), perl = TRUE, value = TRUE)
 
   # don't include 'RemoteRef' if it's a non-informative remote
   if (identical(dcf[["RemoteRef"]], "HEAD"))
     remotes <- setdiff(remotes, "RemoteRef")
 
-  # drop remote metadata for 'standard' remotes, to avoid spurious
-  # diffs that could arise from installing a package using 'pak'
-  # versus 'install.packages()' or an alternate tool
-  std <- identical(dcf[["RemoteType"]], "standard")
-
-  # only keep relevant fields
-  extra <- c("Repository", "OS_type")
-  all <- c(required, extra, if (!std) c(remotes, git), "Requirements", "Hash")
-  keep <- renv_vector_intersect(all, names(dcf))
-
-  # return as list
-  as.list(dcf[keep])
+  c(git, remotes)
 
 }
 
