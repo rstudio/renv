@@ -737,7 +737,7 @@ renv_snapshot_description_impl <- function(dcf, path = NULL) {
     identical(dcf[["RemoteType"]], "standard")
 
   if (bioc) {
-    fields <- grep("^Remote(!=s)", names(dcf), perl = TRUE, invert = TRUE)
+    fields <- grep("^Remote(?!s)", names(dcf), perl = TRUE, invert = TRUE)
     dcf <- dcf[fields]
   }
 
