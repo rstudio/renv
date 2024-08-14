@@ -389,5 +389,13 @@ test_that("we can use retrieve() to download packages without installing", {
   project <- renv_tests_scope()
   init()
 
-  retrieve(packages = "breakfast")
+  result <- retrieve(packages = "breakfast")
+  expect_false(renv_package_installed("breakfast"))
+  expect_contains(names(result), "breakfast")
+  expect_contains(names(result), "bread")
+
+  result <- retrieve(packages = "bread", destdir = ".")
+  expect_equal(result, c(bread = "./bread_1.0.0.tar.gz"))
+
+
 })
