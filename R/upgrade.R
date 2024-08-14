@@ -89,7 +89,7 @@ renv_upgrade_impl <- function(project, version, reload, prompt) {
   )
 
   # retrieve and install renv
-  records <- retrieve("renv")
+  records <- renv_retrieve_impl("renv")
   renv_install_impl(records)
 
   # update the lockfile

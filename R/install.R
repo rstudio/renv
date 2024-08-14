@@ -224,7 +224,7 @@ install <- function(packages = NULL,
   )
 
   # retrieve packages
-  records <- retrieve(packages)
+  records <- renv_retrieve_impl(packages)
   if (empty(records)) {
     writef("- There are no packages to install.")
     return(invisible(list()))

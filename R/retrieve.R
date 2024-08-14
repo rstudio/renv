@@ -1,10 +1,79 @@
 
 the$repos_archive <- new.env(parent = emptyenv())
 
-# this routine retrieves a package + its dependencies, and as a side
-# effect populates the restore state's `retrieved` member with a
-# list of package records which can later be used for install
-retrieve <- function(packages) {
+#' Retrieve packages
+#'
+#' Retrieve (download) one or more packages from external sources.
+#' Using `renv::retrieve()` can be useful in CI / CD workflows, where
+#' you might want to download all packages listed in a lockfile
+#' before later invoking [renv::restore()]. Packages will be downloaded
+#' to a directory within the `renv` "root" folder -- see [paths] for
+#' more details.
+#'
+#' @inheritParams renv-params
+#'
+#' @param recursive Boolean; should recursive dependencies of the requested
+#'   packages also be downloaded?
+#'
+#' @param lockfile The path to an `renv` lockfile. When set, `renv`
+#'   will retrieve the packages as defined within that lockfile.
+#'   If `packages` is also non-`NULL`, then only those packages will
+#'   be retrieved.
+#'
+#' @param destdir The directory where packages should be downloaded.
+#'  When `NULL` (the default), the default internal storage locations
+#'  (normally used by e.g. [renv::install()] or [renv::restore()]) will
+#'  be used.
+#'
+#' @returns A named vector, mapping package names to the paths where
+#'   those packages were downloaded.
+#'
+#' @export
+retrieve <- function(packages = NULL,
+                     ...,
+                     lockfile = NULL,
+                     destdir  = NULL,
+                     project  = NULL)
+{
+  renv_consent_check()
+  renv_scope_error_handler()
+  renv_dots_check(...)
+
+  project <- renv_project_resolve(project)
+  renv_project_lock(project = project)
+
+  # set destdir if available
+  renv_scope_binding(the, "destdir", destdir)
+
+  # figure out which records we want to retrieve
+  if (is.null(packages) && is.null(lockfile)) {
+    lockfile <- renv_lockfile_load(project = project)
+  } else if (is.null(lockfile)) {
+    records <- map(packages, renv_remotes_resolve, latest = TRUE)
+    packages <- map_chr(records, `[[`, "Package")
+    names(records) <- packages
+  } else if (is.character(lockfile)) {
+    lockfile <- renv_lockfile_read(lockfile)
+    records <- renv_lockfile_records(lockfile)
+    packages <- packages %||% names(records)
+  }
+
+  # overlay project remotes
+  records <- overlay(renv_project_remotes(project), records)
+
+  # perform the retrieval
+  renv_scope_restore(
+    project   = project,
+    library   = library,
+    packages  = packages,
+    records   = records
+  )
+
+  result <- renv_retrieve_impl(packages)
+  map_chr(result, `[[`, "Path")
+}
+
+renv_retrieve_impl <- function(packages) {
 
   # confirm that we have restore state set up
   state <- renv_restore_state()
@@ -31,7 +100,7 @@ retrieve <- function(packages) {
   before <- Sys.time()
   handler <- state$handler
   for (package in packages)
-    handler(package, renv_retrieve_impl(package))
+    handler(package, renv_retrieve_impl_one(package))
   after <- Sys.time()
 
   state <- renv_restore_state()
@@ -46,7 +115,7 @@ retrieve <- function(packages) {
 
 }
 
-renv_retrieve_impl <- function(package) {
+renv_retrieve_impl_one <- function(package) {
 
   # skip packages with 'base' priority
   if (package %in% renv_packages_base())
@@ -251,10 +320,14 @@ renv_retrieve_path <- function(record, type = "source", ext = NULL) {
   # extract relevant record information
   package <- record$Package
   name <- renv_retrieve_name(record, type, ext)
-  source <- renv_record_source(record)
+
+  # if we have a destdir override, use this
+  if (!is.null(the$destdir))
+    return(file.path(the$destdir, name))
 
   # check for packages from an PPM binary URL, and
   # update the package type if known
+  source <- renv_record_source(record)
   if (renv_ppm_enabled()) {
     url <- attr(record, "url")
     if (is.character(url) && grepl("/__[^_]+__/", url))
@@ -1139,14 +1212,14 @@ renv_retrieve_successful_recurse_impl_one <- function(remote) {
 
   # if this is a 'plain' package remote, retrieve it
   if (grepl(renv_regexps_package_name(), remote)) {
-    renv_retrieve_impl(remote)
+    renv_retrieve_impl_one(remote)
     return(list())
   }
 
   # otherwise, handle custom remotes
   record <- renv_retrieve_remotes_impl(remote)
   if (length(record)) {
-    renv_retrieve_impl(record$Package)
+    renv_retrieve_impl_one(record$Package)
     return(list())
   }
 

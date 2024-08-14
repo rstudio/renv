@@ -384,3 +384,10 @@ test_that("retrieve handles local sources", {
   renv_test_retrieve(record)
 
 })
+
+test_that("we can use retrieve() to download packages without installing", {
+  project <- renv_tests_scope()
+  init()
+
+  retrieve(packages = "breakfast")
+})
