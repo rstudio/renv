@@ -7,8 +7,12 @@ the$repos_archive <- new.env(parent = emptyenv())
 #' Using `renv::retrieve()` can be useful in CI / CD workflows, where
 #' you might want to download all packages listed in a lockfile
 #' before later invoking [renv::restore()]. Packages will be downloaded
-#' to a directory within the `renv` "root" folder -- see [paths] for
-#' more details.
+#' to an internal path within `renv`'s local state directories -- see
+#' [paths] for more details.
+#'
+#' If `destdir` is `NULL` and the requested package is already available
+#' within the `renv` cache, `renv` will return the path to that package
+#' directory in the cache.
 #'
 #' @inheritParams renv-params
 #'

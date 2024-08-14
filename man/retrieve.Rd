@@ -36,8 +36,13 @@ Retrieve (download) one or more packages from external sources.
 Using \code{renv::retrieve()} can be useful in CI / CD workflows, where
 you might want to download all packages listed in a lockfile
 before later invoking \code{\link[=restore]{restore()}}. Packages will be downloaded
-to a directory within the \code{renv} "root" folder -- see \link{paths} for
-more details.
+to an internal path within \code{renv}'s local state directories -- see
+\link{paths} for more details.
+}
+\details{
+If \code{destdir} is \code{NULL} and the requested package is already available
+within the \code{renv} cache, \code{renv} will return the path to that package
+directory in the cache.
 }
 \examples{
 \dontrun{
