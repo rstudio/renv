@@ -45,6 +45,24 @@
 #'   "strong", "most", and "all" are also supported.
 #'   See [tools::package_dependencies()] for more details.
 #'
+#' @param packages Either `NULL` (the default) to install all packages required
+#'  by the project, or a character vector of packages to install. renv
+#'  supports a subset of the remotes syntax used for package installation,
+#'  e.g:
+#'
+#'  * `pkg`: install latest version of `pkg` from CRAN.
+#'  * `pkg@version`: install specified version of `pkg` from CRAN.
+#'  * `username/repo`: install package from GitHub
+#'  * `bioc::pkg`: install `pkg` from Bioconductor.
+#'
+#'  See <https://remotes.r-lib.org/articles/dependencies.html> and the examples
+#'  below for more details.
+#'
+#'  renv deviates from the remotes spec in one important way: subdirectories
+#'  are separated from the main repository specification with a `:`, not `/`.
+#'  So to install from the `subdir` subdirectory of GitHub package
+#'  `username/repo` you'd use `"username/repo:subdir`.
+#'
 #' @return The project directory, invisibly. Note that this function is normally
 #'   called for its side effects.
 #'

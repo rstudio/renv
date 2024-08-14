@@ -43,24 +43,6 @@ the$install_step_width <- 48L
 #'
 #' @inherit renv-params
 #'
-#' @param packages Either `NULL` (the default) to install all packages required
-#'  by the project, or a character vector of packages to install. renv
-#'  supports a subset of the remotes syntax used for package installation,
-#'  e.g:
-#'
-#'  * `pkg`: install latest version of `pkg` from CRAN.
-#'  * `pkg@version`: install specified version of `pkg` from CRAN.
-#'  * `username/repo`: install package from GitHub
-#'  * `bioc::pkg`: install `pkg` from Bioconductor.
-#'
-#'  See <https://remotes.r-lib.org/articles/dependencies.html> and the examples
-#'  below for more details.
-#'
-#'  renv deviates from the remotes spec in one important way: subdirectories
-#'  are separated from the main repository specification with a `:`, not `/`.
-#'  So to install from the `subdir` subdirectory of GitHub package
-#'  `username/repo` you'd use `"username/repo:subdir`.
-#'
 #' @param exclude Packages which should not be installed. `exclude` is useful
 #'   when using `renv::install()` to install all dependencies in a project,
 #'   except for a specific set of packages.

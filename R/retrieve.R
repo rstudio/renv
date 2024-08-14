@@ -16,9 +16,6 @@ the$repos_archive <- new.env(parent = emptyenv())
 #'
 #' @inheritParams renv-params
 #'
-#' @param recursive Boolean; should recursive dependencies of the requested
-#'   packages also be downloaded?
-#'
 #' @param lockfile The path to an `renv` lockfile. When set, `renv`
 #'   will retrieve the packages as defined within that lockfile.
 #'   If `packages` is also non-`NULL`, then only those packages will

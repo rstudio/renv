@@ -7,6 +7,25 @@
 retrieve(packages = NULL, ..., lockfile = NULL, destdir = NULL, project = NULL)
 }
 \arguments{
+\item{packages}{Either \code{NULL} (the default) to install all packages required
+by the project, or a character vector of packages to install. renv
+supports a subset of the remotes syntax used for package installation,
+e.g:
+\itemize{
+\item \code{pkg}: install latest version of \code{pkg} from CRAN.
+\item \code{pkg@version}: install specified version of \code{pkg} from CRAN.
+\item \code{username/repo}: install package from GitHub
+\item \code{bioc::pkg}: install \code{pkg} from Bioconductor.
+}
+
+See \url{https://remotes.r-lib.org/articles/dependencies.html} and the examples
+below for more details.
+
+renv deviates from the remotes spec in one important way: subdirectories
+are separated from the main repository specification with a \code{:}, not \code{/}.
+So to install from the \code{subdir} subdirectory of GitHub package
+\code{username/repo} you'd use \verb{"username/repo:subdir}.}
+
 \item{...}{Unused arguments, reserved for future expansion. If any arguments
 are matched to \code{...}, renv will signal an error.}
 
@@ -23,9 +42,6 @@ be used.}
 \item{project}{The project directory. If \code{NULL}, then the active project will
 be used. If no project is currently active, then the current working
 directory is used instead.}
-
-\item{recursive}{Boolean; should recursive dependencies of the requested
-packages also be downloaded?}
 }
 \value{
 A named vector, mapping package names to the paths where
