@@ -55,7 +55,10 @@ retrieve <- function(packages = NULL,
   renv_project_lock(project = project)
 
   # set destdir if available
-  renv_scope_binding(the, "destdir", destdir)
+  if (!is.null(destdir)) {
+    renv_scope_options(renv.config.cache.enabled = FALSE)
+    renv_scope_binding(the, "destdir", destdir)
+  }
 
   # figure out which records we want to retrieve
   if (is.null(packages) && is.null(lockfile)) {
@@ -248,18 +251,8 @@ renv_retrieve_impl_one <- function(package) {
 
       # try to find the record in the cache
       path <- renv_cache_find(record)
-      if (nzchar(path) && renv_cache_package_validate(path)) {
-
-        # if we were provided a destdir, copy to that path
-        if (!is.null(the$destdir)) {
-          newpath <- file.path(the$destdir, basename(path))
-          renv_file_copy(path, newpath, overwrite = TRUE)
-          path <- newpath
-        }
-
+      if (nzchar(path) && renv_cache_package_validate(path))
         return(renv_retrieve_successful(record, path))
-
-      }
 
     }
 
