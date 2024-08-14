@@ -248,8 +248,19 @@ renv_retrieve_impl_one <- function(package) {
 
       # try to find the record in the cache
       path <- renv_cache_find(record)
-      if (nzchar(path) && renv_cache_package_validate(path))
+      if (nzchar(path) && renv_cache_package_validate(path)) {
+
+        # if we were provided a destdir, copy to that path
+        if (!is.null(the$destdir)) {
+          newpath <- file.path(the$destdir, basename(path))
+          renv_file_copy(path, newpath, overwrite = TRUE)
+          path <- newpath
+        }
+
         return(renv_retrieve_successful(record, path))
+
+      }
+
     }
 
   }

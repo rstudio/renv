@@ -397,5 +397,4 @@ test_that("we can use retrieve() to download packages without installing", {
   result <- retrieve(packages = "bread", destdir = ".")
   expect_equal(result, c(bread = "./bread_1.0.0.tar.gz"))
 
-
 })
