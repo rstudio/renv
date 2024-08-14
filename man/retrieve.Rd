@@ -39,3 +39,15 @@ before later invoking \code{\link[=restore]{restore()}}. Packages will be downlo
 to a directory within the \code{renv} "root" folder -- see \link{paths} for
 more details.
 }
+\examples{
+\dontrun{
+
+# retrieve package + versions as defined in the lockfile
+# normally used as a pre-flight step to renv::restore()
+renv::retrieve()
+
+# download one or more packages locally
+renv::retrieve("rlang", destdir = ".")
+
+}
+}

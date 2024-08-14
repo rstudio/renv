@@ -29,6 +29,18 @@ the$repos_archive <- new.env(parent = emptyenv())
 #'   those packages were downloaded.
 #'
 #' @export
+#'
+#' @examples
+#' \dontrun{
+#'
+#' # retrieve package + versions as defined in the lockfile
+#' # normally used as a pre-flight step to renv::restore()
+#' renv::retrieve()
+#'
+#' # download one or more packages locally
+#' renv::retrieve("rlang", destdir = ".")
+#'
+#' }
 retrieve <- function(packages = NULL,
                      ...,
                      lockfile = NULL,
