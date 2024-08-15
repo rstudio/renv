@@ -65,7 +65,7 @@ renv_imbue_impl <- function(project,
     recursive = FALSE
   )
 
-  records <- retrieve("renv")
+  records <- renv_retrieve_impl("renv")
   renv_install_impl(records)
 
   record <- records[["renv"]]

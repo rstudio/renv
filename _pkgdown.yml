@@ -71,10 +71,11 @@ reference:
 
 - title: internal
   contents:
-  - renv-package
-  - sandbox
-  - imbue
   - graph
+  - imbue
+  - renv-package
+  - retrieve
+  - sandbox
   - sandbox
 
 articles:

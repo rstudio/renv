@@ -451,6 +451,7 @@ renv_remotes_resolve_repository <- function(remote, latest) {
   if (latest && is.null(version)) {
     remote <- renv_available_packages_latest(package)
     version <- remote$Version
+    repository <- remote$Repository
   }
 
   list(

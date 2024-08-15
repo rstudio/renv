@@ -384,3 +384,21 @@ test_that("retrieve handles local sources", {
   renv_test_retrieve(record)
 
 })
+
+test_that("we can use retrieve() to download packages without installing", {
+  project <- renv_tests_scope()
+  init()
+
+  result <- retrieve(packages = "breakfast")
+  expect_false(renv_package_installed("breakfast"))
+  expect_contains(names(result), "breakfast")
+  expect_contains(names(result), "bread")
+
+  result <- retrieve(packages = "bread", destdir = ".")
+  expect_equal(result, c(bread = "./bread_1.0.0.tar.gz"))
+
+  install("bread")
+  result <- retrieve(packages = "bread", destdir = ".")
+  expect_equal(result, c(bread = "./bread_1.0.0.tar.gz"))
+
+})
