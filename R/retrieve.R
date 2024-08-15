@@ -64,6 +64,8 @@ retrieve <- function(packages = NULL,
   # figure out which records we want to retrieve
   if (is.null(packages) && is.null(lockfile)) {
     lockfile <- renv_lockfile_load(project = project)
+    records <- renv_lockfile_records(lockfile)
+    packages <- names(records)
   } else if (is.null(lockfile)) {
     records <- map(packages, renv_remotes_resolve, latest = TRUE)
     packages <- map_chr(records, `[[`, "Package")
