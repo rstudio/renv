@@ -39,14 +39,14 @@ This can either be "snapshot", in which \code{renv} will generate a lockfile
 based on the latest versions of the packages available from \code{repos}, or
 "restore" if you'd like to install those packages. You can use
 \code{c("snapshot", "restore")} if you'd like to generate a lockfile and
-install those packages in the same step.}
+install those packages in a single call.}
 
 \item{project}{The project directory. If \code{NULL}, then the active project will
 be used. If no project is currently active, then the current working
 directory is used instead.}
 }
 \description{
-\code{renv::checkout()} can be used to retrieve the latest-availabe packages from
+\code{renv::checkout()} can be used to retrieve the latest-available packages from
 a (set of) package repositories.
 }
 \details{
@@ -72,7 +72,7 @@ on CRAN.
 renv::checkout(date = "2023-01-02")
 
 # alternatively, supply the full repository path
-renv::checkout(repos = "https://packagemanager.rstudio.com/cran/2023-01-02")
+renv::checkout(repos = c(PPM = "https://packagemanager.rstudio.com/cran/2023-01-02"))
 
 # only check out some subset of packages (and their recursive dependencies)
 renv::checkout(packages = "dplyr", date = "2023-01-02")
