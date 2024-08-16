@@ -17,6 +17,9 @@ if (getRversion() < "4.0") {
 
 }
 
+# remove once Biobase can compile again
+skip("wait for STRICT_R_HEADERS compliance")
+
 test_that("packages can be installed, restored from Bioconductor", {
 
   skip_slow()

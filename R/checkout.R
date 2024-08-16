@@ -47,7 +47,7 @@
 #' renv::checkout(date = "2023-01-02")
 #'
 #' # alternatively, supply the full repository path
-#' renv::checkout(repos = "https://packagemanager.rstudio.com/cran/2023-01-02")
+#' renv::checkout(repos = c(PPM = "https://packagemanager.rstudio.com/cran/2023-01-02"))
 #'
 #' # only check out some subset of packages (and their recursive dependencies)
 #' renv::checkout(packages = "dplyr", date = "2023-01-02")
@@ -82,7 +82,7 @@ checkout <- function(repos = NULL,
   remotes <- renv_checkout_remotes(packages, project)
 
   # parse these into package records
-  records <- map(remotes, renv_remotes_resolve)
+  records <- map(remotes, renv_remotes_resolve, latest = TRUE)
 
   # create a lockfile matching this request
   lockfile <- renv_lockfile_init(project)
