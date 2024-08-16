@@ -1,7 +1,7 @@
 
 #' Checkout a repository
 #'
-#' `renv::checkout()` can be used to retrieve the latest-availabe packages from
+#' `renv::checkout()` can be used to retrieve the latest-available packages from
 #' a (set of) package repositories.
 #'
 #' `renv::checkout()` is most useful with services like the Posit's
@@ -38,7 +38,7 @@
 #'   based on the latest versions of the packages available from `repos`, or
 #'   "restore" if you'd like to install those packages. You can use
 #'   `c("snapshot", "restore")` if you'd like to generate a lockfile and
-#'   install those packages in the same step.
+#'   install those packages in a single call.
 #'
 #' @examples
 #' \dontrun{
@@ -88,13 +88,13 @@ checkout <- function(repos = NULL,
   lockfile <- renv_lockfile_init(project)
   lockfile$Packages <- records
 
-  # perform requested actions
-  for (action in actions) {
-    case(
-      action == "snapshot" ~ renv_lockfile_write(lockfile, file = renv_lockfile_path(project)),
-      action == "restore"  ~ restore(lockfile = lockfile, clean = clean),
-      ~ stopf("unrecognized action '%s'")
-    )
+  if ("restore" %in% actions) {
+    restore(lockfile = lockfile, clean = clean)
+    lockfile <- snapshot(packages = packages, lockfile = NULL)
+  }
+
+  if ("snapshot" %in% actions) {
+    renv_lockfile_write(lockfile, file = renv_lockfile_path(project))
   }
 
   invisible(lockfile)
