@@ -25,37 +25,17 @@ renv_lockfile_init_r_version <- function(project) {
 
 }
 
-renv_lockfile_init_r_repos <- function(project) {
+renv_lockfile_init_r_repos <- function(project, repos = getOption("repos")) {
 
-  repos <- getOption("repos")
-
-  # save names
-  nms <- names(repos)
-
-  # force as character
-  repos <- as.character(repos)
-
-  # clear RStudio attribute
+  # unset the RStudio attribute if it was set
   attr(repos, "RStudio") <- NULL
 
-  # check for default repositories
-  #
-  # note that if the user is using RStudio, we only want to override
-  # the repositories if they haven't explicitly set their own repo URL
-  #
-  # https://github.com/rstudio/renv/issues/1782
-  rstudio <- structure(
-    list(CRAN = "https://cran.rstudio.com/"),
-    RStudio = TRUE
-  )
+  # make sure it's a character vector in this scope
+  repos <- convert(repos, "character")
 
-  isdefault <-
-    identical(repos, list(CRAN = "@CRAN@")) ||
-    identical(repos, rstudio)
-
-  if (isdefault) {
-    repos[["CRAN"]] <- config$ppm.url()
-  }
+  # make sure a CRAN repository is set
+  cran <- getOption("renv.repos.cran", "https://cloud.r-project.org")
+  repos[repos == "@CRAN@"] <- cran
 
   # remove PPM bits from URL
   if (renv_ppm_enabled()) {
@@ -63,13 +43,8 @@ renv_lockfile_init_r_repos <- function(project) {
     repos <- sub(pattern, "/", repos)
   }
 
-  # force as list
-  repos <- as.list(repos)
-
-  # ensure names
-  names(repos) <- nms
-
-  repos
+  # all done; return as list
+  convert(repos, "list")
 
 }
 

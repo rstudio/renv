@@ -339,10 +339,8 @@ renv_init_repos <- function(repos = getOption("repos")) {
 
   if (isdefault) {
     repos[["CRAN"]] <- config$ppm.url()
-    return(repos)
   }
 
-  # repos appears to have been configured separately; just use it
   repos
 
 }
