@@ -318,6 +318,9 @@ renv_hydrate_resolve_missing <- function(project, library, remotes, missing) {
   renv_scope_libpaths(library)
 
   packages <- names(missing)
+  if (empty(packages))
+    return()
+
   writef("- Resolving missing dependencies ... ")
 
   # define a custom error handler for packages which we cannot retrieve
