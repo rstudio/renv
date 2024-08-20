@@ -102,16 +102,13 @@ renv_project_type_impl <- function(path) {
 
 }
 
-renv_project_remotes <- function(project, fields = NULL, resolve = FALSE) {
+renv_project_remotes <- function(project, filter = NULL, resolve = FALSE) {
 
   descpath <- file.path(project, "DESCRIPTION")
   if (!file.exists(descpath))
     return(NULL)
 
-  # first, parse remotes (if any)
-  remotes <- renv_description_remotes(descpath)
-
-  # next, find packages mentioned in the DESCRIPTION file
+  # find packages mentioned in the DESCRIPTION file
   deps <- renv_dependencies_discover_description(
     path    = descpath,
     project = project
@@ -139,6 +136,13 @@ renv_project_remotes <- function(project, fields = NULL, resolve = FALSE) {
       }
     }
   }
+
+  # parse remotes if available
+  remotes <- renv_description_remotes(descpath)
+
+  # apply filter
+  if (!is.null(filter))
+    specs <- filter(specs, remotes)
 
   # now, try to resolve the packages
   records <- enumerate(specs, function(package, spec) {
