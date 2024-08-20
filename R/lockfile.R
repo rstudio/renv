@@ -26,8 +26,26 @@ renv_lockfile_init_r_version <- function(project) {
 }
 
 renv_lockfile_init_r_repos <- function(project, repos = getOption("repos")) {
+
+  # unset the RStudio attribute if it was set
   attr(repos, "RStudio") <- NULL
+
+  # make sure it's a character vector in this scope
+  repos <- convert(repos, "character")
+
+  # make sure a CRAN repository is set
+  cran <- getOption("renv.repos.cran", "https://cloud.r-project.org")
+  repos[repos == "@CRAN@"] <- cran
+
+  # remove PPM bits from URL
+  if (renv_ppm_enabled()) {
+    pattern <- "/__[^_]+__/[^/]+/"
+    repos <- sub(pattern, "/", repos)
+  }
+
+  # all done; return as list
   convert(repos, "list")
+
 }
 
 renv_lockfile_init_r <- function(project) {
