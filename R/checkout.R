@@ -125,7 +125,7 @@ renv_checkout_remotes <- function(packages, project) {
   # remove ignored packages -- note we intentionally do this before
   # computing recursive dependencies as we don't want to allow users
   # to ignore a recursive dependency of a required package
-  ignored <- c("renv", renv_project_ignored_packages(project))
+  ignored <- renv_project_ignored_packages(project)
   packages <- setdiff(packages, ignored)
 
   # compute recursive dependencies for these packages

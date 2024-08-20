@@ -1,6 +1,9 @@
 
 # renv (development version)
 
+* `renv::checkout()` now also checks out the version of `renv` available
+  and associated with the requested snapshot date. (#1966)
+
 * Fixed an issue where `renv::hydrate()` did not hydrate packages which
   were also listed as dependencies within a project's `DESCRIPTION` file.
   (#1970)
