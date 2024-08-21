@@ -29,7 +29,7 @@
 #'
 #' @param repos The repositories to use when restoring packages installed
 #'   from CRAN or a CRAN-like repository. By default, the repositories recorded
-#'   in the lockfile will be, ensuring that (e.g.) CRAN packages are
+#'   in the lockfile will be used, ensuring that (e.g.) CRAN packages are
 #'   re-installed from the same CRAN mirror.
 #'
 #'   Use `repos = getOption("repos")` to override with the repositories set
