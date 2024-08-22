@@ -1,43 +1,5 @@
 
 .onLoad <- function(libname, pkgname) {
-  renv_zzz_load()
-}
-
-.onAttach <- function(libname, pkgname) {
-  renv_zzz_attach()
-}
-
-.onUnload <- function(libpath) {
-
-  renv_lock_unload()
-  renv_task_unload()
-  renv_watchdog_unload()
-
-  # do some extra cleanup when running R CMD check
-  if (renv_platform_unix() && checking() && !ci())
-    cleanse()
-
-  # flush the help db to avoid errors on reload
-  # https://github.com/rstudio/renv/issues/1294
-  helpdb <- system.file(package = "renv", "help/renv.rdb")
-  .Internal <- .Internal
-  lazyLoadDBflush <- function(...) {}
-
-  tryCatch(
-    .Internal(lazyLoadDBflush(helpdb)),
-    error = function(e) NULL
-  )
-
-}
-
-# NOTE: required for devtools::load_all()
-.onDetach <- function(libpath) {
-  package <- Sys.getenv("DEVTOOLS_LOAD", unset = NA)
-  if (identical(package, .packageName))
-    .onUnload(libpath)
-}
-
-renv_zzz_load <- function() {
 
   # NOTE: needs to be visible to embedded instances of renv as well
   the$envir_self <<- renv_envir_self()
@@ -101,8 +63,38 @@ renv_zzz_load <- function() {
 
 }
 
-renv_zzz_attach <- function() {
+.onAttach <- function(libname, pkgname) {
   renv_rstudio_fixup()
+}
+
+.onUnload <- function(libpath) {
+
+  renv_lock_unload()
+  renv_task_unload()
+  renv_watchdog_unload()
+
+  # do some extra cleanup when running R CMD check
+  if (renv_platform_unix() && checking() && !ci())
+    cleanse()
+
+  # flush the help db to avoid errors on reload
+  # https://github.com/rstudio/renv/issues/1294
+  helpdb <- system.file(package = "renv", "help/renv.rdb")
+  .Internal <- .Internal
+  lazyLoadDBflush <- function(...) {}
+
+  tryCatch(
+    .Internal(lazyLoadDBflush(helpdb)),
+    error = function(e) NULL
+  )
+
+}
+
+# NOTE: required for devtools::load_all()
+.onDetach <- function(libpath) {
+  package <- Sys.getenv("DEVTOOLS_LOAD", unset = NA)
+  if (identical(package, .packageName))
+    .onUnload(libpath)
 }
 
 renv_zzz_run <- function() {
