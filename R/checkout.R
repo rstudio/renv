@@ -111,16 +111,28 @@ checkout <- function(repos = NULL,
     restore(lockfile = lockfile, clean = clean)
 
     # re-generate the activate script
-    args <- c("--vanilla", "-s", "-e", shQuote("renv::activate()"))
-    r(args)
+    local({
+
+      # make sure we can find 'renv' on the library paths
+      renv_scope_libpaths(the$library_path)
+
+      # invoke activate
+      args <- c("--vanilla", "-s", "-e", shQuote("renv::activate()"))
+      r(args)
+
+    })
 
     # update the renv lockfile record
+    # (note: it might not be available when running tests)
     local({
+
+      renv <- renv_lockfile_records(lockfile)[["renv"]]
+      if (is.null(renv))
+        return()
+
       renv_scope_options(renv.verbose = FALSE)
-      record(
-        records = renv_lockfile_records(lockfile)["renv"],
-        project = project
-      )
+      record(records = list(renv = renv), project = project)
+
     })
 
   }
