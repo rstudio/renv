@@ -68,6 +68,7 @@ a (set of) package repositories.</p>
 <span>  date <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  clean <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  actions <span class="op">=</span> <span class="st">"restore"</span>,</span>
+<span>  restart <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  project <span class="op">=</span> <span class="cn">NULL</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
@@ -114,6 +115,12 @@ based on the latest versions of the packages available from <code>repos</code>, 
 install those packages in a single call.</p></dd>
 
 
+<dt id="arg-restart">restart<a class="anchor" aria-label="anchor" href="#arg-restart"></a></dt>
+<dd><p>Should the <span style="R">R</span> session be restarted after the new
+packages have been checked out? When <code>NULL</code> (the default), the
+session is restarted if the "restore" action was taken.</p></dd>
+
+
 <dt id="arg-project">project<a class="anchor" aria-label="anchor" href="#arg-project"></a></dt>
 <dd><p>The project directory. If <code>NULL</code>, then the active project will
 be used. If no project is currently active, then the current working
@@ -128,6 +135,18 @@ can be used to switch between different repository snapshots within an
 renv project. In this way, you can upgrade (or downgrade) all of the
 packages used in a particular renv project to the package versions
 provided by a particular snapshot.</p>
+<p>Note that calling <code>renv::checkout()</code> will also install the version of <code>renv</code>
+available as of the requested snapshot date, which might be older or lack
+features available in the currently-installed version of <code>renv</code>. In addition,
+the project's <code>renv/activate.R</code> script will be re-generated after checkout.
+If this is undesired, you can re-install a newer version of <code>renv</code> after
+checkout from your regular <span style="R">R</span> package repository.</p>
+    </div>
+    <div class="section level2">
+    <h2 id="caveats">Caveats<a class="anchor" aria-label="anchor" href="#caveats"></a></h2>
+
+
+
 <p>If your library contains packages installed from other remote sources (e.g.
 GitHub), but a version of a package of the same name is provided by the
 repositories being checked out, then please be aware that the package will be
@@ -149,6 +168,9 @@ on CRAN.</p>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># only check out some subset of packages (and their recursive dependencies)</span></span></span>
 <span class="r-in"><span><span class="fu">renv</span><span class="fu">::</span><span class="fu">checkout</span><span class="op">(</span>packages <span class="op">=</span> <span class="st">"dplyr"</span>, date <span class="op">=</span> <span class="st">"2023-01-02"</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># generate a lockfile based on a snapshot date</span></span></span>
+<span class="r-in"><span><span class="fu">renv</span><span class="fu">::</span><span class="fu">checkout</span><span class="op">(</span>date <span class="op">=</span> <span class="st">"2023-01-02"</span>, actions <span class="op">=</span> <span class="st">"snapshot"</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="op">}</span> <span class="co"># }</span></span></span>
 </code></pre></div>
