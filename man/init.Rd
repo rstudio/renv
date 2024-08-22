@@ -26,7 +26,9 @@ changed to match the requested project directory.}
 are matched to \code{...}, renv will signal an error.}
 
 \item{profile}{The profile to be activated. See
-\code{vignette("profiles", package = "renv")} for more information.}
+\code{vignette("profiles", package = "renv")} for more information.
+When \code{NULL} (the default), the profile is not changed. Use
+\code{profile = "default"} to revert to the default \code{renv} profile.}
 
 \item{settings}{A list of \link{settings} to be used with the newly-initialized
 project.}

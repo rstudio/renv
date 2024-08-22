@@ -11,6 +11,7 @@ checkout(
   date = NULL,
   clean = FALSE,
   actions = "restore",
+  restart = NULL,
   project = NULL
 )
 }
@@ -41,6 +42,10 @@ based on the latest versions of the packages available from \code{repos}, or
 \code{c("snapshot", "restore")} if you'd like to generate a lockfile and
 install those packages in a single call.}
 
+\item{restart}{Should the \R session be restarted after the new
+packages have been checked out? When \code{NULL} (the default), the
+session is restarted if the "restore" action was taken.}
+
 \item{project}{The project directory. If \code{NULL}, then the active project will
 be used. If no project is currently active, then the current working
 directory is used instead.}
@@ -57,6 +62,16 @@ renv project. In this way, you can upgrade (or downgrade) all of the
 packages used in a particular renv project to the package versions
 provided by a particular snapshot.
 
+Note that calling \code{renv::checkout()} will also install the version of \code{renv}
+available as of the requested snapshot date, which might be older or lack
+features available in the currently-installed version of \code{renv}. In addition,
+the project's \code{renv/activate.R} script will be re-generated after checkout.
+If this is undesired, you can re-install a newer version of \code{renv} after
+checkout from your regular \R package repository.
+}
+\section{Caveats}{
+
+
 If your library contains packages installed from other remote sources (e.g.
 GitHub), but a version of a package of the same name is provided by the
 repositories being checked out, then please be aware that the package will be
@@ -65,6 +80,7 @@ be a concern if your project uses \R packages from GitHub whose name matches
 that of an existing CRAN package, but is otherwise unrelated to the package
 on CRAN.
 }
+
 \examples{
 \dontrun{
 
@@ -76,6 +92,9 @@ renv::checkout(repos = c(PPM = "https://packagemanager.rstudio.com/cran/2023-01-
 
 # only check out some subset of packages (and their recursive dependencies)
 renv::checkout(packages = "dplyr", date = "2023-01-02")
+
+# generate a lockfile based on a snapshot date
+renv::checkout(date = "2023-01-02", actions = "snapshot")
 
 }
 }

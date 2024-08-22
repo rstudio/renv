@@ -38,6 +38,8 @@
 #'
 #' @param profile The profile to be activated. See
 #'   `vignette("profiles", package = "renv")` for more information.
+#'   When `NULL` (the default), the profile is not changed. Use
+#'   `profile = "default"` to revert to the default `renv` profile.
 #'
 #' @param dependencies A vector of DESCRIPTION field names that should be used
 #'   for package dependency resolution. When `NULL` (the default), the value
