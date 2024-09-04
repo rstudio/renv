@@ -26,7 +26,7 @@ test_that("renv can be vendored into an R package", {
   # make sure renv is initializes in .onLoad()
   code <- heredoc('
     .onLoad <- function(libname, pkgname) {
-      renv$initialize()
+      renv$initialize(libname, pkgname)
     }
   ')
 
