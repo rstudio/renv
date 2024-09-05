@@ -73,15 +73,6 @@ renv_paths_lockfile <- function(project = NULL) {
 
 }
 
-renv_manifest_path <- function(project = NULL) {
-
-  # otherwise, use default location (location relative to renv folder)
-  project <- renv_project_resolve(project)
-  renv <- renv_paths_renv(project = project)
-  file.path(dirname(renv), "manifest.json")
-
-}
-
 renv_paths_settings <- function(project = NULL) {
   renv_paths_renv("settings.json", project = project)
 }

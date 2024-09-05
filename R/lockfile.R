@@ -116,6 +116,15 @@ renv_lockfile_path <- function(project) {
   renv_paths_lockfile(project = project)
 }
 
+renv_manifest_path <- function(project = NULL) {
+
+  # similar to default case of `renv_paths_lockfile()`
+  project <- renv_project_resolve(project)
+  renv <- renv_paths_renv(project = project)
+  file.path(dirname(renv), "manifest.json")
+
+}
+
 renv_lockfile_save <- function(lockfile, project) {
   file <- renv_lockfile_path(project)
   renv_lockfile_write(lockfile, file = file)
