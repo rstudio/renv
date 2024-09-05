@@ -100,9 +100,9 @@ variables:
   RENV_PATHS_CACHE: ${CI_PROJECT_DIR}/renv/cache
 
 cache:
-    key: ${CI_PROJECT_NAME}
-    paths:
-      - ${RENV_PATHS_CACHE}
+  key: ${CI_PROJECT_NAME}
+  paths:
+    - ${RENV_PATHS_CACHE}
 
 before_script:
   - < ... other pre-deploy steps ... >
