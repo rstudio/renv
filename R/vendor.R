@@ -64,8 +64,8 @@ vendor <- function(version = "main", project = getwd()) {
     # A vendored copy of renv was created at: %s
     # The renv auto-loader was generated at:  %s
     #
-    # Please add `renv$initialize()` to your package's `.onLoad()`
-    # to ensure that renv is initialized on package load.
+    # Please add `renv$initialize(libname, pkgname)` to your package's
+    # `.onLoad()` to ensure that renv is initialized on package load.
     #
   ")
 

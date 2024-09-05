@@ -4,15 +4,6 @@
   # NOTE: needs to be visible to embedded instances of renv as well
   the$envir_self <<- renv_envir_self()
 
-  # figure out where 'renv' was loaded from -- if tests are running
-  # and we're using devtools::load_all(), we might need to fall back
-  # to whatever version of renv is available on the library paths
-  load <- Sys.getenv("DEVTOOLS_LOAD", unset = NA)
-  the$library_path <<- if (identical(load, .packageName))
-    dirname(renv_package_find(.packageName))
-  else
-    libname
-
   # make sure renv (and packages using renv!!!) use tempdir for storage
   # when running tests, or R CMD check
   if (checking() || testing()) {

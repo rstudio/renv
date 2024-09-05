@@ -105,37 +105,28 @@ checkout <- function(repos = NULL,
   lockfile <- renv_lockfile_init(project)
   lockfile$Packages <- records
 
-  if ("restore" %in% actions) {
+  if ("restore" %in% actions) local({
 
     # install the requested packages
     restore(lockfile = lockfile, clean = clean)
 
-    # re-generate the activate script
-    local({
+    # make sure we can find 'renv' on the library paths
+    path <- renv_namespace_path("renv")
+    renv_scope_libpaths(c(dirname(path), renv_libpaths_all()))
 
-      # make sure we can find 'renv' on the library paths
-      renv_scope_libpaths(the$library_path)
-
-      # invoke activate
-      args <- c("--vanilla", "-s", "-e", shQuote("renv::activate()"))
-      r(args)
-
-    })
+    # invoke activate
+    args <- c("--vanilla", "-s", "-e", shQuote("renv::activate()"))
+    r(args)
 
     # update the renv lockfile record
     # (note: it might not be available when running tests)
-    local({
-
-      renv <- renv_lockfile_records(lockfile)[["renv"]]
-      if (is.null(renv))
-        return()
-
+    renv <- renv_lockfile_records(lockfile)[["renv"]]
+    if (!is.null(renv)) {
       renv_scope_options(renv.verbose = FALSE)
       record(records = list(renv = renv), project = project)
+    }
 
-    })
-
-  }
+  })
 
   # re-generate the lockfile if requested
   if ("snapshot" %in% actions) {

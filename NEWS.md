@@ -1,6 +1,8 @@
 
 # renv (development version)
 
+* `renv::install()` now errs if an incompatible `type` argument is provided.
+
 * `renv::checkout()` now also checks out the version of `renv` available
   and associated with the requested snapshot date. (#1966)
 
