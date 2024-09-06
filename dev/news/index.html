@@ -53,7 +53,8 @@
 
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="development version" id="renv-development-version">renv (development version)<a class="anchor" aria-label="anchor" href="#renv-development-version"></a></h2>
-<ul><li><p><code><a href="../reference/install.html">renv::install()</a></code> now errs if an incompatible <code>type</code> argument is provided.</p></li>
+<ul><li><p><code>renv</code> now automatically generates a lockfile when loading a project containing a <code>manifest.json</code> file (typical for application bundles published to Posit Connect). (<a href="https://github.com/rstudio/renv/issues/1980" class="external-link">#1980</a>, <a href="https://github.com/toph-allen" class="external-link">@toph-allen</a>)</p></li>
+<li><p><code><a href="../reference/install.html">renv::install()</a></code> now errs if an incompatible <code>type</code> argument is provided.</p></li>
 <li><p><code><a href="../reference/checkout.html">renv::checkout()</a></code> now also checks out the version of <code>renv</code> available and associated with the requested snapshot date. (<a href="https://github.com/rstudio/renv/issues/1966" class="external-link">#1966</a>)</p></li>
 <li><p>Fixed an issue where <code><a href="../reference/hydrate.html">renv::hydrate()</a></code> did not hydrate packages which were also listed as dependencies within a project’s <code>DESCRIPTION</code> file. (<a href="https://github.com/rstudio/renv/issues/1970" class="external-link">#1970</a>)</p></li>
 <li><p>Fixed an issue where <code><a href="../reference/checkout.html">renv::checkout()</a></code> omitted some fields from lockfile records when using <code>actions = c("snapshot", "restore")</code>. (<a href="https://github.com/rstudio/renv/issues/1969" class="external-link">#1969</a>)</p></li>
