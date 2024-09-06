@@ -131,9 +131,9 @@ renv_lockfile_save <- function(lockfile, project) {
 }
 
 renv_lockfile_load <- function(project, strict = FALSE) {
-  lockfile_path <- renv_lockfile_path(project)
-  if (file.exists(lockfile_path))
-    return(renv_lockfile_read(lockfile_path))
+  path <- renv_lockfile_path(project)
+  if (file.exists(path))
+    return(renv_lockfile_read(path))
 
   if (strict) {
     abort(c(
@@ -142,11 +142,11 @@ renv_lockfile_load <- function(project, strict = FALSE) {
     ))
   }
 
-  manifest_path <- renv_manifest_path(project)
-  if (file.exists(manifest_path)) {
+  manifest <- renv_manifest_path(project)
+  if (file.exists(manifest)) {
     caution("No lockfile found; creating from `manifest.json`.")
-    renv_lockfile_from_manifest(manifest_path, lockfile_path)
-    return(renv_lockfile_read(lockfile_path))
+    renv_lockfile_from_manifest(manifest, path)
+    return(renv_lockfile_read(path))
   }
 
   renv_lockfile_init(project = project)
