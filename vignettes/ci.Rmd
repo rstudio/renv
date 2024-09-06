@@ -100,7 +100,7 @@ variables:
   RENV_PATHS_CACHE: ${CI_PROJECT_DIR}/renv/cache
 
 cache:
-  key: ${CI_JOB_NAME}
+  key: ${CI_PROJECT_NAME}
   paths:
     - ${RENV_PATHS_CACHE}
 
