@@ -1,6 +1,10 @@
 
 # renv (development version)
 
+* `renv` now automatically generates a lockfile when loading a project containing
+  a `manifest.json` file (typical for application bundles published to Posit Connect).
+  (#1980, @toph-allen)
+
 * `renv::install()` now errs if an incompatible `type` argument is provided.
 
 * `renv::checkout()` now also checks out the version of `renv` available
