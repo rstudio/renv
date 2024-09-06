@@ -122,7 +122,6 @@ renv_lockfile_save <- function(lockfile, project) {
 }
 
 renv_lockfile_load <- function(project, strict = FALSE) {
-
   path <- renv_lockfile_path(project)
   if (file.exists(path))
     return(renv_lockfile_read(path))
@@ -132,6 +131,13 @@ renv_lockfile_load <- function(project, strict = FALSE) {
       "This project does not contain a lockfile.",
       i = "Have you called `snapshot()` yet?"
     ))
+  }
+
+  manifest <- file.path(project, "manifest.json")
+  if (file.exists(manifest)) {
+    caution("No lockfile found; creating from `manifest.json`.")
+    renv_lockfile_from_manifest(manifest, path)
+    return(renv_lockfile_read(path))
   }
 
   renv_lockfile_init(project = project)

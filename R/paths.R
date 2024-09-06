@@ -66,7 +66,7 @@ renv_paths_lockfile <- function(project = NULL) {
     return(override)
   }
 
-  # otherwise, use default location (location location relative to renv folder)
+  # otherwise, use default location (location relative to renv folder)
   project <- renv_project_resolve(project)
   renv <- renv_paths_renv(project = project)
   file.path(dirname(renv), "renv.lock")

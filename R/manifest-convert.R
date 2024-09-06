@@ -73,10 +73,8 @@ renv_lockfile_from_manifest <- function(manifest = "manifest.json",
   if (is.na(lockfile))
     return(lock)
 
-  # otherwise, write to file and report for user
+  # otherwise, write to file
   renv_lockfile_write(lock, file = lockfile)
-  fmt <- "- Lockfile written to %s."
-  writef(fmt, renv_path_pretty(lockfile))
 
   invisible(lock)
 
