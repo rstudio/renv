@@ -53,7 +53,8 @@
 
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="development version" id="renv-development-version">renv (development version)<a class="anchor" aria-label="anchor" href="#renv-development-version"></a></h2>
-<ul><li><p><code>renv</code> now automatically generates a lockfile when loading a project containing a <code>manifest.json</code> file (typical for application bundles published to Posit Connect). (<a href="https://github.com/rstudio/renv/issues/1980" class="external-link">#1980</a>, <a href="https://github.com/toph-allen" class="external-link">@toph-allen</a>)</p></li>
+<ul><li><p><code>renv</code> now infers a dependency on the <code>ragg</code> package when the <code>ragg_png</code> device is used in R Markdown / Quarto documents, for documents using the code <code>knitr::opts_chunk$set(dev = "ragg_png")</code>. (<a href="https://github.com/rstudio/renv/issues/1985" class="external-link">#1985</a>)</p></li>
+<li><p><code>renv</code> now automatically generates a lockfile when loading a project containing a <code>manifest.json</code> file (typical for application bundles published to Posit Connect). (<a href="https://github.com/rstudio/renv/issues/1980" class="external-link">#1980</a>, <a href="https://github.com/toph-allen" class="external-link">@toph-allen</a>)</p></li>
 <li><p><code><a href="../reference/install.html">renv::install()</a></code> now errs if an incompatible <code>type</code> argument is provided.</p></li>
 <li><p><code><a href="../reference/checkout.html">renv::checkout()</a></code> now also checks out the version of <code>renv</code> available and associated with the requested snapshot date. (<a href="https://github.com/rstudio/renv/issues/1966" class="external-link">#1966</a>)</p></li>
 <li><p>Fixed an issue where <code><a href="../reference/hydrate.html">renv::hydrate()</a></code> did not hydrate packages which were also listed as dependencies within a project’s <code>DESCRIPTION</code> file. (<a href="https://github.com/rstudio/renv/issues/1970" class="external-link">#1970</a>)</p></li>
@@ -669,7 +670,7 @@
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.0.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.1.</p>
 </div>
 
   </div></footer><!-- Google Tag Manager (noscript) --><noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-KHBDBW7" height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
