@@ -170,7 +170,7 @@ renv::install("xml2")
 renv does not build vignettes when installing a package from source.
 This is because vignettes often require suggested packages, and installing all suggested packages (particularly from source) can be arduous.
 
-If you want to distribute vignettes for your own packages, we suggest creating your own repository of binaries, either with [R Universe](https://r-universe.dev/search/) (for publicly hosted packages on GitHub), with [Posit Package Manager](https://posit.co/products/enterprise/package-manager/), or with [drat](https://eddelbuettel.github.io/drat/).
+If you want to distribute vignettes for your own packages, we suggest creating your own repository of binaries, either with [R Universe](https://r-universe.dev/) (for publicly hosted packages on GitHub), with [Posit Package Manager](https://posit.co/products/enterprise/package-manager/), or with [drat](https://eddelbuettel.github.io/drat/).
 
 ## Downloads
 
