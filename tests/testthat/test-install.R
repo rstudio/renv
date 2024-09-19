@@ -372,7 +372,17 @@ test_that("packages embedded in the project use a project-local RemoteURL", {
   skip_if(is.null(usethis$create_package))
   renv_scope_options(usethis.quiet = TRUE)
   unlink("example", recursive = TRUE)
-  usethis$create_package("example", rstudio = FALSE, open = FALSE)
+  
+  fields <- list(
+    "Authors@R" = utils::person(
+      "Kevin", "Ushey",
+      email = "kevinushey@gmail.com",
+      role = c("aut", "cre"),
+      comment = c(ORCID = "0000-0003-2880-7407")
+    )
+  )
+  
+  usethis$create_package("example", fields = fields, rstudio = FALSE, open = FALSE)
 
   install("./example")
   lockfile <- snapshot(lockfile = NULL)
