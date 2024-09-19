@@ -1,6 +1,10 @@
 
 # renv (development version)
 
+* `renv` now infers a dependency on the `ragg` package when the `ragg_png` device
+  is used in R Markdown / Quarto documents, for documents using the code
+  `knitr::opts_chunk$set(dev = "ragg_png")`. (#1985)
+  
 * `renv` now automatically generates a lockfile when loading a project containing
   a `manifest.json` file (typical for application bundles published to Posit Connect).
   (#1980, @toph-allen)

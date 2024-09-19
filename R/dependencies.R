@@ -1063,6 +1063,7 @@ renv_dependencies_discover_r <- function(path = NULL,
     renv_dependencies_discover_r_ggplot2,
     renv_dependencies_discover_r_parsnip,
     renv_dependencies_discover_r_testthat,
+    renv_dependencies_discover_r_knitr,
     renv_dependencies_discover_r_database
   )
 
@@ -1486,6 +1487,26 @@ renv_dependencies_discover_r_testthat <- function(node, stack, envir) {
 
   FALSE
 
+}
+
+renv_dependencies_discover_r_knitr <- function(node, stack, envir) {
+  
+  matched <- is.call(node) && (
+    identical(node[[1L]], quote(knitr::opts_chunk$set)) ||
+    identical(node[[1L]], quote(opts_chunk$set))
+  )
+  
+  if (!matched)
+    return(FALSE)
+  
+  args <- as.list(node)
+  if (identical(args[["dev"]], "ragg_png")) {
+    envir[["ragg"]] <- TRUE
+    return(TRUE)
+  }
+  
+  FALSE
+  
 }
 
 renv_dependencies_discover_r_glue_impl <- function(string, node, envir) {

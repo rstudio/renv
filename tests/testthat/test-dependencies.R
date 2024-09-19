@@ -598,3 +598,19 @@ test_that("dependencies() detects usages of Junit test reporters", {
   check("testthat::test_dir(reporter = \"junit\")")
 
 })
+
+test_that("dependencies() detects usage of ragg_png device", {
+  
+  check <- function(document) {
+    
+    file <- renv_scope_tempfile("renv-test-", fileext = ".R")
+    writeLines(document, con = file)
+    
+    deps <- dependencies(file, quiet = TRUE)
+    expect_contains(deps$Package, "ragg")
+  }
+  
+  check("opts_chunk$set(dev = \"ragg_png\")")
+  check("knitr::opts_chunk$set(dev = \"ragg_png\")")
+  
+})
