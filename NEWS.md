@@ -1,4 +1,6 @@
 
+# renv 1.1.0  (UNRELEASED)
+
 # renv 1.0.8
 
 * `renv` now infers a dependency on the `ragg` package when the `ragg_png` device
