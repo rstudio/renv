@@ -9,7 +9,6 @@
 \.renvignore$
 \.vscode
 
-^.*\.tar\.gz$
 ^appveyor\.yml$
 ^codecov\.yml$
 ^cran-comments\.md$
