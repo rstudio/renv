@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">renv</a>
 
-    <small class="nav-text text-danger me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="In-development version">1.0.7.9000</small>
+    <small class="nav-text text-danger me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="In-development version">1.0.8.9000</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -52,7 +52,10 @@
     </div>
 
     <div class="section level2">
-<h2 class="pkg-version" data-toc-text="development version" id="renv-development-version">renv (development version)<a class="anchor" aria-label="anchor" href="#renv-development-version"></a></h2>
+<h2 class="pkg-version" data-toc-text="1.1.0" id="renv-110-unreleased">renv 1.1.0 (UNRELEASED)<a class="anchor" aria-label="anchor" href="#renv-110-unreleased"></a></h2>
+</div>
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="1.0.8" id="renv-108">renv 1.0.8<a class="anchor" aria-label="anchor" href="#renv-108"></a></h2><p class="text-muted">CRAN release: 2024-09-20</p>
 <ul><li><p><code>renv</code> now infers a dependency on the <code>ragg</code> package when the <code>ragg_png</code> device is used in R Markdown / Quarto documents, for documents using the code <code>knitr::opts_chunk$set(dev = "ragg_png")</code>. (<a href="https://github.com/rstudio/renv/issues/1985" class="external-link">#1985</a>)</p></li>
 <li><p><code>renv</code> now automatically generates a lockfile when loading a project containing a <code>manifest.json</code> file (typical for application bundles published to Posit Connect). (<a href="https://github.com/rstudio/renv/issues/1980" class="external-link">#1980</a>, <a href="https://github.com/toph-allen" class="external-link">@toph-allen</a>)</p></li>
 <li><p><code><a href="../reference/install.html">renv::install()</a></code> now errs if an incompatible <code>type</code> argument is provided.</p></li>
