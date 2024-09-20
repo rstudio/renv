@@ -1,5 +1,5 @@
 
-# renv (development version)
+# renv 1.0.8
 
 * `renv` now infers a dependency on the `ragg` package when the `ragg_png` device
   is used in R Markdown / Quarto documents, for documents using the code

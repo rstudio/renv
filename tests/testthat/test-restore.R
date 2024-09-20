@@ -239,8 +239,8 @@ test_that("restore works with explicit Source", {
   init()
 
   renv_scope_envvars(
-    RENV_PATHS_LOCAL = "",
-    RENV_PATHS_CACHE = ""
+    RENV_PATHS_LOCAL = NULL,
+    RENV_PATHS_CACHE = NULL
   )
 
   record <- list(

@@ -11,7 +11,7 @@ test_that("remote field updates are written to both DESCRIPTION, packages.rds", 
   )
 
   renv_tests_scope()
-  renv_scope_envvars(RENV_PATHS_LOCAL = "")
+  renv_scope_envvars(RENV_PATHS_LOCAL = NULL)
   install(packages = list(record))
 
   pkgpath <- renv_package_find("skeleton")
