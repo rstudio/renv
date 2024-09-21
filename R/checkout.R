@@ -44,12 +44,12 @@
 #'
 #' @param restart Should the \R session be restarted after the new
 #'   packages have been checked out? When `NULL` (the default), the
-#'   session is restarted if the "restore" action was taken.
+#'   session is restarted if the `"restore"` action was taken.
 #'
 #' @param actions The action(s) to perform with the requested repositories.
-#'   This can either be "snapshot", in which `renv` will generate a lockfile
+#'   This can either be `"snapshot"`, in which `renv` will generate a lockfile
 #'   based on the latest versions of the packages available from `repos`, or
-#'   "restore" if you'd like to install those packages. You can use
+#'   `"restore"` if you'd like to install those packages. You can use
 #'   `c("snapshot", "restore")` if you'd like to generate a lockfile and
 #'   install those packages in a single call.
 #'
