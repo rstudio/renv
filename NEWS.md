@@ -1,5 +1,5 @@
 
-# renv 1.1.0  (UNRELEASED)
+# renv 1.0.9
 
 * Fixed an issue where repository URLs were inappropriately transformed into
   binary repository URLs on Linux. (#1991)
