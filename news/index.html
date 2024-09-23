@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">renv</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">1.0.8</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">1.0.9</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -48,9 +48,14 @@
 <div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
       <img src="../logo.svg" class="logo" alt=""><h1>Changelog</h1>
-      <small>Source: <a href="https://github.com/rstudio/renv/blob/v1.0.8/NEWS.md" class="external-link"><code>NEWS.md</code></a></small>
+      <small>Source: <a href="https://github.com/rstudio/renv/blob/main/NEWS.md" class="external-link"><code>NEWS.md</code></a></small>
     </div>
 
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="1.0.9" id="renv-109">renv 1.0.9<a class="anchor" aria-label="anchor" href="#renv-109"></a></h2>
+<ul><li><p>Fixed an issue where repository URLs were inappropriately transformed into binary repository URLs on Linux. (<a href="https://github.com/rstudio/renv/issues/1991" class="external-link">#1991</a>)</p></li>
+<li><p>Fixed an issue where code following <code>source("renv/activate.R")</code> in the project <code>.Rprofile</code> was not invoked for projects using RStudio. (<a href="https://github.com/rstudio/renv/issues/1990" class="external-link">#1990</a>)</p></li>
+</ul></div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="1.0.8" id="renv-108">renv 1.0.8<a class="anchor" aria-label="anchor" href="#renv-108"></a></h2><p class="text-muted">CRAN release: 2024-09-20</p>
 <ul><li><p><code>renv</code> now infers a dependency on the <code>ragg</code> package when the <code>ragg_png</code> device is used in R Markdown / Quarto documents, for documents using the code <code>knitr::opts_chunk$set(dev = "ragg_png")</code>. (<a href="https://github.com/rstudio/renv/issues/1985" class="external-link">#1985</a>)</p></li>
