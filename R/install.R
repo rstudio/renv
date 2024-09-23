@@ -127,11 +127,9 @@ install <- function(packages = NULL,
   renv_scope_libpaths(libpaths)
 
   # check for explicitly-provided type -- we handle this specially for PPM
-  if (!is.null(type)) {
-    type <- renv_pkgtype_check(type)
-    renv_scope_binding(the, "install_pkg_type", type)
-    renv_scope_options(pkgType = type)
-  }
+  type <- type %||% getOption("pkgType")
+  renv_scope_binding(the, "install_pkg_type", type)
+  renv_scope_options(pkgType = type)
 
   # override repositories if requested
   repos <- repos %||% config$repos.override()

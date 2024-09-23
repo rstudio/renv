@@ -568,8 +568,6 @@ summon <- function() {
   list2env(as.list(renv), envir = envir)
 }
 
-assert <- function(...) stopifnot(...)
-
 overlay <- function(lhs, rhs) {
   modifyList(as.list(lhs), as.list(rhs))
 }

@@ -13,11 +13,11 @@ test_that("the watchdog process acquires and releases locks as expected", {
     path <- tempfile()
     renv_watchdog_notify("LockAcquired", list(path = path))
     locks <- renv_watchdog_request("ListLocks")
-    assert(path %in% locks)
+    stopifnot(path %in% locks)
 
     renv_watchdog_notify("LockReleased", list(path = path))
     locks <- renv_watchdog_request("ListLocks")
-    assert(!path %in% locks)
+    stopifnot(!path %in% locks)
 
   })
 
