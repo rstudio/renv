@@ -36,15 +36,15 @@ the target library? Use \code{clean = TRUE} if you'd like the library state
 to exactly reflect the lockfile contents after \code{restore()}.}
 
 \item{actions}{The action(s) to perform with the requested repositories.
-This can either be "snapshot", in which \code{renv} will generate a lockfile
+This can either be \code{"snapshot"}, in which \code{renv} will generate a lockfile
 based on the latest versions of the packages available from \code{repos}, or
-"restore" if you'd like to install those packages. You can use
+\code{"restore"} if you'd like to install those packages. You can use
 \code{c("snapshot", "restore")} if you'd like to generate a lockfile and
 install those packages in a single call.}
 
 \item{restart}{Should the \R session be restarted after the new
 packages have been checked out? When \code{NULL} (the default), the
-session is restarted if the "restore" action was taken.}
+session is restarted if the \code{"restore"} action was taken.}
 
 \item{project}{The project directory. If \code{NULL}, then the active project will
 be used. If no project is currently active, then the current working
