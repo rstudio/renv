@@ -1,6 +1,10 @@
 
 # renv 1.1.0  (UNRELEASED)
 
+* Fixed an issue where code following `source("renv/activate.R")` in the project
+  `.Rprofile` was not invoked for projects using RStudio. (#1990)
+
+
 # renv 1.0.8
 
 * `renv` now infers a dependency on the `ragg` package when the `ragg_png` device

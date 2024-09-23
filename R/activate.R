@@ -184,23 +184,21 @@ renv_activate_prompt <- function(action, library, prompt, project) {
 }
 
 renv_activate_prompt_impl <- function(action, project = NULL) {
-  title <- c(
-    sprintf(
-      "It looks like you've called renv::%s() in a project that hasn't been activated yet.",
-      action
-    ),
-    "How would you like to proceed?"
-  )
+  
+  fmt <- "It looks like you've called renv::%s() in a project that hasn't been activated yet."
+  title <- c(sprintf(fmt, action), "How would you like to proceed?")
+  
   choices <- c(
     activate = "Activate the project and use the project library.",
     continue = "Do not activate the project and use the current library paths.",
-    cancel = "Cancel and resolve the situation another way."
+    cancel   = "Cancel and resolve the situation another way."
   )
 
   choice <- menu(choices, title, default = "continue")
   switch(choice,
     activate = { activate(project = project); TRUE },
     continue = FALSE,
-    cancel = cancel(),
+    cancel = cancel()
   )
+  
 }

@@ -70,12 +70,13 @@ load <- function(project = NULL, quiet = FALSE, profile = NULL, ...) {
 
   action <- renv_load_action(project)
   if (action[[1L]] == "cancel") {
-    autoloading <- getOption("renv.autoloader.running", default = FALSE)
-    cancel(verbose = !autoloading)
+    cancel(verbose = !autoloading())
   } else if (action[[1L]] == "init") {
     return(init(project))
   } else if (action[[1L]] == "alt") {
     project <- action[[2L]]
+  } else if (action[[1L]] == "none") {
+    return(invisible(project))
   }
 
   renv_project_lock(project = project)
@@ -86,7 +87,7 @@ load <- function(project = NULL, quiet = FALSE, profile = NULL, ...) {
   # if load is being called via the autoloader,
   # then ensure RENV_PROJECT is unset
   # https://github.com/rstudio/renv/issues/887
-  if (identical(getOption("renv.autoloader.running"), TRUE))
+  if (autoloading())
     renv_project_clear()
 
   # if we're loading a project different from the one currently loaded,
@@ -147,22 +148,6 @@ renv_load_action <- function(project) {
   if (!interactive())
     return("load")
 
-  autoloading <- getOption("renv.autoloader.running", default = FALSE)
-  # if we're auto-loading, it's too early to interact with the user, which is
-  # often advisable, i.e. if we detect that the user needs to run renv::restore()
-  # https://github.com/rstudio/renv/issues/1650
-  #
-  # if the frontend is known to support a session init hook, defer loading until
-  # R is fully initialized, at which time it will be possible to interact with
-  # the user (currently this just applies to RStudio)
-  #
-  # otherwise, proceed with the knowledge that, if the user needs to run
-  # renv::restore(), a message to that effect will be emitted
-  if (autoloading && renv_rstudio_available()) {
-    setHook("rstudio.sessionInit", function(...) { renv::load(project) })
-    return("cancel")
-  }
-
   # if this project already contains an 'renv' folder, assume it's
   # already been initialized and we can directly load it
   renv <- renv_paths_renv(project = project, profile = FALSE)
@@ -174,11 +159,24 @@ renv_load_action <- function(project) {
     if (file.exists(file.path(parent, "renv")))
       return(parent)
   })
-
+  
+  # the project has not yet been initialized; notify the user and ask
+  # what they would like to do
   fmt <- "The project located at %s has not yet been initialized."
   header <- sprintf(fmt, renv_path_pretty(project))
+  
+  # if we're running the autoloader in RStudio, we cannot ask
+  # the user for input at this stage -- instead, just notify them
+  # of the choices available
+  if (autoloading() && renv_rstudio_available()) {
+    initmsg <- "- Use `renv::init()` to initialize this project."
+    loadmsg <- "- Use `renv::load()` to load this project as-is."
+    caution(c(header, initmsg, loadmsg))
+    return("none")
+  }
+  
+  # otherwise, prompt the user and provide them choices to proceed
   title <- paste("", header, "", "What would you like to do?", sep = "\n")
-
   choices <- c(
     init    = "Initialize this project with `renv::init()`.",
     load    = "Continue loading this project as-is.",
@@ -191,6 +189,7 @@ renv_load_action <- function(project) {
     choices <- c(choices, alt = msg)
   }
 
+  
   selection <- tryCatch(
     utils::select.list(choices, title = title, graphics = FALSE),
     interrupt = identity
@@ -889,8 +888,7 @@ renv_load_report_synchronized <- function(project = NULL, lockfile = NULL) {
   if (length(intersect(lockpkgs, libpkgs)) == 0 && length(lockpkgs) > 0L) {
 
     caution("- None of the packages recorded in the lockfile are currently installed.")
-    autoloading <- getOption("renv.autoloader.running", default = FALSE)
-    if (autoloading) {
+    if (autoloading()) {
       caution("- Use `renv::restore()` to restore the project library.")
       return(FALSE)
     }
@@ -953,7 +951,7 @@ renv_load_base <- function(call, envir) {
 
   # check for a 'file' argument that looks like a file
   file <- eval(matched[["file"]], envir = envir)
-  if (is.character(file) && endsWith(file, ".RData"))
+  if (is.character(file) && endswith(file, ".RData"))
     return(renv_load_base_impl(call, envir))
 
 }

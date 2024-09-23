@@ -10,10 +10,10 @@ cran-comments.md
 CRAN-RELEASE
 docs
 internal
+renv.Rproj
 revdep
 
 inst/doc
-
 renv/cellar
 
 /*.tar.gz

@@ -132,8 +132,7 @@ ask <- function(question, default = FALSE) {
   # "It is not intended that there be interaction with the user during startup
   # code. Attempting to do so can crash the R process."
   # https://github.com/rstudio/renv/issues/1879
-  autoloading <- getOption("renv.autoloader.running", default = FALSE)
-  if (autoloading)
+  if (autoloading())
     return(default)
 
   # be verbose in this scope, as we're asking the user for input
@@ -182,13 +181,11 @@ proceed <- function(default = TRUE) {
 menu <- function(choices, title, default = 1L) {
 
   testing <- getOption("renv.menu.choice", integer())
-  if (length(testing)) {
-    selected <- testing[[1]]
-    options(renv.menu.choice = testing[-1])
+  selected <- if (length(testing)) {
+    options(renv.menu.choice = testing[-1L])
+    testing[[1L]]
   } else if (testing()) {
-    selected <- default
-  } else {
-    selected <- NULL
+    default
   }
 
   if (!is.null(selected)) {

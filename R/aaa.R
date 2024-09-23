@@ -7,6 +7,11 @@ ci <- function() {
   !is.na(Sys.getenv("CI", unset = NA))
 }
 
+# check if the renv autoloader is running
+autoloading <- function() {
+  getOption("renv.autoloader.running", default = FALSE)
+}
+
 # detect if we're running within R CMD build
 building <- function() {
   nzchar(Sys.getenv("R_CMD")) &&
