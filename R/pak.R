@@ -50,8 +50,11 @@ renv_pak_repos <- function(stream) {
 
 renv_pak_init_impl <- function(stream) {
 
-  repos <- c("r-lib" = renv_pak_repos(stream))
-  renv_scope_options(renv.config.pak.enabled = FALSE, repos = repos)
+  renv_scope_options(
+    renv.config.pak.enabled = FALSE,
+    renv.config.ppm.enabled = FALSE,
+    repos = c("r-lib" = renv_pak_repos(stream))
+  )
 
   library <- renv_libpaths_active()
   install("pak", library = library)
