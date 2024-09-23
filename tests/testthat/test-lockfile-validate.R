@@ -1,7 +1,9 @@
 
 test_that("a known-good lockfile passes validation", {
-
+  
+  skip_on_cran()
   skip_if_not_installed("jsonvalidate")
+  
   lockfile <- '
 {
   "R": {
@@ -53,11 +55,13 @@ test_that("a known-good lockfile passes validation", {
 '
   expect_no_error(lockfile_validate(lockfile = lockfile))
   expect_true(lockfile_validate(lockfile = lockfile))
+  
 })
 
 
 test_that("a known-good lockfile with extra fields passes validation", {
 
+  skip_on_cran()
   skip_if_not_installed("jsonvalidate")
 
   # Lockfile adds a R$Nickname field not present in the schema
@@ -113,10 +117,12 @@ test_that("a known-good lockfile with extra fields passes validation", {
 '
   expect_no_error(lockfile_validate(lockfile = lockfile))
   expect_true(lockfile_validate(lockfile = lockfile))
+  
 })
 
 test_that("a custom schema file can be used for successful validation", {
 
+  skip_on_cran()
   skip_if_not_installed("jsonvalidate")
 
   # Custom schema adds a required R$Nickname field present in the lockfile
@@ -166,10 +172,12 @@ test_that("a custom schema file can be used for successful validation", {
 '
   expect_no_error(lockfile_validate(lockfile = lockfile, schema = schema))
   expect_true(lockfile_validate(lockfile = lockfile, schema = schema))
+  
 })
 
 test_that("a custom schema file can be used for failed validation", {
 
+  skip_on_cran()
   skip_if_not_installed("jsonvalidate")
 
   # Custom schema adds a required R$Nickname field not present in the lockfile
@@ -218,10 +226,12 @@ test_that("a custom schema file can be used for failed validation", {
 '
 
   expect_false(lockfile_validate(lockfile = lockfile, schema = schema))
+  
 })
 
 test_that("an incorrect Packages$Hash field fails validation", {
 
+  skip_on_cran()
   skip_if_not_installed("jsonvalidate")
 
   lockfile <- '
@@ -248,10 +258,12 @@ test_that("an incorrect Packages$Hash field fails validation", {
 '
 
   expect_false(lockfile_validate(lockfile = lockfile))
+  
 })
 
 test_that("invalid JSON fails validation", {
 
+  skip_on_cran()
   skip_if_not_installed("jsonvalidate")
 
   # Packages uses [] which is not valid JSON
@@ -278,10 +290,12 @@ test_that("invalid JSON fails validation", {
 }
 '
   expect_error(lockfile_validate(lockfile = lockfile, error = TRUE))
+  
 })
 
 test_that("strict mode catches unknown keyword in provided schema", {
 
+  skip_on_cran()
   skip_if_not_installed("jsonvalidate")
 
   # Custom schema provides "Version" with "type": "UNKNOWN"
@@ -324,5 +338,7 @@ test_that("strict mode catches unknown keyword in provided schema", {
   }
 }
 '
+
   expect_error(lockfile_validate(lockfile = lockfile, strict = TRUE))
+  
 })
