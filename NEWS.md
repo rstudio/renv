@@ -1,6 +1,9 @@
 
 # renv 1.1.0  (UNRELEASED)
 
+* Fixed an issue where repository URLs were inappropriately transformed into
+  binary repository URLs on Linux. (#1991)
+
 * Fixed an issue where code following `source("renv/activate.R")` in the project
   `.Rprofile` was not invoked for projects using RStudio. (#1990)
 

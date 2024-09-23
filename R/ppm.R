@@ -81,14 +81,12 @@ renv_ppm_transform_impl <- function(url) {
     return(binurl)
   }
 
-  # try to query the status endpoint -- if this fails, use our best guess?
+  # try to query the status endpoint -- if this fails,
+  # assume the repository is not a ppm URL
   base <- dirname(dirname(url))
   status <- catch(renv_ppm_status(base))
-  if (inherits(status, "error")) {
-    parts <- c(dirname(url), "__linux__", platform, basename(url))
-    binurl <- paste(parts, collapse = "/")
-    return(binurl)
-  }
+  if (inherits(status, "error"))
+    return(url)
 
   # iterate through distros and check for a match
   for (distro in status$distros) {
