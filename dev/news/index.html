@@ -53,7 +53,8 @@
 
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="1.1.0" id="renv-110-unreleased">renv 1.1.0 (UNRELEASED)<a class="anchor" aria-label="anchor" href="#renv-110-unreleased"></a></h2>
-</div>
+<ul><li>Fixed an issue where code following <code>source("renv/activate.R")</code> in the project <code>.Rprofile</code> was not invoked for projects using RStudio. (<a href="https://github.com/rstudio/renv/issues/1990" class="external-link">#1990</a>)</li>
+</ul></div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="1.0.8" id="renv-108">renv 1.0.8<a class="anchor" aria-label="anchor" href="#renv-108"></a></h2><p class="text-muted">CRAN release: 2024-09-20</p>
 <ul><li><p><code>renv</code> now infers a dependency on the <code>ragg</code> package when the <code>ragg_png</code> device is used in R Markdown / Quarto documents, for documents using the code <code>knitr::opts_chunk$set(dev = "ragg_png")</code>. (<a href="https://github.com/rstudio/renv/issues/1985" class="external-link">#1985</a>)</p></li>
