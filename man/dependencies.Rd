@@ -69,10 +69,11 @@ renv also supports package loading with
 \href{https://cran.r-project.org/package=pacman}{pacman} (\code{pacman::p_load(...)})
 .
 
-For \R package projects, dependencies expressed in the \code{DESCRIPTION} file
-will also be discovered.
+For \R package projects, \code{renv} will also detect dependencies expressed
+in the \code{DESCRIPTION} file. For projects using Python, \R dependencies within
+the \R code chunks of your project's \code{.ipynb} files will also be used.
 
-Note that the rmarkdown package is required in order to crawl dependencies
+Note that the \link{rmarkdown} package is required in order to crawl dependencies
 in R Markdown files.
 }
 \section{Missing dependencies}{
