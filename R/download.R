@@ -591,7 +591,7 @@ renv_download_auth_gitlab <- function() {
 
 }
 
-renv_download_headers <- function(url, type, headers) {
+renv_download_headers <- function(url, type = NULL, headers = NULL) {
 
   # check for compatible download method
   method <- renv_download_method()
@@ -606,7 +606,7 @@ renv_download_headers <- function(url, type, headers) {
     destfile = file,
     type     = type,
     request  = "HEAD",
-    headers  = headers
+    headers  = headers %||% renv_download_custom_headers(url)
   )
 
   # check for failure

@@ -1,6 +1,4 @@
 
-the$repos_archive <- new.env(parent = emptyenv())
-
 #' Retrieve packages
 #'
 #' Retrieve (download) one or more packages from external sources.
@@ -905,13 +903,13 @@ renv_retrieve_repos_archive <- function(record) {
   for (repo in getOption("repos")) {
 
     # try to determine path to package in archive
-    url <- renv_retrieve_repos_archive_path(repo, record)
-    if (is.null(url))
+    root <- renv_retrieve_repos_archive_root(repo, record)
+    if (is.null(root))
       next
 
     # attempt download
     name <- renv_retrieve_repos_archive_name(record, type = "source")
-    status <- catch(renv_retrieve_repos_impl(record, "source", name, url))
+    status <- catch(renv_retrieve_repos_impl(record, "source", name, root))
     if (identical(status, TRUE))
       return(TRUE)
 
@@ -921,7 +919,7 @@ renv_retrieve_repos_archive <- function(record) {
 
 }
 
-renv_retrieve_repos_archive_path <- function(repo, record) {
+renv_retrieve_repos_archive_root <- function(url, record) {
 
   # allow users to provide a custom archive path for a record,
   # in case they're using a repository that happens to archive
@@ -929,50 +927,65 @@ renv_retrieve_repos_archive_path <- function(repo, record) {
   # https://github.com/rstudio/renv/issues/602
   override <- getOption("renv.retrieve.repos.archive.path")
   if (is.function(override)) {
-    result <- override(repo, record)
+    result <- override(url, record)
     if (!is.null(result))
       return(result)
   }
+  
+  # retrieve the appropriate formatter for this repository url
+  formatter <- memoize(
+    key   = url,
+    value = renv_retrieve_repos_archive_formatter(url)
+  )
+  
+  # use it
+  formatter(url, record)
+  
+}
 
-  # if we already know the format of the repository, use that
-  if (exists(repo, envir = the$repos_archive)) {
-    formatter <- get(repo, envir = the$repos_archive)
-    root <- formatter(repo, record)
-    return(root)
-  }
+renv_retrieve_repos_archive_formatter <- function(url, record) {
 
-  # otherwise, try determining the archive paths with a couple
-  # custom locations, and cache the version that works for the
-  # associated repository
+  # list of known formatters
   formatters <- list(
 
     # default CRAN format
-    function(repo, record) {
+    cran = function(repo, record) {
       with(record, file.path(repo, "src/contrib/Archive", Package))
     },
-
+    
     # format used by Artifactory
     # https://github.com/rstudio/renv/issues/602
-    function(repo, record) {
+    artifactory = function(repo, record) {
       with(record, file.path(repo, "src/contrib/Archive", Package, Version))
     },
-
+    
     # format used by Nexus
     # https://github.com/rstudio/renv/issues/595
-    function(repo, record) {
+    nexus = function(repo, record) {
       with(record, file.path(repo, "src/contrib"))
     }
 
   )
-
-  name <- renv_retrieve_repos_archive_name(record, "source")
-  for (formatter in formatters) {
-    root <- formatter(repo, record)
-    url <- file.path(root, name)
-    if (renv_download_available(url)) {
-      assign(repo, formatter, envir = the$repos_archive)
-      return(root)
-    }
+  
+  # check for an override
+  override <- getOption("renv.repos.formatters")
+  if (!is.null(override)) {
+    formatter <- formatters[[override[[url]] %||% ""]]
+    if (!is.null(formatter))
+      return(formatter)
+  }
+  
+  # build URL to PACKAGES file in src/contrib
+  pkgurl <- file.path(url, "src/contrib/PACKAGES")
+  headers <- renv_download_headers(pkgurl)
+  
+  # use the headers to infer the repository type
+  if ("x-artifactory-id" %in% names(headers)) {
+    formatters[["artifactory"]]
+  } else if (grepl("Nexus", headers[["server"]] %||% "")) {
+    formatters[["nexus"]]
+  } else {
+    formatters[["cran"]]
   }
 
 }
