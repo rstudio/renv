@@ -5,17 +5,20 @@ renv_parallel_cores <- function() {
     return(1L)
 
   value <- config$updates.parallel()
-  case(
-    identical(value, TRUE)  ~ getOption("mc.cores", default = 2L),
-    identical(value, FALSE) ~ 1L,
-    ~ as.integer(value)
-  )
+  if (identical(value, TRUE)) {
+    parallel <- requireNamespace("parallel", quietly = TRUE)
+    getOption("mc.cores", default = if (parallel) 2L else 1L)
+  } else if (identical(value, FALSE)) {
+    1L
+  } else {
+    as.integer(value)
+  }
 
 }
 
 renv_parallel_exec <- function(data, callback) {
   cores <- renv_parallel_cores()
-  if (cores > 1)
+  if (cores > 1L)
     parallel::mclapply(data, callback, mc.cores = cores)
   else
     lapply(data, callback)
