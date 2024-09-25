@@ -15,8 +15,8 @@
 #' in the `DESCRIPTION` file. For projects using Python, \R dependencies within
 #' the \R code chunks of your project's `.ipynb` files will also be used.
 #'
-#' Note that the [rmarkdown] package is required in order to crawl dependencies
-#' in R Markdown files.
+#' Note that the \code{\link[rmarkdown:rmarkdown-package]{rmarkdown}} package is
+#' required in order to crawl dependencies in R Markdown files.
 #'
 #' # Missing dependencies
 #'
