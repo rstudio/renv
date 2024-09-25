@@ -1,4 +1,12 @@
+
 # renv (development version)
+
+* Fixed an issue where `renv` tests could fail if the `parallel` package was
+  loaded during test execution.
+
+* `renv` now determines a package repository's type through the HTTP headers
+  provided when accessing `src/contrib/PACKAGES`. This is mainly relevant
+  when detecting Nexus and Artifactory repositories.
 
 
 # renv 1.0.9
