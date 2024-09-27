@@ -1072,12 +1072,11 @@ renv_dependencies_discover_r <- function(path = NULL,
   recurse(expr, function(node, stack) {
 
     # normalize calls (handle magrittr pipes)
-    if (is.call(node))
+    if (is.call(node)) {
       node <- renv_call_normalize(node, stack)
-
-    # invoke methods on call objects
-    for (method in methods)
-      method(node, stack, envir)
+      for (method in methods)
+        method(node, stack, envir)
+    }
 
     # return node
     node
@@ -1711,17 +1710,12 @@ renv_dependencies_discover_r_database <- function(node, stack, envir) {
 }
 
 renv_dependencies_database <- function() {
-  dynamic(
-    key   = list(),
-    value = renv_dependencies_database_impl()
-  )
-}
-
-renv_dependencies_database_impl <- function() {
-  db <- getOption("renv.dependencies.database", default = list())
-  db$ggplot2$geom_hex <- "hexbin"
-  db$testthat$JunitReporter <- "xml2"
-  db
+  the$dependencies_database <- the$dependencies_database %||% {
+    db <- getOption("renv.dependencies.database", default = list())
+    db$ggplot2$geom_hex <- "hexbin"
+    db$testthat$JunitReporter <- "xml2"
+    db
+  }
 }
 
 renv_dependencies_list <- function(source,

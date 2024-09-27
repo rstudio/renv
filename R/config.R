@@ -102,7 +102,7 @@ renv_config_get <- function(name,
     return(renv_config_validate(name, optval, type, default, args))
 
   # check for environment variable
-  envname <- gsub(".", "_", toupper(name), fixed = TRUE)
+  envname <- chartr(".", "_", toupper(name))
   envkey <- paste("RENV", toupper(scope), envname, sep = "_")
   envval <- Sys.getenv(envkey, unset = NA)
   if (!is.na(envval) && nzchar(envval)) {
