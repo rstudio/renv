@@ -1898,7 +1898,7 @@ renv_dependencies_recurse_impl <- function(stack, object, callback, ...) {
   # recurse
   if (is.recursive(object))
     for (i in seq_along(object))
-      if (!is.symbol(object[[i]]))
+      if (is.call(object[[i]]))
         renv_dependencies_recurse_impl(stack, object[[i]], callback, ...)
   
 }
