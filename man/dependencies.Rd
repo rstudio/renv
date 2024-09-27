@@ -73,8 +73,8 @@ For \R package projects, \code{renv} will also detect dependencies expressed
 in the \code{DESCRIPTION} file. For projects using Python, \R dependencies within
 the \R code chunks of your project's \code{.ipynb} files will also be used.
 
-Note that the \link{rmarkdown} package is required in order to crawl dependencies
-in R Markdown files.
+Note that the \code{\link[rmarkdown:rmarkdown-package]{rmarkdown}} package is
+required in order to crawl dependencies in R Markdown files.
 }
 \section{Missing dependencies}{
 \code{dependencies()} uses static analysis to determine which packages are used

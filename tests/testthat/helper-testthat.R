@@ -44,6 +44,7 @@ renv_test_state <- function(cran) {
   opts$ambiguousMethodSelection <- NULL
   opts$restart <- NULL
   opts$repos[opts$repos == "@CRAN@"] <- "https://cloud.r-project.org"
+  opts$mc.cores <- NULL
   opts <- opts[csort(names(opts))]
 
   envvars <- as.list(Sys.getenv())

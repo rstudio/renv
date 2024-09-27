@@ -207,9 +207,12 @@ renv_clean_unused_packages <- function(project, prompt) {
 
   # find packages installed in the project library
   library <- renv_paths_library(project = project)
-  installed <- list.files(library)
+  installed <- list.files(library, pattern = renv_regexps_package_name())
   if (empty(installed))
     return(ntd())
+  
+  # ignore 'pak' if we're configured to use it
+  installed <- setdiff(installed, if (config$pak.enabled()) "pak")
 
   # find packages used in the project and their recursive dependencies
   packages <- renv_snapshot_dependencies(project, dev = TRUE)
