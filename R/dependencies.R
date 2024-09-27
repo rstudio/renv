@@ -493,13 +493,13 @@ renv_dependencies_discover_impl <- function(path) {
     return(NULL)
   }
 
-  tryCatch(
-    filebacked("dependencies", path, callback),
-    error = function(cnd) {
-      warning(cnd)
-      NULL
-    }
-  )
+  status <- catch(filebacked("dependencies", path, callback))
+  if (inherits(status, "error")) {
+    signalCondition(warnify(status))
+    NULL
+  }
+  
+  status
 
 }
 
@@ -760,7 +760,7 @@ renv_dependencies_discover_rmd_yaml_header <- function(path, mode) {
     values <- c(names(node), if (pstring(node)) node)
     for (value in values) {
       call <- tryCatch(parse(text = value)[[1]], error = function(err) NULL)
-      if (renv_call_matches(call, name = c("::", ":::"), nargs = 2L)) {
+      if (renv_call_matches(call, names = c("::", ":::"), nargs = 2L)) {
         deps$push(as.character(call[[2L]]))
       }
     }
@@ -1069,7 +1069,7 @@ renv_dependencies_discover_r <- function(path = NULL,
   )
 
   envir <- envir %||% new.env(parent = emptyenv())
-  recurse(expr, function(node, stack) {
+  renv_dependencies_recurse(expr, function(node, stack) {
 
     # normalize calls (handle magrittr pipes)
     if (is.call(node)) {
@@ -1183,7 +1183,7 @@ renv_dependencies_discover_r_require_namespace <- function(node, stack, envir) {
 
 renv_dependencies_discover_r_colon <- function(node, stack, envir) {
 
-  ok <- renv_call_matches(node, name = c("::", ":::"), nargs = 2L)
+  ok <- renv_call_matches(node, names = c("::", ":::"), nargs = 2L)
   if (!ok)
     return(FALSE)
 
@@ -1215,7 +1215,7 @@ renv_dependencies_discover_r_pacman <- function(node, stack, envir) {
   char <- node[["char"]]
 
   # detect vector of packages passed as vector
-  if (renv_call_matches(char, name = "c"))
+  if (renv_call_matches(char, "c"))
     parts <- c(parts, as.list(char[-1L]))
 
   # detect plain old package name
@@ -1253,11 +1253,8 @@ renv_dependencies_discover_r_pacman <- function(node, stack, envir) {
 
 renv_dependencies_discover_r_modules <- function(node, stack, envir) {
 
-  if (!is.call(node))
-    return(FALSE)
-
   # check for call of the form 'pkg::foo(a, b, c)'
-  colon <- renv_call_matches(node[[1L]], name = c("::", ":::"), nargs = 2L)
+  colon <- renv_call_matches(node[[1L]], names = c("::", ":::"), nargs = 2L)
   node <- renv_call_expect(node, "modules", c("import"))
   if (is.null(node))
     return(FALSE)
@@ -1301,11 +1298,8 @@ renv_dependencies_discover_r_modules <- function(node, stack, envir) {
 
 renv_dependencies_discover_r_import <- function(node, stack, envir) {
 
-  if (!is.call(node))
-    return(FALSE)
-
   # require that usages are colon-prefixed
-  colon <- renv_call_matches(node[[1L]], name = c("::", ":::"), nargs = 2L)
+  colon <- renv_call_matches(node[[1L]], names = c("::", ":::"), nargs = 2L)
   if (!colon)
     return(FALSE)
 
@@ -1363,7 +1357,7 @@ renv_dependencies_discover_r_box <- function(node, stack, envir) {
 renv_dependencies_discover_r_box_impl <- function(node, stack, envir) {
 
   # if the call uses /, it's a path, not a package
-  while (renv_call_matches(node, name = "/"))
+  if (renv_call_matches(node, "/"))
     return(FALSE)
 
   # if the node is just a symbol, then it's the name of a package
@@ -1371,7 +1365,7 @@ renv_dependencies_discover_r_box_impl <- function(node, stack, envir) {
   name <- if (is.symbol(node) && !identical(node, quote(expr = ))) {
     as.character(node)
   } else if (
-    renv_call_matches(node, name = "[") &&
+    renv_call_matches(node, "[") &&
       length(node) > 1L &&
       is.symbol(node[[2L]])) {
     as.character(node[[2L]])
@@ -1462,12 +1456,19 @@ renv_dependencies_discover_r_testthat <- function(node, stack, envir) {
     envir[["xml2"]] <- TRUE
     return(TRUE)
   }
+  
+  # check for an R6 class inheriting from a JunitReporter
+  class <- renv_call_expect(node, "R6", "R6Class")
+  if (!is.null(class) && identical(class$inherit, as.symbol("JunitReporter"))) {
+    envir[["xml2"]] <- TRUE
+    return(TRUE)
+  }
 
   # check for calls to various test runners, which accept a reporter
   node <- renv_call_expect(node, "testthat", c("test_package", "test_dir", "test_file"))
   if (is.null(node))
     return(FALSE)
-
+  
   candidates <- list(
     "Junit",
     "junit",
@@ -1880,3 +1881,29 @@ renv_dependencies_eval <- function(expr) {
   eval(expr, envir = envir)
 
 }
+
+
+renv_dependencies_recurse_impl <- function(stack, object, callback, ...) {
+  
+  # push node on to stack
+  stack[[length(stack) + 1L]] <- object
+  
+  # invoke callback
+  result <- callback(object, stack, ...)
+  if (is.call(result))
+    object <- result
+  else if (identical(result, FALSE))
+    return(FALSE)
+  
+  # recurse
+  if (is.recursive(object))
+    for (i in seq_along(object))
+      if (!is.symbol(object[[i]]))
+        renv_dependencies_recurse_impl(stack, object[[i]], callback, ...)
+  
+}
+
+renv_dependencies_recurse <- function(object, callback, ...) {
+  renv_dependencies_recurse_impl(list(), object, callback, ...)
+}
+
