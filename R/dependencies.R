@@ -1076,17 +1076,19 @@ renv_dependencies_discover_r <- function(path  = NULL,
 
   envir <- envir %||% new.env(parent = emptyenv())
   renv_dependencies_recurse(expr, function(node) {
-
+    
     # normalize calls (handle magrittr pipes)
-    if (is.call(node)) {
-      node <- renv_call_normalize(node)
-      for (method in methods)
-        method(node, envir)
-    }
-
-    # return node
-    node
-
+    node <- renv_call_normalize(node)
+    for (method in methods)
+      method(node, envir)
+    
+    # update node in parent environment -- this is a hack
+    # that allows our recurse implementation to remain
+    # performant without needing to care about the return
+    # values of these functions in general
+    assign("object", node, envir = parent.frame())
+    invisible(node)
+    
   })
 
   packages <- ls(envir = envir, all.names = TRUE)
@@ -1887,29 +1889,22 @@ renv_dependencies_eval <- function(expr) {
 
 }
 
-# like 'recurse', but only recurses into calls
 renv_dependencies_recurse <- function(object, callback, ...) {
   
-  queue <- vector("list", 8192L)
-  queue[[1L]] <- object
-  index <- 0L
-  slot <- 1L
+  if (is.call(object))
+    callback(object, ...)
   
-  while (index != slot) {
-    
-    index <- index + 1L
-    result <- callback(queue[[index]], ...)
-    
-    if (is.recursive(object <- if (is.call(result)) result else queue[[index]])) {
-      for (i in seq_along(object)) {
-        if (is.call(oi <- object[[i]])) {
-          slot <- slot + 1L
-          queue[[slot]] <- oi
-        }
-      }
-    }
-    
-  }
-  
+  if (is.recursive(object))
+    for (i in seq_along(object))
+      if (is.call(object[[i]]))
+        renv_dependencies_recurse_impl(object[[i]], callback, ...)
+
 }
 
+renv_dependencies_recurse_impl <- function(object, callback, ...) {
+  callback(object, ...)
+  if (is.recursive(object))
+    for (i in seq_along(object))
+      if (is.call(object[[i]]))
+        Recall(object[[i]], callback, ...)
+}
