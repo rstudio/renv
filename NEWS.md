@@ -1,6 +1,8 @@
 
 # renv (development version)
 
+* Fixed a performance regression in `renv::dependencies()`. (#1999)
+
 * Fixed an issue where `renv` tests could fail if the `parallel` package was
   loaded during test execution.
 
