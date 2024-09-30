@@ -6,8 +6,7 @@ new <- function(expr) {
 
   for (expr in as.list(substitute(expr))[-1L]) {
 
-    assigning <- renv_call_matches(expr, name = c("=", "<-"))
-
+    assigning <- renv_call_matches(expr, names = c("=", "<-"))
     if (!assigning)
       return(eval(expr, envir = public))
 

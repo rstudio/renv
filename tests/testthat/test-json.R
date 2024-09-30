@@ -153,7 +153,7 @@ test_that("json-read.R can function standalone", {
   # for each function, check that it only uses functions from base
   ok <- list()
   for (val in vals) {
-    recurse(body(val), function(node, stack) {
+    recurse(body(val), function(node) {
       if (is.call(node) && is.symbol(node[[1L]])) {
         lhs <- as.character(node[[1L]])
         ok[[lhs]] <<- exists(lhs, envir = envir)

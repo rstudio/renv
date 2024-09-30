@@ -58,7 +58,7 @@ test_that("bootstrap functions don't depend on non-bootstrap APIs", {
 
   # iterate over those functions and look for the called functions
   calls <- stack(mode = "character")
-  recurse(bodies, function(node, stack) {
+  recurse(bodies, function(node) {
     if (is.call(node) && is.symbol(node[[1L]]))
       calls$push(as.character(node[[1L]]))
   })

@@ -427,9 +427,9 @@ test_that("dependencies ignore pseudo-code in YAML metadata", {
 })
 
 test_that("~/.Rprofile included in dev dependencies when config$user.profile()", {
-  path <- renv_scope_tempfile("renv-profile")
+  path <- renv_scope_tempfile("renv-profile", fileext = ".R")
   writeLines("library(utils)", path)
-  renv_scope_envvars(R_PROFILE_USER = path)
+  renv_scope_envvars(R_PROFILE_USER = normalizePath(path, winslash = "/"))
   renv_scope_options(renv.config.user.profile = TRUE)
 
   renv_tests_scope()

@@ -1,49 +1,35 @@
 
 # given a call of the form e.g. 'pkg::foo()' or 'foo()',
 # check that method 'foo()' is truly being called and
-# strip off the 'pkg::' part for easier parsing
+# strip off the 'pkg::' part for easier parsing.
+#
+# this gets called very often when parsing dependencies,
+# so optimizations are welcome here
 renv_call_expect <- function(node, package, methods) {
 
-  if (!is.call(node))
-    return(NULL)
-
+  result <- NULL
+  
   # check for call of the form 'pkg::foo(a, b, c)'
-  colon <- renv_call_matches(
-    call  = node[[1L]],
-    name  = c("::", ":::"),
-    nargs = 2L
-  )
-
-  if (colon) {
-
-    # validate the package name
-    lhs <- node[[1L]][[2L]]
-    if (as.character(lhs) != package)
-      return(NULL)
-
-    # extract the inner call
-    rhs <- node[[1L]][[3L]]
-    node[[1L]] <- rhs
-  }
-
-  # check for method match
-  match <-
-    is.name(node[[1L]]) &&
-    as.character(node[[1L]]) %in% methods
-
-  if (!match)
-    return(NULL)
-
-  node
+  if (is.call(callnode <- node[[1L]]))
+    if (is.symbol(sym <- callnode[[1L]]))
+      if (sym == renv_syms_ns_get || sym == renv_syms_ns_get_int)
+        if (callnode[[2L]] == substitute(package))
+          node[[1L]] <- callnode[[3L]]
+  
+  # check for any method match
+  if (is.symbol(sym <- node[[1L]]))
+    if (any(sym == methods))
+      result <- node
+  
+  result
 
 }
 
-renv_call_normalize <- function(node, stack) {
+renv_call_normalize <- function(node) {
 
   # check for magrittr pipe -- if this part of the expression is
   # being piped into, then we need to munge the call
-  ispipe <- renv_call_matches(node, name = c("%>%", "%T>%", "%<>%"))
-
+  ispipe <- renv_call_matches(node, names = c("%>%", "%T>%", "%<>%"))
   if (!ispipe)
     return(node)
 
@@ -76,24 +62,15 @@ renv_call_normalize <- function(node, stack) {
 }
 
 
-renv_call_matches <- function(call, name = NULL, nargs = NULL) {
+renv_call_matches <- function(call, names, nargs = NULL) {
 
-  if (!is.call(call))
-    return(FALSE)
-
-  if (!is.null(name)) {
-
-    if (!is.name(call[[1]]))
-      return(FALSE)
-
-    if (!as.character(call[[1]]) %in% name)
-      return(FALSE)
-
-  }
-
-  if (!is.null(nargs) && length(call) != nargs + 1L)
-    return(FALSE)
-
-  TRUE
-
+  ok <- FALSE
+  
+  if (is.call(call) &&
+      is.symbol(sym <- call[[1L]]) &&
+      any(names == as.character(sym)))
+    ok <- is.null(nargs) || length(call) == nargs + 1L
+  
+  ok
+  
 }

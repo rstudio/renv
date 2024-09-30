@@ -16,5 +16,6 @@ revdep
 inst/doc
 renv/cellar
 
+/*.Rprof
 /*.tar.gz
 /*.backup
