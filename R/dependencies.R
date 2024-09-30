@@ -1268,7 +1268,7 @@ renv_dependencies_discover_r_modules <- function(node, envir) {
   
   # check for 'import' usages with a module block
   node <- renv_call_expect(node, "modules", "module")
-  if (identical(node[[1L]], as.symbol("module")) &&
+  if (identical(node[[1L]], quote(module)) &&
       is.call(node[[2L]]) &&
       identical(node[[2L]][[1L]], as.symbol("{")))
   {
@@ -1459,14 +1459,14 @@ renv_dependencies_discover_r_ggplot2 <- function(node, envir) {
 renv_dependencies_discover_r_testthat <- function(node, envir) {
 
   # check for construction of JunitReporter
-  if (identical(node, call("$", as.symbol("JunitReporter"), as.symbol("new")))) {
+  if (identical(node, quote(JunitReporter$new))) {
     envir[["xml2"]] <- TRUE
     return(TRUE)
   }
   
   # check for an R6 class inheriting from a JunitReporter
   class <- renv_call_expect(node, "R6", "R6Class")
-  if (!is.null(class) && identical(class$inherit, as.symbol("JunitReporter"))) {
+  if (!is.null(class) && identical(class$inherit, quote(JunitReporter))) {
     envir[["xml2"]] <- TRUE
     return(TRUE)
   }
@@ -1479,8 +1479,8 @@ renv_dependencies_discover_r_testthat <- function(node, envir) {
   candidates <- list(
     "Junit",
     "junit",
-    call("::", "testthat", "JunitReporter"),
-    as.symbol("JunitReporter")
+    quote(JunitReporter),
+    quote(testthat::JunitReporter)
   )
 
   reporter <- node$reporter

@@ -45,7 +45,7 @@ renv_cli_exec_impl <- function(clargs) {
     return(renv_cli_unknown(method, exports))
 
   # begin building call
-  args <- list(call("::", as.name("renv"), as.name(method)))
+  args <- list(call("::", as.symbol("renv"), as.symbol(method)))
 
   for (clarg in clargs[-1L]) {
 
