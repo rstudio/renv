@@ -231,6 +231,14 @@ renv_dependencies_impl <- function(
 
   # resolve errors
   errors <- match.arg(errors)
+  
+  # the path to the user .Rprofile is used when discovering dependencies,
+  # so resolve that eagerly now
+  renv_scope_binding(
+    envir       = the$paths,
+    symbol      = "r_profile_user",
+    replacement = Sys.getenv("R_PROFILE_USER", unset = path.expand("~/.Rprofile"))
+  )
 
   before <- Sys.time()
   renv_dependencies_scope(root = root)
@@ -285,11 +293,6 @@ renv_dependencies_root_impl <- function(path) {
 }
 
 renv_dependencies_callback <- function(path) {
-
-  # user .Rprofile
-  if (renv_path_same(path, Sys.getenv("R_PROFILE_USER", unset = "~/.Rprofile"))) {
-    return(function(path) renv_dependencies_discover_r(path, dev = TRUE))
-  }
 
   cbname <- list(
     ".Rprofile"     = function(path) renv_dependencies_discover_r(path),
@@ -355,9 +358,9 @@ renv_dependencies_find <- function(path = getwd(), root = getwd()) {
   extra <- renv_dependencies_find_extra(root)
 
   if (config$user.profile()) {
-    rprofile_path <- Sys.getenv("R_PROFILE_USER", unset = "~/.Rprofile")
-    if (file.exists(rprofile_path)) {
-      extra <- c(extra, rprofile_path)
+    profile <- the$paths$r_profile_user
+    if (file.exists(profile)) {
+      extra <- c(extra, profile)
     }
   }
 
@@ -513,7 +516,7 @@ renv_dependencies_discover_preflight <- function(paths, errors) {
 
   lines <- c(
     "A large number of files (%i in total) have been discovered.",
-    "It may take renv a long time to crawl these files for dependencies.",
+    "It may take renv a long time to scan these files for dependencies.",
     "Consider using .renvignore to ignore irrelevant files.",
     "See `?renv::dependencies` for more information.",
     "Set `options(renv.config.dependencies.limit = Inf)` to disable this warning.",
@@ -1026,11 +1029,11 @@ renv_dependencies_discover_rproj <- function(path) {
 
 }
 
-renv_dependencies_discover_r <- function(path = NULL,
-                                         text = NULL,
-                                         expr = NULL,
+renv_dependencies_discover_r <- function(path  = NULL,
+                                         text  = NULL,
+                                         expr  = NULL,
                                          envir = NULL,
-                                         dev = FALSE)
+                                         dev   = NULL)
 {
   expr <- case(
     is.function(expr)  ~ body(expr),
@@ -1043,7 +1046,10 @@ renv_dependencies_discover_r <- function(path = NULL,
 
   if (inherits(expr, "error"))
     return(renv_dependencies_error(path, error = expr))
-
+  
+  # resolve dev
+  dev <- dev %||% path == the$paths$r_profile_user
+  
   # update current path
   state <- renv_dependencies_state()
   if (!is.null(state))
@@ -1069,13 +1075,13 @@ renv_dependencies_discover_r <- function(path = NULL,
   )
 
   envir <- envir %||% new.env(parent = emptyenv())
-  renv_dependencies_recurse(expr, function(node, stack) {
+  renv_dependencies_recurse(expr, function(node) {
 
     # normalize calls (handle magrittr pipes)
     if (is.call(node)) {
-      node <- renv_call_normalize(node, stack)
+      node <- renv_call_normalize(node)
       for (method in methods)
-        method(node, stack, envir)
+        method(node, envir)
     }
 
     # return node
@@ -1087,7 +1093,7 @@ renv_dependencies_discover_r <- function(path = NULL,
   renv_dependencies_list(path, packages, dev = dev)
 }
 
-renv_dependencies_discover_r_methods <- function(node, stack, envir) {
+renv_dependencies_discover_r_methods <- function(node, envir) {
 
   node <- renv_call_expect(node, "methods", c("setClass", "setGeneric"))
   if (is.null(node))
@@ -1098,7 +1104,7 @@ renv_dependencies_discover_r_methods <- function(node, stack, envir) {
 
 }
 
-renv_dependencies_discover_r_xfun <- function(node, stack, envir) {
+renv_dependencies_discover_r_xfun <- function(node, envir) {
 
   node <- renv_call_expect(node, "xfun", c("pkg_attach", "pkg_attach2"))
   if (is.null(node))
@@ -1128,7 +1134,7 @@ renv_dependencies_discover_r_xfun <- function(node, stack, envir) {
   TRUE
 }
 
-renv_dependencies_discover_r_library_require <- function(node, stack, envir) {
+renv_dependencies_discover_r_library_require <- function(node, envir) {
 
   node <- renv_call_expect(node, "base", c("library", "require"))
   if (is.null(node))
@@ -1159,7 +1165,7 @@ renv_dependencies_discover_r_library_require <- function(node, stack, envir) {
 
 }
 
-renv_dependencies_discover_r_require_namespace <- function(node, stack, envir) {
+renv_dependencies_discover_r_require_namespace <- function(node, envir) {
 
   node <- renv_call_expect(node, "base", c("requireNamespace", "loadNamespace"))
   if (is.null(node))
@@ -1181,7 +1187,7 @@ renv_dependencies_discover_r_require_namespace <- function(node, stack, envir) {
 
 }
 
-renv_dependencies_discover_r_colon <- function(node, stack, envir) {
+renv_dependencies_discover_r_colon <- function(node, envir) {
 
   ok <- renv_call_matches(node, names = c("::", ":::"), nargs = 2L)
   if (!ok)
@@ -1199,7 +1205,7 @@ renv_dependencies_discover_r_colon <- function(node, stack, envir) {
 
 }
 
-renv_dependencies_discover_r_pacman <- function(node, stack, envir) {
+renv_dependencies_discover_r_pacman <- function(node, envir) {
 
   node <- renv_call_expect(node, "pacman", "p_load")
   if (is.null(node) || length(node) < 2)
@@ -1251,52 +1257,51 @@ renv_dependencies_discover_r_pacman <- function(node, stack, envir) {
 
 }
 
-renv_dependencies_discover_r_modules <- function(node, stack, envir) {
+renv_dependencies_discover_r_modules <- function(node, envir) {
 
-  # check for call of the form 'pkg::foo(a, b, c)'
-  colon <- renv_call_matches(node[[1L]], names = c("::", ":::"), nargs = 2L)
+  # check for an explicit call to 'modules::import()'
+  if (identical(node[[1L]], quote(modules::import))) {
+    renv_dependencies_discover_r_modules_impl(node, envir)
+  }
+  
+  # check for 'import' usages with a module block
+  node <- renv_call_expect(node, "modules", "module")
+  if (identical(node[[1L]], as.symbol("module")) &&
+      is.call(node[[2L]]) &&
+      identical(node[[2L]][[1L]], as.symbol("{")))
+  {
+    renv_dependencies_recurse(node[[2L]], function(node) {
+      renv_dependencies_discover_r_modules_impl(node, envir)
+    })
+  }
+    
+}
+
+renv_dependencies_discover_r_modules_impl <- function(node, envir) {
+  
   node <- renv_call_expect(node, "modules", c("import"))
   if (is.null(node))
     return(FALSE)
-
-  ok <- FALSE
-  if (colon) {
-    # include if fully qualified call to modules::import
-    ok <- TRUE
-  } else {
-    # otherwise only consider calls within a 'module' block
-    # (to reduce confusion with reticulate::import)
-    for (parent in stack) {
-      parent <- renv_call_expect(parent, "modules", c("amodule", "module"))
-      if (!is.null(parent)) {
-        ok <- TRUE
-        break
-      }
-    }
-  }
-
-  if (!ok)
-    return(FALSE)
-
+  
   # attempt to match the call
   prototype <- function(from, ..., attach = TRUE, where = parent.frame()) {}
   matched <- catch(match.call(prototype, node, expand.dots = FALSE))
   if (inherits(matched, "error"))
     return(FALSE)
-
+  
   # extract character vector or symbol from `from`
   package <- matched[["from"]]
   if (empty(package))
     return(FALSE)
-
+  
   # package could be symbols or character so call as.character
   # to be safe then mark packages as known
   envir[[as.character(package)]] <- TRUE
-
   TRUE
+  
 }
 
-renv_dependencies_discover_r_import <- function(node, stack, envir) {
+renv_dependencies_discover_r_import <- function(node, envir) {
 
   # require that usages are colon-prefixed
   colon <- renv_call_matches(node[[1L]], names = c("::", ":::"), nargs = 2L)
@@ -1341,20 +1346,20 @@ renv_dependencies_discover_r_import <- function(node, stack, envir) {
 
 }
 
-renv_dependencies_discover_r_box <- function(node, stack, envir) {
+renv_dependencies_discover_r_box <- function(node, envir) {
 
   node <- renv_call_expect(node, "box", "use")
   if (is.null(node))
     return(FALSE)
 
   for (i in seq.int(2L, length.out = length(node) - 1L))
-    renv_dependencies_discover_r_box_impl(node[[i]], stack, envir)
+    renv_dependencies_discover_r_box_impl(node[[i]], envir)
 
   TRUE
 
 }
 
-renv_dependencies_discover_r_box_impl <- function(node, stack, envir) {
+renv_dependencies_discover_r_box_impl <- function(node, envir) {
 
   # if the call uses /, it's a path, not a package
   if (renv_call_matches(node, "/"))
@@ -1380,7 +1385,7 @@ renv_dependencies_discover_r_box_impl <- function(node, stack, envir) {
 
 }
 
-renv_dependencies_discover_r_targets <- function(node, stack, envir) {
+renv_dependencies_discover_r_targets <- function(node, envir) {
 
   node <- renv_call_expect(node, "targets", "tar_option_set")
   if (is.null(node))
@@ -1406,7 +1411,7 @@ renv_dependencies_discover_r_targets <- function(node, stack, envir) {
 
 }
 
-renv_dependencies_discover_r_glue <- function(node, stack, envir) {
+renv_dependencies_discover_r_glue <- function(node, envir) {
 
   node <- renv_call_expect(node, "glue", "glue")
   if (is.null(node))
@@ -1425,7 +1430,7 @@ renv_dependencies_discover_r_glue <- function(node, stack, envir) {
 
 }
 
-renv_dependencies_discover_r_ggplot2 <- function(node, stack, envir) {
+renv_dependencies_discover_r_ggplot2 <- function(node, envir) {
 
   node <- renv_call_expect(node, "ggplot2", "ggsave")
   if (is.null(node))
@@ -1449,7 +1454,7 @@ renv_dependencies_discover_r_ggplot2 <- function(node, stack, envir) {
 
 }
 
-renv_dependencies_discover_r_testthat <- function(node, stack, envir) {
+renv_dependencies_discover_r_testthat <- function(node, envir) {
 
   # check for construction of JunitReporter
   if (identical(node, call("$", as.symbol("JunitReporter"), as.symbol("new")))) {
@@ -1490,7 +1495,7 @@ renv_dependencies_discover_r_testthat <- function(node, stack, envir) {
 
 }
 
-renv_dependencies_discover_r_knitr <- function(node, stack, envir) {
+renv_dependencies_discover_r_knitr <- function(node, envir) {
   
   matched <- is.call(node) && (
     identical(node[[1L]], quote(knitr::opts_chunk$set)) ||
@@ -1634,7 +1639,7 @@ renv_dependencies_discover_r_glue_impl <- function(string, node, envir) {
 
 }
 
-renv_dependencies_discover_r_parsnip <- function(node, stack, envir) {
+renv_dependencies_discover_r_parsnip <- function(node, envir) {
 
   node <- renv_call_expect(node, "parsnip", "set_engine")
   if (is.null(node))
@@ -1677,7 +1682,7 @@ renv_dependencies_discover_r_parsnip <- function(node, stack, envir) {
 
 }
 
-renv_dependencies_discover_r_database <- function(node, stack, envir) {
+renv_dependencies_discover_r_database <- function(node, envir) {
 
   found <- FALSE
 
@@ -1882,28 +1887,48 @@ renv_dependencies_eval <- function(expr) {
 
 }
 
-
-renv_dependencies_recurse_impl <- function(stack, object, callback, ...) {
-  
-  # push node on to stack
-  stack[[length(stack) + 1L]] <- object
-  
-  # invoke callback
-  result <- callback(object, stack, ...)
-  if (is.call(result))
-    object <- result
-  else if (identical(result, FALSE))
-    return(FALSE)
-  
-  # recurse
-  if (is.recursive(object))
-    for (i in seq_along(object))
-      if (is.call(object[[i]]))
-        renv_dependencies_recurse_impl(stack, object[[i]], callback, ...)
-  
+renv_dependencies_recurse <- function(object, callback, ...) {
+  renv_dependencies_recurse_impl(object, callback, ...)
 }
 
-renv_dependencies_recurse <- function(object, callback, ...) {
-  renv_dependencies_recurse_impl(list(), object, callback, ...)
+
+renv_dependencies_recurse_impl <- function(object, callback, ...) {
+
+  # initialize work queue
+  queue <- vector("list", 8192L)
+  queue[[1L]] <- object
+  
+  # index of current work item in queue
+  index <- 1L
+  
+  # index of next slot in queue
+  slot <- 2L
+  
+  # start working
+  while (index < slot) {
+    
+    # retrieve next work item
+    object <- queue[[index]]
+    
+    # invoke callback
+    result <- callback(object, ...)
+    if (is.call(result))
+      object <- result
+    
+    # update the index
+    index <- index + 1L
+    
+    # push children of object onto queue
+    if (is.recursive(object)) {
+      for (i in seq_along(object)) {
+        if (is.call(object[[i]])) {
+          queue[[slot]] <- object[[i]]
+          slot <- slot + 1L
+        }
+      }
+    }
+    
+  }
+  
 }
 

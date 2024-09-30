@@ -1,6 +1,7 @@
 
 # global variables
 the <- new.env(parent = emptyenv())
+the$paths <- new.env(parent = emptyenv())
 
 # detect if we're running on CI
 ci <- function() {

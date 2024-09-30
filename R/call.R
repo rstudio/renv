@@ -25,12 +25,11 @@ renv_call_expect <- function(node, package, methods) {
 
 }
 
-renv_call_normalize <- function(node, stack) {
+renv_call_normalize <- function(node) {
 
   # check for magrittr pipe -- if this part of the expression is
   # being piped into, then we need to munge the call
   ispipe <- renv_call_matches(node, names = c("%>%", "%T>%", "%<>%"))
-
   if (!ispipe)
     return(node)
 
