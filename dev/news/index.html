@@ -53,7 +53,8 @@
 
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="development version" id="renv-development-version">renv (development version)<a class="anchor" aria-label="anchor" href="#renv-development-version"></a></h2>
-<ul><li><p>Fixed an issue where <code>renv</code> tests could fail if the <code>parallel</code> package was loaded during test execution.</p></li>
+<ul><li><p>Fixed a performance regression in <code><a href="../reference/dependencies.html">renv::dependencies()</a></code>. (<a href="https://github.com/rstudio/renv/issues/1999" class="external-link">#1999</a>)</p></li>
+<li><p>Fixed an issue where <code>renv</code> tests could fail if the <code>parallel</code> package was loaded during test execution.</p></li>
 <li><p><code>renv</code> now determines a package repository’s type through the HTTP headers provided when accessing <code>src/contrib/PACKAGES</code>. This is mainly relevant when detecting Nexus and Artifactory repositories.</p></li>
 </ul></div>
     <div class="section level2">
@@ -571,7 +572,7 @@
 <li><p>Fixed an issue where empty records within a DESCRIPTION file could cause <code><a href="../reference/dependencies.html">renv::dependencies()</a></code> to fail. (<a href="https://github.com/rstudio/renv/issues/382" class="external-link">#382</a>)</p></li>
 <li><p>renv will now download binaries of older packages from MRAN when possible.</p></li>
 <li><p>renv will now attempt to re-generate the system library sandbox if it is deleted while a session is active. (<a href="https://github.com/rstudio/renv/issues/361" class="external-link">#361</a>)</p></li>
-<li><p>Fixed an issue where Python packages referenced using <code><a href="https://rstudio.github.io/reticulate/reference/import.html" class="external-link">reticulate::import()</a></code> were incorrectly tagged as R package dependencies. Similarly, renv now only considers calls to <code>modules::import()</code> if those calls occur within a call to <code>modules::module()</code>. (<a href="https://github.com/rstudio/renv/issues/359" class="external-link">#359</a>)</p></li>
+<li><p>Fixed an issue where Python packages referenced using <code><a href="https://rstudio.github.io/reticulate/reference/import.html" class="external-link">reticulate::import()</a></code> were incorrectly tagged as R package dependencies. Similarly, renv now only considers calls to <code><a href="https://rdrr.io/pkg/modules/man/import.html" class="external-link">modules::import()</a></code> if those calls occur within a call to <code><a href="https://rdrr.io/pkg/modules/man/module.html" class="external-link">modules::module()</a></code>. (<a href="https://github.com/rstudio/renv/issues/359" class="external-link">#359</a>)</p></li>
 <li><p><code><a href="../reference/scaffold.html">renv::scaffold()</a></code> now also generates a lockfile when invoked. (<a href="https://github.com/rstudio/renv/issues/351" class="external-link">#351</a>)</p></li>
 <li><p>The argument <code>confirm</code> has been renamed to <code>prompt</code> in all places where it is used. <code>confirm</code> remains supported for backwards compatibility, but is no longer explicitly documented. (<a href="https://github.com/rstudio/renv/issues/347" class="external-link">#347</a>)</p></li>
 <li><p>The continuous integration renv vignette now also contains a template for using renv together with GitLab CI. (<a href="https://github.com/rstudio/renv/issues/348" class="external-link">#348</a>, <a href="https://github.com/artemklevtsov" class="external-link">@artemklevtsov</a>)</p></li>
