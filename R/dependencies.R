@@ -758,7 +758,7 @@ renv_dependencies_discover_rmd_yaml_header <- function(path, mode) {
   pattern <- renv_regexps_package_name()
 
   # check recursively for package usages of the form 'package::method'
-  recurse(yaml, function(node, stack) {
+  recurse(yaml, function(node) {
     # look for keys of the form 'package::method'
     values <- c(names(node), if (pstring(node)) node)
     for (value in values) {
@@ -1118,7 +1118,7 @@ renv_dependencies_discover_r_xfun <- function(node, envir) {
 
   # extract character vectors from `...`
   strings <- stack()
-  recurse(matched[["..."]], function(node, stack) {
+  recurse(matched[["..."]], function(node) {
     if (is.character(node))
       strings$push(node)
   })
@@ -1887,43 +1887,24 @@ renv_dependencies_eval <- function(expr) {
 
 }
 
+# like 'recurse', but only recurses into calls
 renv_dependencies_recurse <- function(object, callback, ...) {
-  renv_dependencies_recurse_impl(object, callback, ...)
-}
-
-
-renv_dependencies_recurse_impl <- function(object, callback, ...) {
-
-  # initialize work queue
+  
   queue <- vector("list", 8192L)
   queue[[1L]] <- object
+  index <- 0L
+  slot <- 1L
   
-  # index of current work item in queue
-  index <- 1L
-  
-  # index of next slot in queue
-  slot <- 2L
-  
-  # start working
-  while (index < slot) {
+  while (index != slot) {
     
-    # retrieve next work item
-    object <- queue[[index]]
-    
-    # invoke callback
-    result <- callback(object, ...)
-    if (is.call(result))
-      object <- result
-    
-    # update the index
     index <- index + 1L
+    result <- callback(queue[[index]], ...)
     
-    # push children of object onto queue
-    if (is.recursive(object)) {
+    if (is.recursive(object <- if (is.call(result)) result else queue[[index]])) {
       for (i in seq_along(object)) {
-        if (is.call(object[[i]])) {
-          queue[[slot]] <- object[[i]]
+        if (is.call(oi <- object[[i]])) {
           slot <- slot + 1L
+          queue[[slot]] <- oi
         }
       }
     }

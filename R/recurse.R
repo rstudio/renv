@@ -1,27 +1,24 @@
 
 recurse <- function(object, callback, ...) {
-  renv_recurse_impl(list(), object, callback, ...)
+  
+  queue <- vector("list", 8192L)
+  queue[[1L]] <- object
+  index <- 0L
+  slot <- 1L
+  
+  while (index != slot) {
+    
+    index <- index + 1L
+    result <- callback(queue[[index]], ...)
+    
+    if (is.recursive(object <- if (is.call(result)) result else queue[[index]])) {
+      for (i in seq_along(object)) {
+        slot <- slot + 1L
+        queue[[slot]] <- object[[i]]
+      }
+    }
+    
+  }
+  
 }
 
-renv_recurse_impl <- function(stack, object, callback, ...) {
-
-  # ignore missing values
-  if (missing(object) || identical(object, quote(expr = )))
-    return(FALSE)
-
-  # push node on to stack
-  stack[[length(stack) + 1]] <- object
-
-  # invoke callback
-  result <- callback(object, stack, ...)
-  if (is.call(result))
-    object <- result
-  else if (identical(result, FALSE))
-    return(FALSE)
-
-  # recurse
-  if (is.recursive(object))
-    for (i in seq_along(object))
-      renv_recurse_impl(stack, object[[i]], callback, ...)
-
-}
