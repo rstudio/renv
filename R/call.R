@@ -66,10 +66,10 @@ renv_call_matches <- function(call, names, nargs = NULL) {
 
   ok <- FALSE
   
-  if (is.call(call) &&
-      is.symbol(sym <- call[[1L]]) &&
-      any(names == as.character(sym)))
-    ok <- is.null(nargs) || length(call) == nargs + 1L
+  if (is.call(call))
+    if (is.symbol(sym <- call[[1L]]))
+      if (any(names == sym))
+        ok <- is.null(nargs) || length(call) == nargs + 1L
   
   ok
   
