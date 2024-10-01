@@ -1903,8 +1903,7 @@ renv_dependencies_recurse <- function(object, callback, ...) {
 
 renv_dependencies_recurse_impl <- function(object, callback, ...) {
   callback(object, ...)
-  if (is.recursive(object))
-    for (i in seq_along(object))
-      if (is.call(object[[i]]))
-        Recall(object[[i]], callback, ...)
+  for (i in seq_along(object))
+    if (is.call(object[[i]]))
+      renv_dependencies_recurse_impl(object[[i]], callback, ...)
 }
