@@ -10,15 +10,15 @@ renv_call_expect <- function(node, package, methods) {
   result <- NULL
   
   # check for call of the form 'pkg::foo(a, b, c)'
-  if (is.call(callnode <- node[[1L]]))
-    if (is.symbol(sym <- callnode[[1L]]))
-      if (sym == "::" || sym == ":::")
-        if (callnode[[2L]] == package)
-          node[[1L]] <- callnode[[3L]]
+  if (is.call(call <- node[[1L]]))
+    if (is.symbol(symbol <- call[[1L]]))
+      if (symbol == "::" || symbol == ":::")
+        if (call[[2L]] == package)
+          node[[1L]] <- call[[3L]]
   
   # check for any method match
-  if (is.symbol(sym <- node[[1L]]))
-    if (any(sym == methods))
+  if (is.symbol(symbol <- node[[1L]]))
+    if (any(symbol == methods))
       result <- node
   
   result
