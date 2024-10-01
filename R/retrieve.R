@@ -690,7 +690,7 @@ renv_retrieve_repos <- function(record) {
     # also try fallback binary locations (for Nexus)
     methods$push(renv_retrieve_repos_binary_fallback)
 
-    # if MRAN is enabled, check those binaries as well
+    # if p3m is enabled, check those binaries as well
     if (renv_p3m_enabled())
       methods$push(renv_retrieve_repos_p3m)
 
@@ -807,11 +807,11 @@ renv_retrieve_repos_archive_name <- function(record, type = "source") {
 
 renv_retrieve_repos_p3m <- function(record) {
 
-  # MRAN does not make binaries available on Linux
+  # TODO: support Linux
   if (renv_platform_linux())
     return(FALSE)
 
-  # ensure local MRAN database is up-to-date
+  # ensure local database is up-to-date
   renv_p3m_database_refresh(explicit = FALSE)
 
   # check that we have an available database

@@ -456,7 +456,7 @@ renv_available_packages_latest_p3m <- function(package,
   if (identical(type, "source"))
     stop("binary packages are not available")
 
-  # ensure local MRAN database is up-to-date
+  # ensure local p3m database is up-to-date
   renv_p3m_database_refresh(explicit = FALSE)
 
   # attempt to read it

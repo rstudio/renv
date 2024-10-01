@@ -107,8 +107,9 @@ renv_p3m_database_dates <- function(version, all = TRUE) {
     "4.1" = "2021-05-18",
     "4.2" = "2022-04-22",
     "4.3" = "2023-04-21",
-    "4.4" = "2024-05-18",  # a guess
+    "4.4" = "2024-04-24",
     "4.5" = "2025-05-18",  # a guess
+    "4.6" = "2026-05-18",  # a guess
     NULL
   )
 
@@ -171,7 +172,7 @@ renv_p3m_database_update <- function(platform, version, dates = NULL) {
 
 renv_p3m_database_update_impl <- function(date, url, entry) {
 
-  printf("[%s]: reading package database ... ", date)
+  printf("[%s]: updating package database ... ", date)
 
   # get date as number of days since epoch
   idate <- as.integer(date)
@@ -299,10 +300,10 @@ renv_p3m_database_sync <- function(platform, version) {
     return(FALSE)
 
   # invoke update for missing dates
-  writef("==> Synchronizing MRAN database (%s/%s)", platform, version)
+  writef("==> Synchronizing database (%s/%s)", platform, version)
   dates <- as.Date(seq(last + 1L, now, by = 1L), origin = "1970-01-01")
   renv_p3m_database_update(platform, version, dates)
-  writef("Finished synchronizing MRAN database (%s/%s)", platform, version)
+  writef("Finished synchronizing database (%s/%s)", platform, version)
 
   # return TRUE to indicate update occurred
   return(TRUE)
@@ -361,5 +362,10 @@ renv_p3m_database_sync_all_impl <- function() {
   renv_p3m_database_sync("windows", "4.3")
   renv_p3m_database_sync("macosx", "4.3")
   renv_p3m_database_sync("macosx/big-sur-arm64", "4.3")
+  
+  # R 4.4
+  renv_p3m_database_sync("windows", "4.4")
+  renv_p3m_database_sync("macosx", "4.4")
+  renv_p3m_database_sync("macosx/big-sur-arm64", "4.4")
 
 }
