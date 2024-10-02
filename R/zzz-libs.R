@@ -34,7 +34,8 @@ renv_zzz_libs_impl <- function() {
   setwd(libdir)
   
   message("** extensions")
-  system2(rcmd, c("SHLIB", shQuote(basename(srcfiles))))
+  r <- file.path(R.home("bin"), if (.Platform$OS.type == "unix") "R" else "R.exe")
+  system2(r, c("CMD", "SHLIB", shQuote(basename(srcfiles))))
   
   oldfiles <- list.files(pattern = "\\.[co]$", full.names = TRUE)
   unlink(oldfiles)
