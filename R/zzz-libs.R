@@ -24,8 +24,10 @@ renv_zzz_libs_impl <- function() {
   if (is.na(rcmd))
     return(FALSE)
   
-  libdir <- file.path(dir, "libs")
+  arch <- .Platform$r_arch
+  libdir <- paste(c(dir, "libs", if (nzchar(arch)) arch), collapse = "/")
   dir.create(libdir, recursive = TRUE, showWarnings = FALSE)
+  
   srcfiles <- list.files("tools/ext", pattern = "\\.c$", full.names = TRUE)
   file.copy(srcfiles, libdir)
   
