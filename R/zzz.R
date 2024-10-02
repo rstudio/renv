@@ -5,8 +5,13 @@
   the$envir_self <<- renv_envir_self()
   
   # if we were build with a shared library, use it
-  soname <- paste0("renv", .Platform$dynlib.ext)
-  sofile <- file.path(libname, pkgname, "libs", soname)
+  arch <- .Platform$r_arch
+  name <- paste0("renv", .Platform$dynlib.ext)
+  sofile <- paste(
+    c(libname, pkgname, "libs", if (nzchar(arch)) arch, name),
+    collapse = "/"
+  )
+  
   if (file.exists(sofile)) {
     info <- library.dynam("renv", pkgname, libname)
     the$dll_info <- info
