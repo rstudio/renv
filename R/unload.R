@@ -46,6 +46,6 @@ renv_unload_libpaths <- function(project) {
 }
 
 renv_unload_finalizer <- function(libpath) {
-  libpath <- dirname(renv_namespace_path(.packageName))
+  libpath <- renv_namespace_path(.packageName)
   .onUnload(libpath)
 }

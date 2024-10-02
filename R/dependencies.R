@@ -1082,10 +1082,7 @@ renv_dependencies_discover_r <- function(path  = NULL,
     for (method in methods)
       method(node, envir)
     
-    # update node in parent environment -- this is a hack
-    # that allows our recurse implementation to remain
-    # performant without needing to care about the return
-    # values of these functions in general
+    # return (potentially transformed) node
     assign("object", node, envir = parent.frame())
     invisible(node)
     
@@ -1889,21 +1886,21 @@ renv_dependencies_eval <- function(expr) {
 
 }
 
-renv_dependencies_recurse <- function(object, callback, ...) {
+renv_dependencies_recurse <- function(object, callback) {
   
   if (is.call(object))
-    callback(object, ...)
+    callback(object)
   
   if (is.recursive(object))
     for (i in seq_along(object))
       if (is.call(object[[i]]))
-        renv_dependencies_recurse_impl(object[[i]], callback, ...)
+        renv_dependencies_recurse_impl(object[[i]], callback)
 
 }
 
-renv_dependencies_recurse_impl <- function(object, callback, ...) {
-  callback(object, ...)
+renv_dependencies_recurse_impl <- function(object, callback) {
+  callback(object)
   for (i in seq_along(object))
     if (is.call(object[[i]]))
-      renv_dependencies_recurse_impl(object[[i]], callback, ...)
+      renv_dependencies_recurse_impl(object[[i]], callback)
 }

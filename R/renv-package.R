@@ -7,5 +7,5 @@
 #' Each project using renv will share package installations from a global
 #' cache of packages, helping to avoid wasting disk space on multiple
 #' installations of a package that might otherwise be shared across projects.
-#'
+#' 
 "_PACKAGE"

@@ -10,3 +10,9 @@ test_that("renv_call_matches() works as expected", {
   expect_true(renv_call_matches(call, names = c("foo", "bar"), nargs = 2L))
 
 })
+
+test_that("renv_call_expect() works as expected", {
+  node <- quote(R6::R6Class("Class", inherit = "ParentClass"))
+  class <- renv_call_expect(node, "R6", "R6Class")
+  expect_identical(class, quote(R6Class("Class", inherit = "ParentClass")))
+})

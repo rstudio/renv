@@ -3,7 +3,15 @@
 
   # NOTE: needs to be visible to embedded instances of renv as well
   the$envir_self <<- renv_envir_self()
-
+  
+  # if we were build with a shared library, use it
+  soname <- paste0("renv", .Platform$dynlib.ext)
+  sofile <- file.path(libname, pkgname, "libs", soname)
+  if (file.exists(sofile)) {
+    info <- library.dynam("renv", pkgname, libname)
+    the$dll_info <- info
+  }
+  
   # make sure renv (and packages using renv!!!) use tempdir for storage
   # when running tests, or R CMD check
   if (checking() || testing()) {
@@ -11,6 +19,12 @@
     # set root directory
     root <- Sys.getenv("RENV_PATHS_ROOT", unset = tempfile("renv-root-"))
     Sys.setenv(RENV_PATHS_ROOT = root)
+    
+    # unset on exit
+    reg.finalizer(renv_envir_self(), function(envir) {
+      if (identical(root, Sys.getenv("RENV_PATHS_ROOT", unset = NA)))
+        Sys.unsetenv("RENV_PATHS_ROOT")
+    }, onexit = TRUE)
 
     # set up sandbox -- only done on non-Windows due to strange intermittent
     # test failures that seemed to occur there?
@@ -26,6 +40,7 @@
 
   renv_defer_init()
   renv_metadata_init()
+  renv_ext_init()
   renv_ansify_init()
   renv_platform_init()
   renv_virtualization_init()
@@ -87,6 +102,11 @@
     .Internal(lazyLoadDBflush(helpdb)),
     error = function(e) NULL
   )
+  
+  if (!is.null(the$dll_info)) {
+    library.dynam.unload("renv", libpath)
+    the$dll_info <- NULL
+  }
 
 }
 
