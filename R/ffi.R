@@ -15,6 +15,23 @@
 
 }
 
+`__ffi__recurse` <- function(object, callback, ...) {
+  
+  symbol <- as.symbol(names(formals(args(callback)))[[1L]])
+  expr <- body(callback)
+  envir <- new.env(parent = environment(callback))
+  
+  .Call(
+    "renv_ffi__recurse",
+    object,
+    symbol,
+    expr,
+    envir,
+    PACKAGE = "renv"
+  )
+  
+}
+
 `__ffi__renv_call_expect` <- function(node, package, methods) {
   
   .Call(
