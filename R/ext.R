@@ -57,7 +57,6 @@ renv_ext_compile <- function(libdir) {
   on.exit(setwd(owd), add = TRUE)
   setwd(libdir)
   
-  message("** extensions")
   r <- file.path(R.home("bin"), if (.Platform$OS.type == "unix") "R" else "R.exe")
   system2(r, c("CMD", "SHLIB", shQuote(basename(srcfiles))))
   
