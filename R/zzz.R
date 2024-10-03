@@ -3,7 +3,10 @@
 
   # NOTE: needs to be visible to embedded instances of renv as well
   the$envir_self <<- renv_envir_self()
-
+  
+  # load extensions if available
+  renv_ext_onload(libname, pkgname)
+  
   # make sure renv (and packages using renv!!!) use tempdir for storage
   # when running tests, or R CMD check
   if (checking() || testing()) {
@@ -11,6 +14,12 @@
     # set root directory
     root <- Sys.getenv("RENV_PATHS_ROOT", unset = tempfile("renv-root-"))
     Sys.setenv(RENV_PATHS_ROOT = root)
+    
+    # unset on exit
+    reg.finalizer(renv_envir_self(), function(envir) {
+      if (identical(root, Sys.getenv("RENV_PATHS_ROOT", unset = NA)))
+        Sys.unsetenv("RENV_PATHS_ROOT")
+    }, onexit = TRUE)
 
     # set up sandbox -- only done on non-Windows due to strange intermittent
     # test failures that seemed to occur there?
@@ -26,6 +35,7 @@
 
   renv_defer_init()
   renv_metadata_init()
+  renv_ext_init()
   renv_ansify_init()
   renv_platform_init()
   renv_virtualization_init()
@@ -79,7 +89,7 @@
 
   # flush the help db to avoid errors on reload
   # https://github.com/rstudio/renv/issues/1294
-  helpdb <- system.file(package = "renv", "help/renv.rdb")
+  helpdb <- file.path(libpath, "help/renv.rdb")
   .Internal <- .Internal
   lazyLoadDBflush <- function(...) {}
 

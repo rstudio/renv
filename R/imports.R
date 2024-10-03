@@ -1,6 +1,6 @@
 
 #' @importFrom tools
-#'   file_ext pskill psnice write_PACKAGES
+#'   file_ext md5sum pskill psnice write_PACKAGES
 #'
 #' @importFrom utils
 #'   adist available.packages browseURL citation contrib.url download.file

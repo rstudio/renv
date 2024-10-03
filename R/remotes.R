@@ -914,7 +914,7 @@ renv_remotes_resolve_url <- function(url, quiet = FALSE) {
 
   tempfile <- renv_scope_tempfile("renv-url-")
   writeLines(url, con = tempfile)
-  hash <- tools::md5sum(tempfile)
+  hash <- md5sum(tempfile)
 
   ext <- fileext(url, default = ".tar.gz")
   name <- paste(hash, ext, sep = "")

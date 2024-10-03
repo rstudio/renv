@@ -27,6 +27,7 @@
 ^examples$
 ^git$
 ^internal$
+^libs$
 ^logs$
 ^Makefile$
 ^pkgdown$
