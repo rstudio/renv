@@ -1,4 +1,43 @@
 
+renv_ext_init <- function() {
+  if (!is.null(the$dll_info)) {
+    envir <- renv_envir_self()
+    symbols <- ls(envir = envir, pattern = "^__ffi__")
+    map(symbols, function(symbol) {
+      renv_binding_replace(
+        envir       = envir,
+        symbol      = substring(symbol, 8L),
+        replacement = envir[[symbol]]
+      )
+    })
+  }
+}
+
+renv_ext_onload <- function(libname, pkgname) {
+  
+  # check if we are being invoked via load_all()
+  load <- Sys.getenv("DEVTOOLS_LOAD", unset = NA)
+  arch <- if (nzchar(.Platform$r_arch)) .Platform$r_arch
+  libext <- paste(c(pkgname, "libs", arch), collapse = "/")
+  libdir <- file.path(libname, libext)
+  
+  # use alternate library path for load_all + tests
+  if (identical(load, .packageName)) {
+    libdir <- if (interactive()) libdir else file.path(tempdir(), "library", libext)
+    ensure_directory(libdir)
+    renv_ext_compile(libdir)
+  }
+  
+  # now try to load it
+  soname <- paste0("renv", .Platform$dynlib.ext)
+  sofile <- file.path(libdir, soname)
+  if (file.exists(sofile)) {
+    info <- library.dynam("renv", pkgname, libname)
+    the$dll_info <- info
+  }
+
+}
+
 renv_ext_compile <- function(libdir) {
   
   soname <- if (renv_platform_windows()) "renv.dll" else "renv.so"
@@ -20,16 +59,3 @@ renv_ext_compile <- function(libdir) {
   
 }
 
-renv_ext_init <- function() {
-  if (!is.null(the$dll_info)) {
-    envir <- renv_envir_self()
-    symbols <- ls(envir = envir, pattern = "^__ffi__")
-    map(symbols, function(symbol) {
-      renv_binding_replace(
-        envir       = envir,
-        symbol      = substring(symbol, 8L),
-        replacement = envir[[symbol]]
-      )
-    })
-  }
-}

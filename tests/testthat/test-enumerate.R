@@ -16,6 +16,9 @@ test_that("enumerate() works as expected", {
   data <- list2env(list(a = "1", b = "2", c = "3"))
   actual <- enumerate(data, zip)
   expected <- list(a = list("a", "1"), b = list("b", "2"), c = list("c", "3"))
+  
+  actual <- actual[order(names(actual))]
+  expected <- expected[order(names(expected))]
   expect_identical(actual, expected)
   
 })
@@ -48,7 +51,7 @@ test_that("enum_chr() does what it should", {
   
   actual <- enum_chr(
     list(1, 2, 3),
-    function(key, value) value
+    function(key, value) as.character(value)
   )
   
   expected <- c("1", "2", "3")

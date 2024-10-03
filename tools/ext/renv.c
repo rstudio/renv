@@ -283,13 +283,49 @@ static SEXP enumerate(SEXP x,
   return R_NilValue;
 }
 
+static SEXP recurse(SEXP object,
+                    SEXP symbol,
+                    SEXP expr,
+                    SEXP envir)
+{
+  if (object != R_MissingArg)
+  {
+    Rf_defineVar(symbol, object, envir);
+    Rf_eval(expr, envir);
+  }
+
+  switch (TYPEOF(object))
+  {
+  case VECSXP:
+  case EXPRSXP:
+  {
+    for (R_xlen_t i = 0, n = Rf_xlength(object); i < n; i++)
+      recurse(VECTOR_ELT(object, i), symbol, expr, envir);
+  }
+
+  case LISTSXP:
+  case LANGSXP:
+  {
+    while (object != R_NilValue)
+    {
+      recurse(CAR(object), symbol, expr, envir);
+      object = CDR(object);
+    }
+  }
+  }
+
+  return R_NilValue;
+}
+
 // Init ----
 
 static const R_CallMethodDef callEntries[] = {
     {"renv_ffi__renv_dependencies_recurse", (DL_FUNC) &renv_dependencies_recurse, 4},
     {"renv_ffi__renv_call_expect", (DL_FUNC) &renv_call_expect, 3},
     {"renv_ffi__enumerate", (DL_FUNC) &enumerate, 3},
-    {NULL, NULL, 0}};
+    {"renv_ffi__recurse", (DL_FUNC) &recurse, 4},
+    {NULL, NULL, 0}
+};
 
 void R_init_renv(DllInfo* dllInfo)
 {

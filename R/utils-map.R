@@ -7,7 +7,7 @@ bapply <- function(x, f, ..., index = "Index") {
 enumerate <- function(x, f, ..., FUN.VALUE = NULL) {
 
   n <- names(x)
-  idx <- named(seq_along(x), n)
+  idx <- `names<-`(seq_along(x), n)
   callback <- function(i) f(n[[i]], x[[i]], ...)
 
   if (is.environment(x))
