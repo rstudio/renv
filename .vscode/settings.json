@@ -1,0 +1,9 @@
+{
+    "files.associations": {
+        "CMake*.txt": "cmake",
+        "r.h": "c",
+        "rdynload.h": "c",
+        "rinternals.h": "c",
+        "__node_handle": "c"
+    }
+}

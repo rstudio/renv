@@ -155,16 +155,12 @@ hydrate <- function(packages = NULL,
 renv_hydrate_filter <- function(packages, library, update) {
 
   # run filter
-  keep <- enumerate(
-    packages,
-    renv_hydrate_filter_impl,
-    library = library,
-    update = update,
-    FUN.VALUE = logical(1)
-  )
+  keep <- enumerate(packages, function(package, path) {
+    renv_hydrate_filter_impl(package, path, library, update)
+  })
 
   # filter based on kept packages
-  packages[keep]
+  packages[as.logical(keep)]
 
 }
 

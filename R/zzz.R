@@ -5,10 +5,19 @@
   the$envir_self <<- renv_envir_self()
   
   # if we were build with a shared library, use it
-  arch <- .Platform$r_arch
-  name <- paste0("renv", .Platform$dynlib.ext)
-  parts <- c(libname, pkgname, "libs", if (nzchar(arch)) arch, name)
-  sofile <- paste(parts, collapse = "/")
+  arch <- if (nzchar(.Platform$r_arch)) .Platform$r_arch
+  libdir <- paste(c(libname, pkgname, "libs", arch), collapse = "/")
+  
+  # if we were invoked via devtools::load_all(), build the library
+  load <- Sys.getenv("DEVTOOLS_LOAD", unset = NA)
+  if (interactive() && identical(load, "renv")) {
+    ensure_directory(libdir)
+    renv_ext_compile(libdir)
+  }
+  
+  # now try to load it
+  soname <- paste0("renv", .Platform$dynlib.ext)
+  sofile <- file.path(libdir, soname)
   if (file.exists(sofile)) {
     info <- library.dynam("renv", pkgname, libname)
     the$dll_info <- info

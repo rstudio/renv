@@ -35,7 +35,7 @@ renv_methods_init <- function() {
   # determine appropriate lookup key for finding alternative
   key <- if (renv_platform_windows()) "win32" else "unix"
   alts <- map(methods, `[[`, key)
-
+  
   # update methods in namespace
   envir <- renv_envir_self()
   enumerate(alts, function(name, alt) {
