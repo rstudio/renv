@@ -126,12 +126,6 @@ renv_paths_cache <- function(..., version = NULL) {
   renv_paths_common("cache", c(version, platform), ...)
 }
 
-renv_paths_ext <- function(...) {
-  platform <- renv_platform_prefix()
-  version <- renv_metadata_version()
-  renv_paths_common("ext", c(version, platform), ...)
-}
-  
 
 renv_paths_rtools <- function() {
 

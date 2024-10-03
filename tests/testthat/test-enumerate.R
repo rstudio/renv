@@ -13,6 +13,11 @@ test_that("enumerate() works as expected", {
   expected <- list(a = list("a", "1"), b = list("b", "2"), c = list("c", "3"))
   expect_identical(actual, expected)
   
+  data <- list2env(list(a = "1", b = "2", c = "3"))
+  actual <- enumerate(data, zip)
+  expected <- list(a = list("a", "1"), b = list("b", "2"), c = list("c", "3"))
+  expect_identical(actual, expected)
+  
 })
 
 test_that("enumerate() handles dots", {

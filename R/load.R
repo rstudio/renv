@@ -57,6 +57,9 @@ load <- function(project = NULL, quiet = FALSE, profile = NULL, ...) {
   base <- renv_load_base(sys.call(), envir = parent.frame())
   if (!is.null(base))
     return(invisible(base))
+  
+  # eagerly load package namespaces which we rely on
+  requireNamespace("compiler", quietly = TRUE)
 
   renv_scope_error_handler()
 

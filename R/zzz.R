@@ -113,11 +113,6 @@
     .Internal(lazyLoadDBflush(helpdb)),
     error = function(e) NULL
   )
-  
-  if (!is.null(the$dll_info)) {
-    library.dynam.unload("renv", libpath)
-    the$dll_info <- NULL
-  }
 
 }
 

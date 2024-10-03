@@ -2,6 +2,8 @@
 `__ffi__enumerate` <- function(x, f, ..., FUN.VALUE = NULL) {
 
   f <- match.fun(f)
+  if (!is.list(x) && !is.environment(x) && !is.character(x))
+    x <- as.list(x)
   
   .Call(
     "renv_ffi__enumerate",

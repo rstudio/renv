@@ -1,6 +1,9 @@
 
 renv_ext_compile <- function(libdir) {
   
+  soname <- if (renv_platform_windows()) "renv.dll" else "renv.so"
+  unlink(file.path(libdir, soname))
+  
   srcfiles <- list.files("tools/ext", pattern = "\\.c$", full.names = TRUE)
   file.copy(srcfiles, libdir)
   
