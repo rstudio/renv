@@ -14,7 +14,11 @@ renv_ext_init <- function() {
 }
 
 renv_ext_onload <- function(libname, pkgname) {
-  
+ 
+  # skip on older R installations
+  if (renv_platform_windows() && getRversion() < "4.2")
+    return()
+
   # check if we are being invoked via load_all()
   load <- Sys.getenv("DEVTOOLS_LOAD", unset = NA)
   arch <- if (nzchar(.Platform$r_arch)) .Platform$r_arch
