@@ -1,24 +1,37 @@
 
+renv_ext_enabled <- function() {
+  
+  # always disabled on older R installations on Windows
+  if (renv_platform_windows() && getRversion() < "4.2")
+    return(FALSE)
+  
+  # otherwise, check envvar
+  truthy(Sys.getenv("RENV_EXT_ENABLED", unset = "TRUE"))
+  
+}
+
 renv_ext_init <- function() {
-  if (!is.null(the$dll_info)) {
-    envir <- renv_envir_self()
-    symbols <- ls(envir = envir, pattern = "^__ffi__")
-    map(symbols, function(symbol) {
-      renv_binding_replace(
-        envir       = envir,
-        symbol      = substring(symbol, 8L),
-        replacement = envir[[symbol]]
-      )
-    })
-  }
+  
+  if (!renv_ext_enabled() || is.null(the$dll_info))
+    return()
+  
+  envir <- renv_envir_self()
+  symbols <- ls(envir = envir, pattern = "^__ffi__")
+  map(symbols, function(symbol) {
+    renv_binding_replace(
+      envir       = envir,
+      symbol      = substring(symbol, 8L),
+      replacement = envir[[symbol]]
+    )
+  })
+
 }
 
 renv_ext_onload <- function(libname, pkgname) {
  
-  # skip on older R installations
-  if (renv_platform_windows() && getRversion() < "4.2")
+  if (!renv_ext_enabled())
     return()
-
+  
   # check if we are being invoked via load_all()
   load <- Sys.getenv("DEVTOOLS_LOAD", unset = NA)
   arch <- if (nzchar(.Platform$r_arch)) .Platform$r_arch
@@ -46,6 +59,9 @@ renv_ext_onload <- function(libname, pkgname) {
 }
 
 renv_ext_compile <- function(libdir) {
+  
+  if (!renv_ext_enabled())
+    return()
   
   soname <- if (renv_platform_windows()) "renv.dll" else "renv.so"
   unlink(file.path(libdir, soname))

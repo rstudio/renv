@@ -19,6 +19,11 @@ building <- function() {
     grepl("Rbuild", basename(dirname(getwd())), fixed = TRUE)
 }
 
+# detect if we're running within R CMD INSTALL
+installing <- function() {
+  nzchar(Sys.getenv("R_INSTALL_PKG"))
+}
+
 # are we running code within R CMD check?
 checking <- function() {
   "CheckExEnv" %in% search() ||
