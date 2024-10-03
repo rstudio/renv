@@ -105,7 +105,7 @@
 
   # flush the help db to avoid errors on reload
   # https://github.com/rstudio/renv/issues/1294
-  helpdb <- system.file(package = "renv", "help/renv.rdb")
+  helpdb <- file.path(libpath, "help/renv.rdb")
   .Internal <- .Internal
   lazyLoadDBflush <- function(...) {}
 

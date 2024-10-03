@@ -135,7 +135,7 @@ do {                                                                            
       SEXP val = __GET__(x, i);                                                      \
       Rf_defineVar(valsym, val, envir);                                              \
       SEXP call = PROTECT(Rf_lang4(fsym, keysym, valsym, dsym));                     \
-      SEXP result = PROTECT(Rf_eval(call, envir));                                   \
+      SEXP result = PROTECT(R_forceAndCall(call, 2, envir));                         \
       SEXP coerced = PROTECT(__COERCE__(result));                                    \
       __SET__(output, i, __EXTRACT__(coerced));                                      \
       UNPROTECT(3);                                                                  \
@@ -148,7 +148,7 @@ do {                                                                            
       SEXP val = __GET__(x, i);                                                      \
       Rf_defineVar(valsym, val, envir);                                              \
       SEXP call = PROTECT(Rf_lang4(fsym, keysym, valsym, dsym));                     \
-      SEXP result = PROTECT(Rf_eval(call, envir));                                   \
+      SEXP result = PROTECT(R_forceAndCall(call, 2, envir));                         \
       SEXP coerced = PROTECT(__COERCE__(result));                                    \
       __SET__(output, i, __EXTRACT__(coerced));                                      \
       UNPROTECT(4);                                                                  \
@@ -168,28 +168,28 @@ do {                                                                            
     COERCE_ ## __TYPE__)
 
 #define ENUMERATE_DISPATCH_ENVSXP_IMPL(__TYPE__, __EXTRACT__, __SET__, __COERCE__) \
-do {                                                                           \
-                                                                               \
-  R_xlen_t n = Rf_xlength(names);                                              \
-  SEXP output = PROTECT(Rf_allocVector(__TYPE__, n));                          \
-  Rf_setAttrib(output, R_NamesSymbol, names);                                  \
-  for (R_xlen_t i = 0; i < n; i++) {                                           \
-    SEXP name = STRING_ELT(names, i);                                          \
-    SEXP key = PROTECT(Rf_allocVector(STRSXP, 1));                             \
-    SET_STRING_ELT(key, 0, name);                                              \
-    Rf_defineVar(keysym, key, envir);                                          \
-    SEXP val = Rf_findVarInFrame(x, Rf_installChar(name));                     \
-    Rf_defineVar(valsym, val, envir);                                          \
-    SEXP call = PROTECT(Rf_lang4(fsym, keysym, valsym, dsym));                 \
-    SEXP result = PROTECT(Rf_eval(call, envir));                               \
-    SEXP coerced = PROTECT(__COERCE__(result));                                \
-    __SET__(output, i, __EXTRACT__(coerced));                                  \
-    UNPROTECT(4);                                                              \
-  }                                                                            \
-                                                                               \
-  UNPROTECT(2);                                                                \
-  return output;                                                               \
-                                                                               \
+do {                                                                               \
+                                                                                   \
+  R_xlen_t n = Rf_xlength(names);                                                  \
+  SEXP output = PROTECT(Rf_allocVector(__TYPE__, n));                              \
+  Rf_setAttrib(output, R_NamesSymbol, names);                                      \
+  for (R_xlen_t i = 0; i < n; i++) {                                               \
+    SEXP name = STRING_ELT(names, i);                                              \
+    SEXP key = PROTECT(Rf_allocVector(STRSXP, 1));                                 \
+    SET_STRING_ELT(key, 0, name);                                                  \
+    Rf_defineVar(keysym, key, envir);                                              \
+    SEXP val = Rf_findVarInFrame(x, Rf_installChar(name));                         \
+    Rf_defineVar(valsym, val, envir);                                              \
+    SEXP call = PROTECT(Rf_lang4(fsym, keysym, valsym, dsym));                     \
+    SEXP result = PROTECT(R_forceAndCall(call, 2, envir));                         \
+    SEXP coerced = PROTECT(__COERCE__(result));                                    \
+    __SET__(output, i, __EXTRACT__(coerced));                                      \
+    UNPROTECT(4);                                                                  \
+  }                                                                                \
+                                                                                   \
+  UNPROTECT(2);                                                                    \
+  return output;                                                                   \
+                                                                                   \
 } while (0)
   
 static SEXP enumerate(

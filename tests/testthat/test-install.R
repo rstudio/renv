@@ -19,7 +19,6 @@ test_that("requested version in DESCRIPTION file is honored", {
   writeLines(desc, con = "DESCRIPTION")
 
   install()
-
   expect_true(renv_package_version("bread") == "0.1.0")
 
 })
