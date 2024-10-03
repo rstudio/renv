@@ -279,7 +279,6 @@ static SEXP enumerate(SEXP x,
   }
 
   Rf_error("unsupported object types '%s' and '%s'", Rf_type2char(TYPEOF(x)), Rf_type2char(TYPEOF(type)));
-
   return R_NilValue;
 }
 
@@ -301,6 +300,7 @@ static SEXP recurse(SEXP object,
   {
     for (R_xlen_t i = 0, n = Rf_xlength(object); i < n; i++)
       recurse(VECTOR_ELT(object, i), symbol, expr, envir);
+    break;
   }
 
   case LISTSXP:
@@ -311,6 +311,7 @@ static SEXP recurse(SEXP object,
       recurse(CAR(object), symbol, expr, envir);
       object = CDR(object);
     }
+    break;
   }
   }
 

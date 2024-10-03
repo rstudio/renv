@@ -23,7 +23,10 @@ renv_ext_onload <- function(libname, pkgname) {
   
   # use alternate library path for load_all + tests
   if (identical(load, .packageName)) {
-    libdir <- if (interactive()) libdir else file.path(tempdir(), "library", libext)
+    if (!interactive()) {
+      root <- tempfile("renv-ext-", tmpdir = dirname(tempdir()))
+      libdir <- file.path(root, libext)
+    }
     ensure_directory(libdir)
     renv_ext_compile(libdir)
   }
