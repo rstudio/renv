@@ -1,8 +1,8 @@
 
 renv_ext_enabled <- function() {
   
-  # always disabled on older R installations on Windows
-  if (renv_platform_windows() && getRversion() < "4.2")
+  # disable on Windows; may be able to re-evaluate in future
+  if (renv_platform_windows())
     return(FALSE)
   
   # otherwise, check envvar
