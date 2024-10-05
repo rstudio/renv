@@ -3,6 +3,7 @@ BasedOnStyle: LLVM
 IndentWidth: 2
 UseTab: Never
 ColumnLimit: 120
+AlignArrayOfStructures: Left
 AllowShortIfStatementsOnASingleLine: false
 BinPackArguments: false
 BinPackParameters: AlwaysOnePerLine

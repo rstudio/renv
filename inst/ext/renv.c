@@ -379,11 +379,11 @@ static SEXP recurse(SEXP object,
 // Init ----
 
 static const R_CallMethodDef callEntries[] = {
+    {"renv_ffi__renv_call_expect",          (DL_FUNC) &renv_call_expect,          3},
     {"renv_ffi__renv_dependencies_recurse", (DL_FUNC) &renv_dependencies_recurse, 4},
-    {"renv_ffi__renv_call_expect", (DL_FUNC) &renv_call_expect, 3},
-    {"renv_ffi__enumerate", (DL_FUNC) &enumerate, 3},
-    {"renv_ffi__recurse", (DL_FUNC) &recurse, 4},
-    {NULL, NULL, 0}
+    {"renv_ffi__enumerate",                 (DL_FUNC) &enumerate,                 3},
+    {"renv_ffi__recurse",                   (DL_FUNC) &recurse,                   4},
+    {NULL,                                  NULL,                                 0}
 };
 
 void R_init_renv(DllInfo* dllInfo)
