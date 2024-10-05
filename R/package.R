@@ -495,3 +495,9 @@ renv_package_unpack <- function(package, path, subdir = "", force = FALSE) {
   newpath
 
 }
+
+renv_package_libsdir <- function(package, arch = NULL) {
+  package <- renv_package_find(package)
+  arch <- arch %||% if (nzchar(.Platform$r_arch)) .Platform$r_arch
+  paste(c(package, "libs", arch), collapse = "/")
+}

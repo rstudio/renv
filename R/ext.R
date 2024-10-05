@@ -32,25 +32,22 @@ renv_ext_onload <- function(libname, pkgname) {
   if (!renv_ext_enabled())
     return()
   
-  # check if we are being invoked via load_all()
-  load <- Sys.getenv("DEVTOOLS_LOAD", unset = NA)
-  arch <- if (nzchar(.Platform$r_arch)) .Platform$r_arch
-  libext <- paste(c(pkgname, "libs", arch), collapse = "/")
-  libdir <- file.path(libname, libext)
+  # if we're being invoked via devtools::load_all(), compile extensions
+  package <- file.path(libname, pkgname)
+  libsdir <- renv_package_libsdir(package)
   
   # use alternate library path for load_all + tests
-  if (identical(load, .packageName)) {
-    if (!interactive()) {
-      root <- tempfile("renv-ext-", tmpdir = dirname(tempdir()))
-      libdir <- file.path(root, libext)
-    }
-    ensure_directory(libdir)
-    renv_ext_compile(libdir)
+  compile <-
+    renv_envvar_exists("DEVTOOLS_LOAD") &&
+    !renv_envvar_exists("CALLR_IS_RUNNING")
+  
+  if (compile) {
+    renv_ext_compile(package, libsdir)
   }
   
   # now try to load it
   soname <- paste0("renv", .Platform$dynlib.ext)
-  sofile <- file.path(libdir, soname)
+  sofile <- file.path(libsdir, soname)
   if (file.exists(sofile)) {
     info <- library.dynam("renv", pkgname, libname)
     the$dll_info <- info
@@ -58,21 +55,22 @@ renv_ext_onload <- function(libname, pkgname) {
 
 }
 
-renv_ext_compile <- function(libdir) {
+renv_ext_compile <- function(package, libsdir = renv_package_libsdir(package)) {
   
   if (!renv_ext_enabled())
     return()
   
   soname <- if (renv_platform_windows()) "renv.dll" else "renv.so"
-  unlink(file.path(libdir, soname))
+  unlink(file.path(libsdir, soname))
   
-  srcfiles <- list.files("tools/ext", pattern = "\\.c$", full.names = TRUE)
-  file.copy(srcfiles, libdir)
+  extdirs <- file.path(package, c("inst/ext", "ext"))
+  extdir <- filter(extdirs, file.exists)[[1L]]
+
+  srcfiles <- list.files(extdir, "\\.c$", full.names = TRUE)
+  ensure_directory(libsdir)
+  file.copy(srcfiles, libsdir)
   
-  owd <- getwd()
-  on.exit(setwd(owd), add = TRUE)
-  setwd(libdir)
-  
+  renv_scope_wd(libsdir)
   r <- file.path(R.home("bin"), if (.Platform$OS.type == "unix") "R" else "R.exe")
   system2(r, c("CMD", "SHLIB", shQuote(basename(srcfiles))))
   

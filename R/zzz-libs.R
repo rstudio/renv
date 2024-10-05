@@ -14,11 +14,9 @@ renv_zzz_libs_impl <- function() {
     return(FALSE)
   
   message("** libs")
-  dir <- Sys.getenv("R_PACKAGE_DIR", unset = getwd())
-  arch <- .Platform$r_arch
-  libdir <- paste(c(dir, "libs", if (nzchar(arch)) arch), collapse = "/")
-  dir.create(libdir, recursive = TRUE, showWarnings = FALSE)
-  renv_ext_compile(libdir)
+  package <- Sys.getenv("R_PACKAGE_DIR", unset = getwd())
+  renv_ext_compile(package)
+  
   TRUE
   
 }
