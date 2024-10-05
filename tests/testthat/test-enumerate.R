@@ -1,4 +1,22 @@
 
+test_that("enumerate() handles identity maps", {
+  
+  data <- list(
+    as.integer(1:10),
+    as.numeric(1:10),
+    as.logical(1:10),
+    letters[1:10]
+  )
+  
+  for (i in seq_along(data)) {
+    expect_identical(
+      enumerate(data[[i]], function(key, value) value, FUN.VALUE = data[[i]]),
+      data[[i]]
+    )
+  }
+  
+})
+
 test_that("enumerate() works as expected", {
   
   zip <- function(key, value) list(key, value)

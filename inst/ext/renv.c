@@ -130,7 +130,6 @@ static SEXP renv_dependencies_recurse(SEXP object,
 #define ENUMERATE_DISPATCH_IMPL(__TYPE__, __GET__, __SET__, __EXTRACT__, __COERCE__)                                   \
   do                                                                                                                   \
   {                                                                                                                    \
-                                                                                                                       \
     R_xlen_t n = Rf_xlength(x);                                                                                        \
     SEXP output = PROTECT(Rf_allocVector(__TYPE__, n));                                                                \
     Rf_setAttrib(output, R_NamesSymbol, names);                                                                        \
@@ -177,7 +176,6 @@ static SEXP renv_dependencies_recurse(SEXP object,
 #define ENUMERATE_DISPATCH_ENVSXP_IMPL(__TYPE__, __EXTRACT__, __SET__, __COERCE__)                                     \
   do                                                                                                                   \
   {                                                                                                                    \
-                                                                                                                       \
     R_xlen_t n = Rf_xlength(names);                                                                                    \
     SEXP output = PROTECT(Rf_allocVector(__TYPE__, n));                                                                \
     Rf_setAttrib(output, R_NamesSymbol, names);                                                                        \
@@ -213,6 +211,66 @@ static SEXP enumerate(SEXP x,
 
   switch (TYPEOF(x))
   {
+
+  case INTSXP:
+  {
+    SEXP names = PROTECT(Rf_getAttrib(x, R_NamesSymbol));
+    switch (TYPEOF(type))
+    {
+    case INTSXP:
+      ENUMERATE_DISPATCH(INTSXP, INTSXP);
+    case REALSXP:
+      ENUMERATE_DISPATCH(INTSXP, REALSXP);
+    case LGLSXP:
+      ENUMERATE_DISPATCH(INTSXP, LGLSXP);
+    case STRSXP:
+      ENUMERATE_DISPATCH(INTSXP, INTSXP);
+    case NILSXP:
+      ENUMERATE_DISPATCH(INTSXP, VECSXP);
+    }
+
+    break;
+  }
+
+  case REALSXP:
+  {
+    SEXP names = PROTECT(Rf_getAttrib(x, R_NamesSymbol));
+    switch (TYPEOF(type))
+    {
+    case INTSXP:
+      ENUMERATE_DISPATCH(REALSXP, REALSXP);
+    case REALSXP:
+      ENUMERATE_DISPATCH(REALSXP, REALSXP);
+    case LGLSXP:
+      ENUMERATE_DISPATCH(REALSXP, LGLSXP);
+    case STRSXP:
+      ENUMERATE_DISPATCH(REALSXP, REALSXP);
+    case NILSXP:
+      ENUMERATE_DISPATCH(REALSXP, VECSXP);
+    }
+
+    break;
+  }
+
+  case LGLSXP:
+  {
+    SEXP names = PROTECT(Rf_getAttrib(x, R_NamesSymbol));
+    switch (TYPEOF(type))
+    {
+    case INTSXP:
+      ENUMERATE_DISPATCH(LGLSXP, LGLSXP);
+    case REALSXP:
+      ENUMERATE_DISPATCH(LGLSXP, LGLSXP);
+    case LGLSXP:
+      ENUMERATE_DISPATCH(LGLSXP, LGLSXP);
+    case STRSXP:
+      ENUMERATE_DISPATCH(LGLSXP, LGLSXP);
+    case NILSXP:
+      ENUMERATE_DISPATCH(LGLSXP, VECSXP);
+    }
+
+    break;
+  }
 
   case STRSXP:
   {
