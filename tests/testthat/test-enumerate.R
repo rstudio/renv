@@ -10,7 +10,7 @@ test_that("enumerate() handles identity maps", {
   
   for (i in seq_along(data)) {
     expect_identical(
-      enumerate(data[[i]], function(key, value) value, FUN.VALUE = data[[i]]),
+      enumerate(data[[i]], function(key, value) value, FUN.VALUE = data[[i]][[1L]]),
       data[[i]]
     )
   }

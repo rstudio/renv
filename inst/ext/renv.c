@@ -11,13 +11,15 @@
 #define INT_PTR INTEGER
 #define LGL_PTR LOGICAL
 
-static const int _NILSXP = NILSXP;
-static const int _INTSXP = INTSXP;
-static const int _DBLSXP = DBLSXP;
-static const int _LGLSXP = LGLSXP;
-static const int _STRSXP = STRSXP;
-static const int _VECSXP = VECSXP;
-static const int _ENVSXP = ENVSXP;
+enum {
+  _NILSXP = NILSXP,
+  _INTSXP = INTSXP,
+  _DBLSXP = DBLSXP,
+  _LGLSXP = LGLSXP,
+  _STRSXP = STRSXP,
+  _VECSXP = VECSXP,
+  _ENVSXP = ENVSXP,
+};
 
 // Initialized in R_init_renv
 static SEXP s_callbacksym;
@@ -297,7 +299,9 @@ static SEXP recurse(SEXP object,
   {
     symbol = TAG(FORMALS(callback));
     expr = BODY(callback);
-    frame = PROTECT(R_NewEnv(CLOENV(callback), 0, 29));
+    SEXP call = PROTECT(Rf_lang3(Rf_install("new.env"), Rf_ScalarLogical(0), CLOENV(callback)));
+    frame = PROTECT(Rf_eval(call, R_BaseNamespace));
+    UNPROTECT(1);
   }
 
   const int size = 16384;
