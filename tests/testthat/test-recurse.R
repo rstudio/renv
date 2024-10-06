@@ -21,9 +21,24 @@ test_that("recurse() can handle lists", {
   
   expect_equal(items, list(1, 2, 3, 4))
   
+  items <- list()
+  recurse(data, function(el, ignored) {
+    if (is.numeric(el))
+      items[[length(items) + 1L]] <<- el
+  }, ignored = 42)
+  
+  expect_equal(items, list(1, 2, 3, 4))
+  
 })
 
 test_that("recurse() can handle dots", {
+  
+  counter <- 0L
+  recurse(list(1, list(2, list(3, list(4, list(5))))), function(node) {
+    if (is.list(node))
+      counter <<- counter + 1L
+  })
+  expect_equal(counter, 5L)
   
   counter <- 0L
   recurse(list(1, list(2, list(3, list(4, list(5))))), function(node, extra) {

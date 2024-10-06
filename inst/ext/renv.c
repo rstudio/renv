@@ -19,6 +19,10 @@ static const int _STRSXP = STRSXP;
 static const int _VECSXP = VECSXP;
 static const int _ENVSXP = ENVSXP;
 
+// Initialized in R_init_renv
+static SEXP s_callbacksym;
+static SEXP s_objectsym;
+
 static SEXP renv_call_expect(SEXP node,
                              SEXP package,
                              SEXP methods)
@@ -283,51 +287,75 @@ static SEXP enumerate(SEXP x,
   return R_NilValue;
 }
 
-static SEXP recurse_impl(SEXP object,
-                         SEXP objectsym,
-                         SEXP callback,
-                         SEXP callbacksym,
-                         SEXP envir)
-{
-  if (object != R_MissingArg)
-  {
-    Rf_defineVar(objectsym, object, envir);
-    SEXP call = Rf_lang3(callbacksym, objectsym, R_DotsSymbol);
-    R_forceAndCall(call, 1, envir);
-  }
-
-  switch (TYPEOF(object))
-  {
-  case VECSXP:
-  case EXPRSXP:
-  {
-    for (R_xlen_t i = 0, n = Rf_xlength(object); i < n; i++)
-      recurse_impl(VECTOR_ELT(object, i), objectsym, callback, callbacksym, envir);
-    break;
-  }
-
-  case LISTSXP:
-  case LANGSXP:
-  {
-    while (object != R_NilValue)
-    {
-      recurse_impl(CAR(object), objectsym, callback, callbacksym, envir);
-      object = CDR(object);
-    }
-    break;
-  }
-  }
-
-  return R_NilValue;
-}
-
 static SEXP recurse(SEXP object,
                     SEXP callback,
                     SEXP envir)
 {
-  SEXP callbacksym = Rf_install("callback");
-  SEXP objectsym = Rf_install("object");
-  return recurse_impl(object, objectsym, callback, callbacksym, envir);
+  SEXP symbol, expr, frame = R_NilValue;
+  SEXP dots = Rf_findVarInFrame(envir, R_DotsSymbol);
+  if (TYPEOF(callback) == CLOSXP && dots == R_MissingArg)
+  {
+    symbol = TAG(FORMALS(callback));
+    expr = BODY(callback);
+    frame = PROTECT(R_NewEnv(CLOENV(callback), 0, 29));
+  }
+
+  const int size = 16384;
+  SEXP queue[size];
+  queue[0] = object;
+
+  int index = 0;
+  int slot = 1;
+
+  while (index != slot)
+  {
+    object = queue[index++];
+    index = index % size;
+
+    if (object != R_MissingArg)
+    {
+      if (frame == R_NilValue)
+      {
+        Rf_defineVar(s_objectsym, object, envir);
+        SEXP call = Rf_lang3(s_callbacksym, s_objectsym, R_DotsSymbol);
+        R_forceAndCall(call, 1, envir);
+      }
+      else
+      {
+        Rf_defineVar(symbol, object, frame);
+        Rf_eval(expr, frame);
+      }
+    }
+
+    switch (TYPEOF(object))
+    {
+    case VECSXP:
+    case EXPRSXP:
+    {
+      for (R_xlen_t i = 0, n = Rf_xlength(object); i < n; i++)
+      {
+        queue[slot++] = VECTOR_ELT(object, i);
+        slot = slot % size;
+      }
+      break;
+    }
+
+    case LISTSXP:
+    case LANGSXP:
+    {
+      while (object != R_NilValue)
+      {
+        queue[slot++] = CAR(object);
+        slot = slot % size;
+        object = CDR(object);
+      }
+      break;
+    }
+    }
+  }
+
+  UNPROTECT(frame != R_NilValue ? 1 : 0);
+  return R_NilValue;
 }
 
 // Init ----
@@ -342,6 +370,9 @@ static const R_CallMethodDef callEntries[] = {
 
 void R_init_renv(DllInfo* dllInfo)
 {
+  s_callbacksym = Rf_install("callback");
+  s_objectsym = Rf_install("object");
+
   R_registerRoutines(dllInfo, NULL, callEntries, NULL, NULL);
   R_useDynamicSymbols(dllInfo, FALSE);
 }
