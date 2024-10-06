@@ -15,16 +15,13 @@
 
 `__ffi__recurse` <- function(object, callback, ...) {
   
-  symbol <- as.symbol(names(formals(args(callback)))[[1L]])
-  expr <- body(callback)
-  envir <- new.env(parent = environment(callback))
+  callback <- match.fun(callback)
   
   .Call(
     "renv_ffi__recurse",
     object,
-    symbol,
-    expr,
-    envir,
+    callback,
+    environment(),
     PACKAGE = "renv"
   )
   
