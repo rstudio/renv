@@ -5,6 +5,17 @@
 #include <R_ext/Rdynload.h>
 #include <Rinternals.h>
 
+// needed for macro sanity below
+#define DBLSXP REALSXP
+
+static const int _NILSXP = NILSXP;
+static const int _INTSXP = INTSXP;
+static const int _DBLSXP = DBLSXP;
+static const int _LGLSXP = LGLSXP;
+static const int _STRSXP = STRSXP;
+static const int _VECSXP = VECSXP;
+static const int _ENVSXP = ENVSXP;
+
 static SEXP renv_call_expect(SEXP node,
                              SEXP package,
                              SEXP methods)
@@ -96,38 +107,77 @@ static SEXP renv_dependencies_recurse(SEXP object,
   return object;
 }
 
+#define EMPTY
+
+#define GET_NAMES_INTSXP(__X__) Rf_getAttrib(__X__, R_NamesSymbol)
+#define GET_NAMES_DBLSXP(__X__) Rf_getAttrib(__X__, R_NamesSymbol)
+#define GET_NAMES_LGLSXP(__X__) Rf_getAttrib(__X__, R_NamesSymbol)
+#define GET_NAMES_STRSXP(__X__) Rf_getAttrib(__X__, R_NamesSymbol)
+#define GET_NAMES_VECSXP(__X__) Rf_getAttrib(__X__, R_NamesSymbol)
+#define GET_NAMES_ENVSXP(__X__) R_lsInternal(__X__, FALSE)
+
 #define GET_INTSXP(__X__, __I__) Rf_ScalarInteger(INTEGER(__X__)[__I__])
-#define GET_REALSXP(__X__, __I__) Rf_ScalarReal(REAL(__X__)[__I__])
+#define GET_DBLSXP(__X__, __I__) Rf_ScalarReal(REAL(__X__)[__I__])
 #define GET_LGLSXP(__X__, __I__) Rf_ScalarLogical(LOGICAL(__X__)[__I__])
 #define GET_STRSXP(__X__, __I__) Rf_ScalarString(STRING_ELT(__X__, __I__))
 #define GET_VECSXP(__X__, __I__) VECTOR_ELT(__X__, __I__)
 
 #define EXTRACT_INTSXP(__X__) INTEGER(__X__)[0]
-#define EXTRACT_REALSXP(__X__) REAL(__X__)[0]
+#define EXTRACT_DBLSXP(__X__) REAL(__X__)[0]
 #define EXTRACT_LGLSXP(__X__) LOGICAL(__X__)[0]
 #define EXTRACT_STRSXP(__X__) STRING_ELT(__X__, 0)
 #define EXTRACT_VECSXP(__X__) __X__
 
 #define SET_INTSXP(__X__, __I__, __V__) INTEGER(__X__)[__I__] = __V__
-#define SET_REALSXP(__X__, __I__, __V__) REAL(__X__)[__I__] = __V__
+#define SET_DBLSXP(__X__, __I__, __V__) REAL(__X__)[__I__] = __V__
 #define SET_LGLSXP(__X__, __I__, __V__) LOGICAL(__X__)[__I__] = __V__
 #define SET_STRSXP(__X__, __I__, __V__) SET_STRING_ELT(__X__, __I__, __V__)
 #define SET_VECSXP(__X__, __I__, __V__) SET_VECTOR_ELT(__X__, __I__, __V__)
 
 #define COERCE_INTSXP(__X__) Rf_coerceVector(__X__, INTSXP)
-#define COERCE_REALSXP(__X__) Rf_coerceVector(__X__, REALSXP)
+#define COERCE_DBLSXP(__X__) Rf_coerceVector(__X__, DBLSXP)
 #define COERCE_LGLSXP(__X__) Rf_coerceVector(__X__, LGLSXP)
 #define COERCE_STRSXP(__X__) Rf_coerceVector(__X__, STRSXP)
 #define COERCE_VECSXP(__X__) __X__
 
-#define ENUMERATE_DISPATCH(__INPUT_TYPE__, __OUTPUT_TYPE__)                                                            \
-  ENUMERATE_DISPATCH_IMPL(__OUTPUT_TYPE__,                                                                             \
-                          GET_##__INPUT_TYPE__,                                                                        \
-                          SET_##__OUTPUT_TYPE__,                                                                       \
-                          EXTRACT_##__OUTPUT_TYPE__,                                                                   \
-                          COERCE_##__OUTPUT_TYPE__)
+#define ENUMERATE_CASE_IMPL_INTSXP ENUMERATE_CASE_DISPATCH
+#define ENUMERATE_CASE_IMPL_DBLSXP ENUMERATE_CASE_DISPATCH
+#define ENUMERATE_CASE_IMPL_LGLSXP ENUMERATE_CASE_DISPATCH
+#define ENUMERATE_CASE_IMPL_STRSXP ENUMERATE_CASE_DISPATCH
+#define ENUMERATE_CASE_IMPL_VECSXP ENUMERATE_CASE_DISPATCH
+#define ENUMERATE_CASE_IMPL_ENVSXP ENUMERATE_CASE_DISPATCH_ENVSXP
 
-#define ENUMERATE_DISPATCH_IMPL(__TYPE__, __GET__, __SET__, __EXTRACT__, __COERCE__)                                   \
+#define ENUMERATE_CASE(__TYPE__) ENUMERATE_CASE_IMPL(__TYPE__, GET_NAMES##__TYPE__, ENUMERATE_CASE_IMPL##__TYPE__)
+
+#define ENUMERATE_CASE_IMPL(__TYPE__, __NAMES__, __DISPATCH__)                                                         \
+  do                                                                                                                   \
+  {                                                                                                                    \
+    SEXP result = R_NilValue;                                                                                          \
+    SEXP names = PROTECT(__NAMES__(x));                                                                                \
+                                                                                                                       \
+    switch (TYPEOF(type))                                                                                              \
+    {                                                                                                                  \
+    case _INTSXP: __DISPATCH__(result, __TYPE__, _INTSXP); break;                                                      \
+    case _DBLSXP: __DISPATCH__(result, __TYPE__, _DBLSXP); break;                                                      \
+    case _LGLSXP: __DISPATCH__(result, __TYPE__, _LGLSXP); break;                                                      \
+    case _STRSXP: __DISPATCH__(result, __TYPE__, _STRSXP); break;                                                      \
+    case _VECSXP: __DISPATCH__(result, __TYPE__, _VECSXP); break;                                                      \
+    case _NILSXP: __DISPATCH__(result, __TYPE__, _VECSXP); break; \
+    }                                                                                                                  \
+                                                                                                                       \
+    UNPROTECT(1);                                                                                                      \
+    return result;                                                                                                     \
+  } while (0)
+
+#define ENUMERATE_CASE_DISPATCH(__RESULT__, __INPUT_TYPE__, __OUTPUT_TYPE__)                                           \
+  ENUMERATE_CASE_DISPATCH_IMPL(__RESULT__,                                                                             \
+                               __OUTPUT_TYPE__,                                                                        \
+                               GET##__INPUT_TYPE__,                                                                    \
+                               SET##__OUTPUT_TYPE__,                                                                   \
+                               EXTRACT##__OUTPUT_TYPE__,                                                               \
+                               COERCE##__OUTPUT_TYPE__)
+
+#define ENUMERATE_CASE_DISPATCH_IMPL(__RESULT__, __TYPE__, __GET__, __SET__, __EXTRACT__, __COERCE__)                  \
   do                                                                                                                   \
   {                                                                                                                    \
     R_xlen_t n = Rf_xlength(x);                                                                                        \
@@ -165,20 +215,26 @@ static SEXP renv_dependencies_recurse(SEXP object,
       }                                                                                                                \
     }                                                                                                                  \
                                                                                                                        \
-    UNPROTECT(2);                                                                                                      \
-    return output;                                                                                                     \
+    UNPROTECT(1);                                                                                                      \
+    __RESULT__ = output;                                                                                               \
                                                                                                                        \
   } while (0)
 
-#define ENUMERATE_DISPATCH_ENVSXP(__TYPE__)                                                                            \
-  ENUMERATE_DISPATCH_ENVSXP_IMPL(__TYPE__, EXTRACT_##__TYPE__, SET_##__TYPE__, COERCE_##__TYPE__)
+#define ENUMERATE_CASE_DISPATCH_ENVSXP(__RESULT__, __INPUT_TYPE__, __OUTPUT_TYPE__)                                    \
+  ENUMERATE_CASE_DISPATCH_ENVSXP_IMPL(__RESULT__,                                                                      \
+                                      __OUTPUT_TYPE__,                                                                 \
+                                      GET##__INPUT_TYPE__,                                                             \
+                                      SET##__OUTPUT_TYPE__,                                                            \
+                                      EXTRACT##__OUTPUT_TYPE__,                                                        \
+                                      COERCE##__OUTPUT_TYPE__)
 
-#define ENUMERATE_DISPATCH_ENVSXP_IMPL(__TYPE__, __EXTRACT__, __SET__, __COERCE__)                                     \
+#define ENUMERATE_CASE_DISPATCH_ENVSXP_IMPL(__RESULT__, __TYPE__, __GET__, __SET__, __EXTRACT__, __COERCE__)           \
   do                                                                                                                   \
   {                                                                                                                    \
     R_xlen_t n = Rf_xlength(names);                                                                                    \
     SEXP output = PROTECT(Rf_allocVector(__TYPE__, n));                                                                \
     Rf_setAttrib(output, R_NamesSymbol, names);                                                                        \
+                                                                                                                       \
     for (R_xlen_t i = 0; i < n; i++)                                                                                   \
     {                                                                                                                  \
       SEXP name = STRING_ELT(names, i);                                                                                \
@@ -194,8 +250,8 @@ static SEXP renv_dependencies_recurse(SEXP object,
       UNPROTECT(4);                                                                                                    \
     }                                                                                                                  \
                                                                                                                        \
-    UNPROTECT(2);                                                                                                      \
-    return output;                                                                                                     \
+    UNPROTECT(1);                                                                                                      \
+    __RESULT__ = output;                                                                                               \
                                                                                                                        \
   } while (0)
 
@@ -211,129 +267,12 @@ static SEXP enumerate(SEXP x,
 
   switch (TYPEOF(x))
   {
-
-  case INTSXP:
-  {
-    SEXP names = PROTECT(Rf_getAttrib(x, R_NamesSymbol));
-    switch (TYPEOF(type))
-    {
-    case INTSXP:
-      ENUMERATE_DISPATCH(INTSXP, INTSXP);
-    case REALSXP:
-      ENUMERATE_DISPATCH(INTSXP, REALSXP);
-    case LGLSXP:
-      ENUMERATE_DISPATCH(INTSXP, LGLSXP);
-    case STRSXP:
-      ENUMERATE_DISPATCH(INTSXP, INTSXP);
-    case NILSXP:
-      ENUMERATE_DISPATCH(INTSXP, VECSXP);
-    }
-
-    break;
-  }
-
-  case REALSXP:
-  {
-    SEXP names = PROTECT(Rf_getAttrib(x, R_NamesSymbol));
-    switch (TYPEOF(type))
-    {
-    case INTSXP:
-      ENUMERATE_DISPATCH(REALSXP, REALSXP);
-    case REALSXP:
-      ENUMERATE_DISPATCH(REALSXP, REALSXP);
-    case LGLSXP:
-      ENUMERATE_DISPATCH(REALSXP, LGLSXP);
-    case STRSXP:
-      ENUMERATE_DISPATCH(REALSXP, REALSXP);
-    case NILSXP:
-      ENUMERATE_DISPATCH(REALSXP, VECSXP);
-    }
-
-    break;
-  }
-
-  case LGLSXP:
-  {
-    SEXP names = PROTECT(Rf_getAttrib(x, R_NamesSymbol));
-    switch (TYPEOF(type))
-    {
-    case INTSXP:
-      ENUMERATE_DISPATCH(LGLSXP, LGLSXP);
-    case REALSXP:
-      ENUMERATE_DISPATCH(LGLSXP, LGLSXP);
-    case LGLSXP:
-      ENUMERATE_DISPATCH(LGLSXP, LGLSXP);
-    case STRSXP:
-      ENUMERATE_DISPATCH(LGLSXP, LGLSXP);
-    case NILSXP:
-      ENUMERATE_DISPATCH(LGLSXP, VECSXP);
-    }
-
-    break;
-  }
-
-  case STRSXP:
-  {
-
-    SEXP names = PROTECT(Rf_getAttrib(x, R_NamesSymbol));
-    switch (TYPEOF(type))
-    {
-    case INTSXP:
-      ENUMERATE_DISPATCH(STRSXP, INTSXP);
-    case REALSXP:
-      ENUMERATE_DISPATCH(STRSXP, REALSXP);
-    case LGLSXP:
-      ENUMERATE_DISPATCH(STRSXP, LGLSXP);
-    case STRSXP:
-      ENUMERATE_DISPATCH(STRSXP, STRSXP);
-    case NILSXP:
-      ENUMERATE_DISPATCH(STRSXP, VECSXP);
-    }
-
-    break;
-  }
-
-  case VECSXP:
-  {
-
-    SEXP names = PROTECT(Rf_getAttrib(x, R_NamesSymbol));
-    switch (TYPEOF(type))
-    {
-    case INTSXP:
-      ENUMERATE_DISPATCH(VECSXP, INTSXP);
-    case REALSXP:
-      ENUMERATE_DISPATCH(VECSXP, REALSXP);
-    case LGLSXP:
-      ENUMERATE_DISPATCH(VECSXP, LGLSXP);
-    case STRSXP:
-      ENUMERATE_DISPATCH(VECSXP, STRSXP);
-    case NILSXP:
-      ENUMERATE_DISPATCH(VECSXP, VECSXP);
-    }
-
-    break;
-  }
-
-  case ENVSXP:
-  {
-
-    SEXP names = PROTECT(R_lsInternal(x, TRUE));
-    switch (TYPEOF(type))
-    {
-    case INTSXP:
-      ENUMERATE_DISPATCH_ENVSXP(INTSXP);
-    case REALSXP:
-      ENUMERATE_DISPATCH_ENVSXP(REALSXP);
-    case LGLSXP:
-      ENUMERATE_DISPATCH_ENVSXP(LGLSXP);
-    case STRSXP:
-      ENUMERATE_DISPATCH_ENVSXP(STRSXP);
-    case NILSXP:
-      ENUMERATE_DISPATCH_ENVSXP(VECSXP);
-    }
-
-    break;
-  }
+  case _INTSXP: ENUMERATE_CASE(_INTSXP);
+  case _DBLSXP: ENUMERATE_CASE(_DBLSXP);
+  case _LGLSXP: ENUMERATE_CASE(_LGLSXP);
+  case _STRSXP: ENUMERATE_CASE(_STRSXP);
+  case _VECSXP: ENUMERATE_CASE(_VECSXP);
+  case _ENVSXP: ENUMERATE_CASE(_ENVSXP);
   }
 
   Rf_error("unsupported object types '%s' and '%s'", Rf_type2char(TYPEOF(x)), Rf_type2char(TYPEOF(type)));

@@ -4,6 +4,7 @@ IndentWidth: 2
 UseTab: Never
 ColumnLimit: 120
 AlignArrayOfStructures: Left
+AllowShortCaseLabelsOnASingleLine: true
 AllowShortIfStatementsOnASingleLine: false
 BinPackArguments: false
 BinPackParameters: AlwaysOnePerLine
