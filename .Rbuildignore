@@ -5,6 +5,7 @@
 ^\.Rproj\.user$
 
 ^.*\.backup$
+\.clang-format$
 \.covrignore$
 \.renvignore$
 \.vscode
