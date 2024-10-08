@@ -175,6 +175,12 @@ test_that("packages referenced by modules::import() are discovered", {
   expect_setequal(deps$Package, c("A", "B", "C", "D", "G", "H", "modules"))
 })
 
+# https://github.com/rstudio/renv/issues/2007
+test_that("module without parameter doesn't give an error", {
+  deps <- dependencies("resources/modules-empty.R")
+  expect_setequal(deps$Package, character())
+})
+
 test_that("dependencies specified in R Markdown site generators are found", {
 
   renv_tests_scope()

@@ -1265,7 +1265,8 @@ renv_dependencies_discover_r_modules <- function(node, envir) {
   
   # check for 'import' usages with a module block
   node <- renv_call_expect(node, "modules", "module")
-  if (identical(node[[1L]], quote(module)) &&
+  if (length(node) >= 2L &&
+      identical(node[[1L]], quote(module)) &&
       is.call(node[[2L]]) &&
       identical(node[[2L]][[1L]], as.symbol("{")))
   {

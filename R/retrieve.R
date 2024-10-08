@@ -943,7 +943,7 @@ renv_retrieve_repos_archive_root <- function(url, record) {
   
 }
 
-renv_retrieve_repos_archive_formatter <- function(url, record) {
+renv_retrieve_repos_archive_formatter <- function(url) {
 
   # list of known formatters
   formatters <- list(

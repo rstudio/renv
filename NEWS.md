@@ -1,6 +1,9 @@
 
 # renv (development version)
 
+* Fixed an issue where `renv::snapshot()` could fail if the project
+  contained a call to `module()` with no arguments. (#2007)
+
 
 # renv 1.0.10
 
