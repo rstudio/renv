@@ -163,10 +163,13 @@ renv_pak_restore <- function(lockfile,
     return(invisible(TRUE))
   }
 
-  # perform installation
+  # perform installation -- use 'dependencies = FALSE' to disable the
+  # pak dependency resolver, as the lockfile should already be complete
+  # https://github.com/rstudio/renv/issues/1883#issuecomment-2404113473
   pak$pkg_install(
     pkg = remotes,
     ask = prompt,
+    dependencies = FALSE
   )
 
   # return installed records
