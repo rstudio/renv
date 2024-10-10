@@ -166,7 +166,7 @@ renv_pak_restore <- function(lockfile,
   # perform installation
   pak$pkg_install(
     pkg = remotes,
-    ask = prompt,
+    ask = prompt
   )
 
   # return installed records
