@@ -15,6 +15,11 @@
 * Fixed an issue where `renv::snapshot()` could fail if the project
   contained a call to `module()` with no arguments. (#2007)
 
+* On Linux, `renv` now emits a message on load if the R temporary directory
+  is within a folder that has been mounted as 'noexec'. This message can be
+  suppressed by setting the `RENV_TEMPDIR_NOEXEC_CHECK=FALSE` environment
+  variable.
+  
 
 # renv 1.0.10
 
@@ -1872,3 +1877,4 @@
 # renv 0.8.0
 
 * Initial CRAN release.
+

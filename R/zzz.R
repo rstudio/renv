@@ -47,7 +47,8 @@
   renv_sandbox_init()
   renv_sdkroot_init()
   renv_watchdog_init()
-
+  renv_tempdir_init()
+  
   if (!renv_metadata_embedded()) {
 
     # TODO: It's not clear if these callbacks are safe to use when renv is

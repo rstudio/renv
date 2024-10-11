@@ -588,3 +588,8 @@ warnify <- function(cnd) {
   class(cnd) <- c("warning", "condition")
   warning(cnd)
 }
+
+# note: also handles stringy values like 'True'
+not <- function(value) {
+  if (value) FALSE else TRUE
+}
