@@ -57,6 +57,7 @@
 <li><p><code>renv</code> now assumes that Artifactory package repositories will use a CRAN-like layout of packages for packages in the archive. (<a href="https://github.com/rstudio/renv/issues/1996" class="external-link">#1996</a>)</p></li>
 <li><p><code>renv</code> now includes compiled extensions on Linux + macOS. These extensions are primarily used to improve the performance of <code><a href="../reference/dependencies.html">renv::dependencies()</a></code> and other static analysis code. Support for Windows will come in a future release.</p></li>
 <li><p>Fixed an issue where <code><a href="../reference/snapshot.html">renv::snapshot()</a></code> could fail if the project contained a call to <code>module()</code> with no arguments. (<a href="https://github.com/rstudio/renv/issues/2007" class="external-link">#2007</a>)</p></li>
+<li><p>On Linux, <code>renv</code> now emits a message on load if the R temporary directory is within a folder that has been mounted as ‘noexec’. This message can be suppressed by setting the <code>RENV_TEMPDIR_NOEXEC_CHECK=FALSE</code> environment variable.</p></li>
 </ul></div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="1.0.10" id="renv-1010">renv 1.0.10<a class="anchor" aria-label="anchor" href="#renv-1010"></a></h2><p class="text-muted">CRAN release: 2024-10-05</p>
