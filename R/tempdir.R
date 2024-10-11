@@ -12,10 +12,11 @@ renv_tempdir_init <- function() {
     
   # check that scripts within the R temporary directory can be executed
   script <- tempfile("renv-script-", fileext = ".sh")
-  writeLines("echo hello world", con = script)
+  writeLines("#!/usr/bin/env sh", con = script)
+  Sys.chmod(script, mode = "0755")
   on.exit(unlink(script), add = TRUE)
   
-  status <- system2("/bin/sh", shQuote(script), stdout = FALSE, stderr = FALSE)
+  status <- system(script, ignore.stdout = TRUE, ignore.stderr = TRUE)
   if (identical(status, 0L))
     return()
   
