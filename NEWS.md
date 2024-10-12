@@ -1,5 +1,5 @@
 
-# renv (development version)
+# renv 1.0.11
 
 * Fixed an issue where headers were not properly passed to `available.packages()`
   during `renv` bootstrap. (#1942)
@@ -10,7 +10,7 @@
 * `renv` now includes compiled extensions on Linux + macOS. These
   extensions are primarily used to improve the performance of
   `renv::dependencies()` and other static analysis code.
-  Support for Windows will come in a future release.
+  Support for Windows may come in a future release.
 
 * Fixed an issue where `renv::snapshot()` could fail if the project
   contained a call to `module()` with no arguments. (#2007)
