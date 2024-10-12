@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">renv</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">1.0.10</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">1.0.11</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -52,7 +52,15 @@
     </div>
 
     <div class="section level2">
-<h2 class="pkg-version" data-toc-text="1.0.10" id="renv-1010">renv 1.0.10<a class="anchor" aria-label="anchor" href="#renv-1010"></a></h2>
+<h2 class="pkg-version" data-toc-text="1.0.11" id="renv-1011">renv 1.0.11<a class="anchor" aria-label="anchor" href="#renv-1011"></a></h2><p class="text-muted">CRAN release: 2024-10-12</p>
+<ul><li><p>Fixed an issue where headers were not properly passed to <code><a href="https://rdrr.io/r/utils/available.packages.html" class="external-link">available.packages()</a></code> during <code>renv</code> bootstrap. (<a href="https://github.com/rstudio/renv/issues/1942" class="external-link">#1942</a>)</p></li>
+<li><p><code>renv</code> now assumes that Artifactory package repositories will use a CRAN-like layout of packages for packages in the archive. (<a href="https://github.com/rstudio/renv/issues/1996" class="external-link">#1996</a>)</p></li>
+<li><p><code>renv</code> now includes compiled extensions on Linux + macOS. These extensions are primarily used to improve the performance of <code><a href="../reference/dependencies.html">renv::dependencies()</a></code> and other static analysis code. Support for Windows may come in a future release.</p></li>
+<li><p>Fixed an issue where <code><a href="../reference/snapshot.html">renv::snapshot()</a></code> could fail if the project contained a call to <code>module()</code> with no arguments. (<a href="https://github.com/rstudio/renv/issues/2007" class="external-link">#2007</a>)</p></li>
+<li><p>On Linux, <code>renv</code> now emits a message on load if the R temporary directory is within a folder that has been mounted as ‘noexec’. This message can be suppressed by setting the <code>RENV_TEMPDIR_NOEXEC_CHECK=FALSE</code> environment variable.</p></li>
+</ul></div>
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="1.0.10" id="renv-1010">renv 1.0.10<a class="anchor" aria-label="anchor" href="#renv-1010"></a></h2><p class="text-muted">CRAN release: 2024-10-05</p>
 <ul><li><p>Fixed a performance regression in <code><a href="../reference/dependencies.html">renv::dependencies()</a></code>. (<a href="https://github.com/rstudio/renv/issues/1999" class="external-link">#1999</a>)</p></li>
 <li><p>Fixed an issue where <code>renv</code> tests could fail if the <code>parallel</code> package was loaded during test execution.</p></li>
 <li><p><code>renv</code> now determines a package repository’s type through the HTTP headers provided when accessing <code>src/contrib/PACKAGES</code>. This is mainly relevant when detecting Nexus and Artifactory repositories.</p></li>
