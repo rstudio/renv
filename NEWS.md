@@ -1,4 +1,7 @@
 
+# renv 1.1.0  (UNRELEASED)
+
+
 # renv 1.0.11
 
 * Fixed an issue where headers were not properly passed to `available.packages()`
