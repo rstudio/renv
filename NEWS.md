@@ -1,6 +1,9 @@
 
 # renv 1.1.0  (UNRELEASED)
 
+* Fixed an issue where `renv` could erroneously create a binding called 'object'
+  in the global environment on startup. (#2017)
+
 
 # renv 1.0.11
 
