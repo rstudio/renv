@@ -1075,18 +1075,30 @@ renv_dependencies_discover_r <- function(path  = NULL,
   )
 
   envir <- envir %||% new.env(parent = emptyenv())
-  renv_dependencies_recurse(expr, function(node) {
-    
-    # normalize calls (handle magrittr pipes)
-    node <- renv_call_normalize(node)
-    for (method in methods)
-      method(node, envir)
-    
-    # return (potentially transformed) node
-    assign("object", node, envir = parent.frame())
-    invisible(node)
-    
-  })
+  callback <- if (renv_ext_enabled()) {
+
+    function(node) {
+      node <- renv_call_normalize(node)
+      for (method in methods)
+        method(node, envir)
+    }
+
+  } else {
+
+    function(node) {
+
+      node <- renv_call_normalize(node)
+      for (method in methods)
+        method(node, envir)
+
+      assign("object", node, envir = parent.frame())
+      invisible(node)
+
+    }
+
+  }
+
+  renv_dependencies_recurse(expr, callback)
 
   packages <- ls(envir = envir, all.names = TRUE)
   renv_dependencies_list(path, packages, dev = dev)
