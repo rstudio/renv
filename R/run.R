@@ -15,14 +15,23 @@
 #'
 #' @param name The name to associate with the job, for scripts run as a job.
 #'
+#' @param args description A character vector of command line arguments to be
+#'   passed to the launched job. These parameters can be accessed via
+#'   `commandArgs(trailingOnly = FALSE)`.
+#'
 #' @param project The path to the renv project. This project will be loaded
 #'   before the requested script is executed. When `NULL` (the default), renv
 #'   will automatically determine the project root for the associated script
 #'   if possible.
 #'
 #' @export
-run <- function(script, ..., job = NULL, name = NULL, project = NULL) {
-
+run <- function(script,
+                ...,
+                job = NULL,
+                name = NULL,
+                args = NULL,
+                project = NULL)
+{
   renv_scope_error_handler()
   renv_dots_check(...)
 
@@ -59,18 +68,37 @@ run <- function(script, ..., job = NULL, name = NULL, project = NULL) {
     stopf("cannot run script as job: required versions of RStudio + rstudioapi not available")
 
   if (jobbable)
-    renv_run_job(script = script, name = name, project = project)
+    renv_run_job(script = script, name = name, args = args, project = project)
   else
-    renv_run_impl(script = script, name = name, project = project)
-
+    renv_run_impl(script = script, name = name, args = args, project = project)
 }
 
-renv_run_job <- function(script, name, project) {
+renv_run_job <- function(script, name, args, project) {
 
   activate <- renv_paths_activate(project = project)
   exprs <- expr({
+
+    # insert a shim for commandArg
+    local({
+
+      # unlock binding temporarily
+      base <- .BaseNamespaceEnv
+      base$unlockBinding("commandArgs", base)
+      on.exit(base$lockBinding("commandArgs", base), add = TRUE)
+
+      # insert our shim
+      cargs <- commandArgs(trailingOnly = FALSE)
+      base$commandArgs <- function(trailingOnly = FALSE) {
+        result <- !!args
+        if (trailingOnly) result else union(cargs, result)
+      }
+
+    })
+
+    # run the script
     source(!!activate)
     source(!!script)
+
   })
 
   code <- deparse(exprs)
@@ -85,7 +113,10 @@ renv_run_job <- function(script, name, project) {
 
 }
 
-renv_run_impl <- function(script, name, project) {
+renv_run_impl <- function(script, name, args, project) {
   renv_scope_wd(project)
-  system2(R(), c("-s", "-f", renv_shell_path(script)))
+  system2(R(), c(
+    "-s", "-f", renv_shell_path(script),
+    if (length(args)) c("--args", args)
+  ), wait = FALSE)
 }

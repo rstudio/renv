@@ -593,3 +593,9 @@ warnify <- function(cnd) {
 not <- function(value) {
   if (value) FALSE else TRUE
 }
+
+wait <- function(predicate, ...) {
+  while (TRUE)
+    if (predicate(...))
+      break
+}

@@ -4,7 +4,7 @@
 \alias{run}
 \title{Run a script}
 \usage{
-run(script, ..., job = NULL, name = NULL, project = NULL)
+run(script, ..., job = NULL, name = NULL, args = NULL, project = NULL)
 }
 \arguments{
 \item{script}{The path to an \R script.}
@@ -18,6 +18,10 @@ script will be run as a job if possible, and as a regular \R process
 launched by \code{\link[=system2]{system2()}} if not.}
 
 \item{name}{The name to associate with the job, for scripts run as a job.}
+
+\item{args}{description A character vector of command line arguments to be
+passed to the launched job. These parameters can be accessed via
+\code{commandArgs(trailingOnly = FALSE)}.}
 
 \item{project}{The path to the renv project. This project will be loaded
 before the requested script is executed. When \code{NULL} (the default), renv
