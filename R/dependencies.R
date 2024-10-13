@@ -1081,6 +1081,7 @@ renv_dependencies_discover_r <- function(path  = NULL,
       node <- renv_call_normalize(node)
       for (method in methods)
         method(node, envir)
+      invisible(node)
     }
 
   } else {
