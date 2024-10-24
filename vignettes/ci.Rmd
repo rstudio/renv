@@ -103,7 +103,6 @@ cache:
   key: ${CI_PROJECT_NAME}
   paths:
     - ${RENV_PATHS_ROOT}
-      
 
 before_script:
   - < ... other pre-deploy steps ... >
