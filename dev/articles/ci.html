@@ -181,12 +181,12 @@ on GitHub actions.</p>
 <p>The following template can be used as a base when using renv with <a href="https://about.gitlab.com/solutions/continuous-integration/" class="external-link">GitLab
 CI</a>:</p>
 <pre><code>variables:
-  RENV_PATHS_CACHE: ${CI_PROJECT_DIR}/renv/cache
+  RENV_PATHS_ROOT: ${CI_PROJECT_DIR}/renv
 
 cache:
   key: ${CI_PROJECT_NAME}
   paths:
-    - ${RENV_PATHS_CACHE}
+    - ${RENV_PATHS_ROOT}
 
 before_script:
   - &lt; ... other pre-deploy steps ... &gt;
