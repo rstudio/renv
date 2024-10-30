@@ -256,7 +256,7 @@ renv_use_python_fini <- function(info, name, version, project) {
   # check if those paths are project-relative environments
   if (!is.null(name) && grepl("/", name, fixed = TRUE)) {
     name <- renv_path_normalize(name)
-    if (startswith(name, project)) {
+    if (startsWith(name, project)) {
       base <- substring(name, nchar(project) + 2L)
       name <- if (grepl("^[.][^/]+$", base)) base else file.path(".", base)
     }

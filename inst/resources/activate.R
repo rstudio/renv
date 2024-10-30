@@ -209,10 +209,6 @@ local({
   
   }
   
-  startswith <- function(string, prefix) {
-    substring(string, 1, nchar(prefix)) == prefix
-  }
-  
   bootstrap <- function(version, library) {
   
     friendly <- renv_bootstrap_version_friendly(version)
@@ -951,8 +947,14 @@ local({
   }
   
   renv_bootstrap_validate_version_dev <- function(version, description) {
+    
     expected <- description[["RemoteSha"]]
-    is.character(expected) && startswith(expected, version)
+    if (!is.character(expected))
+      return(FALSE)
+    
+    pattern <- sprintf("^\\Q%s\\E", version)
+    grepl(pattern, expected, perl = TRUE)
+    
   }
   
   renv_bootstrap_validate_version_release <- function(version, description) {

@@ -145,7 +145,7 @@ renv_path_pretty <- function(path) {
 }
 
 renv_path_relative <- function(path, root) {
-  within <- startswith(path, root)
+  within <- startsWith(path, root)
   path[within] <- substring(path[within], nchar(root) + 2L)
   path
 }

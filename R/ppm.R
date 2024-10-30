@@ -75,7 +75,7 @@ renv_ppm_transform_impl <- function(url) {
     getOption("renv.ppm.repos", default = NULL)
   )
 
-  if (any(startswith(url, known))) {
+  if (any(startsWith(url, known))) {
     parts <- c(dirname(url), "__linux__", platform, basename(url))
     binurl <- paste(parts, collapse = "/")
     return(binurl)
