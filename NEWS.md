@@ -1,6 +1,8 @@
 
 # renv 1.1.0  (UNRELEASED)
 
+* The performance of `renv`'s built-in JSON reader has been improved. (#2021)
+
 * Fixed an issue where `renv` could erroneously create a binding called 'object'
   in the global environment on startup. (#2017)
 

@@ -132,7 +132,7 @@ test_that("NA values are properly serialized", {
 test_that("we fall back to the internal JSON reader if jsonlite fails", {
 
   skip_if_not_installed("jsonlite")
-  json <- renv_json_read(text = "[key: NA]")
+  json <- renv_json_read(text = "[\"key\": NA]")
   expect_equal(json, list(key = NA))
 
 })
