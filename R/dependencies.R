@@ -295,6 +295,7 @@ renv_dependencies_root_impl <- function(path) {
 renv_dependencies_callback <- function(path) {
 
   cbname <- list(
+    ".lintr"        = function(path) renv_dependencies_discover_lintr(path),
     ".Rprofile"     = function(path) renv_dependencies_discover_r(path),
     "DESCRIPTION"   = function(path) renv_dependencies_discover_description(path),
     "NAMESPACE"     = function(path) renv_dependencies_discover_namespace(path),
@@ -1027,6 +1028,10 @@ renv_dependencies_discover_rproj <- function(path) {
 
   renv_dependencies_list(path, deps$data(), dev = TRUE)
 
+}
+
+renv_dependencies_discover_lintr <- function(path) {
+  renv_dependencies_list(path, "lintr", dev = TRUE)
 }
 
 renv_dependencies_discover_r <- function(path  = NULL,

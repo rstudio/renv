@@ -630,3 +630,10 @@ test_that("R scripts that appear destined for knitr::spin() are detected", {
   result <- dependencies("resources/knitr-spin.R", quiet = TRUE)
   expect_contains(result$Package, c("knitr", "rmarkdown"))
 })
+
+test_that("renv infers a dev. dependency on lintr", {
+  project <- renv_tests_scope()
+  file.create(".lintr")
+  deps <- dependencies(quiet = TRUE, dev = TRUE)
+  expect_contains(deps$Package, "lintr")
+})
