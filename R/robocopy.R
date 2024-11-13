@@ -14,7 +14,7 @@ renv_robocopy_exec <- function(source, target, flags = NULL) {
     command = "robocopy",
     args    = c(flags, renv_shell_path(source), renv_shell_path(target)),
     action  = "copying directory",
-    success = 0:8,
+    success = 0:7,
     quiet   = TRUE
   )
 
