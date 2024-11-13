@@ -7,7 +7,9 @@ test_that("run() can be called with arguments", {
 
   output <- tempfile("renv-output-")
   script <- renv_test_code({
-    writeLines(commandArgs(trailingOnly = TRUE), con = output)
+    tmpfile <- tempfile(pattern = "renv-script-", tmpdir = dirname(output))
+    writeLines(commandArgs(trailingOnly = TRUE), con = tmpfile)
+    file.rename(tmpfile, output)
   }, list(output = output))
 
   args <- c("--apple", "--banana", "--cherry")
@@ -19,6 +21,7 @@ test_that("run() can be called with arguments", {
   )
 
   wait(file.exists, output)
+  Sys.sleep(0.1)
 
   contents <- readLines(output)
   expect_equal(contents, args)
