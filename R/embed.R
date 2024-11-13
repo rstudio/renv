@@ -1,4 +1,4 @@
-#' Capture and re-use dependencies within a `.R` or `.Rmd`
+#' Capture and re-use dependencies within a `.R`, `.Rmd` or `.qmd`
 #'
 #' @description
 #' Together, `embed()` and `use()` provide a lightweight way to specify and
@@ -16,7 +16,7 @@
 #' )
 #' ```
 #'
-#' Then, when you next run your R script or render your `.Rmd`, `use()` will:
+#' Then, when you next run your R script or render your `.Rmd` or `.qmd`, `use()` will:
 #'
 #' 1. Create a temporary library path.
 #'

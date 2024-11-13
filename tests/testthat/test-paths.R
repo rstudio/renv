@@ -8,7 +8,7 @@ test_that("all renv paths live within tempdir() during tests", {
 test_that("the cache path can be set through an environment variable", {
   cachepath <- renv_scope_tempfile("renv-cache-")
   renv_scope_envvars(RENV_PATHS_CACHE = cachepath)
-  expect_true(startswith(renv_paths_cache(), cachepath))
+  expect_true(startsWith(renv_paths_cache(), cachepath))
 })
 
 test_that("we can construct paths to multiple files with path APIs", {
@@ -30,7 +30,7 @@ test_that("RENV_PATHS_PREFIX is respected", {
   expect_true(grepl(os, libpath, fixed = TRUE))
 
   prefix <- renv_platform_prefix()
-  expect_true(startswith(prefix, os))
+  expect_true(startsWith(prefix, os))
 
 })
 

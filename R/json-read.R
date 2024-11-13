@@ -32,95 +32,98 @@ renv_json_read_jsonlite <- function(file = NULL, text = NULL) {
   jsonlite::fromJSON(txt = text, simplifyVector = FALSE)
 }
 
+renv_json_read_patterns <- function() {
+  
+  list(
+    
+    # objects
+    list("{", "\t\n\tobject(\t\n\t"),
+    list("}", "\t\n\t)\t\n\t"),
+    
+    # arrays
+    list("[", "\t\n\tarray(\t\n\t"),
+    list("]", "\n\t\n)\n\t\n"),
+    
+    # maps
+    list(":", "\t\n\t=\t\n\t")
+    
+  )
+  
+}
+
+renv_json_read_envir <- function() {
+
+  envir <- new.env(parent = emptyenv())
+  
+  envir[["+"]] <- `+`
+  envir[["-"]] <- `-`
+  
+  envir[["object"]] <- function(...) {
+    result <- list(...)
+    names(result) <- as.character(names(result))
+    result
+  }
+  
+  envir[["array"]] <- list
+  
+  envir[["true"]]  <- TRUE
+  envir[["false"]] <- FALSE
+  envir[["null"]]  <- NULL
+  
+  envir
+  
+}
+
+renv_json_read_remap <- function(object, patterns) {
+  
+  # repair names if necessary
+  if (!is.null(names(object))) {
+    
+    nms <- names(object)
+    for (pattern in patterns)
+      nms <- gsub(pattern[[2L]], pattern[[1L]], nms, fixed = TRUE)
+    names(object) <- nms
+    
+  }
+  
+  # repair strings if necessary
+  if (is.character(object)) {
+    for (pattern in patterns)
+      object <- gsub(pattern[[2L]], pattern[[1L]], object, fixed = TRUE)
+  }
+  
+  # recurse for other objects
+  if (is.recursive(object))
+    for (i in seq_along(object))
+      object[i] <- list(renv_json_read_remap(object[[i]], patterns))
+  
+  # return remapped object
+  object
+  
+}
+
 renv_json_read_default <- function(file = NULL, text = NULL) {
 
-  # find strings in the JSON
+  # read json text
   text <- paste(text %||% readLines(file, warn = FALSE), collapse = "\n")
-  pattern <- '["](?:(?:\\\\.)|(?:[^"\\\\]))*?["]'
-  locs <- gregexpr(pattern, text, perl = TRUE)[[1]]
-
-  # if any are found, replace them with placeholders
-  replaced <- text
-  strings <- character()
-  replacements <- character()
-
-  if (!identical(c(locs), -1L)) {
-
-    # get the string values
-    starts <- locs
-    ends <- locs + attr(locs, "match.length") - 1L
-    strings <- substring(text, starts, ends)
-
-    # only keep those requiring escaping
-    strings <- grep("[[\\]{}:]", strings, perl = TRUE, value = TRUE)
-
-    # compute replacements
-    replacements <- sprintf('"\032%i\032"', seq_along(strings))
-
-    # replace the strings
-    mapply(function(string, replacement) {
-      replaced <<- sub(string, replacement, replaced, fixed = TRUE)
-    }, strings, replacements)
-
-  }
-
-  # transform the JSON into something the R parser understands
-  transformed <- replaced
-  transformed <- gsub("{}", "`names<-`(list(), character())", transformed, fixed = TRUE)
-  transformed <- gsub("[[{]", "list(", transformed, perl = TRUE)
-  transformed <- gsub("[]}]", ")", transformed, perl = TRUE)
-  transformed <- gsub(":", "=", transformed, fixed = TRUE)
-  text <- paste(transformed, collapse = "\n")
-
+  
+  # convert into something the R parser will understand
+  patterns <- renv_json_read_patterns()
+  transformed <- text
+  for (pattern in patterns)
+    transformed <- gsub(pattern[[1L]], pattern[[2L]], transformed, fixed = TRUE)
+  
   # parse it
-  json <- parse(text = text, keep.source = FALSE, srcfile = NULL)[[1L]]
+  rfile <- tempfile("renv-json-", fileext = ".R")
+  on.exit(unlink(rfile), add = TRUE)
+  writeLines(transformed, con = rfile)
+  json <- parse(rfile, keep.source = FALSE, srcfile = NULL)[[1L]]
 
-  # construct map between source strings, replaced strings
-  map <- as.character(parse(text = strings))
-  names(map) <- as.character(parse(text = replacements))
+  # evaluate in safe environment
+  result <- eval(json, envir = renv_json_read_envir())
 
-  # convert to list
-  map <- as.list(map)
-
-  # remap strings in object
-  remapped <- renv_json_read_remap(json, map)
-
-  # evaluate
-  eval(remapped, envir = baseenv())
-
+  # fix up strings if necessary
+  renv_json_read_remap(result, patterns)
+  
 }
 
-renv_json_read_remap <- function(json, map) {
-
-  # fix names
-  if (!is.null(names(json))) {
-    lhs <- match(names(json), names(map), nomatch = 0L)
-    rhs <- match(names(map), names(json), nomatch = 0L)
-    names(json)[rhs] <- map[lhs]
-  }
-
-  # fix values
-  if (is.character(json))
-    return(map[[json]] %||% json)
-
-  # handle true, false, null
-  if (is.name(json)) {
-    text <- as.character(json)
-    if (text == "true")
-      return(TRUE)
-    else if (text == "false")
-      return(FALSE)
-    else if (text == "null")
-      return(NULL)
-  }
-
-  # recurse
-  if (is.recursive(json)) {
-    for (i in seq_along(json)) {
-      json[i] <- list(renv_json_read_remap(json[[i]], map))
-    }
-  }
-
-  json
-
-}

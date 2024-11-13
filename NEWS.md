@@ -4,6 +4,14 @@
 * `renv::run()` gains the `args` parameter, which can be used to pass command-line
   arguments to a script. (#2015)
 
+* `renv` now infers a dependency on `rmarkdown` and `knitr` for R scripts which
+  include YAML front-matter. (#2023)
+
+* The performance of `renv`'s built-in JSON reader has been improved. (#2021)
+
+* Fixed an issue where `renv` could erroneously create a binding called 'object'
+  in the global environment on startup. (#2017)
+
 
 # renv 1.0.11
 

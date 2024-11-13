@@ -298,7 +298,7 @@ renv_download_curl <- function(url, destfile, type, request, headers) {
   text <- paste(keys, vals, sep = " = ")
 
   # remove duplicated authorization headers
-  dupes <- startswith(text, "header =") & duplicated(text)
+  dupes <- startsWith(text, "header =") & duplicated(text)
   text <- text[!dupes]
 
   # add in stand-along flags
@@ -472,7 +472,7 @@ renv_download_auth_type <- function(url) {
   )
 
   for (host in github_hosts)
-    if (startswith(url, host))
+    if (startsWith(url, host))
       return("github")
 
   gitlab_hosts <- c(
@@ -480,7 +480,7 @@ renv_download_auth_type <- function(url) {
   )
 
   for (host in gitlab_hosts)
-    if (startswith(url, host))
+    if (startsWith(url, host))
       return("gitlab")
 
   bitbucket_hosts <- c(
@@ -489,7 +489,7 @@ renv_download_auth_type <- function(url) {
   )
 
   for (host in bitbucket_hosts)
-    if (startswith(url, host))
+    if (startsWith(url, host))
       return("bitbucket")
 
   "unknown"
@@ -783,9 +783,9 @@ renv_download_local_copy <- function(url, destfile, headers) {
 
   # remove file prefix (to get path to local / server file)
   url <- case(
-    startswith(url, "file:///") ~ substring(url, 8L),
-    startswith(url, "file://")  ~ substring(url, 6L),
-    startswith(url, "file:")    ~ substring(url, 6L),
+    startsWith(url, "file:///") ~ substring(url, 8L),
+    startsWith(url, "file://")  ~ substring(url, 6L),
+    startsWith(url, "file:")    ~ substring(url, 6L),
     TRUE                        ~ url
   )
 

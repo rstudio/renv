@@ -97,12 +97,12 @@ The following template can be used as a base when using renv with
 
 ```
 variables:
-  RENV_PATHS_CACHE: ${CI_PROJECT_DIR}/renv/cache
+  RENV_PATHS_ROOT: ${CI_PROJECT_DIR}/renv
 
 cache:
   key: ${CI_PROJECT_NAME}
   paths:
-    - ${RENV_PATHS_CACHE}
+    - ${RENV_PATHS_ROOT}
 
 before_script:
   - < ... other pre-deploy steps ... >

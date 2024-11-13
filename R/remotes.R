@@ -660,7 +660,7 @@ renv_remotes_resolve_github <- function(remote) {
   )
 
   # if an abbreviated sha was provided as the ref, expand it here
-  if (nzchar(ref) && startswith(sha, ref))
+  if (nzchar(ref) && startsWith(sha, ref))
     ref <- sha
 
   # check whether the repository has a .gitmodules file; if so, then we'll have

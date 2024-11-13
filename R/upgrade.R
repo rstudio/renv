@@ -107,6 +107,11 @@ renv_upgrade_impl <- function(project, version, reload, prompt) {
   writef("- Updating activate script")
   record <- records[["renv"]]
 
+  # make sure we forward renv.config.autoloader.enabled if set
+  # https://github.com/rstudio/renv/issues/2027
+  autoload <- config$autoloader.enabled()
+  renv_scope_envvars(RENV_CONFIG_AUTOLOADER_ENABLED = autoload)
+  
   code <- expr({
     renv <- asNamespace("renv"); renv$summon()
     renv_infrastructure_write(
