@@ -101,7 +101,13 @@ renv_pak_install <- function(packages,
     return(result)
 
   }
-
+  
+  # pak doesn't support ':' as a sub-directory separator, so try to
+  # repair that here
+  # https://github.com/rstudio/renv/issues/2011
+  pattern <- "(?<!:):([^/#@:]+)"
+  packages <- gsub(pattern, "/\\1", packages, perl = TRUE)
+  
   # build parameters
   packages <- map_chr(packages, function(package) {
 
