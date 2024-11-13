@@ -61,7 +61,7 @@ be run within an <span style="R">R</span> sub-process.</p>
 
     <div class="section level2">
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">run</span><span class="op">(</span><span class="va">script</span>, <span class="va">...</span>, job <span class="op">=</span> <span class="cn">NULL</span>, name <span class="op">=</span> <span class="cn">NULL</span>, project <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span></span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">run</span><span class="op">(</span><span class="va">script</span>, <span class="va">...</span>, job <span class="op">=</span> <span class="cn">NULL</span>, name <span class="op">=</span> <span class="cn">NULL</span>, args <span class="op">=</span> <span class="cn">NULL</span>, project <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div class="section level2">
@@ -86,6 +86,12 @@ launched by <code><a href="https://rdrr.io/r/base/system2.html" class="external-
 
 <dt id="arg-name">name<a class="anchor" aria-label="anchor" href="#arg-name"></a></dt>
 <dd><p>The name to associate with the job, for scripts run as a job.</p></dd>
+
+
+<dt id="arg-args">args<a class="anchor" aria-label="anchor" href="#arg-args"></a></dt>
+<dd><p>description A character vector of command line arguments to be
+passed to the launched job. These parameters can be accessed via
+<code>commandArgs(trailingOnly = FALSE)</code>.</p></dd>
 
 
 <dt id="arg-project">project<a class="anchor" aria-label="anchor" href="#arg-project"></a></dt>
