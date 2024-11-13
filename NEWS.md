@@ -1,6 +1,9 @@
 
 # renv 1.1.0  (UNRELEASED)
 
+* `renv::run()` gains the `args` parameter, which can be used to pass command-line
+  arguments to a script. (#2015)
+
 * `renv` now infers a dependency on `rmarkdown` and `knitr` for R scripts which
   include YAML front-matter. (#2023)
 
