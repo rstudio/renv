@@ -1,6 +1,9 @@
 
 # renv 1.1.0  (UNRELEASED)
 
+* `renv` now infers a dependency on `rmarkdown` and `knitr` for R scripts which
+  include YAML front-matter. (#2023)
+
 * The performance of `renv`'s built-in JSON reader has been improved. (#2021)
 
 * Fixed an issue where `renv` could erroneously create a binding called 'object'

@@ -1100,8 +1100,19 @@ renv_dependencies_discover_r <- function(path  = NULL,
   }
 
   renv_dependencies_recurse(expr, callback)
-
   packages <- ls(envir = envir, all.names = TRUE)
+  
+  # also try to detect knitr::spin() dependencies -- this needs to
+  # happen outside of the regular dependency discovery machinery
+  # as it will rely on checking comments in the document
+  #
+  # https://github.com/rstudio/renv/issues/2023
+  if (is.character(text) || is.character(path)) {
+    text <- text %||% readLines(path, n = 1L, warn = FALSE)
+    if (length(text) && grepl("^\\s*#'\\s*[-]{3}\\s*$", text[[1L]], perl = TRUE))
+      packages <- union(c("knitr", "rmarkdown"), packages)
+  }
+  
   renv_dependencies_list(path, packages, dev = dev)
 }
 

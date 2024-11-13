@@ -625,3 +625,8 @@ test_that("dependencies() does not create 'object' in parent environment", {
   result <- dependencies("resources/code.R", quiet = TRUE)
   expect_false(exists("object", envir = environment(), inherits = FALSE))
 })
+
+test_that("R scripts that appear destined for knitr::spin() are detected", {
+  result <- dependencies("resources/knitr-spin.R", quiet = TRUE)
+  expect_contains(result$Package, c("knitr", "rmarkdown"))
+})
