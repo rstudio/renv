@@ -59,11 +59,16 @@
 
   # if an renv project already appears to be loaded, then re-activate
   # the sandbox now -- this is primarily done to support suspend and
-  # resume with RStudio where the user profile might not be run
+  # resume with RStudio where the user profile might not have been run,
+  # but RStudio would have restored options from the prior session
+  #
+  # https://github.com/rstudio/renv/issues/2036
   if (renv_rstudio_available()) {
     project <- getOption("renv.project.path")
-    if (!is.null(project))
+    if (!is.null(project)) {
+      renv_project_set(project)
       renv_sandbox_activate(project = project)
+    }
   }
 
   # make sure renv is unloaded on exit, so locks etc. are released

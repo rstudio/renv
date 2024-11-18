@@ -32,15 +32,19 @@ renv_project_get <- function(default = NULL) {
   the$project_path %||% default
 }
 
-# NOTE: RENV_PROJECT kept for backwards compatibility with RStudio
+# NOTE: 'RENV_PROJECT' kept for backwards compatibility with RStudio
 renv_project_set <- function(project) {
   the$project_path <- project
+  # https://github.com/rstudio/renv/issues/2036
+  options(renv.project.path = project)
   Sys.setenv(RENV_PROJECT = project)
 }
 
 # NOTE: 'RENV_PROJECT' kept for backwards compatibility with RStudio
 renv_project_clear <- function() {
   the$project_path <- NULL
+  # https://github.com/rstudio/renv/issues/2036
+  options(renv.project.path = NULL)
   Sys.unsetenv("RENV_PROJECT")
 }
 
