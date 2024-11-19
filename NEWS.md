@@ -1,6 +1,9 @@
 
 # renv 1.1.0  (UNRELEASED)
 
+* `renv` now supports updating of currently-installed packages via `renv::install()`
+  when configured to use `pak`. (#2037)
+
 * Fixed an issue where `renv` library paths were not properly reset following
   a suspend / resume in RStudio Server. (#2036)
 

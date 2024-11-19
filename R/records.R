@@ -93,8 +93,11 @@ renv_record_validate <- function(package, record) {
 
 }
 
-renv_record_format_remote <- function(record, compact = FALSE, pak = FALSE) {
-
+renv_record_format_remote <- function(record,
+                                      compact = FALSE,
+                                      versioned = TRUE,
+                                      pak = FALSE)
+{
   # extract some of the commonly used fields up-front
   source <- renv_record_source(record, normalize = TRUE)
   package <- record[["Package"]]
@@ -102,13 +105,16 @@ renv_record_format_remote <- function(record, compact = FALSE, pak = FALSE) {
 
   # handle repository remotes
   if (source %in% c("cran", "repository", "standard")) {
-    remote <- paste(package, version, sep = "@")
+    parts <- c(package, if (versioned) version)
+    remote <- paste(parts, collapse = "@")
     return(remote)
   }
 
   # handle bioconductor remotes
   if (source %in% "bioconductor") {
-    remote <- sprintf("bioc::%s@%s", package, version)
+    parts <- c(package, if (versioned) version)
+    suffix <- paste(parts, collapse = "@")
+    remote <- paste("bioc", suffix, sep = "::")
     return(remote)
   }
 
@@ -153,7 +159,7 @@ renv_record_format_remote <- function(record, compact = FALSE, pak = FALSE) {
   }
 
   # prefer using 'sha' for pak remotes
-  if (pak) {
+  if (versioned && pak) {
     remote <- paste(remote, sha %||% ref %||% "HEAD", sep = "@")
     return(remote)
   }
@@ -166,7 +172,7 @@ renv_record_format_remote <- function(record, compact = FALSE, pak = FALSE) {
   }
 
   # use sha if available
-  if (length(sha)) {
+  if (versioned && length(sha)) {
     sha <- if (compact) substring(sha, 1L, 8L) else sha
     remote <- paste(c(remote, sha), collapse = "@")
     return(remote)
@@ -175,7 +181,6 @@ renv_record_format_remote <- function(record, compact = FALSE, pak = FALSE) {
   # fall back to using ref
   remote <- paste(c(remote, ref), collapse = "@")
   return(remote)
-
 }
 
 renv_record_format_short <- function(record, versioned = FALSE) {
