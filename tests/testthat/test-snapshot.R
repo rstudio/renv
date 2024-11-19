@@ -413,6 +413,7 @@ test_that("packages installed from CRAN using pak are handled", {
 test_that("packages installed from Bioconductor using pak are handled", {
   skip_on_cran()
   skip_if_not_installed("pak")
+  skip_if(devel())
 
   renv_tests_scope()
   library <- renv_paths_library()

@@ -38,3 +38,7 @@ checking <- function() {
 testing <- function() {
   identical(Sys.getenv("TESTTHAT"), "true")
 }
+
+devel <- function() {
+  identical(R.version[["status"]], "Under development (unstable)")
+}
