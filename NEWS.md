@@ -1,6 +1,9 @@
 
 # renv 1.1.0  (UNRELEASED)
 
+* Fixed an issue where `renv` erroneously reported that installed packages were
+  cached when the cache was not writable. (#2041).
+
 * `renv` now supports updating of currently-installed packages via `renv::install()`
   when configured to use `pak`. (#2037)
 

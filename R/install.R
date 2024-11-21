@@ -432,8 +432,9 @@ renv_install_package <- function(record) {
 
   # link into cache
   if (renv_cache_config_enabled(project = project)) {
-    renv_cache_synchronize(record, linkable = linkable)
-    feedback <- paste0(feedback, " and cached")
+    cached <- renv_cache_synchronize(record, linkable = linkable)
+    if (cached)
+      feedback <- paste(feedback, "and cached")
   }
 
   verbose <- config$install.verbose()
