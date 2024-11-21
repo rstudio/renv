@@ -53,7 +53,8 @@
 
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="1.1.0" id="renv-110-unreleased">renv 1.1.0 (UNRELEASED)<a class="anchor" aria-label="anchor" href="#renv-110-unreleased"></a></h2>
-<ul><li><p><code>renv</code> now supports updating of currently-installed packages via <code><a href="../reference/install.html">renv::install()</a></code> when configured to use <code>pak</code>. (<a href="https://github.com/rstudio/renv/issues/2037" class="external-link">#2037</a>)</p></li>
+<ul><li><p>Fixed an issue where <code>renv</code> erroneously reported that installed packages were cached when the cache was not writable. (<a href="https://github.com/rstudio/renv/issues/2041" class="external-link">#2041</a>).</p></li>
+<li><p><code>renv</code> now supports updating of currently-installed packages via <code><a href="../reference/install.html">renv::install()</a></code> when configured to use <code>pak</code>. (<a href="https://github.com/rstudio/renv/issues/2037" class="external-link">#2037</a>)</p></li>
 <li><p>Fixed an issue where <code>renv</code> library paths were not properly reset following a suspend / resume in RStudio Server. (<a href="https://github.com/rstudio/renv/issues/2036" class="external-link">#2036</a>)</p></li>
 <li><p><code><a href="../reference/run.html">renv::run()</a></code> gains the <code>args</code> parameter, which can be used to pass command-line arguments to a script. (<a href="https://github.com/rstudio/renv/issues/2015" class="external-link">#2015</a>)</p></li>
 <li><p><code>renv</code> now infers a dependency on <code>rmarkdown</code> and <code>knitr</code> for R scripts which include YAML front-matter. (<a href="https://github.com/rstudio/renv/issues/2023" class="external-link">#2023</a>)</p></li>
