@@ -1134,10 +1134,10 @@ local({
   
   renv_bootstrap_exec <- function(project, libpath, version) {
     if (!renv_bootstrap_load(project, libpath, version))
-      renv_bootstrap_run(version, libpath)
+      renv_bootstrap_run(project, libpath, version)
   }
   
-  renv_bootstrap_run <- function(version, libpath) {
+  renv_bootstrap_run <- function(project, libpath, version) {
   
     # perform bootstrap
     bootstrap(version, libpath)
@@ -1148,7 +1148,7 @@ local({
   
     # try again to load
     if (requireNamespace("renv", lib.loc = libpath, quietly = TRUE)) {
-      return(renv::load(project = getwd()))
+      return(renv::load(project = project))
     }
   
     # failed to download or load renv; warn the user
