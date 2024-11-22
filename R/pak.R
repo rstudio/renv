@@ -4,9 +4,10 @@ the$pak_minver <- numeric_version("0.7.0")
 
 renv_pak_init <- function(stream = NULL, force = FALSE) {
 
-  stream <- stream %||% renv_pak_stream()
-  if (force || !renv_pak_available())
+  if (force || !renv_pak_available()) {
+    stream <- stream %||% renv_pak_stream()
     renv_pak_init_impl(stream)
+  }
 
   renv_namespace_load("pak")
 
