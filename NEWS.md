@@ -1,6 +1,9 @@
 
 # renv 1.1.0  (UNRELEASED)
 
+* Fixed an issue where ignore rules of the form `!*.*` were not parsed
+  and handled correctly during dependency discovery. (#2052)
+
 * Fixed an issue where `renv` erroneously reported that installed packages were
   cached when the cache was not writable. (#2041).
 

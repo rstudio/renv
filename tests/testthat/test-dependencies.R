@@ -637,3 +637,14 @@ test_that("renv infers a dev. dependency on lintr", {
   deps <- dependencies(quiet = TRUE, dev = TRUE)
   expect_contains(deps$Package, "lintr")
 })
+
+test_that("https://github.com/rstudio/renv/issues/2052", {
+  
+  renv_scope_tempdir()
+  dir.create("subdir")
+  writeLines("library(A)", con = "subdir/test.R")
+  writeLines(c("*", "!/**/", "!*.*"), con = ".renvignore")
+  deps <- dependencies(quiet = TRUE, root = getwd())
+  expect_contains(deps$Package, "A")
+  
+})
