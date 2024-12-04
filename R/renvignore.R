@@ -154,8 +154,9 @@ renv_renvignore_parse_impl <- function(entries, prefix = "") {
   # prepend prefix
   entries <- sprintf("^\\Q%s/\\E%s", prefix, entries)
 
-  # remove \\Q\\E
+  # remove \\Q\\E, \\E\\Q
   entries <- gsub("\\Q\\E", "", entries, fixed = TRUE)
+  entries <- gsub("\\E\\Q", "", entries, fixed = TRUE)
 
   # all done!
   entries
