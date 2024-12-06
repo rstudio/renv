@@ -21,6 +21,11 @@ renv_remotes_resolve <- function(spec, latest = FALSE) {
   if (is.null(spec) || is.list(spec))
     return(spec)
 
+  # check for a package name prefix and remove it
+  regexps <- .standard_regexps()
+  pattern <- sprintf("^%s=", regexps$valid_package_name)
+  spec <- sub(pattern, "", spec)
+  
   # remove a trailing slash
   # https://github.com/rstudio/renv/issues/1135
   spec <- gsub("/+$", "", spec, perl = TRUE)

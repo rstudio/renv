@@ -93,8 +93,21 @@ hydrate <- function(packages = NULL,
   # also consider remotes; if a package is listed within Remotes,
   # then choose to install that package instead of linking it
   filter <- function(specs, remotes) {
-    packages <- map_chr(remotes, `[[`, "Package")
+    
+    packages <- enum_chr(remotes, function(package, remote) {
+      
+      # if we have a package name, use it
+      if (is.character(package) && nzchar(package))
+        return(package)
+      
+      # otherwise, resolve the remote and use the package field
+      remote <- resolve(remote)
+      remote[["Package"]]
+      
+    })
+    
     keep(specs, packages)
+    
   }
 
   remotes <- renv_project_remotes(project, filter = filter, resolve = TRUE)

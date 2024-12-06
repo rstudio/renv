@@ -1,6 +1,9 @@
 
 # renv 1.1.0  (UNRELEASED)
 
+* Fixed an issue where `renv::init()` could fail when using named remotes
+  in a DESCRIPTION file's `Remotes:` field. (#2055)
+
 * Fixed an issue where ignore rules of the form `!*.*` were not parsed
   and handled correctly during dependency discovery. (#2052)
 
