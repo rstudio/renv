@@ -53,7 +53,8 @@
 
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="1.1.0" id="renv-110-unreleased">renv 1.1.0 (UNRELEASED)<a class="anchor" aria-label="anchor" href="#renv-110-unreleased"></a></h2>
-<ul><li><p><code><a href="../reference/embed.html">renv::use()</a></code> no longer re-installs packages which are already installed and compatible with the requested packages. (<a href="https://github.com/rstudio/renv/issues/2044" class="external-link">#2044</a>)</p></li>
+<ul><li><p>Fixed an issue where <code>renv</code> could fail to check for updates for packages installed using <code>pak</code> without an explicit branch specified. (<a href="https://github.com/rstudio/renv/issues/2040" class="external-link">#2040</a>)</p></li>
+<li><p><code><a href="../reference/embed.html">renv::use()</a></code> no longer re-installs packages which are already installed and compatible with the requested packages. (<a href="https://github.com/rstudio/renv/issues/2044" class="external-link">#2044</a>)</p></li>
 <li><p>Fixed an issue where <code><a href="../reference/init.html">renv::init()</a></code> could fail when using named remotes in a DESCRIPTION file’s <code>Remotes:</code> field. (<a href="https://github.com/rstudio/renv/issues/2055" class="external-link">#2055</a>)</p></li>
 <li><p>Fixed an issue where ignore rules of the form <code>!*.*</code> were not parsed and handled correctly during dependency discovery. (<a href="https://github.com/rstudio/renv/issues/2052" class="external-link">#2052</a>)</p></li>
 <li><p>Fixed an issue where <code>renv</code> erroneously reported that installed packages were cached when the cache was not writable. (<a href="https://github.com/rstudio/renv/issues/2041" class="external-link">#2041</a>).</p></li>
