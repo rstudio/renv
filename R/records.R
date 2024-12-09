@@ -266,7 +266,7 @@ renv_record_format_pair <- function(lhs, rhs, separator = "->") {
     spec <- paste(user, repo, sep = "/")
 
     ref <- lhs$RemoteRef %||% placeholder
-    if (!ref %in% c("master", "*"))
+    if (!ref %in% c("main", "master", "*"))
       spec <- paste(spec, ref, sep = "@")
 
     fmt <- "[%s: %s %s %s]"
