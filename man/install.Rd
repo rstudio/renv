@@ -7,6 +7,7 @@
 install(
   packages = NULL,
   ...,
+  include = NULL,
   exclude = NULL,
   library = NULL,
   type = NULL,
@@ -41,6 +42,11 @@ So to install from the \code{subdir} subdirectory of GitHub package
 
 \item{...}{Unused arguments, reserved for future expansion. If any arguments
 are matched to \code{...}, renv will signal an error.}
+
+\item{include}{Packages which should be installed. \code{include} can
+occasionally be useful when you'd like to call \code{renv::install()} with
+no arguments, but restrict package installation to only some subset
+of dependencies in the project.}
 
 \item{exclude}{Packages which should not be installed. \code{exclude} is useful
 when using \code{renv::install()} to install all dependencies in a project,
