@@ -1,6 +1,10 @@
 
 # renv 1.1.0  (UNRELEASED)
 
+* `renv::install()` gains the `include` parameter, which can be useful when
+  you'd like to install a subset of dependencies within a project while also
+  respecting any declared remotes in that project's `DESCRIPTION` file. (#2055)
+
 * Fixed an issue where `renv` could fail to check for updates for packages
   installed using `pak` without an explicit branch specified. (#2040)
   

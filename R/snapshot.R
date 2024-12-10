@@ -1149,7 +1149,7 @@ renv_snapshot_report_missing <- function(missing, type) {
   if (choice == "snapshot") {
     # do nothing
   } else if (choice == "install") {
-    install(missing, prompt = FALSE)
+    install(include = missing, prompt = FALSE)
     invokeRestart(restart)
   } else {
     cancel()

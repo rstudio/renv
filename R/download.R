@@ -554,9 +554,9 @@ renv_download_auth_github_token <- function(url) {
     # ensure URL has protocol pre-pended
     url <- renv_retrieve_origin(url)
 
-    # request token
+    # request credentials for URL
     dlog("download", "requesting git credentials for url '%s'", url)
-    token <- tryCatch(
+    creds <- tryCatch(
       gitcreds::gitcreds_get(url),
       error = function(cnd) {
         warning(conditionMessage(cnd))
@@ -565,8 +565,8 @@ renv_download_auth_github_token <- function(url) {
     )
 
     # use if available
-    if (!is.null(token))
-      return(token$password)
+    if (!is.null(creds))
+      return(creds$password)
 
   }
 
