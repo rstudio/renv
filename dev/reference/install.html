@@ -73,6 +73,7 @@ installing the latest versions available from CRAN.</p>
     <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">install</span><span class="op">(</span></span>
 <span>  packages <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  <span class="va">...</span>,</span>
+<span>  include <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  exclude <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  library <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  type <span class="op">=</span> <span class="cn">NULL</span>,</span>
@@ -109,6 +110,13 @@ So to install from the <code>subdir</code> subdirectory of GitHub package
 <dt id="arg--">...<a class="anchor" aria-label="anchor" href="#arg--"></a></dt>
 <dd><p>Unused arguments, reserved for future expansion. If any arguments
 are matched to <code>...</code>, renv will signal an error.</p></dd>
+
+
+<dt id="arg-include">include<a class="anchor" aria-label="anchor" href="#arg-include"></a></dt>
+<dd><p>Packages which should be installed. <code>include</code> can
+occasionally be useful when you'd like to call <code>renv::install()</code> with
+no arguments, but restrict package installation to only some subset
+of dependencies in the project.</p></dd>
 
 
 <dt id="arg-exclude">exclude<a class="anchor" aria-label="anchor" href="#arg-exclude"></a></dt>
