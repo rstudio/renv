@@ -1,6 +1,9 @@
 
 # renv 1.1.0  (UNRELEASED)
 
+* Fixed an issue where the repositories provided to `renv::init()` were ignored
+  when also initializing `renv` with a specific version of Bioconductor.
+
 * `renv::install()` gains the `include` parameter, which can be useful when
   you'd like to install a subset of dependencies within a project while also
   respecting any declared remotes in that project's `DESCRIPTION` file. (#2055)

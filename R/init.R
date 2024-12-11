@@ -92,6 +92,7 @@ init <- function(project = NULL,
 
   # normalize repos
   repos <- renv_repos_normalize(repos %||% renv_init_repos())
+  renv_scope_options(repos = repos)
 
   # form path to lockfile, library
   library  <- renv_paths_library(project = project)
@@ -113,7 +114,8 @@ init <- function(project = NULL,
 
     # retrieve bioconductor repositories appropriate for this project
     repos <- renv_bioconductor_repos(project = project, version = biocver)
-
+    renv_scope_options(repos = repos)
+  
     # notify user
     writef("- Using Bioconductor version '%s'.", biocver)
     settings[["bioconductor.version"]] <- biocver
