@@ -10,7 +10,7 @@ renv_hash_fields <- function(dcf) {
   )
 }
 
-renv_hash_fields_default <- function() {
+renv_hash_fields_default <- function(dcf) {
   c(
     "Package", "Version",
     "Title", "Author", "Maintainer", "Description",
@@ -31,7 +31,7 @@ renv_hash_fields_remotes <- function(dcf) {
   }
   
   # grab the relevant remotes
-  remotes <- grep("^Remote(?!s)", names(dcf), perl = TRUE, value = TRUE)
+  remotes <- grep("^Remote", names(dcf), perl = TRUE, value = TRUE)
   
   # don't include 'RemoteRef' if it's a non-informative remote
   if (identical(dcf[["RemoteRef"]], "HEAD"))

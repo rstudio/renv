@@ -741,9 +741,11 @@ renv_snapshot_description_impl <- function(dcf, path = NULL) {
     dcf <- dcf[fields]
   }
 
-  # collect fields to include in lockfile
-  fields <- c("Source", renv_hash_fields(dcf), "Repository", "OS_type")
-  dcf <- dcf[renv_vector_intersect(names(dcf), fields)]
+  # drop fields that normally only appear in binary packages,
+  # or fields which might differ from user to user, or might
+  # differ depending on the mirror used for publication
+  ignore <- c("Packaged", "Date/Publication", "Built")
+  dcf[ignore] <- NULL
   
   # generate a hash if we can
   dcf[["Hash"]] <- if (the$auto_snapshot_hash) {
