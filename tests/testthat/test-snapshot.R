@@ -613,3 +613,19 @@ test_that("standard remotes drop RemoteSha if it's a version", {
   expect_null(record[["RemoteSha"]])
 
 })
+
+test_that("a package's hash can be re-generated from lockfile", {
+  
+  project <- renv_tests_scope("breakfast")
+  init()
+  
+  lockfile <- snapshot(lockfile = NULL)
+  records <- renv_lockfile_records(lockfile)
+  
+  map(records, function(record) {
+    actual <- record[["Hash"]]
+    expected <- renv_hash_description_impl(record)
+    expect_equal(actual, expected)
+  })
+  
+})
