@@ -171,8 +171,16 @@ test_that("a project with unnamed repositories can be initialized", {
   renv_scope_options(repos = repos)
   init()
 
-  repos <- getOption("repos")
-  expect_equal(names(repos), c("CRAN", "https://cloud.r-project.org"))
+  lockfile <- renv_lockfile_read("renv.lock")
+  repos <- lockfile[["R"]][["Repositories"]]
+  
+  expect_equal(
+    repos,
+    list(
+      CRAN = "https://cran.rstudio.com",
+      "https://cloud.r-project.org" = "https://cloud.r-project.org"
+    )
+  )
 
 })
 
