@@ -13,7 +13,7 @@ articles:
   python: python.html
   renv: renv.html
   rsconnect: rsconnect.html
-last_built: 2024-12-11T23:58Z
+last_built: 2024-12-12T01:05Z
 urls:
   reference: https://rstudio.github.io/renv/reference
   article: https://rstudio.github.io/renv/articles
