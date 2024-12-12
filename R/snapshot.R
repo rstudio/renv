@@ -741,6 +741,10 @@ renv_snapshot_description_impl <- function(dcf, path = NULL) {
     dcf <- dcf[fields]
   }
 
+  # collect fields to include in lockfile
+  fields <- c("Source", renv_hash_fields(dcf), "Repository", "OS_type")
+  dcf <- dcf[renv_vector_intersect(names(dcf), fields)]
+  
   # generate a hash if we can
   dcf[["Hash"]] <- if (the$auto_snapshot_hash) {
     if (is.null(path))
@@ -748,47 +752,9 @@ renv_snapshot_description_impl <- function(dcf, path = NULL) {
     else
       renv_hash_description(path)
   }
-
-  # generate a Requirements field -- primarily for use by 'pak'
-  fields <- c("Depends", "Imports", "LinkingTo")
-  deps <- bind(map(dcf[fields], renv_description_parse_field))
-  all <- unique(csort(unlist(deps$Package)))
-  dcf[["Requirements"]] <- all
-
-  # get remotes fields
-  remotes <- renv_snapshot_description_impl_remotes(dcf)
-
-  # only keep relevant fields
-  extra <- c("Repository", "OS_type")
-  all <- c(required, extra, remotes, "Requirements", "Hash")
-  keep <- renv_vector_intersect(all, names(dcf))
-
+  
   # return as list
-  as.list(dcf[keep])
-
-}
-
-renv_snapshot_description_impl_remotes <- function(dcf) {
-
-  # if this seems to be a cran-like record, only keep remotes
-  # when RemoteSha appears to be a hash (e.g. for r-universe)
-  # note that RemoteSha may be a package version when installed
-  # by e.g. pak
-  if (renv_record_cranlike(dcf)) {
-    sha <- dcf[["RemoteSha"]]
-    if (is.null(sha) || nchar(sha) < 40)
-      return(character())
-  }
-
-  # grab the relevant remotes
-  git <- grep("^git", names(dcf), value = TRUE)
-  remotes <- grep("^Remote(?!s)", names(dcf), perl = TRUE, value = TRUE)
-
-  # don't include 'RemoteRef' if it's a non-informative remote
-  if (identical(dcf[["RemoteRef"]], "HEAD"))
-    remotes <- setdiff(remotes, "RemoteRef")
-
-  c(git, remotes)
+  as.list(dcf)
 
 }
 
@@ -840,7 +806,7 @@ renv_snapshot_description_source <- function(dcf) {
 
   # check for a custom declared remote type
   if (!renv_record_cranlike(dcf)) {
-    type <- dcf[["RemoteType"]]
+    type <- dcf[["RemoteType"]] %||% "standard"
     return(list(Source = alias(type)))
   }
 

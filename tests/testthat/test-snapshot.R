@@ -397,13 +397,11 @@ test_that("packages installed from CRAN using pak are handled", {
   library <- renv_paths_library()
   ensure_directory(library)
   pak <- renv_namespace_load("pak")
-  suppressMessages(pak$pkg_install("toast"))
+  quietly(pak$pkg_install("toast"))
   record <- renv_snapshot_description(package = "toast")
 
-  expect_named(
-    record,
-    c("Package", "Version", "Source", "Repository", "Requirements", "Hash")
-  )
+  expected <- c("Package", "Version", "Source", "Repository", "Hash")
+  expect_contains(names(record), expected)
 
   expect_identical(record$Source, "Repository")
   expect_identical(record$Repository, "CRAN")

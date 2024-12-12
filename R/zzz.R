@@ -29,7 +29,7 @@
     }
 
     # don't lock sandbox while testing / checking
-    options(renv.sandbox.locking_enabled = FALSE)
+    Sys.setenv(RENV_SANDBOX_LOCKING_ENABLED = FALSE)
 
   }
 
