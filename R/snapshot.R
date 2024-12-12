@@ -753,6 +753,9 @@ renv_snapshot_description_impl <- function(dcf, path = NULL) {
       renv_hash_description(path)
   }
   
+  # reorganize fields a bit
+  dcf <- dcf[c(required, setdiff(names(dcf), required))]
+  
   # return as list
   as.list(dcf)
 
