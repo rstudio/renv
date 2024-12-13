@@ -747,6 +747,15 @@ renv_snapshot_description_impl <- function(dcf, path = NULL) {
   ignore <- c("Packaged", "Date/Publication", "Built")
   dcf[ignore] <- NULL
   
+  # drop remote fields for cranlike remotes
+  if (renv_record_cranlike(dcf)) {
+    sha <- dcf[["RemoteSha"]]
+    if (is.null(sha) || nchar(sha) < 40L) {
+      remotes <- grep("^Remote", names(dcf), perl = TRUE, value = TRUE)
+      dcf[remotes] <- NULL
+    }
+  }
+  
   # generate a hash if we can
   dcf[["Hash"]] <- if (the$auto_snapshot_hash) {
     if (is.null(path))
