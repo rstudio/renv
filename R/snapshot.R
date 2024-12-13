@@ -744,7 +744,7 @@ renv_snapshot_description_impl <- function(dcf, path = NULL) {
   # drop fields that normally only appear in binary packages,
   # or fields which might differ from user to user, or might
   # differ depending on the mirror used for publication
-  ignore <- c("Packaged", "Date/Publication", "Built")
+  ignore <- c("Archs", "Built", "Date/Publication", "File", "MD5sum", "Packaged")
   dcf[ignore] <- NULL
   
   # drop remote fields for cranlike remotes
@@ -755,6 +755,10 @@ renv_snapshot_description_impl <- function(dcf, path = NULL) {
       dcf[remotes] <- NULL
     }
   }
+  
+  # drop the old Github remote fields
+  github <- grepl("^Github", names(dcf), perl = TRUE)
+  dcf <- dcf[!github]
   
   # generate a hash if we can
   dcf[["Hash"]] <- if (the$auto_snapshot_hash) {

@@ -10,10 +10,10 @@ renv_hash_fields <- function(dcf) {
   )
 }
 
-renv_hash_fields_default <- function(dcf) {
+renv_hash_fields_default <- function() {
   c(
-    "Package", "Version",
-    "Title", "Author", "Maintainer", "Description",
+    "Package", "Version", "Title",
+    "Author", "Maintainer", "Description",
     "Depends", "Imports", "Suggests", "LinkingTo"
   )
 }
