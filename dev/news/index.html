@@ -53,7 +53,8 @@
 
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="1.1.0" id="renv-110-unreleased">renv 1.1.0 (UNRELEASED)<a class="anchor" aria-label="anchor" href="#renv-110-unreleased"></a></h2>
-<ul><li><p>Fixed an issue where the repositories provided to <code><a href="../reference/init.html">renv::init()</a></code> were ignored when also initializing <code>renv</code> with a specific version of Bioconductor.</p></li>
+<ul><li><p>Fixed an issue where packages installed from r-universe via an explicit URL remote could not be restored. (<a href="https://github.com/rstudio/renv/issues/2060" class="external-link">#2060</a>)</p></li>
+<li><p>Fixed an issue where the repositories provided to <code><a href="../reference/init.html">renv::init()</a></code> were ignored when also initializing <code>renv</code> with a specific version of Bioconductor.</p></li>
 <li><p><code><a href="../reference/install.html">renv::install()</a></code> gains the <code>include</code> parameter, which can be useful when you’d like to install a subset of dependencies within a project while also respecting any declared remotes in that project’s <code>DESCRIPTION</code> file. (<a href="https://github.com/rstudio/renv/issues/2055" class="external-link">#2055</a>)</p></li>
 <li><p>Fixed an issue where <code>renv</code> could fail to check for updates for packages installed using <code>pak</code> without an explicit branch specified. (<a href="https://github.com/rstudio/renv/issues/2040" class="external-link">#2040</a>)</p></li>
 <li><p><code><a href="../reference/embed.html">renv::use()</a></code> no longer re-installs packages which are already installed and compatible with the requested packages. (<a href="https://github.com/rstudio/renv/issues/2044" class="external-link">#2044</a>)</p></li>
