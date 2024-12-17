@@ -648,3 +648,10 @@ test_that("https://github.com/rstudio/renv/issues/2052", {
   expect_contains(deps$Package, "A")
   
 })
+
+test_that("https://github.com/rstudio/renv/issues/2047", {
+  renv_tests_scope()
+  writeLines("citation(\"breakfast\")", con = "_deps.R")
+  init()
+  expect_true(renv_package_installed("breakfast"))
+})

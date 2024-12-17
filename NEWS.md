@@ -1,6 +1,8 @@
 
 # renv 1.1.0  (UNRELEASED)
 
+* `renv` now detects dependencies from usages of `utils::citation()`. (#2047)
+  
 * Fixed an issue where packages installed from r-universe via an explicit
   URL remote could not be restored. (#2060)
 
