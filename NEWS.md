@@ -1,6 +1,9 @@
 
 # renv 1.1.0  (UNRELEASED)
 
+* Fixed an issue where packages installed from r-universe via an explicit
+  URL remote could not be restored. (#2060)
+
 * Fixed an issue where the repositories provided to `renv::init()` were ignored
   when also initializing `renv` with a specific version of Bioconductor.
 

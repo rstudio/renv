@@ -98,6 +98,11 @@ renv_record_format_remote <- function(record,
                                       versioned = TRUE,
                                       pak = FALSE)
 {
+  # if we have a pkgref, we can use that directly
+  pkgref <- record$RemotePkgRef
+  if (!is.null(pkgref))
+    return(pkgref)
+  
   # extract some of the commonly used fields up-front
   source <- renv_record_source(record, normalize = TRUE)
   package <- record[["Package"]]

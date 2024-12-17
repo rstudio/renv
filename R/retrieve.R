@@ -782,16 +782,24 @@ renv_retrieve_repos_error_report <- function(record, errors) {
 
 }
 
-renv_retrieve_url <- function(record) {
-
-  if (is.null(record$RemoteUrl)) {
-    fmt <- "package '%s' has no recorded RemoteUrl"
-    stopf(fmt, record$Package)
+renv_retrieve_url_resolve <- function(record) {
+  
+  # https://github.com/rstudio/renv/issues/2060
+  pkgref <- record$RemotePkgRef
+  if (!is.null(pkgref)) {
+    remote <- renv_remotes_parse(pkgref)
+    if (identical(remote$type, "url"))
+      return(remote$url)
   }
+  
+  record$RemoteUrl
+  
+}
 
-  resolved <- renv_remotes_resolve_url(record$RemoteUrl, quiet = FALSE)
+renv_retrieve_url <- function(record) {
+  url <- renv_retrieve_url_resolve(record)
+  resolved <- renv_remotes_resolve_url(url, quiet = FALSE)
   renv_retrieve_successful(record, resolved$Path)
-
 }
 
 renv_retrieve_repos_archive_name <- function(record, type = "source") {
