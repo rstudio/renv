@@ -28,10 +28,15 @@
       Sys.setenv(RENV_PATHS_SANDBOX = sandbox)
     }
 
-    # don't lock sandbox while testing / checking
-    Sys.setenv(RENV_SANDBOX_LOCKING_ENABLED = FALSE)
-
   }
+  
+  # don't lock sandbox while testing / checking
+  if (testing() || checking() || devmode()) {
+    options(renv.sandbox.locking_enabled = FALSE)
+    Sys.setenv(RENV_SANDBOX_LOCKING_ENABLED = FALSE)
+  }
+  
+  
 
   renv_defer_init()
   renv_metadata_init()

@@ -42,3 +42,8 @@ testing <- function() {
 devel <- function() {
   identical(R.version[["status"]], "Under development (unstable)")
 }
+
+devmode <- function() {
+  load <- Sys.getenv("DEVTOOLS_LOAD", unset = NA)
+  identical(load, "renv")
+}
