@@ -33,9 +33,28 @@ renv_lockfile_read_finish_impl <- function(key, val) {
 }
 
 renv_lockfile_read_finish <- function(data) {
-  data <- enumerate(data, renv_lockfile_read_finish_impl)
-  class(data) <- "renv_lockfile"
-  data
+  
+  # create lockfile
+  lockfile <- enumerate(data, renv_lockfile_read_finish_impl)
+  class(lockfile) <- "renv_lockfile"
+  
+  # compute hashes for records if possible
+  renv_lockfile_records(lockfile) <-
+    renv_lockfile_records(lockfile) %>%
+    map(function(record) {
+      
+      record$Hash <- record$Hash %||% {
+        fields <- renv_hash_fields_remotes(record)
+        if (all(names(record) %in% fields))
+          renv_hash_record(record)
+      }
+      
+      record
+      
+    })
+  
+  # return lockfile
+  lockfile
 }
 
 renv_lockfile_read_preflight <- function(contents) {

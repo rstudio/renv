@@ -122,6 +122,7 @@ renv_lockfile_save <- function(lockfile, project) {
 }
 
 renv_lockfile_load <- function(project, strict = FALSE) {
+  
   path <- renv_lockfile_path(project)
   if (file.exists(path))
     return(renv_lockfile_read(path))

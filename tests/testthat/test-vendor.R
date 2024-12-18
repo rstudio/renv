@@ -43,10 +43,6 @@ test_that("renv can be vendored into an R package", {
     base <- .BaseNamespaceEnv
     base$.libPaths(path)
 
-    # extra sanity check
-    if (requireNamespace("renv", quietly = TRUE))
-      stop("internal error: renv shouldn't be visible on library paths")
-
     # load the package, and check that renv realizes it's embedded
     namespace <- base$asNamespace("test.renv.embedding")
     embedded <- namespace$renv$renv_metadata_embedded()

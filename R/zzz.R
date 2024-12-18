@@ -28,10 +28,15 @@
       Sys.setenv(RENV_PATHS_SANDBOX = sandbox)
     }
 
-    # don't lock sandbox while testing / checking
-    options(renv.sandbox.locking_enabled = FALSE)
-
   }
+  
+  # don't lock sandbox while testing / checking
+  if (testing() || checking() || devmode()) {
+    options(renv.sandbox.locking_enabled = FALSE)
+    Sys.setenv(RENV_SANDBOX_LOCKING_ENABLED = FALSE)
+  }
+  
+  
 
   renv_defer_init()
   renv_metadata_init()
@@ -108,8 +113,7 @@
 
 # NOTE: required for devtools::load_all()
 .onDetach <- function(libpath) {
-  package <- Sys.getenv("DEVTOOLS_LOAD", unset = NA)
-  if (identical(package, .packageName))
+  if (devmode())
     .onUnload(libpath)
 }
 
@@ -117,7 +121,7 @@ renv_zzz_run <- function() {
 
   # check if we're in pkgload::load_all()
   # if so, then create some files
-  if (renv_envvar_exists("DEVTOOLS_LOAD")) {
+  if (devmode()) {
     renv_zzz_bootstrap_activate()
     renv_zzz_bootstrap_config()
   }

@@ -121,5 +121,5 @@ renv_record_placeholder <- function() {
 
 renv_record_cranlike <- function(record) {
   type <- record[["RemoteType"]]
-  is.null(type) || type %in% c("cran", "repository", "standard")
+  is.null(type) || tolower(type) %in% c("cran", "repository", "standard")
 }
