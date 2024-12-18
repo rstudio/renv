@@ -400,7 +400,7 @@ test_that("packages installed from CRAN using pak are handled", {
   quietly(pak$pkg_install("toast"))
   record <- renv_snapshot_description(package = "toast")
 
-  expected <- c("Package", "Version", "Source", "Repository", "Hash")
+  expected <- c("Package", "Version", "Source", "Repository")
   expect_contains(names(record), expected)
 
   expect_identical(record$Source, "Repository")
@@ -622,9 +622,10 @@ test_that("a package's hash can be re-generated from lockfile", {
   lockfile <- snapshot(lockfile = NULL)
   records <- renv_lockfile_records(lockfile)
   
-  map(records, function(record) {
-    actual <- record[["Hash"]]
-    expected <- renv_hash_description_impl(record)
+  enumerate(records, function(package, record) {
+    path <- system.file("DESCRIPTION", package = package)
+    actual <- renv_hash_description(path)
+    expected <- renv_hash_record(record)
     expect_equal(actual, expected)
   })
   

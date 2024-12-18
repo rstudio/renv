@@ -756,7 +756,7 @@ renv_snapshot_description_impl_v1 <- function(dcf, path = NULL) {
   # generate a hash if we can
   dcf[["Hash"]] <- if (the$auto_snapshot_hash) {
     if (is.null(path))
-      renv_hash_description_impl(dcf)
+      renv_hash_record(dcf)
     else
       renv_hash_description(path)
   }
@@ -845,14 +845,6 @@ renv_snapshot_description_impl_v2 <- function(dcf, path) {
   # drop the old Github remote fields
   github <- grepl("^Github", names(dcf), perl = TRUE)
   dcf <- dcf[!github]
-  
-  # generate a hash if we can
-  dcf[["Hash"]] <- if (the$auto_snapshot_hash) {
-    if (is.null(path))
-      renv_hash_description_impl(dcf)
-    else
-      renv_hash_description(path)
-  }
   
   # reorganize fields a bit
   dcf <- dcf[c(required, setdiff(names(dcf), required))]

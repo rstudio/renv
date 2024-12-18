@@ -50,18 +50,17 @@ renv_hash_description <- function(path) {
 }
 
 renv_hash_description_impl <- function(path) {
+  record <- renv_description_read(path)
+  renv_hash_record(record)
+}
 
-  dcf <- case(
-    is.character(path) ~ renv_description_read(path),
-    is.list(path)      ~ path,
-    ~ stop("unexpected path '%s'", path)
-  )
+renv_hash_record <- function(record) {
 
   # find relevant fields for hashing
-  fields <- renv_hash_fields(dcf)
+  fields <- renv_hash_fields(record)
 
   # retrieve these fields
-  subsetted <- dcf[renv_vector_intersect(fields, names(dcf))]
+  subsetted <- record[renv_vector_intersect(fields, names(record))]
 
   # sort names (use C locale to ensure consistent ordering)
   ordered <- subsetted[csort(names(subsetted))]

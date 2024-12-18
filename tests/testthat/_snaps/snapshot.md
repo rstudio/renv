@@ -307,8 +307,7 @@
             "Title": "renv test package",
             "Author": "Anonymous Person <Anonymous@rstudio.org>",
             "Maintainer": "Anonymous Person <Anonymous@rstudio.org>",
-            "Config/Needs/protein": "egg",
-            "Hash": "3d2aa8db4086921058b23ce646e01c7a"
+            "Config/Needs/protein": "egg"
           },
           "breakfast": {
             "Package": "breakfast",
@@ -323,8 +322,7 @@
             "Title": "renv test package",
             "Author": "Anonymous Person <Anonymous@rstudio.org>",
             "Maintainer": "Anonymous Person <Anonymous@rstudio.org>",
-            "Config/Needs/protein": "egg",
-            "Hash": "0fcd2a795901b4b21326a3e35442c97c"
+            "Config/Needs/protein": "egg"
           },
           "oatmeal": {
             "Package": "oatmeal",
@@ -336,8 +334,7 @@
             "Description": "renv test package",
             "Title": "renv test package",
             "Author": "Anonymous Person <Anonymous@rstudio.org>",
-            "Maintainer": "Anonymous Person <Anonymous@rstudio.org>",
-            "Hash": "1997110c04a1a14551dc791abb7cf8cf"
+            "Maintainer": "Anonymous Person <Anonymous@rstudio.org>"
           },
           "toast": {
             "Package": "toast",
@@ -350,8 +347,7 @@
             "Description": "renv test package",
             "Title": "renv test package",
             "Author": "Anonymous Person <Anonymous@rstudio.org>",
-            "Maintainer": "Anonymous Person <Anonymous@rstudio.org>",
-            "Hash": "d2f51ee89552a4668cbe9fc25b1f7c1e"
+            "Maintainer": "Anonymous Person <Anonymous@rstudio.org>"
           }
         }
       }
