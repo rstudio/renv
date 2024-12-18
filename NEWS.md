@@ -1,6 +1,9 @@
 
 # renv 1.1.0  (UNRELEASED)
 
+* `renv` now includes the contents of each package's DESCRIPTION file in
+  the package records for generated lockfiles. (#2057)
+
 * `renv` now detects dependencies from usages of `utils::citation()`. (#2047)
   
 * Fixed an issue where packages installed from r-universe via an explicit

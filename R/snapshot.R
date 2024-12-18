@@ -768,6 +768,27 @@ renv_snapshot_description_impl <- function(dcf, path = NULL) {
       renv_hash_description(path)
   }
   
+  # keep only required fields if requested
+  minimal <- getOption("renv.lockfile.minimal", default = FALSE)
+  if (minimal) {
+    
+    # generate a Requirements field -- primarily for use by 'pak'
+    fields <- c("Depends", "Imports", "LinkingTo")
+    deps <- bind(map(dcf[fields], renv_description_parse_field))
+    all <- unique(csort(unlist(deps$Package)))
+    dcf[["Requirements"]] <- all
+    
+    # keep any existing remotes fields
+    remotes <- grep("^Remote", names(dcf), perl = TRUE, value = TRUE)
+    
+    # only keep relevant fields
+    extra <- c("Repository", "OS_type")
+    all <- c(required, extra, remotes, "Requirements", "Hash")
+    keep <- renv_vector_intersect(all, names(dcf))
+    dcf <- dcf[keep]
+    
+  }
+  
   # reorganize fields a bit
   dcf <- dcf[c(required, setdiff(names(dcf), required))]
   
