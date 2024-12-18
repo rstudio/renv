@@ -633,8 +633,6 @@ test_that("a package's hash can be re-generated from lockfile", {
 test_that("we can produce old-style lockfiles if requested", {
   
   skip_on_cran()
-  skip_on_ci()
-  
   renv_scope_options(renv.lockfile.minimal = TRUE)
   
   project <- renv_tests_scope("breakfast")
