@@ -310,7 +310,7 @@ test_that("strict mode catches unknown keyword in provided schema", {
       }
     ]
   },
-  "Packages": [
+  "Packages": {
     "markdown": {
       "Package": "markdown",
       "Version": "1.0",
@@ -318,7 +318,7 @@ test_that("strict mode catches unknown keyword in provided schema", {
       "Repository": "CRAN",
       "Hash": "4584a57f565dd7987d59dda3a02cfb41"
     }
-  ]
+  }
 }
 '
 
@@ -331,14 +331,14 @@ test_that("strict mode catches unknown keyword in provided schema", {
       "type": "object",
       "properties": {
         "Version": {
-          "type": "UNKNOWN"
+          "UNKNOWN": "string"
         }
       }
     }
   }
 }
 '
-
-  expect_error(lockfile_validate(lockfile = lockfile, strict = TRUE))
+  expect_true(lockfile_validate(lockfile = lockfile, schema = schema))
+  expect_error(lockfile_validate(lockfile = lockfile, schema = schema, strict = TRUE))
   
 })
