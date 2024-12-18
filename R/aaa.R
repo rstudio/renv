@@ -44,6 +44,5 @@ devel <- function() {
 }
 
 devmode <- function() {
-  load <- Sys.getenv("DEVTOOLS_LOAD", unset = NA)
-  identical(load, "renv")
+  Sys.getenv("DEVTOOLS_LOAD") == .packageName
 }

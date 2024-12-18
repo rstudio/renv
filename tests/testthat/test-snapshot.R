@@ -630,13 +630,24 @@ test_that("a package's hash can be re-generated from lockfile", {
   
 })
 
-test_that("we can produce old-style lockfiles if requested", {
+test_that("lockfiles are stable (v1)", {
   
-  skip_on_cran()
-  renv_scope_options(renv.lockfile.minimal = TRUE)
+  renv_scope_options(renv.lockfile.version = 1L)
   
   project <- renv_tests_scope("breakfast")
   init()
+  
+  expect_snapshot(. <- writeLines(readLines("renv.lock")))
+  
+})
+
+test_that("lockfiles are stable (v2)", {
+  
+  renv_scope_options(renv.lockfile.version = 2L)
+  
+  project <- renv_tests_scope("breakfast")
+  init()
+  
   expect_snapshot(. <- writeLines(readLines("renv.lock")))
   
 })
