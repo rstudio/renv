@@ -615,3 +615,16 @@ test_that("standard remotes drop RemoteSha if it's a version", {
   expect_null(record[["RemoteSha"]])
 
 })
+
+test_that("we can produce old-style lockfiles if requested", {
+  
+  skip_on_cran()
+  
+  renv_scope_options(renv.lockfile.minimal = TRUE)
+  
+  project <- renv_tests_scope("breakfast")
+  init()
+  
+  expect_snapshot(. <- writeLines(readLines("renv.lock")))
+  
+})
