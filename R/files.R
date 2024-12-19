@@ -577,15 +577,8 @@ renv_file_broken_unix <- function(paths) {
 }
 
 renv_file_broken_win32 <- function(paths) {
-  # TODO: the behavior of file.exists() for a broken junction point
-  # appears to have changed in the development version of R;
-  # we have to be extra careful here...
-  if (getRversion() < "4.2.0") {
-    info <- renv_file_info(paths)
-    (info$isdir %in% TRUE) & is.na(info$mtime)
-  } else {
-    file.access(paths, mode = 0L) == 0L & !file.exists(paths)
-  }
+  info <- renv_file_info(paths)
+  (info$isdir %in% TRUE) & is.na(info$mtime)
 }
 
 renv_file_size <- function(path) {
