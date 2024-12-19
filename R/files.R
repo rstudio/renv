@@ -576,9 +576,24 @@ renv_file_broken_unix <- function(paths) {
   !is.na(Sys.readlink(paths)) & !file.exists(paths)
 }
 
+# unfortunately, as far as I know, there isn't a more reliable
+# way of detecting broken junction points on Windows using vanilla R
 renv_file_broken_win32 <- function(paths) {
-  info <- renv_file_info(paths)
-  (info$isdir %in% TRUE) & is.na(info$mtime)
+
+  owd <- getwd()
+  on.exit(setwd(owd), add = TRUE)
+
+  broken <- rep.int(FALSE, length(paths))
+  for (i in seq_along(paths)) {
+    if (dir.exists(paths[[i]])) {
+      broken[[i]] <- tryCatch(
+        !nzchar(setwd(paths[[i]])),
+        error = function(cnd) TRUE
+      )
+    }
+  }
+  broken
+
 }
 
 renv_file_size <- function(path) {
