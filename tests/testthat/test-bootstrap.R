@@ -31,6 +31,7 @@ test_that("we can install a version of renv with a sha", {
 
   skip_on_cran()
   skip_on_ci()
+  skip_if_no_github_auth()
 
   renv_tests_scope()
 
