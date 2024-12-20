@@ -579,21 +579,7 @@ renv_file_broken_unix <- function(paths) {
 # unfortunately, as far as I know, there isn't a more reliable
 # way of detecting broken junction points on Windows using vanilla R
 renv_file_broken_win32 <- function(paths) {
-
-  owd <- getwd()
-  on.exit(setwd(owd), add = TRUE)
-
-  broken <- rep.int(FALSE, length(paths))
-  for (i in seq_along(paths)) {
-    if (dir.exists(paths[[i]])) {
-      broken[[i]] <- tryCatch(
-        !nzchar(setwd(paths[[i]])),
-        error = function(cnd) TRUE
-      )
-    }
-  }
-  broken
-
+  !map_lgl(paths, Sys.setFileTime, Sys.time())
 }
 
 renv_file_size <- function(path) {
