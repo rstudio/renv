@@ -581,7 +581,7 @@ renv_file_broken_unix <- function(paths) {
 renv_file_broken_win32 <- function(paths) {
   time <- Sys.time()
   map_lgl(paths, function(path) {
-    dir.exists(path) && !Sys.setFileTime(path, time)
+    file.access(path) == 0L && !Sys.setFileTime(path, time)
   })
 }
 
