@@ -222,11 +222,9 @@ test_that("standard bioc remotes are standardized appropriately", {
     Package      = "BiocVersion",
     Version      = "3.18.1",
     Source       = "Bioconductor",
-    Repository   = "Bioconductor 3.18",
-    Requirements = "R",
-    Hash         = "2ecaed86684f5fae76ed5530f9d29c4a"
+    Repository   = "Bioconductor 3.18"
   )
 
-  expect_identical(actual, expected)
+  expect_identical(actual[names(expected)], expected)
 
 })

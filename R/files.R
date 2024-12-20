@@ -576,16 +576,13 @@ renv_file_broken_unix <- function(paths) {
   !is.na(Sys.readlink(paths)) & !file.exists(paths)
 }
 
+# unfortunately, as far as I know, there isn't a more reliable
+# way of detecting broken junction points on Windows using vanilla R
 renv_file_broken_win32 <- function(paths) {
-  # TODO: the behavior of file.exists() for a broken junction point
-  # appears to have changed in the development version of R;
-  # we have to be extra careful here...
-  if (getRversion() < "4.2.0") {
-    info <- renv_file_info(paths)
-    (info$isdir %in% TRUE) & is.na(info$mtime)
-  } else {
-    file.access(paths, mode = 0L) == 0L & !file.exists(paths)
-  }
+  time <- Sys.time()
+  map_lgl(paths, function(path) {
+    file.access(path) == 0L && !Sys.setFileTime(path, time)
+  })
 }
 
 renv_file_size <- function(path) {

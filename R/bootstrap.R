@@ -400,6 +400,9 @@ renv_bootstrap_download_github <- function(version) {
 
   # prepare download options
   token <- renv_bootstrap_github_token()
+  if (is.null(token))
+    token <- ""
+
   if (nzchar(Sys.which("curl")) && nzchar(token)) {
     fmt <- "--location --fail --header \"Authorization: token %s\""
     extra <- sprintf(fmt, token)
