@@ -311,7 +311,7 @@ test_that("eval=<expr> is treated as truthy", {
 })
 
 test_that("piped expressions can be parsed for dependencies", {
-  deps <- dependencies("resources/magrittr.R")
+  deps <- dependencies(renv_tests_path("resources/magrittr.R"))
   expect_setequal(deps$Package, c("A", "B", "C"))
 })
 
@@ -606,16 +606,16 @@ test_that("dependencies() detects usages of Junit test reporters", {
 })
 
 test_that("dependencies() detects usage of ragg_png device", {
-  
+
   check <- function(document) {
-    
+
     file <- renv_scope_tempfile("renv-test-", fileext = ".R")
     writeLines(document, con = file)
-    
+
     deps <- dependencies(file, quiet = TRUE)
     expect_contains(deps$Package, "ragg")
   }
-  
+
   check("opts_chunk$set(dev = \"ragg_png\")")
   check("knitr::opts_chunk$set(dev = \"ragg_png\")")
 
@@ -639,14 +639,14 @@ test_that("renv infers a dev. dependency on lintr", {
 })
 
 test_that("https://github.com/rstudio/renv/issues/2052", {
-  
+
   renv_scope_tempdir()
   dir.create("subdir")
   writeLines("library(A)", con = "subdir/test.R")
   writeLines(c("*", "!/**/", "!*.*"), con = ".renvignore")
   deps <- dependencies(quiet = TRUE, root = getwd())
   expect_contains(deps$Package, "A")
-  
+
 })
 
 test_that("https://github.com/rstudio/renv/issues/2047", {
