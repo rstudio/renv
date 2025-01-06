@@ -1,6 +1,10 @@
 
 # renv 1.1.0  (UNRELEASED)
 
+* Fixed an issue where `renv` failed to restore packages installed from
+  r-universe when the associated lockfile record had no `RemoteRef` field.
+  (#2068)
+
 * `renv` now detects dependencies from usages of `utils::citation()`. (#2047)
   
 * Fixed an issue where packages installed from r-universe via an explicit
