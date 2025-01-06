@@ -19,7 +19,7 @@ renv_hash_fields_default <- function() {
 }
 
 renv_hash_fields_remotes <- function(dcf) {
-  
+
   # if this seems to be a cran-like record, only keep remotes
   # when RemoteSha appears to be a hash (e.g. for r-universe)
   # note that RemoteSha may be a package version when installed
@@ -29,16 +29,16 @@ renv_hash_fields_remotes <- function(dcf) {
     if (is.null(sha) || nchar(sha) < 40L)
       return(character())
   }
-  
+
   # grab the relevant remotes
   remotes <- grep("^Remote", names(dcf), perl = TRUE, value = TRUE)
-  
+
   # don't include 'RemoteRef' if it's a non-informative remote
   if (identical(dcf[["RemoteRef"]], "HEAD"))
     remotes <- setdiff(remotes, "RemoteRef")
-  
+
   remotes
-  
+
 }
 
 renv_hash_description <- function(path) {
@@ -58,6 +58,15 @@ renv_hash_record <- function(record) {
 
   # find relevant fields for hashing
   fields <- renv_hash_fields(record)
+
+  # collapse vector / list dependency fields
+  depfields <- c("Depends", "Imports", "Suggests", "LinkingTo", "Enhances")
+  for (depfield in depfields) {
+    if (!is.null(record[[depfield]])) {
+      value <- unlist(record[[depfield]])
+      record[[depfield]] <- paste(value, collapse = ", ")
+    }
+  }
 
   # retrieve these fields
   subsetted <- record[renv_vector_intersect(fields, names(record))]

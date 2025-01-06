@@ -314,8 +314,13 @@
             "Version": "1.0.0",
             "Source": "Repository",
             "Type": "Package",
-            "Depends": "oatmeal, toast (>= 1.0.0)",
-            "Suggests": "egg",
+            "Depends": [
+              "oatmeal",
+              "toast (>= 1.0.0)"
+            ],
+            "Suggests": [
+              "egg"
+            ],
             "Repository": "CRAN",
             "License": "GPL",
             "Description": "renv test package",
@@ -340,7 +345,9 @@
             "Package": "toast",
             "Version": "1.0.0",
             "Source": "Repository",
-            "Depends": "bread",
+            "Depends": [
+              "bread"
+            ],
             "Type": "Package",
             "Repository": "CRAN",
             "License": "GPL",

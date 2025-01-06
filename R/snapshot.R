@@ -725,15 +725,15 @@ renv_snapshot_description_impl <- function(dcf, path = NULL) {
     renv_snapshot_description_impl_v2(dcf, path)
   else
     stopf("unsupported lockfile version '%s'", format(version))
-  
+
 }
 
 renv_snapshot_description_impl_v1 <- function(dcf, path = NULL) {
-  
+
   # figure out the package source
   source <- renv_snapshot_description_source(dcf)
   dcf[names(source)] <- source
-  
+
   # check for required fields
   required <- c("Package", "Version", "Source")
   missing <- renv_vector_diff(required, names(dcf))
@@ -741,18 +741,18 @@ renv_snapshot_description_impl_v1 <- function(dcf, path = NULL) {
     fmt <- "required fields %s missing from DESCRIPTION at path '%s'"
     stopf(fmt, paste(shQuote(missing), collapse = ", "), path %||% "<unknown>")
   }
-  
+
   # if this is a standard remote for a bioconductor package,
   # remove the other remote fields
   bioc <-
     !is.null(dcf[["biocViews"]]) &&
     identical(dcf[["RemoteType"]], "standard")
-  
+
   if (bioc) {
     fields <- grep("^Remote(?!s)", names(dcf), perl = TRUE, invert = TRUE)
     dcf <- dcf[fields]
   }
-  
+
   # generate a hash if we can
   dcf[["Hash"]] <- if (the$auto_snapshot_hash) {
     if (is.null(path))
@@ -760,16 +760,16 @@ renv_snapshot_description_impl_v1 <- function(dcf, path = NULL) {
     else
       renv_hash_description(path)
   }
-  
+
   # generate a Requirements field -- primarily for use by 'pak'
   fields <- c("Depends", "Imports", "LinkingTo")
   deps <- bind(map(dcf[fields], renv_description_parse_field))
   all <- unique(csort(unlist(deps$Package)))
   dcf[["Requirements"]] <- all
-  
+
   # get remotes fields
   remotes <- local({
-    
+
     # if this seems to be a cran-like record, only keep remotes
     # when RemoteSha appears to be a hash (e.g. for r-universe)
     # note that RemoteSha may be a package version when installed
@@ -779,31 +779,31 @@ renv_snapshot_description_impl_v1 <- function(dcf, path = NULL) {
       if (is.null(sha) || nchar(sha) < 40L)
         return(character())
     }
-    
+
     # grab the relevant remotes
     git <- grep("^git", names(dcf), value = TRUE)
     remotes <- grep("^Remote(?!s)", names(dcf), perl = TRUE, value = TRUE)
-    
+
     # don't include 'RemoteRef' if it's a non-informative remote
     if (identical(dcf[["RemoteRef"]], "HEAD"))
       remotes <- setdiff(remotes, "RemoteRef")
-    
+
     c(git, remotes)
-    
+
   })
-  
+
   # only keep relevant fields
   extra <- c("Repository", "OS_type")
   all <- c(required, extra, remotes, "Requirements", "Hash")
   keep <- renv_vector_intersect(all, names(dcf))
-  
+
   # return as list
   as.list(dcf[keep])
-  
+
 }
 
 renv_snapshot_description_impl_v2 <- function(dcf, path) {
-  
+
   # figure out the package source
   source <- renv_snapshot_description_source(dcf)
   dcf[names(source)] <- source
@@ -832,7 +832,7 @@ renv_snapshot_description_impl_v2 <- function(dcf, path) {
   # differ depending on the mirror used for publication
   ignore <- c("Archs", "Built", "Date/Publication", "File", "MD5sum", "Packaged")
   dcf[ignore] <- NULL
-  
+
   # drop remote fields for cranlike remotes
   if (renv_record_cranlike(dcf)) {
     sha <- dcf[["RemoteSha"]]
@@ -841,14 +841,23 @@ renv_snapshot_description_impl_v2 <- function(dcf, path) {
       dcf[remotes] <- NULL
     }
   }
-  
+
   # drop the old Github remote fields
   github <- grepl("^Github", names(dcf), perl = TRUE)
   dcf <- dcf[!github]
-  
+
+  # split fields which are normally declared as lists of packages
+  depfields <- c("Depends", "Imports", "Suggests", "LinkingTo", "Enhances")
+  for (depfield in depfields) {
+    if (!is.null(dcf[[depfield]])) {
+      fields <- strsplit(dcf[[depfield]], ",", fixed = TRUE)
+      dcf[[depfield]] <- as.list(trimws(fields[[1L]]))
+    }
+  }
+
   # reorganize fields a bit
   dcf <- dcf[c(required, setdiff(names(dcf), required))]
-  
+
   # return as list
   as.list(dcf)
 
