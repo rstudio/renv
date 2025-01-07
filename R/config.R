@@ -138,7 +138,28 @@ renv_config_decode_envvar <- function(envname, envval) {
   else
     "\\s*,\\s*"
 
-  strsplit(envval, pattern, perl = TRUE)[[1L]]
+  values <- strsplit(envval, pattern, perl = TRUE)[[1L]]
+
+  # fix up single-letter paths for Windows
+  # https://github.com/rstudio/renv/issues/2069
+  result <- stack(mode = "character")
+
+  i <- 1L
+  while (i <= length(values)) {
+
+    if (nchar(values[[i]]) == 1L) {
+      value <- paste(values[[i]], values[[i + 1L]], sep = ":")
+      result$push(value)
+      i <- i + 2L
+    } else {
+      value <- values[[i]]
+      result$push(value)
+      i <- i + 1L
+    }
+
+  }
+
+  result$data()
 
 }
 
