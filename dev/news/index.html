@@ -53,7 +53,8 @@
 
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="1.1.0" id="renv-110-unreleased">renv 1.1.0 (UNRELEASED)<a class="anchor" aria-label="anchor" href="#renv-110-unreleased"></a></h2>
-<ul><li><p>Fixed an issue where <code>renv</code> failed to restore packages installed from r-universe when the associated lockfile record had no <code>RemoteRef</code> field. (<a href="https://github.com/rstudio/renv/issues/2068" class="external-link">#2068</a>)</p></li>
+<ul><li><p>Fixed an issue where <code>RENV_CONFIG_EXTERNAL_LIBRARIES</code> was incorrectly split when using Windows paths. (<a href="https://github.com/rstudio/renv/issues/2069" class="external-link">#2069</a>)</p></li>
+<li><p>Fixed an issue where <code>renv</code> failed to restore packages installed from r-universe when the associated lockfile record had no <code>RemoteRef</code> field. (<a href="https://github.com/rstudio/renv/issues/2068" class="external-link">#2068</a>)</p></li>
 <li><p><code>renv</code> now detects dependencies from usages of <code><a href="https://rdrr.io/r/utils/citation.html" class="external-link">utils::citation()</a></code>. (<a href="https://github.com/rstudio/renv/issues/2047" class="external-link">#2047</a>)</p></li>
 <li><p>Fixed an issue where packages installed from r-universe via an explicit URL remote could not be restored. (<a href="https://github.com/rstudio/renv/issues/2060" class="external-link">#2060</a>)</p></li>
 <li><p>Fixed an issue where the repositories provided to <code><a href="../reference/init.html">renv::init()</a></code> were ignored when also initializing <code>renv</code> with a specific version of Bioconductor.</p></li>
