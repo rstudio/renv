@@ -44,7 +44,7 @@ directly instead.}
 \item \code{"custom"} uses a custom filter.
 }
 
-See \strong{Snapshot type} below for more details.}
+See \strong{Snapshot types} below for more details.}
 
 \item{dev}{Boolean; include development dependencies? These packages are
 typically required when developing the project, but not when running it
@@ -97,11 +97,11 @@ current library paths. This makes it possible to \link{restore} the current pack
 providing lightweight portability and reproducibility without isolation.
 
 If you want to automatically snapshot after each change, you can
-set \code{config$config$auto.snapshot(TRUE)}, see \code{?config} for more details.
+set \code{config$config$auto.snapshot(TRUE)} -- see \code{?config} for more details.
 }
 \section{Snapshot types}{
-Depending on how you prefer to manage dependencies, you might prefer
-selecting a different snapshot mode. The modes available are as follows:
+Depending on how you prefer to manage your \R package dependencies, you may
+want to enable an alternate snapshot type.. The types available are as follows:
 
 \describe{
 
@@ -118,7 +118,10 @@ explicit mode, as described next.
 \item{\code{"explicit"}}{
 Only capture packages which are explicitly listed in the project
 \code{DESCRIPTION} file. This workflow is recommended for users who wish to
-manage their project's \R package dependencies directly.
+manage their project's \R package dependencies directly, and can be used
+for both package and non-package \R projects. Packages used in this manner
+should be recorded in either the \code{Depends} or \code{Imports} field of the
+\code{DESCRIPTION} file.
 }
 
 \item{\code{"all"}}{

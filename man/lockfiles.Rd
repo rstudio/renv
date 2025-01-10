@@ -40,7 +40,7 @@ lockfile_modify(
 \item \code{"custom"} uses a custom filter.
 }
 
-See \strong{Snapshot type} below for more details.}
+See \strong{Snapshot types} below for more details.}
 
 \item{libpaths}{The library paths to be used when generating the lockfile.}
 

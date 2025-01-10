@@ -16,12 +16,12 @@ the$auto_snapshot_hash <- TRUE
 #' providing lightweight portability and reproducibility without isolation.
 #'
 #' If you want to automatically snapshot after each change, you can
-#' set `config$config$auto.snapshot(TRUE)`, see `?config` for more details.
+#' set `config$config$auto.snapshot(TRUE)` -- see `?config` for more details.
 #'
 #' # Snapshot types
 #'
-#' Depending on how you prefer to manage dependencies, you might prefer
-#' selecting a different snapshot mode. The modes available are as follows:
+#' Depending on how you prefer to manage your \R package dependencies, you may
+#' want to enable an alternate snapshot type.. The types available are as follows:
 #'
 #' \describe{
 #'
@@ -38,7 +38,10 @@ the$auto_snapshot_hash <- TRUE
 #' \item{`"explicit"`}{
 #' Only capture packages which are explicitly listed in the project
 #' `DESCRIPTION` file. This workflow is recommended for users who wish to
-#' manage their project's \R package dependencies directly.
+#' manage their project's \R package dependencies directly, and can be used
+#' for both package and non-package \R projects. Packages used in this manner
+#' should be recorded in either the `Depends` or `Imports` field of the
+#' `DESCRIPTION` file.
 #' }
 #'
 #' \item{`"all"`}{
@@ -85,7 +88,7 @@ the$auto_snapshot_hash <- TRUE
 #'   * `"all"` uses all packages in the project library.
 #'   * `"custom"` uses a custom filter.
 #'
-#'   See **Snapshot type** below for more details.
+#'   See **Snapshot types** below for more details.
 #'
 #' @inheritParams dependencies
 #'
