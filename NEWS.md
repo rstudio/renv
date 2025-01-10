@@ -1,6 +1,9 @@
 
 # renv 1.1.0  (UNRELEASED)
 
+* Fixed an issue where `renv::snapshot()` could fail if invoked within
+  a project containing empty or invalid `.ipynb` files. (#2073)
+
 * Fixed an issue where R package installation could fail if the project
   depended on a package whose current version available from the configured
   package repositories required on a newer version of R than what was currently
