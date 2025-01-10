@@ -42,3 +42,7 @@ testing <- function() {
 devel <- function() {
   identical(R.version[["status"]], "Under development (unstable)")
 }
+
+devmode <- function() {
+  Sys.getenv("DEVTOOLS_LOAD") == .packageName
+}

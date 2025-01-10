@@ -53,22 +53,23 @@ test_that("we create lockfile from a manifest automatically when no lockfile fou
 
   skip_on_cran()
 
-  project_dir <- tempfile()
-  dir.create(project_dir)
+  project <- tempfile()
+  dir.create(project)
 
-  manifest <- "resources/manifest.json"
-  expected_lock <- renv_lockfile_from_manifest("resources/manifest.json")
-  file.copy(manifest, file.path(project_dir, "manifest.json"))
+  path <- renv_tests_path("resources/manifest.json")
+  expected <- renv_lockfile_from_manifest(path)
+  file.copy(path, file.path(project, "manifest.json"))
 
   # when called with `strict = TRUE` does not create manifest
-  expect_error(renv_lockfile_load(project_dir, strict = TRUE))
+  expect_error(renv_lockfile_load(project, strict = TRUE))
 
   # creates and reads lockfile
-  obtained_lock <- renv_lockfile_load(project_dir)
-  expect_identical(expected_lock, obtained_lock)
-  expect_true(file.exists(file.path(project_dir, "renv.lock")))
+  actual <- renv_lockfile_load(project)
+  expect_identical(expected, actual)
+  expect_true(file.exists(file.path(project, "renv.lock")))
 
-  unlink(project_dir, recursive = TRUE)
+  unlink(project, recursive = TRUE)
+  
 })
 
 test_that("the Requirements field is read as character", {

@@ -176,6 +176,7 @@ test_that("renv can detect broken junctions / symlinks", {
 
   if (renv_platform_windows()) {
 
+    file.create("file")
     dir.create("dir")
     dir.create("nowhere")
     Sys.junction("dir", "junction")

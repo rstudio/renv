@@ -90,8 +90,9 @@ renv_lockfile_write_json <- function(lockfile, file = stdout()) {
 
   prepared <- enumerate(lockfile, renv_lockfile_write_json_prepare)
 
-  box <- c("Depends", "Imports", "Suggests", "LinkingTo", "Requirements")
+  box <- c("Requirements")
   config <- list(box = box)
+  
   json <- renv_json_convert(prepared, config)
   if (is.null(file))
     return(json)
