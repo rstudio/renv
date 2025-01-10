@@ -231,7 +231,7 @@ renv_dependencies_impl <- function(
 
   # resolve errors
   errors <- match.arg(errors)
-  
+
   # the path to the user .Rprofile is used when discovering dependencies,
   # so resolve that eagerly now
   renv_scope_binding(
@@ -502,7 +502,7 @@ renv_dependencies_discover_impl <- function(path) {
     signalCondition(warnify(status))
     NULL
   }
-  
+
   status
 
 }
@@ -996,7 +996,13 @@ renv_dependencies_discover_chunks_ranges <- function(path, contents, patterns) {
 
 renv_dependencies_discover_ipynb <- function(path) {
 
-  json <- renv_json_read(path)
+  json <- catch(renv_json_read(path))
+  if (inherits(json, "error")) {
+    info <- renv_file_info(path)
+    if (!is.na(info$size) && info$size > 1)
+      renv_dependencies_error(path, error = json)
+  }
+
   if (!identical(json$metadata$kernelspec$language, "R"))
     return()
 
@@ -1051,10 +1057,10 @@ renv_dependencies_discover_r <- function(path  = NULL,
 
   if (inherits(expr, "error"))
     return(renv_dependencies_error(path, error = expr))
-  
+
   # resolve dev
   dev <- dev %||% path == the$paths$r_profile_user
-  
+
   # update current path
   state <- renv_dependencies_state()
   if (!is.null(state))
@@ -1107,7 +1113,7 @@ renv_dependencies_discover_r <- function(path  = NULL,
 
   renv_dependencies_recurse(expr, callback)
   packages <- ls(envir = envir, all.names = TRUE)
-  
+
   # also try to detect knitr::spin() dependencies -- this needs to
   # happen outside of the regular dependency discovery machinery
   # as it will rely on checking comments in the document
@@ -1118,7 +1124,7 @@ renv_dependencies_discover_r <- function(path  = NULL,
     if (length(text) && grepl("^\\s*#'\\s*[-]{3}\\s*$", text[[1L]], perl = TRUE))
       packages <- union(c("knitr", "rmarkdown"), packages)
   }
-  
+
   renv_dependencies_list(path, packages, dev = dev)
 }
 
@@ -1235,22 +1241,22 @@ renv_dependencies_discover_r_colon <- function(node, envir) {
 }
 
 renv_dependencies_discover_r_citation <- function(node, envir) {
-  
+
   node <- renv_call_expect(node, "utils", "citation")
   if (is.null(node))
     return(FALSE)
-  
+
   matched <- catch(match.call(utils::citation, node))
   if (inherits(matched, "error"))
     return(FALSE)
-  
+
   package <- matched[["package"]]
   if (!is.character(package) || length(package) != 1L)
     return(FALSE)
-  
+
   envir[[package]] <- TRUE
   TRUE
-  
+
 }
 
 renv_dependencies_discover_r_pacman <- function(node, envir) {
@@ -1311,7 +1317,7 @@ renv_dependencies_discover_r_modules <- function(node, envir) {
   if (identical(node[[1L]], quote(modules::import))) {
     renv_dependencies_discover_r_modules_impl(node, envir)
   }
-  
+
   # check for 'import' usages with a module block
   node <- renv_call_expect(node, "modules", "module")
   if (length(node) >= 2L &&
@@ -1323,31 +1329,31 @@ renv_dependencies_discover_r_modules <- function(node, envir) {
       renv_dependencies_discover_r_modules_impl(node, envir)
     })
   }
-    
+
 }
 
 renv_dependencies_discover_r_modules_impl <- function(node, envir) {
-  
+
   node <- renv_call_expect(node, "modules", c("import"))
   if (is.null(node))
     return(FALSE)
-  
+
   # attempt to match the call
   prototype <- function(from, ..., attach = TRUE, where = parent.frame()) {}
   matched <- catch(match.call(prototype, node, expand.dots = FALSE))
   if (inherits(matched, "error"))
     return(FALSE)
-  
+
   # extract character vector or symbol from `from`
   package <- matched[["from"]]
   if (empty(package))
     return(FALSE)
-  
+
   # package could be symbols or character so call as.character
   # to be safe then mark packages as known
   envir[[as.character(package)]] <- TRUE
   TRUE
-  
+
 }
 
 renv_dependencies_discover_r_import <- function(node, envir) {
@@ -1510,7 +1516,7 @@ renv_dependencies_discover_r_testthat <- function(node, envir) {
     envir[["xml2"]] <- TRUE
     return(TRUE)
   }
-  
+
   # check for an R6 class inheriting from a JunitReporter
   class <- renv_call_expect(node, "R6", "R6Class")
   if (!is.null(class) && identical(class$inherit, quote(JunitReporter))) {
@@ -1522,7 +1528,7 @@ renv_dependencies_discover_r_testthat <- function(node, envir) {
   node <- renv_call_expect(node, "testthat", c("test_package", "test_dir", "test_file"))
   if (is.null(node))
     return(FALSE)
-  
+
   candidates <- list(
     "Junit",
     "junit",
@@ -1545,23 +1551,23 @@ renv_dependencies_discover_r_testthat <- function(node, envir) {
 }
 
 renv_dependencies_discover_r_knitr <- function(node, envir) {
-  
+
   matched <- is.call(node) && (
     identical(node[[1L]], quote(knitr::opts_chunk$set)) ||
     identical(node[[1L]], quote(opts_chunk$set))
   )
-  
+
   if (!matched)
     return(FALSE)
-  
+
   args <- as.list(node)
   if (identical(args[["dev"]], "ragg_png")) {
     envir[["ragg"]] <- TRUE
     return(TRUE)
   }
-  
+
   FALSE
-  
+
 }
 
 renv_dependencies_discover_r_glue_impl <- function(string, node, envir) {
@@ -1937,10 +1943,10 @@ renv_dependencies_eval <- function(expr) {
 }
 
 renv_dependencies_recurse <- function(object, callback) {
-  
+
   if (is.call(object))
     callback(object)
-  
+
   if (is.recursive(object))
     for (i in seq_along(object))
       if (is.call(object[[i]]))

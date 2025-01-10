@@ -80,9 +80,9 @@ test_that("we can query the default configuration values without issue", {
 
 test_that("multiple library paths can be set in RENV_CONFIG_EXTERNAL_LIBRARIES", {
 
-  renv_scope_envvars(RENV_CONFIG_EXTERNAL_LIBRARIES = "a:b:c")
+  renv_scope_envvars(RENV_CONFIG_EXTERNAL_LIBRARIES = "/a:/b:/c")
   libpaths <- config$external.libraries()
-  expect_equal(libpaths, c("a", "b", "c"))
+  expect_equal(libpaths, c("/a", "/b", "/c"))
 
 })
 
@@ -100,5 +100,51 @@ test_that("cache symlinks are disabled if the cache and project library lie in d
   renv_scope_envvars(RENV_PATHS_CACHE = dirname(projlib))
   expect_true(renv_cache_config_symlinks(project = project))
 
+
+})
+
+test_that("RENV_CONFIG_EXTERNAL_LIBRARIES is decoded appropriately", {
+
+  envname <- "RENV_CONFIG_EXTERNAL_LIBRARIES"
+
+  expect_equal(
+    renv_config_decode_envvar(envname, "/apple"),
+    "/apple"
+  )
+
+  expect_equal(
+    renv_config_decode_envvar(envname, "C:/apple"),
+    "C:/apple"
+  )
+
+  expect_equal(
+    renv_config_decode_envvar(envname, "C:/apple:C:/banana"),
+    c("C:/apple", "C:/banana")
+  )
+
+  expect_equal(
+    renv_config_decode_envvar(envname, "C:/apple;C:/banana"),
+    c("C:/apple", "C:/banana")
+  )
+
+  expect_equal(
+    renv_config_decode_envvar(envname, "C:/apple,C:/banana"),
+    c("C:/apple", "C:/banana")
+  )
+
+  expect_equal(
+    renv_config_decode_envvar(envname, "/apple:/banana"),
+    c("/apple", "/banana")
+  )
+
+  expect_equal(
+    renv_config_decode_envvar(envname, "/apple;/banana"),
+    c("/apple", "/banana")
+  )
+
+  expect_equal(
+    renv_config_decode_envvar(envname, "/apple,/banana"),
+    c("/apple", "/banana")
+  )
 
 })

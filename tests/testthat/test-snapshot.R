@@ -648,7 +648,19 @@ test_that("lockfiles are stable (v2)", {
   
   project <- renv_tests_scope("breakfast")
   init()
-  
+
   expect_snapshot(. <- writeLines(readLines("renv.lock")))
-  
+
+})
+
+# # https://github.com/rstudio/renv/issues/2073
+test_that("empty .ipynb files are handled gracefully", {
+
+  skip_on_cran()
+  project <- renv_tests_scope("bread")
+  init()
+
+  writeLines("", con = "example.ipynb")
+  snapshot()
+
 })

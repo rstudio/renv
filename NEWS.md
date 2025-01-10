@@ -4,6 +4,21 @@
 * `renv` now includes the contents of each package's DESCRIPTION file in
   the package records for generated lockfiles. (#2057)
 
+* Fixed an issue where `renv::snapshot()` could fail if invoked within
+  a project containing empty or invalid `.ipynb` files. (#2073)
+
+* Fixed an issue where R package installation could fail if the project
+  depended on a package whose current version available from the configured
+  package repositories required on a newer version of R than what was currently
+  installed, even if that package need not be updated. (#2071)
+
+* Fixed an issue where `RENV_CONFIG_EXTERNAL_LIBRARIES` was incorrectly
+  split when using Windows paths. (#2069)
+  
+* Fixed an issue where `renv` failed to restore packages installed from
+  r-universe when the associated lockfile record had no `RemoteRef` field.
+  (#2068)
+
 * `renv` now detects dependencies from usages of `utils::citation()`. (#2047)
   
 * Fixed an issue where packages installed from r-universe via an explicit
