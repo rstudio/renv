@@ -920,7 +920,7 @@ renv_retrieve_repos_archive <- function(record) {
     status <- catch(renv_retrieve_repos_impl(record, "source", name, root))
     if (inherits(status, "error")) {
       attr(status, "record") <- record
-      renv_condition_signal("renv.retrieve.error", entry)
+      renv_condition_signal("renv.retrieve.error", status)
     }
 
     # exit now if we had success
