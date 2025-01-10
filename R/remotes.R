@@ -15,7 +15,7 @@ remote <- function(spec) {
 
 # take a short-form remotes spec, parse that into a remote,
 # and generate a corresponding package record
-renv_remotes_resolve <- function(spec, latest = FALSE) {
+renv_remotes_resolve <- function(spec, latest = FALSE, infer = FALSE) {
 
   # check for already-resolved specs
   if (is.null(spec) || is.list(spec))
@@ -29,6 +29,15 @@ renv_remotes_resolve <- function(spec, latest = FALSE) {
   # remove a trailing slash
   # https://github.com/rstudio/renv/issues/1135
   spec <- gsub("/+$", "", spec, perl = TRUE)
+
+  # check if we should infer the package version
+  infer <-
+    infer &&
+    grepl(renv_regexps_package_name(), spec) &&
+    renv_package_installed(spec)
+
+  if (infer)
+    spec <- paste(spec, renv_package_version(spec), sep = "@")
 
   # check for archive URLs -- this is a bit hacky
   if (grepl("^(?:file|https?)://", spec)) {

@@ -915,9 +915,15 @@ renv_retrieve_repos_archive <- function(record) {
     if (is.null(root))
       next
 
-    # attempt download
+    # attempt download; report errors via condition handler
     name <- renv_retrieve_repos_archive_name(record, type = "source")
     status <- catch(renv_retrieve_repos_impl(record, "source", name, root))
+    if (inherits(status, "error")) {
+      attr(status, "record") <- record
+      renv_condition_signal("renv.retrieve.error", entry)
+    }
+
+    # exit now if we had success
     if (identical(status, TRUE))
       return(TRUE)
 
