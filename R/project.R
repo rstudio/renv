@@ -171,6 +171,7 @@ renv_project_remotes <- function(project, filter = NULL, resolve = FALSE) {
 
       # check if we're being invoked during restore or install
       # if so, we may want to re-use an already-existing package
+      # https://github.com/rstudio/renv/issues/2071
       packages <- renv_restore_state(key = "packages")
       renv_remotes_resolve(package, infer = !package %in% packages)
 
