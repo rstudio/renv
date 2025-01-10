@@ -53,7 +53,8 @@
 
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="1.1.0" id="renv-110-unreleased">renv 1.1.0 (UNRELEASED)<a class="anchor" aria-label="anchor" href="#renv-110-unreleased"></a></h2>
-<ul><li><p>Fixed an issue where <code><a href="../reference/snapshot.html">renv::snapshot()</a></code> could fail if invoked within a project containing empty or invalid <code>.ipynb</code> files. (<a href="https://github.com/rstudio/renv/issues/2073" class="external-link">#2073</a>)</p></li>
+<ul><li><p><code>renv</code> now includes the contents of each package’s DESCRIPTION file in the package records for generated lockfiles. (<a href="https://github.com/rstudio/renv/issues/2057" class="external-link">#2057</a>)</p></li>
+<li><p>Fixed an issue where <code><a href="../reference/snapshot.html">renv::snapshot()</a></code> could fail if invoked within a project containing empty or invalid <code>.ipynb</code> files. (<a href="https://github.com/rstudio/renv/issues/2073" class="external-link">#2073</a>)</p></li>
 <li><p>Fixed an issue where R package installation could fail if the project depended on a package whose current version available from the configured package repositories required on a newer version of R than what was currently installed, even if that package need not be updated. (<a href="https://github.com/rstudio/renv/issues/2071" class="external-link">#2071</a>)</p></li>
 <li><p>Fixed an issue where <code>RENV_CONFIG_EXTERNAL_LIBRARIES</code> was incorrectly split when using Windows paths. (<a href="https://github.com/rstudio/renv/issues/2069" class="external-link">#2069</a>)</p></li>
 <li><p>Fixed an issue where <code>renv</code> failed to restore packages installed from r-universe when the associated lockfile record had no <code>RemoteRef</code> field. (<a href="https://github.com/rstudio/renv/issues/2068" class="external-link">#2068</a>)</p></li>
