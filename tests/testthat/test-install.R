@@ -371,7 +371,7 @@ test_that("packages embedded in the project use a project-local RemoteURL", {
   skip_if(is.null(usethis$create_package))
   renv_scope_options(usethis.quiet = TRUE)
   unlink("example", recursive = TRUE)
-  
+
   fields <- list(
     "Authors@R" = utils::person(
       "Kevin", "Ushey",
@@ -380,7 +380,7 @@ test_that("packages embedded in the project use a project-local RemoteURL", {
       comment = c(ORCID = "0000-0003-2880-7407")
     )
   )
-  
+
   usethis$create_package("example", fields = fields, rstudio = FALSE, open = FALSE)
 
   install("./example")
@@ -766,4 +766,29 @@ test_that("packages installed from r-universe preserve their remote metadata", {
   install("rlang", repos = "https://r-lib.r-universe.dev")
   record <- renv_snapshot_description(package = "rlang")
   expect_true(is.character(record[["RemoteSha"]]))
+})
+
+# https://github.com/rstudio/renv/issues/2071
+test_that("irrelevant R version requirements don't prevent package installation", {
+
+  renv_tests_scope()
+  init()
+
+  # package in repository not compatible with this version of R
+  expect_error(install("today"))
+
+  # but older version can be successfully installed
+  install("today@0.1.0")
+  expect_true(renv_package_installed("today"))
+  expect_equal(renv_package_version("today"), "0.1.0")
+
+  # other packages can be installed even if this project depends on it
+  writeLines("Depends: future, today", con = "DESCRIPTION")
+  install("future")
+  expect_true(renv_package_installed("future"))
+  remove("future")
+
+  # but installing that package should still fail
+  expect_error(install("today"))
+
 })

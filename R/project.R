@@ -161,15 +161,19 @@ renv_project_remotes <- function(project, filter = NULL, resolve = FALSE) {
 
       # check for explicit version requirement
       explicit <- spec[spec$Require == "==", ]
-      if (nrow(explicit) == 0)
-        return(renv_remotes_resolve(package))
+      if (nrow(explicit)) {
+        version <- explicit$Version[[1L]]
+        if (nzchar(version)) {
+          entry <- paste(package, version, sep = "@")
+          return(renv_remotes_resolve(entry))
+        }
+      }
 
-      version <- spec$Version[[1]]
-      if (!nzchar(version))
-        return(renv_remotes_resolve(package))
-
-      entry <- paste(package, version, sep = "@")
-      renv_remotes_resolve(entry)
+      # check if we're being invoked during restore or install
+      # if so, we may want to re-use an already-existing package
+      # https://github.com/rstudio/renv/issues/2071
+      packages <- renv_restore_state(key = "packages")
+      renv_remotes_resolve(package, infer = !package %in% packages)
 
     }
 
