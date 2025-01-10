@@ -7,7 +7,7 @@ in which case it will record the current state of dependencies in the
 current library paths. This makes it possible to restore the current packages,
 providing lightweight portability and reproducibility without isolation.
 If you want to automatically snapshot after each change, you can
-set config$config$auto.snapshot(TRUE), see ?config for more details."><meta property="og:description" content="Call renv::snapshot() to update a lockfile with the current state of
+set config$config$auto.snapshot(TRUE) – see ?config for more details."><meta property="og:description" content="Call renv::snapshot() to update a lockfile with the current state of
 dependencies in the project library. The lockfile can be used to later
 restore these dependencies as required.
 It's also possible to call renv::snapshot() with a non-renv project,
@@ -15,7 +15,7 @@ in which case it will record the current state of dependencies in the
 current library paths. This makes it possible to restore the current packages,
 providing lightweight portability and reproducibility without isolation.
 If you want to automatically snapshot after each change, you can
-set config$config$auto.snapshot(TRUE), see ?config for more details."><meta property="og:image" content="https://rstudio.github.io/renv/logo.svg"><meta name="robots" content="noindex"><!-- Google Tag Manager --><script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start': new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src='https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);})(window,document,'script','dataLayer','GTM-KHBDBW7');</script><!-- End Google Tag Manager --></head><body>
+set config$config$auto.snapshot(TRUE) – see ?config for more details."><meta property="og:image" content="https://rstudio.github.io/renv/logo.svg"><meta name="robots" content="noindex"><!-- Google Tag Manager --><script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start': new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src='https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);})(window,document,'script','dataLayer','GTM-KHBDBW7');</script><!-- End Google Tag Manager --></head><body>
     <a href="#container" class="visually-hidden-focusable">Skip to content</a>
 
 
@@ -77,7 +77,7 @@ in which case it will record the current state of dependencies in the
 current library paths. This makes it possible to <a href="restore.html">restore</a> the current packages,
 providing lightweight portability and reproducibility without isolation.</p>
 <p>If you want to automatically snapshot after each change, you can
-set <code>config$config$auto.snapshot(TRUE)</code>, see <code><a href="config.html">?config</a></code> for more details.</p>
+set <code>config$config$auto.snapshot(TRUE)</code> – see <code><a href="config.html">?config</a></code> for more details.</p>
     </div>
 
     <div class="section level2">
@@ -131,7 +131,7 @@ directly instead.</p></dd>
 <li><p><code>"explicit"</code> uses packages recorded in <code>DESCRIPTION</code>.</p></li>
 <li><p><code>"all"</code> uses all packages in the project library.</p></li>
 <li><p><code>"custom"</code> uses a custom filter.</p></li>
-</ul><p>See <strong>Snapshot type</strong> below for more details.</p></dd>
+</ul><p>See <strong>Snapshot types</strong> below for more details.</p></dd>
 
 
 <dt id="arg-dev">dev<a class="anchor" aria-label="anchor" href="#arg-dev"></a></dt>
@@ -192,8 +192,8 @@ this function is normally called for its side effects.</p>
     </div>
     <div class="section level2">
     <h2 id="snapshot-types">Snapshot types<a class="anchor" aria-label="anchor" href="#snapshot-types"></a></h2>
-    <p>Depending on how you prefer to manage dependencies, you might prefer
-selecting a different snapshot mode. The modes available are as follows:</p>
+    <p>Depending on how you prefer to manage your <span style="R">R</span> package dependencies, you may
+want to enable an alternate snapshot type.. The types available are as follows:</p>
 <dl><dt><code>"implicit"</code></dt>
 <dd><p>(The default) Capture only packages which appear to be used in your project,
 as determined by <code><a href="dependencies.html">renv::dependencies()</a></code>. This ensures that only the packages
@@ -207,7 +207,10 @@ explicit mode, as described next.</p></dd>
 <dt><code>"explicit"</code></dt>
 <dd><p>Only capture packages which are explicitly listed in the project
 <code>DESCRIPTION</code> file. This workflow is recommended for users who wish to
-manage their project's <span style="R">R</span> package dependencies directly.</p></dd>
+manage their project's <span style="R">R</span> package dependencies directly, and can be used
+for both package and non-package <span style="R">R</span> projects. Packages used in this manner
+should be recorded in either the <code>Depends</code> or <code>Imports</code> field of the
+<code>DESCRIPTION</code> file.</p></dd>
 
 
 <dt><code>"all"</code></dt>
