@@ -98,14 +98,10 @@ renv_revdeps_check_impl <- function(revdep, root, project) {
   job(function() {
 
     Sys.setenv(RENV_LOG_LEVEL = "error")
-    setwd(file.path(!!root, "results.noindex"))
+    options(renv.cache.linkable = TRUE)
+    setwd(!!file.path(root, "results.noindex"))
 
-    result <- install(
-      packages =  !!revdep,
-      type = "source",
-      dependencies = "all"
-    )
-
+    result <- install(!!revdep, type = "source", dependencies = "all")
     system2(!!R(), c("CMD", "check", !!path))
 
   })
