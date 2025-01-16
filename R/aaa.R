@@ -44,5 +44,16 @@ devel <- function() {
 }
 
 devmode <- function() {
-  Sys.getenv("DEVTOOLS_LOAD") == .packageName
+
+  if ("devtools" %in% loadedNamespaces()) {
+    if (.packageName %in% devtools::dev_packages()) {
+      return(TRUE)
+    }
+  }
+
+  if (Sys.getenv("DEVTOOLS_LOAD") == .packageName)
+    return(TRUE)
+
+  FALSE
+
 }

@@ -12,6 +12,7 @@ docs
 internal
 renv.Rproj
 revdep
+revdeps
 
 inst/doc
 renv/cellar

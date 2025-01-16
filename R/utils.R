@@ -285,6 +285,11 @@ visited <- function(name, envir) {
   value
 }
 
+zmap <- function(x, f) {
+  callback <- function(x) do.call(f, x)
+  lapply(x, callback)
+}
+
 rowapply <- function(X, FUN, ...) {
   lapply(seq_len(NROW(X)), function(I) {
     FUN(X[I, , drop = FALSE], ...)

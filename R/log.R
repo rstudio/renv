@@ -49,15 +49,15 @@ renv_log_impl <- function(level, scope, fmt, ...) {
 
 }
 
-renv_log_init <- function() {
-  the$log_level  <- renv_log_level()
-  the$log_file   <- renv_log_file()
-  the$log_scopes <- renv_log_scopes()
+renv_log_init <- function(level = NULL, file = NULL, scopes = NULL) {
+  the$log_level  <- renv_log_level(level)
+  the$log_file   <- renv_log_file(file)
+  the$log_scopes <- renv_log_scopes(scopes)
 }
 
-renv_log_level <- function() {
+renv_log_level <- function(level = NULL) {
 
-  level <- Sys.getenv("RENV_LOG_LEVEL", unset = NA)
+  level <- level %||% Sys.getenv("RENV_LOG_LEVEL", unset = NA)
   if (is.na(level))
     return(4L)
 
@@ -74,10 +74,10 @@ renv_log_level <- function() {
 
 }
 
-renv_log_file <- function() {
+renv_log_file <- function(file = NULL) {
 
   # check for log file
-  file <- Sys.getenv("RENV_LOG_FILE", unset = NA)
+  file <- file %||% Sys.getenv("RENV_LOG_FILE", unset = NA)
   if (!is.na(file))
     return(file)
 
@@ -86,9 +86,9 @@ renv_log_file <- function() {
 
 }
 
-renv_log_scopes <- function() {
+renv_log_scopes <- function(scopes = NULL) {
 
-  scopes <- Sys.getenv("RENV_LOG_SCOPES", unset = NA)
+  scopes <- scopes %||% Sys.getenv("RENV_LOG_SCOPES", unset = NA)
   if (is.na(scopes))
     return(NULL)
 
