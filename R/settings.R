@@ -418,8 +418,8 @@ renv_settings_impl <- function(name, default, scalar, validate, coerce, update) 
 #' ## `vcs.ignore.cellar`
 #'
 #' Set whether packages within a project-local package cellar are excluded
-#' from version control. See `vignette("cellar", package = "renv")` for
-#' more information.
+#' from version control. See `vignette("package-sources", package = "renv")`
+#' for more information.
 #'
 #' ## `vcs.ignore.library`
 #'
