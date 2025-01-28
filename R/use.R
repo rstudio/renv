@@ -44,7 +44,7 @@ the$use_libpath <- NULL
 use <- function(...,
                 lockfile = NULL,
                 library  = NULL,
-                isolate  = sandbox,
+                isolate  = TRUE,
                 sandbox  = TRUE,
                 attach   = FALSE,
                 verbose  = TRUE)
@@ -81,26 +81,26 @@ use <- function(...,
 
   # remove any remotes which already appear to be installed
   compat <- enum_lgl(records, function(package, record) {
-    
+
     # check if the package is installed
     if (!renv_package_installed(package, lib.loc = library))
       return(FALSE)
-    
+
     # check if the installed package is compatible
     record <- resolve(record)
     current <- renv_snapshot_description(package = package)
     diff <- renv_lockfile_diff_record(record, current)
-    
+
     # a null diff implies the two records are compatible
     is.null(diff)
-    
+
   })
-  
+
   # drop the already-installed compatible records
   records <- records[!compat]
   if (empty(records))
     return(invisible())
-  
+
   # install packages
   records <- local({
     renv_scope_options(renv.verbose = verbose)
@@ -138,5 +138,12 @@ renv_use_sandbox <- function(sandbox) {
 
   renv_scope_options(renv.config.sandbox.enabled = TRUE)
   renv_sandbox_activate_impl(sandbox = sandbox)
+
+  reg.finalizer(renv_envir_self(), function(envir) {
+    tryCatch(
+      renv_sandbox_unlock(sandbox),
+      condition = identity
+    )
+  }, onexit = TRUE)
 
 }

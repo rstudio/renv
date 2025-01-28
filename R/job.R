@@ -24,7 +24,7 @@ job <- function(callback, data = list()) {
   save(callback, data, file = paths$workspace)
 
   # find path where renv is installed
-  library <- if (devmode()) {
+  library <- if (devmode() || testing()) {
     dirname(renv_package_find("renv"))
   } else {
     dirname(renv_namespace_path("renv"))
@@ -39,7 +39,7 @@ job <- function(callback, data = list()) {
 
     # invoke the provided callback
     result <- catch({
-      options(readRDS(!!paths$options));
+      options(readRDS(!!paths$options))
       base::load(!!paths$workspace)
       do.call(callback, data)
     })
@@ -55,13 +55,15 @@ job <- function(callback, data = list()) {
   # run that code
   renv_scope_envvars(RENV_WATCHDOG_ENABLED = FALSE)
   args <- c("--vanilla", "-s", "-f", renv_shell_path(paths$script))
-  r(args)
+  status <- r(args)
+  if (status != 0L)
+    stopf("error executing job [error code %i]", status)
 
   # collect the result
-  status <- readRDS(paths$result)
-  if (inherits(status, "error"))
-    stop(status)
+  result <- readRDS(paths$result)
+  if (inherits(result, "error"))
+    stop(result)
 
-  status
+  result
 
 }

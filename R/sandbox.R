@@ -144,9 +144,9 @@ renv_sandbox_activate_check <- function(libs) {
 renv_sandbox_generate <- function(sandbox) {
 
   # make the library temporarily writable
-  lock <- getOption("renv.sandbox.locking_enabled", default = TRUE)
+  lockable <- renv_sandbox_lockable()
 
-  if (lock) {
+  if (lockable) {
     dlog("sandbox", "unlocking sandbox")
     renv_sandbox_unlock(sandbox)
   }
@@ -176,7 +176,7 @@ renv_sandbox_generate <- function(sandbox) {
   Sys.setFileTime(sandbox, time = Sys.time())
 
   # make the library unwritable again
-  if (lock) {
+  if (lockable) {
     dlog("sandbox", "locking sandbox")
     renv_sandbox_lock(sandbox)
   }
@@ -235,20 +235,25 @@ renv_sandbox_path <- function(project = NULL) {
   renv_paths_sandbox(project = project)
 }
 
+renv_sandbox_lockable <- function(sandbox = NULL) {
+  getOption("renv.sandbox.locking_enabled", default = TRUE)
+}
+
 renv_sandbox_lock <- function(sandbox = NULL, project = NULL) {
   sandbox <- sandbox %||% renv_sandbox_path(project = project)
-  Sys.chmod(sandbox, mode = "0555")
+  mode <- file.mode(sandbox) & "577"
+  Sys.chmod(sandbox, mode = mode)
 }
 
 renv_sandbox_locked <- function(sandbox = NULL, project = NULL) {
   sandbox <- sandbox %||% renv_sandbox_path(project = project)
-  mode <- suppressWarnings(file.mode(sandbox))
-  mode == 365L  # as.integer(as.octmode("0555"))
+  file.exists(sandbox) && file.access(sandbox, mode = 7L) != 0L
 }
 
 renv_sandbox_unlock <- function(sandbox = NULL, project = NULL) {
   sandbox <- sandbox %||% renv_sandbox_path(project = project)
-  Sys.chmod(sandbox, mode = "0755")
+  mode <- file.mode(sandbox) | "200"
+  Sys.chmod(sandbox, mode = mode)
 }
 
 #' The default library sandbox
