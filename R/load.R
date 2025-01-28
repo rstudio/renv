@@ -57,7 +57,7 @@ load <- function(project = NULL, quiet = FALSE, profile = NULL, ...) {
   base <- renv_load_base(sys.call(), envir = parent.frame())
   if (!is.null(base))
     return(invisible(base))
-  
+
   # eagerly load package namespaces which we rely on
   requireNamespace("compiler", quietly = TRUE)
 
@@ -162,12 +162,12 @@ renv_load_action <- function(project) {
     if (file.exists(file.path(parent, "renv")))
       return(parent)
   })
-  
+
   # the project has not yet been initialized; notify the user and ask
   # what they would like to do
   fmt <- "The project located at %s has not yet been initialized."
   header <- sprintf(fmt, renv_path_pretty(project))
-  
+
   # if we're running the autoloader in RStudio, we cannot ask
   # the user for input at this stage -- instead, just notify them
   # of the choices available
@@ -177,7 +177,7 @@ renv_load_action <- function(project) {
     caution(c(header, initmsg, loadmsg))
     return("none")
   }
-  
+
   # otherwise, prompt the user and provide them choices to proceed
   title <- paste("", header, "", "What would you like to do?", sep = "\n")
   choices <- c(
@@ -192,7 +192,7 @@ renv_load_action <- function(project) {
     choices <- c(choices, alt = msg)
   }
 
-  
+
   selection <- tryCatch(
     utils::select.list(choices, title = title, graphics = FALSE),
     interrupt = identity
@@ -628,8 +628,10 @@ renv_load_bioconductor <- function(project, bioconductor) {
   renv_bioconductor_init()
 
   # validate version if necessary
-  validate <- getOption("renv.bioconductor.validate")
-  if (truthy(validate, default = TRUE))
+  # avoid doing this in non-interactive sessions, as it can rely on
+  # a web request to https://bioconductor.org/config.yaml, which can be slow
+  validate <- getOption("renv.bioconductor.validate", default = interactive())
+  if (truthy(validate, default = FALSE))
     renv_load_bioconductor_validate(project, version)
 
   # update the R repositories
