@@ -908,7 +908,22 @@ renv_retrieve_repos_source_fallback <- function(record, repo) {
 
 renv_retrieve_repos_archive <- function(record) {
 
-  for (repo in getOption("repos")) {
+  # get the current repositories
+  repos <- getOption("repos")
+
+  # if this record has a repository recorded, use or prefer it
+  repository <- record[["Repository"]]
+  if (is.character(repository)) {
+    names(repository) <- names(repository) %||% repository
+    if (grepl("://", repository, fixed = TRUE)) {
+      repos <- c(repository, repos)
+    } else if (repository %in% names(repos)) {
+      matches <- names(repos) == repository
+      repos <- c(repos[matches], repos[!matches])
+    }
+  }
+
+  for (repo in repos) {
 
     # try to determine path to package in archive
     root <- renv_retrieve_repos_archive_root(repo, record)
