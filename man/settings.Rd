@@ -113,8 +113,8 @@ is explicitly ignored.
 \subsection{\code{vcs.ignore.cellar}}{
 
 Set whether packages within a project-local package cellar are excluded
-from version control. See \code{vignette("cellar", package = "renv")} for
-more information.
+from version control. See \code{vignette("package-sources", package = "renv")}
+for more information.
 }
 
 \subsection{\code{vcs.ignore.library}}{

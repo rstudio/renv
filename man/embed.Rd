@@ -11,7 +11,7 @@ use(
   ...,
   lockfile = NULL,
   library = NULL,
-  isolate = sandbox,
+  isolate = TRUE,
   sandbox = TRUE,
   attach = FALSE,
   verbose = TRUE
