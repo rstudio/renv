@@ -93,214 +93,214 @@ called.</p>
 <p>The following renv configuration options are available:</p>
 <div class="section">
 <h3 id="renv-config-activate-prompt">renv.config.activate.prompt<a class="anchor" aria-label="anchor" href="#renv-config-activate-prompt"></a></h3>
-<p>Automatically prompt the user to activate the current project, if it does not appear to already be activated? This is mainly useful to help ensure that calls to <code><a href="snapshot.html">renv::snapshot()</a></code> and <code><a href="restore.html">renv::restore()</a></code> use the project library. See <code><a href="activate.html">?renv::activate</a></code> for more details.
-Defaults to <code>TRUE</code>.</p>
+<p>Automatically prompt the user to activate the current project, if it does not appear to already be activated? This is mainly useful to help ensure that calls to `]8;;ide:run:renv::snapshot()renv::snapshot()]8;;` and `]8;;ide:run:renv::restore()renv::restore()]8;;` use the project library. See `]8;;ide:help:renv::activate?renv::activate]8;;` for more details.
+ Defaults to <code>TRUE</code>.</p>
 </div>
 <div class="section">
 <h3 id="renv-config-autoloader-enabled">renv.config.autoloader.enabled<a class="anchor" aria-label="anchor" href="#renv-config-autoloader-enabled"></a></h3>
-<p>Enable the renv auto-loader? When <code>FALSE</code>, renv will not automatically load a project containing an renv autoloader within its <code>.Rprofile</code>. In addition, renv will not write out the project auto-loader in calls to <code><a href="init.html">renv::init()</a></code>.
-Defaults to <code>TRUE</code>.</p>
+<p>Enable the renv auto-loader? When `FALSE`, renv will not automatically load a project containing an renv autoloader within its `.Rprofile`. In addition, renv will not write out the project auto-loader in calls to `]8;;ide:run:renv::init()renv::init()]8;;`.
+ Defaults to <code>TRUE</code>.</p>
 </div>
 <div class="section">
 <h3 id="renv-config-auto-snapshot">renv.config.auto.snapshot<a class="anchor" aria-label="anchor" href="#renv-config-auto-snapshot"></a></h3>
 <p>Automatically snapshot changes to the project library when the project dependencies change?
-Defaults to <code>FALSE</code>.</p>
+ Defaults to <code>FALSE</code>.</p>
 </div>
 <div class="section">
 <h3 id="renv-config-bitbucket-host">renv.config.bitbucket.host<a class="anchor" aria-label="anchor" href="#renv-config-bitbucket-host"></a></h3>
 <p>The default Bitbucket host to be used during package retrieval.
-Defaults to <code>"api.bitbucket.org/2.0"</code>.</p>
+ Defaults to <code>"api.bitbucket.org/2.0"</code>.</p>
 </div>
 <div class="section">
 <h3 id="renv-config-copy-method">renv.config.copy.method<a class="anchor" aria-label="anchor" href="#renv-config-copy-method"></a></h3>
-<p>The method to use when attempting to copy directories. See <strong>Copy Methods</strong> for more information.
-Defaults to <code>"auto"</code>.</p>
+<p>The method to use when attempting to copy directories. See **Copy Methods** for more information.
+ Defaults to <code>"auto"</code>.</p>
 </div>
 <div class="section">
 <h3 id="renv-config-connect-timeout">renv.config.connect.timeout<a class="anchor" aria-label="anchor" href="#renv-config-connect-timeout"></a></h3>
-<p>The amount of time to spend (in seconds) when attempting to download a file. Only applicable when the <code>curl</code> downloader is used.
-Defaults to <code>20L</code>.</p>
+<p>The amount of time to spend (in seconds) when attempting to download a file. Only applicable when the `curl` downloader is used.
+ Defaults to <code>20L</code>.</p>
 </div>
 <div class="section">
 <h3 id="renv-config-connect-retry">renv.config.connect.retry<a class="anchor" aria-label="anchor" href="#renv-config-connect-retry"></a></h3>
-<p>The number of times to attempt re-downloading a file, when transient download errors occur. Only applicable when the <code>curl</code> downloader is used.
-Defaults to <code>3L</code>.</p>
+<p>The number of times to attempt re-downloading a file, when transient download errors occur. Only applicable when the `curl` downloader is used.
+ Defaults to <code>3L</code>.</p>
 </div>
 <div class="section">
 <h3 id="renv-config-cache-enabled">renv.config.cache.enabled<a class="anchor" aria-label="anchor" href="#renv-config-cache-enabled"></a></h3>
 <p>Enable the global renv package cache? When active, renv will install packages into a global cache, and link or copy packages from the cache into your <span style="R">R</span> library as appropriate. This can greatly save on disk space and install time when <span style="R">R</span> packages are shared across multiple projects in the same environment.
-Defaults to <code>TRUE</code>.</p>
+ Defaults to <code>TRUE</code>.</p>
 </div>
 <div class="section">
 <h3 id="renv-config-cache-symlinks">renv.config.cache.symlinks<a class="anchor" aria-label="anchor" href="#renv-config-cache-symlinks"></a></h3>
-<p>Symlink packages from the global renv package cache into your project library? When <code>TRUE</code>, renv will use symlinks (or, on Windows, junction points) to reference packages installed in the cache. Set this to <code>FALSE</code> if you'd prefer to copy packages from the cache into your project library. Enabled by default, except on Windows where this feature is only enabled if the project library and global package cache are on the same volume.
-Defaults to <code>NULL</code>.</p>
+<p>Symlink packages from the global renv package cache into your project library? When `TRUE`, renv will use symlinks (or, on Windows, junction points) to reference packages installed in the cache. Set this to `FALSE` if you'd prefer to copy packages from the cache into your project library. Enabled by default, except on Windows where this feature is only enabled if the project library and global package cache are on the same volume.
+ Defaults to <code>NULL</code>.</p>
 </div>
 <div class="section">
 <h3 id="renv-config-dependency-errors">renv.config.dependency.errors<a class="anchor" aria-label="anchor" href="#renv-config-dependency-errors"></a></h3>
-<p>Many renv APIs require the enumeration of your project's <span style="R">R</span> package dependencies. This option controls how errors that occur during this enumeration are handled. By default, errors are reported but are non-fatal. Set this to <code>"fatal"</code> to force errors to be fatal, and <code>"ignored"</code> to ignore errors altogether. See <code><a href="dependencies.html">dependencies()</a></code> for more details.
-Defaults to <code>"reported"</code>.</p>
+<p>Many renv APIs require the enumeration of your project's <span style="R">R</span> package dependencies. This option controls how errors that occur during this enumeration are handled. By default, errors are reported but are non-fatal. Set this to `"fatal"` to force errors to be fatal, and `"ignored"` to ignore errors altogether. See [`dependencies()`] for more details.
+ Defaults to <code>"reported"</code>.</p>
 </div>
 <div class="section">
 <h3 id="renv-config-dependencies-limit">renv.config.dependencies.limit<a class="anchor" aria-label="anchor" href="#renv-config-dependencies-limit"></a></h3>
-<p>By default, renv reports if it discovers more than this many files when looking for dependencies, as that may indicate you are running <code><a href="dependencies.html">dependencies()</a></code> in the wrong place. Set to <code>Inf</code> to disable this warning.
-Defaults to <code>1000L</code>.</p>
+<p>By default, renv reports if it discovers more than this many files when looking for dependencies, as that may indicate you are running `dependencies()` in the wrong place. Set to `Inf` to disable this warning.
+ Defaults to <code>1000L</code>.</p>
 </div>
 <div class="section">
 <h3 id="renv-config-exported-functions">renv.config.exported.functions<a class="anchor" aria-label="anchor" href="#renv-config-exported-functions"></a></h3>
-<p>When <code><a href="https://rstudio.github.io/renv/">library(renv)</a></code> is called, should its exports be placed on the search path? Set this to <code>FALSE</code> to avoid issues that can arise with, for example, <code><a href="load.html">renv::load()</a></code> masking <code><a href="https://rdrr.io/r/base/load.html" class="external-link">base::load()</a></code>. In general, we recommend referencing renv functions from its namespace explicitly; e.g. prefer <code><a href="snapshot.html">renv::snapshot()</a></code> over <code><a href="snapshot.html">snapshot()</a></code>.
+<p>When `library(renv)` is called, should its exports be placed on the search path? Set this to `FALSE` to avoid issues that can arise with, for example, `]8;;ide:run:renv::load()renv::load()]8;;` masking `base::load()`. In general, we recommend referencing renv functions from its namespace explicitly; e.g. prefer `]8;;ide:run:renv::snapshot()renv::snapshot()]8;;` over `snapshot()`.
 By default, all exported renv functions are attached and placed on the search path, for backwards compatibility with existing scripts using renv.
-Defaults to <code>"*"</code>.</p>
+ Defaults to <code>"*"</code>.</p>
 </div>
 <div class="section">
 <h3 id="renv-config-external-libraries">renv.config.external.libraries<a class="anchor" aria-label="anchor" href="#renv-config-external-libraries"></a></h3>
-<p>A character vector of external libraries, to be used in tandem with your projects. Be careful when using external libraries: it's possible that things can break within a project if the version(s) of packages used in your project library happen to be incompatible with packages in your external libraries; for example, if your project required <code>xyz 1.0</code> but <code>xyz 1.1</code> was present and loaded from an external library. Can also be an <span style="R">R</span> function that provides the paths to external libraries. Library paths will be expanded via <code><a href="https://rdrr.io/r/base/base-internal.html" class="external-link">.expand_R_libs_env_var()</a></code> as necessary.
-Defaults to <code>NULL</code>.</p>
+<p>A character vector of external libraries, to be used in tandem with your projects. Be careful when using external libraries: it's possible that things can break within a project if the version(s) of packages used in your project library happen to be incompatible with packages in your external libraries; for example, if your project required `xyz 1.0` but `xyz 1.1` was present and loaded from an external library. Can also be an <span style="R">R</span> function that provides the paths to external libraries. Library paths will be expanded via [`.expand_R_libs_env_var()`] as necessary.
+ Defaults to <code>NULL</code>.</p>
 </div>
 <div class="section">
 <h3 id="renv-config-filebacked-cache">renv.config.filebacked.cache<a class="anchor" aria-label="anchor" href="#renv-config-filebacked-cache"></a></h3>
-<p>Enable the renv file-backed cache? When enabled, renv will cache the contents of files that are read (e.g. DESCRIPTION files) in memory, thereby avoiding re-reading the file contents from the filesystem if the file has not changed. renv uses the file <code>mtime</code> to determine if the file has changed; consider disabling this if <code>mtime</code> is unreliable on your system.
-Defaults to <code>TRUE</code>.</p>
+<p>Enable the renv file-backed cache? When enabled, renv will cache the contents of files that are read (e.g. DESCRIPTION files) in memory, thereby avoiding re-reading the file contents from the filesystem if the file has not changed. renv uses the file `mtime` to determine if the file has changed; consider disabling this if `mtime` is unreliable on your system.
+ Defaults to <code>TRUE</code>.</p>
 </div>
 <div class="section">
 <h3 id="renv-config-github-host">renv.config.github.host<a class="anchor" aria-label="anchor" href="#renv-config-github-host"></a></h3>
 <p>The default GitHub host to be used during package retrieval.
-Defaults to <code>"api.github.com"</code>.</p>
+ Defaults to <code>"api.github.com"</code>.</p>
 </div>
 <div class="section">
 <h3 id="renv-config-gitlab-host">renv.config.gitlab.host<a class="anchor" aria-label="anchor" href="#renv-config-gitlab-host"></a></h3>
 <p>The default GitLab host to be used during package retrieval.
-Defaults to <code>"gitlab.com"</code>.</p>
+ Defaults to <code>"gitlab.com"</code>.</p>
 </div>
 <div class="section">
 <h3 id="renv-config-hydrate-libpaths">renv.config.hydrate.libpaths<a class="anchor" aria-label="anchor" href="#renv-config-hydrate-libpaths"></a></h3>
-<p>A character vector of library paths, to be used by <code><a href="hydrate.html">hydrate()</a></code> when attempting to hydrate projects. When empty, the default set of library paths (as documented in <code><a href="hydrate.html">?renv::hydrate</a></code>) are used instead. See <code><a href="hydrate.html">hydrate()</a></code> for more details.
-Defaults to <code>NULL</code>.</p>
+<p>A character vector of library paths, to be used by [hydrate()] when attempting to hydrate projects. When empty, the default set of library paths (as documented in `]8;;ide:help:renv::hydrate?renv::hydrate]8;;`) are used instead. See [`hydrate()`] for more details.
+ Defaults to <code>NULL</code>.</p>
 </div>
 <div class="section">
 <h3 id="renv-config-install-build">renv.config.install.build<a class="anchor" aria-label="anchor" href="#renv-config-install-build"></a></h3>
-<p>Should downloaded package archives be built (via <code>R CMD build</code>) before installation? When TRUE, package vignettes will also be built as part of package installation. Because building packages before installation may require packages within 'Suggests' to be available, this option is not enabled by default.
-Defaults to <code>FALSE</code>.</p>
+<p>Should downloaded package archives be built (via `R CMD build`) before installation? When TRUE, package vignettes will also be built as part of package installation. Because building packages before installation may require packages within 'Suggests' to be available, this option is not enabled by default.
+ Defaults to <code>FALSE</code>.</p>
 </div>
 <div class="section">
 <h3 id="renv-config-install-remotes">renv.config.install.remotes<a class="anchor" aria-label="anchor" href="#renv-config-install-remotes"></a></h3>
-<p>Should renv read a package's <code>Remotes:</code> field when determining how package dependencies should be installed?
-Defaults to <code>TRUE</code>.</p>
+<p>Should renv read a package's `Remotes:` field when determining how package dependencies should be installed?
+ Defaults to <code>TRUE</code>.</p>
 </div>
 <div class="section">
 <h3 id="renv-config-install-shortcuts">renv.config.install.shortcuts<a class="anchor" aria-label="anchor" href="#renv-config-install-shortcuts"></a></h3>
 <p>Allow for a set of 'shortcuts' when installing packages with renv? When enabled, if renv discovers that a package to be installed is already available within the user or site libraries, then it will install a local copy of that package.
-Defaults to <code>TRUE</code>.</p>
+ Defaults to <code>TRUE</code>.</p>
 </div>
 <div class="section">
 <h3 id="renv-config-install-staged">renv.config.install.staged<a class="anchor" aria-label="anchor" href="#renv-config-install-staged"></a></h3>
-<p>DEPRECATED: Please use <code>renv.config.install.transactional</code> instead.
-Defaults to <code>TRUE</code>.</p>
+<p>DEPRECATED: Please use `renv.config.install.transactional` instead.
+ Defaults to <code>TRUE</code>.</p>
 </div>
 <div class="section">
 <h3 id="renv-config-install-transactional">renv.config.install.transactional<a class="anchor" aria-label="anchor" href="#renv-config-install-transactional"></a></h3>
 <p>Perform a transactional install of packages during install and restore? When enabled, renv will first install packages into a temporary library, and later copy or move those packages back into the project library only if all packages were successfully downloaded and installed. This can be useful if you'd like to avoid mutating your project library if installation of one or more packages fails.
-Defaults to <code>TRUE</code>.</p>
+ Defaults to <code>TRUE</code>.</p>
 </div>
 <div class="section">
 <h3 id="renv-config-install-verbose">renv.config.install.verbose<a class="anchor" aria-label="anchor" href="#renv-config-install-verbose"></a></h3>
-<p>Be verbose when installing R packages from sources? When <code>TRUE</code>, renv will stream any output generated during package build + installation to the console.
-Defaults to <code>FALSE</code>.</p>
+<p>Be verbose when installing R packages from sources? When `TRUE`, renv will stream any output generated during package build + installation to the console.
+ Defaults to <code>FALSE</code>.</p>
 </div>
 <div class="section">
 <h3 id="renv-config-locking-enabled">renv.config.locking.enabled<a class="anchor" aria-label="anchor" href="#renv-config-locking-enabled"></a></h3>
-<p>Use interprocess locks when invoking methods which might mutate the project library? Enable this to allow multiple processes to use the same renv project, while minimizing risks relating to concurrent access to the project library. Disable this if you encounter locking issues. Locks are stored as files within the project at <code>renv/lock</code>; if you need to manually remove a stale lock you can do so via <code>unlink("renv/lock", recursive = TRUE)</code>.
-Defaults to <code>FALSE</code>.</p>
+<p>Use interprocess locks when invoking methods which might mutate the project library? Enable this to allow multiple processes to use the same renv project, while minimizing risks relating to concurrent access to the project library. Disable this if you encounter locking issues. Locks are stored as files within the project at `renv/lock`; if you need to manually remove a stale lock you can do so via `unlink("renv/lock", recursive = TRUE)`.
+ Defaults to <code>FALSE</code>.</p>
 </div>
 <div class="section">
 <h3 id="renv-config-mran-enabled">renv.config.mran.enabled<a class="anchor" aria-label="anchor" href="#renv-config-mran-enabled"></a></h3>
 <p>DEPRECATED: MRAN is no longer maintained by Microsoft.
-Defaults to <code>FALSE</code>.</p>
+ Defaults to <code>FALSE</code>.</p>
 </div>
 <div class="section">
 <h3 id="renv-config-pak-enabled">renv.config.pak.enabled<a class="anchor" aria-label="anchor" href="#renv-config-pak-enabled"></a></h3>
-<p>Use the <a href="https://pak.r-lib.org/" class="external-link">pak</a> package to install packages?
-Defaults to <code>FALSE</code>.</p>
+<p>Use the [pak](https://pak.r-lib.org/) package to install packages?
+ Defaults to <code>FALSE</code>.</p>
 </div>
 <div class="section">
 <h3 id="renv-config-ppm-enabled">renv.config.ppm.enabled<a class="anchor" aria-label="anchor" href="#renv-config-ppm-enabled"></a></h3>
-<p>Boolean; enable <a href="https://packagemanager.posit.co/" class="external-link">Posit Package Manager</a> integration in renv projects? When <code>TRUE</code>, renv will attempt to transform repository URLs used by PPM into binary URLs as appropriate for the current Linux platform. Set this to <code>FALSE</code> if you'd like to continue using source-only PPM URLs, or if you find that renv is improperly transforming your repository URLs. You can still set and use PPM repositories with this option disabled; it only controls whether renv tries to transform source repository URLs into binary URLs on your behalf.
-Defaults to <code>TRUE</code>.</p>
+<p>Boolean; enable [Posit Package Manager](https://packagemanager.posit.co/) integration in renv projects? When `TRUE`, renv will attempt to transform repository URLs used by PPM into binary URLs as appropriate for the current Linux platform. Set this to `FALSE` if you'd like to continue using source-only PPM URLs, or if you find that renv is improperly transforming your repository URLs. You can still set and use PPM repositories with this option disabled; it only controls whether renv tries to transform source repository URLs into binary URLs on your behalf.
+ Defaults to <code>TRUE</code>.</p>
 </div>
 <div class="section">
 <h3 id="renv-config-ppm-default">renv.config.ppm.default<a class="anchor" aria-label="anchor" href="#renv-config-ppm-default"></a></h3>
-<p>Boolean; should new projects use the <a href="https://packagemanager.posit.co/" class="external-link">Posit Public Package Manager</a> instance by default? When <code>TRUE</code> (the default), projects initialized with <code><a href="init.html">renv::init()</a></code> will use the P3M instance if the <code>repos</code> R option has not already been set by some other means (for example, in a startup <code>.Rprofile</code>).
-Defaults to <code>TRUE</code>.</p>
+<p>Boolean; should new projects use the [Posit Public Package Manager](https://packagemanager.posit.co/) instance by default? When `TRUE` (the default), projects initialized with `]8;;ide:run:renv::init()renv::init()]8;;` will use the P3M instance if the `repos` R option has not already been set by some other means (for example, in a startup `.Rprofile`).
+ Defaults to <code>TRUE</code>.</p>
 </div>
 <div class="section">
 <h3 id="renv-config-ppm-url">renv.config.ppm.url<a class="anchor" aria-label="anchor" href="#renv-config-ppm-url"></a></h3>
-<p>The default PPM URL to be used for new renv projects. Defaults to the CRAN mirror maintained by Posit at <a href="https://packagemanager.posit.co/" class="external-link">https://packagemanager.posit.co/</a>. This option can be changed if you'd like renv to use an alternate package manager instance.
-Defaults to <code>"https://packagemanager.posit.co/cran/latest"</code>.</p>
+<p>The default PPM URL to be used for new renv projects. Defaults to the CRAN mirror maintained by Posit at &lt;https://packagemanager.posit.co/&gt;. This option can be changed if you'd like renv to use an alternate package manager instance.
+ Defaults to <code>"https://packagemanager.posit.co/cran/latest"</code>.</p>
 </div>
 <div class="section">
 <h3 id="renv-config-repos-override">renv.config.repos.override<a class="anchor" aria-label="anchor" href="#renv-config-repos-override"></a></h3>
-<p>Override the R package repositories used during <code><a href="restore.html">restore()</a></code>? Primarily useful for deployment / continuous integration, where you might want to enforce the usage of some set of repositories over what is defined in <code>renv.lock</code> or otherwise set by the R session.
-Defaults to <code>NULL</code>.</p>
+<p>Override the R package repositories used during [`restore()`]? Primarily useful for deployment / continuous integration, where you might want to enforce the usage of some set of repositories over what is defined in `renv.lock` or otherwise set by the R session.
+ Defaults to <code>NULL</code>.</p>
 </div>
 <div class="section">
 <h3 id="renv-config-rspm-enabled">renv.config.rspm.enabled<a class="anchor" aria-label="anchor" href="#renv-config-rspm-enabled"></a></h3>
-<p>DEPRECATED: Please use <code>renv.config.ppm.enabled</code> instead.
-Defaults to <code>TRUE</code>.</p>
+<p>DEPRECATED: Please use `renv.config.ppm.enabled` instead.
+ Defaults to <code>TRUE</code>.</p>
 </div>
 <div class="section">
 <h3 id="renv-config-sandbox-enabled">renv.config.sandbox.enabled<a class="anchor" aria-label="anchor" href="#renv-config-sandbox-enabled"></a></h3>
-<p>Enable sandboxing for renv projects? When active, renv will attempt to sandbox the system library, preventing non-system packages installed in the system library from becoming available in renv projects. (That is, only packages with priority <code>"base"</code> or <code>"recommended"</code>, as reported by <code><a href="https://rdrr.io/r/utils/installed.packages.html" class="external-link">installed.packages()</a></code>, are made available.)
+<p>Enable sandboxing for renv projects? When active, renv will attempt to sandbox the system library, preventing non-system packages installed in the system library from becoming available in renv projects. (That is, only packages with priority `"base"` or `"recommended"`, as reported by `installed.packages()`, are made available.)
 Sandboxing is done by linking or copying system packages into a separate library path, and then instructing R to use that library path as the system library path. In some environments, this action can take a large amount of time – in such a case, you may want to disable the renv sandbox.
-Defaults to <code>TRUE</code>.</p>
+ Defaults to <code>TRUE</code>.</p>
 </div>
 <div class="section">
 <h3 id="renv-config-shims-enabled">renv.config.shims.enabled<a class="anchor" aria-label="anchor" href="#renv-config-shims-enabled"></a></h3>
-<p>Should renv shims be installed on package load? When enabled, renv will install its own shims over the functions <code><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages()</a></code>, <code><a href="https://rdrr.io/r/utils/update.packages.html" class="external-link">update.packages()</a></code> and <code><a href="https://rdrr.io/r/utils/remove.packages.html" class="external-link">remove.packages()</a></code>, delegating these functions to <code><a href="install.html">install()</a></code>, <code><a href="update.html">update()</a></code> and <code><a href="remove.html">remove()</a></code> as appropriate.
-Defaults to <code>TRUE</code>.</p>
+<p>Should renv shims be installed on package load? When enabled, renv will install its own shims over the functions `install.packages()`, `update.packages()` and `remove.packages()`, delegating these functions to [`]8;;ide:run:renv::install()renv::install()]8;;`], [`]8;;ide:run:renv::update()renv::update()]8;;`] and [`]8;;ide:run:renv::remove()renv::remove()]8;;`] as appropriate.
+ Defaults to <code>TRUE</code>.</p>
 </div>
 <div class="section">
 <h3 id="renv-config-snapshot-inference">renv.config.snapshot.inference<a class="anchor" aria-label="anchor" href="#renv-config-snapshot-inference"></a></h3>
-<p>For packages which were installed from local sources, should renv try to infer the package's remote from its DESCRIPTION file? When <code>TRUE</code>, renv will check and prompt you to update the package's DESCRIPTION file if the remote source can be ascertained. Currently, this is only implemented for packages hosted on GitHub. Note that this check is only performed in interactive R sessions.
-Defaults to <code>TRUE</code>.</p>
+<p>For packages which were installed from local sources, should renv try to infer the package's remote from its DESCRIPTION file? When `TRUE`, renv will check and prompt you to update the package's DESCRIPTION file if the remote source can be ascertained. Currently, this is only implemented for packages hosted on GitHub. Note that this check is only performed in interactive R sessions.
+ Defaults to <code>TRUE</code>.</p>
 </div>
 <div class="section">
 <h3 id="renv-config-snapshot-validate">renv.config.snapshot.validate<a class="anchor" aria-label="anchor" href="#renv-config-snapshot-validate"></a></h3>
-<p>Validate <span style="R">R</span> package dependencies when calling snapshot? When <code>TRUE</code>, renv will attempt to diagnose potential issues in the project library before creating <code>renv.lock</code> – for example, if a package installed in the project library depends on a package which is not currently installed.
-Defaults to <code>TRUE</code>.</p>
+<p>Validate <span style="R">R</span> package dependencies when calling snapshot? When `TRUE`, renv will attempt to diagnose potential issues in the project library before creating `renv.lock` – for example, if a package installed in the project library depends on a package which is not currently installed.
+ Defaults to <code>TRUE</code>.</p>
 </div>
 <div class="section">
 <h3 id="renv-config-startup-quiet">renv.config.startup.quiet<a class="anchor" aria-label="anchor" href="#renv-config-startup-quiet"></a></h3>
-<p>Be quiet during startup? When set, renv will not display the typical <code>Project &lt;path&gt; loaded. [renv &lt;version&gt;]</code> banner on startup.
-Defaults to <code>NULL</code>.</p>
+<p>Be quiet during startup? When set, renv will not display the typical `Project &lt;path&gt; loaded. [renv &lt;version&gt;]` banner on startup.
+ Defaults to <code>NULL</code>.</p>
 </div>
 <div class="section">
 <h3 id="renv-config-synchronized-check">renv.config.synchronized.check<a class="anchor" aria-label="anchor" href="#renv-config-synchronized-check"></a></h3>
 <p>Check that the project library is synchronized with the lockfile on load?
-Defaults to <code>TRUE</code>.</p>
+ Defaults to <code>TRUE</code>.</p>
 </div>
 <div class="section">
 <h3 id="renv-config-updates-check">renv.config.updates.check<a class="anchor" aria-label="anchor" href="#renv-config-updates-check"></a></h3>
 <p>Check for package updates when the session is initialized? This can be useful if you'd like to ensure that your project lockfile remains up-to-date with packages as they are released on CRAN.
-Defaults to <code>FALSE</code>.</p>
+ Defaults to <code>FALSE</code>.</p>
 </div>
 <div class="section">
 <h3 id="renv-config-updates-parallel">renv.config.updates.parallel<a class="anchor" aria-label="anchor" href="#renv-config-updates-parallel"></a></h3>
 <p>Check for package updates in parallel? This can be useful when a large number of packages installed from non-CRAN remotes are installed, as these packages can then be checked for updates in parallel.
-Defaults to <code>2L</code>.</p>
+ Defaults to <code>2L</code>.</p>
 </div>
 <div class="section">
 <h3 id="renv-config-user-environ">renv.config.user.environ<a class="anchor" aria-label="anchor" href="#renv-config-user-environ"></a></h3>
-<p>Load the user R environ (typically located at <code>~/.Renviron</code>) when renv is loaded?
-Defaults to <code>TRUE</code>.</p>
+<p>Load the user R environ (typically located at `~/.Renviron`) when renv is loaded?
+ Defaults to <code>TRUE</code>.</p>
 </div>
 <div class="section">
 <h3 id="renv-config-user-library">renv.config.user.library<a class="anchor" aria-label="anchor" href="#renv-config-user-library"></a></h3>
-<p>Include the system library on the library paths for your projects? Note that this risks breaking project encapsulation and is not recommended for projects which you intend to share or collaborate on with other users. See also the caveats for the <code>renv.config.external.libraries</code> option.
-Defaults to <code>FALSE</code>.</p>
+<p>Include the system library on the library paths for your projects? Note that this risks breaking project encapsulation and is not recommended for projects which you intend to share or collaborate on with other users. See also the caveats for the `renv.config.external.libraries` option.
+ Defaults to <code>FALSE</code>.</p>
 </div>
 <div class="section">
 <h3 id="renv-config-user-profile">renv.config.user.profile<a class="anchor" aria-label="anchor" href="#renv-config-user-profile"></a></h3>
-<p>Load the user R profile (typically located at <code>~/.Rprofile</code>) when renv is loaded? This is disabled by default, as running arbitrary code from the the user <code>~/.Rprofile</code> could risk breaking project encapsulation. If your goal is to set environment variables that are visible within all renv projects, then placing those in <code>~/.Renviron</code> is often a better choice. Defaults to <code>FALSE</code>.</p>
+<p>Load the user R profile (typically located at `~/.Rprofile`) when renv is loaded? This is disabled by default, as running arbitrary code from the the user `~/.Rprofile` could risk breaking project encapsulation. If your goal is to set environment variables that are visible within all renv projects, then placing those in `~/.Renviron` is often a better choice. Defaults to <code>FALSE</code>.</p>
 </div>
 
     </div>
