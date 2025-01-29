@@ -48,91 +48,91 @@ called.
 
 The following renv configuration options are available:
 
-\subsection{renv.config.activate.prompt}{Automatically prompt the user to activate the current project, if it does not appear to already be activated? This is mainly useful to help ensure that calls to `]8;;ide:run:renv::snapshot()renv::snapshot()]8;;` and `]8;;ide:run:renv::restore()renv::restore()]8;;` use the project library. See `]8;;ide:help:renv::activate?renv::activate]8;;` for more details.
- Defaults to \code{TRUE}.}
-\subsection{renv.config.autoloader.enabled}{Enable the renv auto-loader? When `FALSE`, renv will not automatically load a project containing an renv autoloader within its `.Rprofile`. In addition, renv will not write out the project auto-loader in calls to `]8;;ide:run:renv::init()renv::init()]8;;`.
- Defaults to \code{TRUE}.}
+\subsection{renv.config.activate.prompt}{Automatically prompt the user to activate the current project, if it does not appear to already be activated? This is mainly useful to help ensure that calls to \code{renv::snapshot()} and \code{renv::restore()} use the project library. See \code{?renv::activate} for more details.
+Defaults to \code{TRUE}.}
+\subsection{renv.config.autoloader.enabled}{Enable the renv auto-loader? When \code{FALSE}, renv will not automatically load a project containing an renv autoloader within its \code{.Rprofile}. In addition, renv will not write out the project auto-loader in calls to \code{renv::init()}.
+Defaults to \code{TRUE}.}
 \subsection{renv.config.auto.snapshot}{Automatically snapshot changes to the project library when the project dependencies change?
- Defaults to \code{FALSE}.}
+Defaults to \code{FALSE}.}
 \subsection{renv.config.bitbucket.host}{The default Bitbucket host to be used during package retrieval.
- Defaults to \code{"api.bitbucket.org/2.0"}.}
-\subsection{renv.config.copy.method}{The method to use when attempting to copy directories. See **Copy Methods** for more information.
- Defaults to \code{"auto"}.}
-\subsection{renv.config.connect.timeout}{The amount of time to spend (in seconds) when attempting to download a file. Only applicable when the `curl` downloader is used.
- Defaults to \code{20L}.}
-\subsection{renv.config.connect.retry}{The number of times to attempt re-downloading a file, when transient download errors occur. Only applicable when the `curl` downloader is used.
- Defaults to \code{3L}.}
+Defaults to \code{"api.bitbucket.org/2.0"}.}
+\subsection{renv.config.copy.method}{The method to use when attempting to copy directories. See \strong{Copy Methods} for more information.
+Defaults to \code{"auto"}.}
+\subsection{renv.config.connect.timeout}{The amount of time to spend (in seconds) when attempting to download a file. Only applicable when the \code{curl} downloader is used.
+Defaults to \code{20L}.}
+\subsection{renv.config.connect.retry}{The number of times to attempt re-downloading a file, when transient download errors occur. Only applicable when the \code{curl} downloader is used.
+Defaults to \code{3L}.}
 \subsection{renv.config.cache.enabled}{Enable the global renv package cache? When active, renv will install packages into a global cache, and link or copy packages from the cache into your \R library as appropriate. This can greatly save on disk space and install time when \R packages are shared across multiple projects in the same environment.
- Defaults to \code{TRUE}.}
-\subsection{renv.config.cache.symlinks}{Symlink packages from the global renv package cache into your project library? When `TRUE`, renv will use symlinks (or, on Windows, junction points) to reference packages installed in the cache. Set this to `FALSE` if you'd prefer to copy packages from the cache into your project library. Enabled by default, except on Windows where this feature is only enabled if the project library and global package cache are on the same volume.
- Defaults to \code{NULL}.}
-\subsection{renv.config.dependency.errors}{Many renv APIs require the enumeration of your project's \R package dependencies. This option controls how errors that occur during this enumeration are handled. By default, errors are reported but are non-fatal. Set this to `"fatal"` to force errors to be fatal, and `"ignored"` to ignore errors altogether. See [`dependencies()`] for more details.
- Defaults to \code{"reported"}.}
-\subsection{renv.config.dependencies.limit}{By default, renv reports if it discovers more than this many files when looking for dependencies, as that may indicate you are running `dependencies()` in the wrong place. Set to `Inf` to disable this warning.
- Defaults to \code{1000L}.}
-\subsection{renv.config.exported.functions}{When `library(renv)` is called, should its exports be placed on the search path? Set this to `FALSE` to avoid issues that can arise with, for example, `]8;;ide:run:renv::load()renv::load()]8;;` masking `base::load()`. In general, we recommend referencing renv functions from its namespace explicitly; e.g. prefer `]8;;ide:run:renv::snapshot()renv::snapshot()]8;;` over `snapshot()`.
+Defaults to \code{TRUE}.}
+\subsection{renv.config.cache.symlinks}{Symlink packages from the global renv package cache into your project library? When \code{TRUE}, renv will use symlinks (or, on Windows, junction points) to reference packages installed in the cache. Set this to \code{FALSE} if you'd prefer to copy packages from the cache into your project library. Enabled by default, except on Windows where this feature is only enabled if the project library and global package cache are on the same volume.
+Defaults to \code{NULL}.}
+\subsection{renv.config.dependency.errors}{Many renv APIs require the enumeration of your project's \R package dependencies. This option controls how errors that occur during this enumeration are handled. By default, errors are reported but are non-fatal. Set this to \code{"fatal"} to force errors to be fatal, and \code{"ignored"} to ignore errors altogether. See \code{\link[=dependencies]{dependencies()}} for more details.
+Defaults to \code{"reported"}.}
+\subsection{renv.config.dependencies.limit}{By default, renv reports if it discovers more than this many files when looking for dependencies, as that may indicate you are running \code{dependencies()} in the wrong place. Set to \code{Inf} to disable this warning.
+Defaults to \code{1000L}.}
+\subsection{renv.config.exported.functions}{When \code{library(renv)} is called, should its exports be placed on the search path? Set this to \code{FALSE} to avoid issues that can arise with, for example, \code{renv::load()} masking \code{base::load()}. In general, we recommend referencing renv functions from its namespace explicitly; e.g. prefer \code{renv::snapshot()} over \code{snapshot()}.
 By default, all exported renv functions are attached and placed on the search path, for backwards compatibility with existing scripts using renv.
- Defaults to \code{"*"}.}
-\subsection{renv.config.external.libraries}{A character vector of external libraries, to be used in tandem with your projects. Be careful when using external libraries: it's possible that things can break within a project if the version(s) of packages used in your project library happen to be incompatible with packages in your external libraries; for example, if your project required `xyz 1.0` but `xyz 1.1` was present and loaded from an external library. Can also be an \R function that provides the paths to external libraries. Library paths will be expanded via [`.expand_R_libs_env_var()`] as necessary.
- Defaults to \code{NULL}.}
-\subsection{renv.config.filebacked.cache}{Enable the renv file-backed cache? When enabled, renv will cache the contents of files that are read (e.g. DESCRIPTION files) in memory, thereby avoiding re-reading the file contents from the filesystem if the file has not changed. renv uses the file `mtime` to determine if the file has changed; consider disabling this if `mtime` is unreliable on your system.
- Defaults to \code{TRUE}.}
+Defaults to \code{"*"}.}
+\subsection{renv.config.external.libraries}{A character vector of external libraries, to be used in tandem with your projects. Be careful when using external libraries: it's possible that things can break within a project if the version(s) of packages used in your project library happen to be incompatible with packages in your external libraries; for example, if your project required \verb{xyz 1.0} but \verb{xyz 1.1} was present and loaded from an external library. Can also be an \R function that provides the paths to external libraries. Library paths will be expanded via \code{\link[=.expand_R_libs_env_var]{.expand_R_libs_env_var()}} as necessary.
+Defaults to \code{NULL}.}
+\subsection{renv.config.filebacked.cache}{Enable the renv file-backed cache? When enabled, renv will cache the contents of files that are read (e.g. DESCRIPTION files) in memory, thereby avoiding re-reading the file contents from the filesystem if the file has not changed. renv uses the file \code{mtime} to determine if the file has changed; consider disabling this if \code{mtime} is unreliable on your system.
+Defaults to \code{TRUE}.}
 \subsection{renv.config.github.host}{The default GitHub host to be used during package retrieval.
- Defaults to \code{"api.github.com"}.}
+Defaults to \code{"api.github.com"}.}
 \subsection{renv.config.gitlab.host}{The default GitLab host to be used during package retrieval.
- Defaults to \code{"gitlab.com"}.}
-\subsection{renv.config.hydrate.libpaths}{A character vector of library paths, to be used by [hydrate()] when attempting to hydrate projects. When empty, the default set of library paths (as documented in `]8;;ide:help:renv::hydrate?renv::hydrate]8;;`) are used instead. See [`hydrate()`] for more details.
- Defaults to \code{NULL}.}
-\subsection{renv.config.install.build}{Should downloaded package archives be built (via `R CMD build`) before installation? When TRUE, package vignettes will also be built as part of package installation. Because building packages before installation may require packages within 'Suggests' to be available, this option is not enabled by default.
- Defaults to \code{FALSE}.}
-\subsection{renv.config.install.remotes}{Should renv read a package's `Remotes:` field when determining how package dependencies should be installed?
- Defaults to \code{TRUE}.}
+Defaults to \code{"gitlab.com"}.}
+\subsection{renv.config.hydrate.libpaths}{A character vector of library paths, to be used by \code{\link[=hydrate]{hydrate()}} when attempting to hydrate projects. When empty, the default set of library paths (as documented in \code{?renv::hydrate}) are used instead. See \code{\link[=hydrate]{hydrate()}} for more details.
+Defaults to \code{NULL}.}
+\subsection{renv.config.install.build}{Should downloaded package archives be built (via \verb{R CMD build}) before installation? When TRUE, package vignettes will also be built as part of package installation. Because building packages before installation may require packages within 'Suggests' to be available, this option is not enabled by default.
+Defaults to \code{FALSE}.}
+\subsection{renv.config.install.remotes}{Should renv read a package's \verb{Remotes:} field when determining how package dependencies should be installed?
+Defaults to \code{TRUE}.}
 \subsection{renv.config.install.shortcuts}{Allow for a set of 'shortcuts' when installing packages with renv? When enabled, if renv discovers that a package to be installed is already available within the user or site libraries, then it will install a local copy of that package.
- Defaults to \code{TRUE}.}
-\subsection{renv.config.install.staged}{DEPRECATED: Please use `renv.config.install.transactional` instead.
- Defaults to \code{TRUE}.}
+Defaults to \code{TRUE}.}
+\subsection{renv.config.install.staged}{DEPRECATED: Please use \code{renv.config.install.transactional} instead.
+Defaults to \code{TRUE}.}
 \subsection{renv.config.install.transactional}{Perform a transactional install of packages during install and restore? When enabled, renv will first install packages into a temporary library, and later copy or move those packages back into the project library only if all packages were successfully downloaded and installed. This can be useful if you'd like to avoid mutating your project library if installation of one or more packages fails.
- Defaults to \code{TRUE}.}
-\subsection{renv.config.install.verbose}{Be verbose when installing R packages from sources? When `TRUE`, renv will stream any output generated during package build + installation to the console.
- Defaults to \code{FALSE}.}
-\subsection{renv.config.locking.enabled}{Use interprocess locks when invoking methods which might mutate the project library? Enable this to allow multiple processes to use the same renv project, while minimizing risks relating to concurrent access to the project library. Disable this if you encounter locking issues. Locks are stored as files within the project at `renv/lock`; if you need to manually remove a stale lock you can do so via `unlink("renv/lock", recursive = TRUE)`.
- Defaults to \code{FALSE}.}
+Defaults to \code{TRUE}.}
+\subsection{renv.config.install.verbose}{Be verbose when installing R packages from sources? When \code{TRUE}, renv will stream any output generated during package build + installation to the console.
+Defaults to \code{FALSE}.}
+\subsection{renv.config.locking.enabled}{Use interprocess locks when invoking methods which might mutate the project library? Enable this to allow multiple processes to use the same renv project, while minimizing risks relating to concurrent access to the project library. Disable this if you encounter locking issues. Locks are stored as files within the project at \code{renv/lock}; if you need to manually remove a stale lock you can do so via \code{unlink("renv/lock", recursive = TRUE)}.
+Defaults to \code{FALSE}.}
 \subsection{renv.config.mran.enabled}{DEPRECATED: MRAN is no longer maintained by Microsoft.
- Defaults to \code{FALSE}.}
-\subsection{renv.config.pak.enabled}{Use the [pak](https://pak.r-lib.org/) package to install packages?
- Defaults to \code{FALSE}.}
-\subsection{renv.config.ppm.enabled}{Boolean; enable [Posit Package Manager](https://packagemanager.posit.co/) integration in renv projects? When `TRUE`, renv will attempt to transform repository URLs used by PPM into binary URLs as appropriate for the current Linux platform. Set this to `FALSE` if you'd like to continue using source-only PPM URLs, or if you find that renv is improperly transforming your repository URLs. You can still set and use PPM repositories with this option disabled; it only controls whether renv tries to transform source repository URLs into binary URLs on your behalf.
- Defaults to \code{TRUE}.}
-\subsection{renv.config.ppm.default}{Boolean; should new projects use the [Posit Public Package Manager](https://packagemanager.posit.co/) instance by default? When `TRUE` (the default), projects initialized with `]8;;ide:run:renv::init()renv::init()]8;;` will use the P3M instance if the `repos` R option has not already been set by some other means (for example, in a startup `.Rprofile`).
- Defaults to \code{TRUE}.}
-\subsection{renv.config.ppm.url}{The default PPM URL to be used for new renv projects. Defaults to the CRAN mirror maintained by Posit at <https://packagemanager.posit.co/>. This option can be changed if you'd like renv to use an alternate package manager instance.
- Defaults to \code{"https://packagemanager.posit.co/cran/latest"}.}
-\subsection{renv.config.repos.override}{Override the R package repositories used during [`restore()`]? Primarily useful for deployment / continuous integration, where you might want to enforce the usage of some set of repositories over what is defined in `renv.lock` or otherwise set by the R session.
- Defaults to \code{NULL}.}
-\subsection{renv.config.rspm.enabled}{DEPRECATED: Please use `renv.config.ppm.enabled` instead.
- Defaults to \code{TRUE}.}
-\subsection{renv.config.sandbox.enabled}{Enable sandboxing for renv projects? When active, renv will attempt to sandbox the system library, preventing non-system packages installed in the system library from becoming available in renv projects. (That is, only packages with priority `"base"` or `"recommended"`, as reported by `installed.packages()`, are made available.)
+Defaults to \code{FALSE}.}
+\subsection{renv.config.pak.enabled}{Use the \href{https://pak.r-lib.org/}{pak} package to install packages?
+Defaults to \code{FALSE}.}
+\subsection{renv.config.ppm.enabled}{Boolean; enable \href{https://packagemanager.posit.co/}{Posit Package Manager} integration in renv projects? When \code{TRUE}, renv will attempt to transform repository URLs used by PPM into binary URLs as appropriate for the current Linux platform. Set this to \code{FALSE} if you'd like to continue using source-only PPM URLs, or if you find that renv is improperly transforming your repository URLs. You can still set and use PPM repositories with this option disabled; it only controls whether renv tries to transform source repository URLs into binary URLs on your behalf.
+Defaults to \code{TRUE}.}
+\subsection{renv.config.ppm.default}{Boolean; should new projects use the \href{https://packagemanager.posit.co/}{Posit Public Package Manager} instance by default? When \code{TRUE} (the default), projects initialized with \code{renv::init()} will use the P3M instance if the \code{repos} R option has not already been set by some other means (for example, in a startup \code{.Rprofile}).
+Defaults to \code{TRUE}.}
+\subsection{renv.config.ppm.url}{The default PPM URL to be used for new renv projects. Defaults to the CRAN mirror maintained by Posit at \url{https://packagemanager.posit.co/}. This option can be changed if you'd like renv to use an alternate package manager instance.
+Defaults to \code{"https://packagemanager.posit.co/cran/latest"}.}
+\subsection{renv.config.repos.override}{Override the R package repositories used during \code{\link[=restore]{restore()}}? Primarily useful for deployment / continuous integration, where you might want to enforce the usage of some set of repositories over what is defined in \code{renv.lock} or otherwise set by the R session.
+Defaults to \code{NULL}.}
+\subsection{renv.config.rspm.enabled}{DEPRECATED: Please use \code{renv.config.ppm.enabled} instead.
+Defaults to \code{TRUE}.}
+\subsection{renv.config.sandbox.enabled}{Enable sandboxing for renv projects? When active, renv will attempt to sandbox the system library, preventing non-system packages installed in the system library from becoming available in renv projects. (That is, only packages with priority \code{"base"} or \code{"recommended"}, as reported by \code{installed.packages()}, are made available.)
 Sandboxing is done by linking or copying system packages into a separate library path, and then instructing R to use that library path as the system library path. In some environments, this action can take a large amount of time -- in such a case, you may want to disable the renv sandbox.
- Defaults to \code{TRUE}.}
-\subsection{renv.config.shims.enabled}{Should renv shims be installed on package load? When enabled, renv will install its own shims over the functions `install.packages()`, `update.packages()` and `remove.packages()`, delegating these functions to [`]8;;ide:run:renv::install()renv::install()]8;;`], [`]8;;ide:run:renv::update()renv::update()]8;;`] and [`]8;;ide:run:renv::remove()renv::remove()]8;;`] as appropriate.
- Defaults to \code{TRUE}.}
-\subsection{renv.config.snapshot.inference}{For packages which were installed from local sources, should renv try to infer the package's remote from its DESCRIPTION file? When `TRUE`, renv will check and prompt you to update the package's DESCRIPTION file if the remote source can be ascertained. Currently, this is only implemented for packages hosted on GitHub. Note that this check is only performed in interactive R sessions.
- Defaults to \code{TRUE}.}
-\subsection{renv.config.snapshot.validate}{Validate \R package dependencies when calling snapshot? When `TRUE`, renv will attempt to diagnose potential issues in the project library before creating `renv.lock` -- for example, if a package installed in the project library depends on a package which is not currently installed.
- Defaults to \code{TRUE}.}
-\subsection{renv.config.startup.quiet}{Be quiet during startup? When set, renv will not display the typical `Project <path> loaded. [renv <version>]` banner on startup.
- Defaults to \code{NULL}.}
+Defaults to \code{TRUE}.}
+\subsection{renv.config.shims.enabled}{Should renv shims be installed on package load? When enabled, renv will install its own shims over the functions \code{install.packages()}, \code{update.packages()} and \code{remove.packages()}, delegating these functions to \code{\link[=install]{install()}}, \code{\link[=update]{update()}} and \code{\link[=remove]{remove()}} as appropriate.
+Defaults to \code{TRUE}.}
+\subsection{renv.config.snapshot.inference}{For packages which were installed from local sources, should renv try to infer the package's remote from its DESCRIPTION file? When \code{TRUE}, renv will check and prompt you to update the package's DESCRIPTION file if the remote source can be ascertained. Currently, this is only implemented for packages hosted on GitHub. Note that this check is only performed in interactive R sessions.
+Defaults to \code{TRUE}.}
+\subsection{renv.config.snapshot.validate}{Validate \R package dependencies when calling snapshot? When \code{TRUE}, renv will attempt to diagnose potential issues in the project library before creating \code{renv.lock} -- for example, if a package installed in the project library depends on a package which is not currently installed.
+Defaults to \code{TRUE}.}
+\subsection{renv.config.startup.quiet}{Be quiet during startup? When set, renv will not display the typical \verb{Project <path> loaded. [renv <version>]} banner on startup.
+Defaults to \code{NULL}.}
 \subsection{renv.config.synchronized.check}{Check that the project library is synchronized with the lockfile on load?
- Defaults to \code{TRUE}.}
+Defaults to \code{TRUE}.}
 \subsection{renv.config.updates.check}{Check for package updates when the session is initialized? This can be useful if you'd like to ensure that your project lockfile remains up-to-date with packages as they are released on CRAN.
- Defaults to \code{FALSE}.}
+Defaults to \code{FALSE}.}
 \subsection{renv.config.updates.parallel}{Check for package updates in parallel? This can be useful when a large number of packages installed from non-CRAN remotes are installed, as these packages can then be checked for updates in parallel.
- Defaults to \code{2L}.}
-\subsection{renv.config.user.environ}{Load the user R environ (typically located at `~/.Renviron`) when renv is loaded?
- Defaults to \code{TRUE}.}
-\subsection{renv.config.user.library}{Include the system library on the library paths for your projects? Note that this risks breaking project encapsulation and is not recommended for projects which you intend to share or collaborate on with other users. See also the caveats for the `renv.config.external.libraries` option.
- Defaults to \code{FALSE}.}
-\subsection{renv.config.user.profile}{Load the user R profile (typically located at `~/.Rprofile`) when renv is loaded? This is disabled by default, as running arbitrary code from the the user `~/.Rprofile` could risk breaking project encapsulation. If your goal is to set environment variables that are visible within all renv projects, then placing those in `~/.Renviron` is often a better choice. Defaults to \code{FALSE}.}
+Defaults to \code{2L}.}
+\subsection{renv.config.user.environ}{Load the user R environ (typically located at \verb{~/.Renviron}) when renv is loaded?
+Defaults to \code{TRUE}.}
+\subsection{renv.config.user.library}{Include the system library on the library paths for your projects? Note that this risks breaking project encapsulation and is not recommended for projects which you intend to share or collaborate on with other users. See also the caveats for the \code{renv.config.external.libraries} option.
+Defaults to \code{FALSE}.}
+\subsection{renv.config.user.profile}{Load the user R profile (typically located at \verb{~/.Rprofile}) when renv is loaded? This is disabled by default, as running arbitrary code from the the user \verb{~/.Rprofile} could risk breaking project encapsulation. If your goal is to set environment variables that are visible within all renv projects, then placing those in \verb{~/.Renviron} is often a better choice. Defaults to \code{FALSE}.}
 }
 
 \section{Copy methods}{
