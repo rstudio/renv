@@ -293,7 +293,10 @@ static SEXP recurse(SEXP object,
                     SEXP callback,
                     SEXP envir)
 {
-  SEXP symbol, expr, frame = R_NilValue;
+  SEXP symbol = R_NilValue;
+  SEXP expr = R_NilValue;
+  SEXP frame = R_NilValue;
+
   SEXP dots = Rf_findVarInFrame(envir, R_DotsSymbol);
   if (TYPEOF(callback) == CLOSXP && dots == R_MissingArg)
   {
