@@ -115,6 +115,7 @@ test_that("can upgrade gitlab", {
 
 test_that("we guard against invalid mc.cores values", {
 
+  skip_on_windows()
   renv_scope_options(renv.config.updates.parallel = TRUE)
 
   local({
