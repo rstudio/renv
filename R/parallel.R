@@ -4,15 +4,18 @@ renv_parallel_cores <- function() {
   if (renv_platform_windows())
     return(1L)
 
-  value <- config$updates.parallel()
-  if (identical(value, TRUE)) {
-    parallel <- requireNamespace("parallel", quietly = TRUE)
-    getOption("mc.cores", default = if (parallel) 2L else 1L)
-  } else if (identical(value, FALSE)) {
+  parallel <- config$updates.parallel()
+  value <- if (identical(parallel, TRUE)) {
+    requireNamespace("parallel", quietly = TRUE)
+    getOption("mc.cores", default = 2L)
+  } else if (identical(parallel, FALSE)) {
     1L
   } else {
-    as.integer(value)
+    parallel
   }
+
+  ok <- is.numeric(value) && length(value) == 1L && !is.na(value)
+  if (ok) value else 1L
 
 }
 

@@ -112,3 +112,24 @@ test_that("can upgrade gitlab", {
   expect_equal(updated$skeleton$RemoteSha, latest$RemoteSha)
 
 })
+
+test_that("we guard against invalid mc.cores values", {
+
+  renv_scope_options(renv.config.updates.parallel = TRUE)
+
+  local({
+    renv_scope_options(mc.cores = 4L)
+    expect_equal(renv_parallel_cores(), 4L)
+  })
+
+  local({
+    renv_scope_options(mc.cores = NA)
+    expect_equal(renv_parallel_cores(), 1L)
+  })
+
+  local({
+    renv_scope_options(mc.cores = "oops")
+    expect_equal(renv_parallel_cores(), 1L)
+  })
+
+})
