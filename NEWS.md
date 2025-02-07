@@ -1,6 +1,8 @@
 
 # renv 1.2.0  (UNRELEASED)
 
+* Fixed an issue where very long lockfiles could be truncated on write. (#2089)
+
 * Fixed an issue where `renv` inadvertently made web requests in
   tests during `R CMD check`.
 
