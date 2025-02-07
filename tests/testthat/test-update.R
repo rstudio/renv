@@ -17,6 +17,7 @@ test_that("update() finds packages requiring updates from CRAN", {
 test_that("update() can upgrade GitHub packages", {
 
   skip_if(getRversion() < "3.5.3")
+  skip_on_cran()
   skip_if_no_github_auth()
   skip_slow()
 
@@ -48,6 +49,7 @@ test_that("update() can upgrade GitHub packages", {
 test_that("update() can upgrade Git packages", {
 
   skip_if(getRversion() < "3.5.3")
+  skip_on_cran()
   skip_if_no_github_auth()
   skip_slow()
 
@@ -89,6 +91,8 @@ test_that("update() can upgrade Git packages", {
 
 test_that("can upgrade bitbucket", {
 
+  skip_on_cran()
+
   latest <- outdated <- renv_remotes_resolve("bitbucket::kevinushey/skeleton")
   outdated$Version <- "1.0.0"
   outdated$RemoteSha <- "5fd5d3b"
@@ -101,6 +105,8 @@ test_that("can upgrade bitbucket", {
 })
 
 test_that("can upgrade gitlab", {
+
+  skip_on_cran()
 
   latest <- outdated <- renv_remotes_resolve("gitlab::kevinushey/skeleton")
   outdated$Version <- "1.0.0"

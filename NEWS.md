@@ -1,6 +1,9 @@
 
 # renv 1.2.0  (UNRELEASED)
 
+* Fixed an issue where `renv` inadvertently made web requests in
+  tests during `R CMD check`.
+
 # renv 1.1.0
 
 ## Major Changes

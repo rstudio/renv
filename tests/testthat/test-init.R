@@ -173,7 +173,7 @@ test_that("a project with unnamed repositories can be initialized", {
 
   lockfile <- renv_lockfile_read("renv.lock")
   repos <- lockfile[["R"]][["Repositories"]]
-  
+
   expect_equal(
     repos,
     list(
@@ -272,6 +272,7 @@ test_that("init() respects user-requested snapshot type", {
 })
 
 test_that("init() respects Remotes in a project DESCRIPTION file", {
+  skip_on_cran()
   project <- renv_tests_scope("skeleton")
   writeLines("Depends: skeleton\nRemotes: kevinushey/skeleton", con = "DESCRIPTION")
   init()
@@ -280,7 +281,7 @@ test_that("init() respects Remotes in a project DESCRIPTION file", {
 
 test_that("a project using named remotes can be initialized", {
   project <- renv_tests_scope()
-  
+
   contents <- heredoc('
     Depends:
       toast
@@ -288,8 +289,8 @@ test_that("a project using named remotes can be initialized", {
       toast=toast
   ')
   writeLines(contents, con = "DESCRIPTION")
-  
+
   init(settings = list(snapshot.type = "explicit"))
   expect_true(renv_package_installed("toast"))
-  
+
 })

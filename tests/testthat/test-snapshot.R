@@ -318,6 +318,7 @@ test_that("snapshot() accepts relative library paths", {
 
 test_that("snapshot(update = TRUE) preserves old records", {
 
+  skip_on_cran()
   renv_tests_scope("breakfast")
   init()
 
@@ -615,37 +616,37 @@ test_that("standard remotes drop RemoteSha if it's a version", {
 })
 
 test_that("a package's hash can be re-generated from lockfile", {
-  
+
   project <- renv_tests_scope("breakfast")
   init()
-  
+
   lockfile <- snapshot(lockfile = NULL)
   records <- renv_lockfile_records(lockfile)
-  
+
   enumerate(records, function(package, record) {
     path <- system.file("DESCRIPTION", package = package)
     actual <- renv_hash_description(path)
     expected <- renv_hash_record(record)
     expect_equal(actual, expected)
   })
-  
+
 })
 
 test_that("lockfiles are stable (v1)", {
-  
+
   renv_scope_options(renv.lockfile.version = 1L)
-  
+
   project <- renv_tests_scope("breakfast")
   init()
-  
+
   expect_snapshot(. <- writeLines(readLines("renv.lock")))
-  
+
 })
 
 test_that("lockfiles are stable (v2)", {
-  
+
   renv_scope_options(renv.lockfile.version = 2L)
-  
+
   project <- renv_tests_scope("breakfast")
   init()
 

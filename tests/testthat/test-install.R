@@ -108,6 +108,8 @@ test_that("packages can be installed from sources", {
 })
 
 test_that("various remote styles can be used during install", {
+
+  skip_on_cran()
   skip_if_no_github_auth()
 
   renv_tests_scope()
@@ -151,6 +153,8 @@ test_that("various remote styles can be used during install", {
 })
 
 test_that("Remotes fields in a project DESCRIPTION are respected", {
+
+  skip_on_cran()
   skip_if_no_github_auth()
 
   renv_tests_scope()
@@ -261,7 +265,6 @@ test_that("renv can install packages from Bitbucket", {
 test_that("install via version succeeds", {
   skip_on_cran()
   renv_tests_scope()
-
   install("bread@0.0.1")
   expect_true(renv_package_installed("bread"))
   expect_true(renv_package_version("bread") == "0.0.1")
@@ -639,11 +642,16 @@ test_that("install() succeeds even some repositories cannot be queried", {
 })
 
 test_that("install() doesn't duplicate authentication headers", {
+
+  skip_on_cran()
+  skip_if_no_github_auth()
+
   renv_scope_envvars(RENV_DOWNLOAD_METHOD = "libcurl")
   project <- renv_tests_scope()
   init()
   install("kevinushey/skeleton")
   expect_true(renv_package_installed("skeleton"))
+
 })
 
 test_that("install() stores repository information for installed packages", {
@@ -680,6 +688,9 @@ test_that("install() stores repository information for installed packages", {
 })
 
 test_that("install() lazily resolves project remotes", {
+
+  skip_on_cran()
+  skip_if_no_github_auth()
 
   project <- renv_tests_scope()
   init()
