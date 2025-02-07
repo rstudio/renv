@@ -1,5 +1,5 @@
 
-# renv 1.2.0  (UNRELEASED)
+# renv 1.1.1
 
 * Fixed an issue where very long lockfiles could be truncated on write. (#2089)
 
