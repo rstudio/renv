@@ -56,3 +56,10 @@ untar <- function(tarfile,
   result
 }
 
+# prefer writing files as UTF-8
+writeLines <- function(text, con = stdout(), sep = "\n", useBytes = FALSE) {
+  if (is.character(con) && missing(useBytes))
+    base::writeLines(enc2utf8(text), con = con, sep = sep, useBytes = TRUE)
+  else
+    base::writeLines(text, con, sep, useBytes)
+}
