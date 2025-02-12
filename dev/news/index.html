@@ -53,9 +53,10 @@
 
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="development version" id="renv-development-version">renv (development version)<a class="anchor" aria-label="anchor" href="#renv-development-version"></a></h2>
-</div>
+<ul><li>Fixed an issue where lockfiles containing unicode characters were not correctly written or read with versions of R (&lt; 4.2.0) on Windows. (<a href="https://github.com/rstudio/renv/issues/2091" class="external-link">#2091</a>)</li>
+</ul></div>
     <div class="section level2">
-<h2 class="pkg-version" data-toc-text="1.1.1" id="renv-111">renv 1.1.1<a class="anchor" aria-label="anchor" href="#renv-111"></a></h2>
+<h2 class="pkg-version" data-toc-text="1.1.1" id="renv-111">renv 1.1.1<a class="anchor" aria-label="anchor" href="#renv-111"></a></h2><p class="text-muted">CRAN release: 2025-02-07</p>
 <ul><li><p>Fixed an issue where very long lockfiles could be truncated on write. (<a href="https://github.com/rstudio/renv/issues/2089" class="external-link">#2089</a>)</p></li>
 <li><p>Fixed an issue where <code>renv</code> inadvertently made web requests in tests during <code>R CMD check</code>.</p></li>
 </ul></div>
