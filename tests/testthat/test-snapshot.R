@@ -673,7 +673,7 @@ test_that("invalid lockfiles don't prevent calls to snapshot", {
   init()
 
   writeLines("whoops!", con = "renv.lock")
-  snapshot()
+  suppressWarnings(snapshot())
   expect_true(TRUE)
 
 })
