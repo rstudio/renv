@@ -1,6 +1,9 @@
 
 # renv (development version)
 
+* `renv::snapshot()` no longer fails to generate a new lockfile if the project
+  contains a lockfile which could not be read or parsed.
+
 * Fixed an issue where lockfiles containing unicode characters were not
   correctly written or read with versions of R (< 4.2.0) on Windows. (#2091)
 

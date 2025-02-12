@@ -200,12 +200,18 @@ snapshot <- function(project  = NULL,
   valid <- renv_snapshot_validate(project, new, libpaths)
   renv_snapshot_validate_report(valid, prompt, force)
 
-  # get prior lockfile state
-  old <- list()
-  if (file.exists(lockfile)) {
+  # get prior lockfile state; be robust against invalid lockfiles
+  old <- tryCatch(
+    if (file.exists(lockfile)) renv_lockfile_read(lockfile),
+    error = function(cnd) {
+      extra <- "The report below will omit lockfile package versions."
+      message <- paste(conditionMessage(cnd), extra, sep = "\n")
+      warning(message, call. = FALSE)
+      list()
+    }
+  )
 
-    # read a pre-existing lockfile (if any)
-    old <- renv_lockfile_read(lockfile)
+  if (length(old)) {
 
     # preserve records from alternate OSes in lockfile
     alt <- renv_snapshot_preserve(old, new)

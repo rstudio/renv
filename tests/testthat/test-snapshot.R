@@ -665,3 +665,15 @@ test_that("empty .ipynb files are handled gracefully", {
   snapshot()
 
 })
+
+test_that("invalid lockfiles don't prevent calls to snapshot", {
+
+  skip_on_cran()
+  project <- renv_tests_scope("bread")
+  init()
+
+  writeLines("whoops!", con = "renv.lock")
+  snapshot()
+  expect_true(TRUE)
+
+})
