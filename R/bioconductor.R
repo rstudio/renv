@@ -8,55 +8,58 @@ renv_bioconductor_manager <- function() {
 
 renv_bioconductor_versions <- function() {
 
-  data.frame(
-
-    Bioc = c(
-      "3.9", "3.10", "3.11", "3.12", "3.13", "3.14", "3.15",
-      "3.16", "3.17", "3.18", "3.19", "3.20", "3.20"
-    ),
-
-    R = c(
-      "3.6", "3.6", "4.0", "4.0", "4.1", "4.1", "4.2",
-      "4.2", "4.3", "4.3", "4.4", "4.4", "4.5"
-    )
+  # map versions of Bioconductor to the versions of R they can be used with
+  list(
+    "3.9"  = "3.6",
+    "3.10" = "3.6",
+    "3.11" = "4.0",
+    "3.12" = "4.0",
+    "3.13" = "4.1",
+    "3.14" = "4.1",
+    "3.15" = "4.2",
+    "3.16" = "4.2",
+    "3.17" = "4.3",
+    "3.18" = "4.3",
+    "3.19" = "4.4",
+    "3.20" = "4.4",
+    "3.21" = "4.5",  # speculative
+    "3.22" = "4.5"   # speculative
   )
 
 }
 
-renv_bioconductor_validate <- function(version) {
+renv_bioconductor_validate <- function(version, prompt = interactive()) {
 
-  # check that the requested version of Bioconductor is supported
-  compat <- catch({
-
-    versions <- if (getRversion() < "4.5") {
-      renv_bioconductor_versions()
-    } else {
-      BiocManager <- renv_namespace_load("BiocManager")
-      BiocManager$.version_map()
-    }
-
-    as.character(versions[versions$R == getRversion()[1, 1:2], "Bioc"])
-
-  })
-
-  if (inherits(compat, "error"))
-    return(FALSE)
-  else if (version %in% compat)
+  # check for the requested Bioconductor version in our internal version map;
+  # if it doesn't exist, then just assume compatibility
+  #
+  # we previously used BiocManager for this, but because it makes web requests,
+  # this can be prohibitively slow for certain users
+  #
+  # https://github.com/rstudio/renv/issues/2091
+  biocversions <- renv_bioconductor_versions()
+  rversion <- biocversions[[version]]
+  if (is.null(rversion))
     return(TRUE)
 
-  # prompt user otherwise
-  if (interactive()) {
+  # check that the version of R in use matches what Bioconductor requires
+  ok <- renv_version_eq(rversion, getRversion(), n = 2L)
+  if (ok)
+    return(TRUE)
 
-    fmt <- "You have requested Bioconductor %s, which is not compatible with this version of R."
-    writef(fmt, version)
+  fmt <- lines(
+    "You are using Bioconductor %1$s, which is not compatible with R %2$s.",
+    "Use 'renv::init(bioconductor = TRUE)' to re-initialize this project with the appropriate Bioconductor release.",
+    if (renv_package_installed("BiocVersion"))
+      "Please uninstall the 'BiocVersion' package first, with `remove.packages(\"BiocVersion\")`."
+  )
 
-    fmt <- "You are using R %s, for which Bioconductor version(s) %s are available."
-    writef(fmt, getRversion(), paste(shQuote(compat), collapse = ", "))
+  caution(fmt, version, getRversion())
 
+  if (prompt) {
     writef("")
     response <- ask("Would you still like to use this version of Bioconductor?")
     cancel_if(!response)
-
   }
 
   TRUE

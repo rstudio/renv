@@ -644,29 +644,7 @@ renv_load_bioconductor <- function(project, bioconductor) {
 }
 
 renv_load_bioconductor_validate <- function(project, version) {
-
-  if (!identical(renv_bioconductor_manager(), "BiocManager"))
-    return()
-
-  BiocManager <- renv_scope_biocmanager()
-  if (!is.function(BiocManager$.version_validity))
-    return()
-
-  # check for valid version of Bioconductor
-  # https://github.com/rstudio/renv/issues/1148
-  status <- catch(BiocManager$.version_validity(version))
-  if (!is.character(status))
-    return()
-
-  fmt <- lines(
-    "This project is configured to use Bioconductor %1$s, which is not compatible with R %2$s.",
-    "Use 'renv::init(bioconductor = \"%1$s\")' to re-initialize this project with the appropriate Bioconductor release.",
-    if (renv_package_installed("BiocVersion"))
-      "Please uninstall the 'BiocVersion' package first, with `remove.packages(\"BiocVersion\")`."
-  )
-
-  warningf(fmt, version, getRversion())
-
+  renv_bioconductor_validate(version, prompt = FALSE)
 }
 
 renv_load_switch <- function(project) {
