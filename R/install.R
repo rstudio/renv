@@ -693,6 +693,7 @@ renv_install_test <- function(package) {
   # intentionally throw an error in their .onAttach() hooks
   # https://github.com/rstudio/renv/issues/1611
   code <- expr({
+    .libPaths(!!.libPaths())
     options(warn = 1L)
     loadNamespace(!!package)
   })
