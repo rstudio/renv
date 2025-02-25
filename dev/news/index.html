@@ -53,7 +53,8 @@
 
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="development version" id="renv-development-version">renv (development version)<a class="anchor" aria-label="anchor" href="#renv-development-version"></a></h2>
-<ul><li><p>Fixed an issue where <code>renv</code> could stall when loading a project and validating that the configured version of Bioconductor is compatible with the version of R currently in use.</p></li>
+<ul><li><p>Fixed an issue where <code>renv</code> could fail to retrieve credentials registered for ‘github.com’ when querying URLs at ‘api.github.com’.</p></li>
+<li><p>Fixed an issue where <code>renv</code> could stall when loading a project and validating that the configured version of Bioconductor is compatible with the version of R currently in use.</p></li>
 <li><p><code><a href="../reference/snapshot.html">renv::snapshot()</a></code> no longer fails to generate a new lockfile if the project contains a lockfile which could not be read or parsed.</p></li>
 <li><p>Fixed an issue where lockfiles containing unicode characters were not correctly written or read with versions of R (&lt; 4.2.0) on Windows. (<a href="https://github.com/rstudio/renv/issues/2091" class="external-link">#2091</a>)</p></li>
 </ul></div>
