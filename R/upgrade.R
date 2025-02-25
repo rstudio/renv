@@ -3,11 +3,21 @@
 #'
 #' @description
 #' Upgrade the version of renv associated with a project, including using
-#' a development version from GitHub. Automatically snapshots the update
+#' a development version from GitHub. Automatically snapshots the updated
 #' renv, updates the activate script, and restarts R.
 #'
 #' If you want to update all packages (including renv) to their latest CRAN
 #' versions, use [renv::update()].
+#'
+#' # Note
+#'
+#' `upgrade()` is expected to work for renv versions ≥1.0.1.
+#' To upgrade from prior versions of renv, users should
+#'
+#' `renv::deactivate();`
+#' `install.packages("renv");`
+#' `renv::activate();`
+#' `renv::record("renv")`
 #'
 #' @inherit renv-params
 #'
@@ -111,7 +121,7 @@ renv_upgrade_impl <- function(project, version, reload, prompt) {
   # https://github.com/rstudio/renv/issues/2027
   autoload <- config$autoloader.enabled()
   renv_scope_envvars(RENV_CONFIG_AUTOLOADER_ENABLED = autoload)
-  
+
   code <- expr({
     renv <- asNamespace("renv"); renv$summon()
     renv_infrastructure_write(
