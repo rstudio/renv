@@ -554,6 +554,9 @@ renv_download_auth_github_token <- function(url) {
     # ensure URL has protocol pre-pended
     url <- renv_retrieve_origin(url)
 
+    # use 'github.com' for credentials instead of 'api.github.com'
+    url <- sub("https://api.github.com", "https://github.com", url, fixed = TRUE)
+
     # request credentials for URL
     dlog("download", "requesting git credentials for url '%s'", url)
     creds <- tryCatch(

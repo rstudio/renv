@@ -1,6 +1,9 @@
 
 # renv (development version)
 
+* Fixed an issue where `renv` could fail to retrieve credentials registered
+  for 'github.com' when querying URLs at 'api.github.com'.
+
 * Fixed an issue where `renv` could stall when loading a project and validating
   that the configured version of Bioconductor is compatible with the version
   of R currently in use.
