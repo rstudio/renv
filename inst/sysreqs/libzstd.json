@@ -1,0 +1,83 @@
+{
+    "patterns": ["\\blibzstd\\b"],
+    "dependencies": [
+      {
+        "packages": ["libzstd-dev"],
+        "constraints": [
+          {
+            "os": "linux",
+            "distribution": "ubuntu"
+          },
+          {
+            "os": "linux",
+            "distribution": "debian"
+          }
+        ]
+      },
+      {
+        "pre_install": [
+          {
+            "command": "rpm -q epel-release || yum install -y epel-release"
+          }
+        ],
+        "packages": [ "libzstd-devel" ],
+        "constraints": [
+          {
+            "os": "linux",
+            "distribution": "centos",
+            "versions": [ "7"]
+          }
+        ]
+      },
+      {
+        "packages": ["libzstd-devel"],
+        "pre_install": [
+          {
+            "command": "rpm -q epel-release || yum install -y https://archives.fedoraproject.org/pub/archive/epel/7/x86_64/Packages/e/epel-release-7-14.noarch.rpm"
+          }
+        ],
+        "constraints": [
+          {
+            "os": "linux",
+            "distribution": "redhat",
+            "versions": ["7"]
+          }
+        ]
+      },
+      {
+        "packages": ["libzstd-devel"],
+        "constraints": [
+          {
+            "os": "linux",
+            "distribution": "rockylinux"
+          },
+          {
+            "os": "linux",
+            "distribution": "redhat",
+	    "versions": [ "8", "9" ]
+          },
+          {
+            "os": "linux",
+            "distribution": "fedora"
+          },
+          {
+            "os": "linux",
+            "distribution": "opensuse"
+          },
+          {
+            "os": "linux",
+            "distribution": "sle"
+          }
+        ]
+      },
+      {
+        "packages": ["zstd-dev"],
+        "constraints": [
+          {
+            "os": "linux",
+            "distribution": "alpine"
+          }
+        ]
+      }
+    ]
+}

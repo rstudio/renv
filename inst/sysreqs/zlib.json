@@ -1,0 +1,72 @@
+{
+    "patterns": ["\\bzlib\\b"],
+    "dependencies": [
+      {
+        "packages": ["zlib1g-dev"],
+        "constraints": [
+          {
+            "os": "linux",
+            "distribution": "ubuntu"
+          },
+          {
+            "os": "linux",
+            "distribution": "debian"
+          }
+        ]
+      },
+      {
+        "packages": ["zlib-devel"],
+        "constraints": [
+          {
+            "os": "linux",
+            "distribution": "centos"
+          },
+          {
+            "os": "linux",
+            "distribution": "rockylinux"
+          },
+          {
+            "os": "linux",
+            "distribution": "redhat"
+          },
+          {
+            "os": "linux",
+            "distribution": "fedora"
+          }
+        ]
+      },
+      {
+        "packages": ["zlib-devel"],
+        "constraints": [
+          {
+            "os": "linux",
+            "distribution": "opensuse"
+          },
+          {
+            "os": "linux",
+            "distribution": "sle"
+          }
+        ]
+      },
+      {
+        "packages": ["zlib-dev"],
+        "constraints": [
+          {
+            "os": "linux",
+            "distribution": "alpine"
+          }
+        ]
+      },
+      {
+        "packages": [
+          "mingw-w64-x86_64-zlib",
+          "mingw-w64-i686-zlib"
+        ],
+        "constraints": [
+          {
+            "os": "windows"
+          }
+        ]
+      }
+    ]
+  }

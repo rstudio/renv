@@ -1,0 +1,119 @@
+{
+    "patterns": ["\\bimagemagick\\b", "\\bimage magick\\b"],
+    "dependencies": [
+      {
+        "packages": ["libmagick++-dev", "gsfonts"],
+        "constraints": [
+          {
+            "os": "linux",
+            "distribution": "ubuntu"
+          },
+          {
+            "os": "linux",
+            "distribution": "debian"
+          }
+        ]
+      },
+      {
+        "packages": ["ImageMagick-devel", "ImageMagick-c++-devel"],
+        "constraints": [
+          {
+            "os": "linux",
+            "distribution": "centos",
+            "versions": ["6", "7"]
+          },
+          {
+            "os": "linux",
+            "distribution": "fedora"
+          }
+        ]
+      },
+      {
+        "packages": ["ImageMagick-devel", "ImageMagick-c++-devel"],
+        "pre_install": [
+          { "command": "dnf install -y dnf-plugins-core" },
+          { "command": "dnf config-manager --set-enabled powertools" },
+          { "command": "dnf install -y epel-release" }
+        ],
+        "constraints": [
+          {
+            "os": "linux",
+            "distribution": "centos",
+            "versions": ["8"]
+          }
+        ]
+      },
+      {
+        "packages": ["ImageMagick-devel", "ImageMagick-c++-devel"],
+        "pre_install": [
+          { "command": "dnf install -y epel-release" }
+        ],
+        "constraints": [
+          {
+            "os": "linux",
+            "distribution": "rockylinux"
+          }
+        ]
+      },
+      {
+        "packages": ["ImageMagick-c++-devel", "ImageMagick-devel"],
+        "constraints": [
+          {
+            "os": "linux",
+            "distribution": "redhat",
+            "versions": ["6", "7"]
+          }
+        ]
+      },
+      {
+        "packages": ["ImageMagick-c++-devel", "ImageMagick-devel"],
+        "pre_install": [
+          {
+            "command": "dnf install -y https://dl.fedoraproject.org/pub/epel/epel-release-latest-8.noarch.rpm"
+          }
+        ],
+        "constraints": [
+          {
+            "os": "linux",
+            "distribution": "redhat",
+            "versions": ["8"]
+          }
+        ]
+      },
+      {
+        "packages": ["ImageMagick-c++-devel", "ImageMagick-devel"],
+        "pre_install": [
+          { "command": "dnf install -y https://dl.fedoraproject.org/pub/epel/epel-release-latest-9.noarch.rpm" }
+        ],
+        "constraints": [
+          {
+            "os": "linux",
+            "distribution": "redhat",
+            "versions": ["9"]
+          }
+        ]
+      },
+      {
+        "packages": ["ImageMagick-devel", "libMagick++-devel"],
+        "constraints": [
+          {
+            "os": "linux",
+            "distribution": "opensuse"
+          },
+          {
+            "os": "linux",
+            "distribution": "sle"
+          }
+        ]
+      },
+      {
+        "packages": ["imagemagick-dev", "imagemagick-c++"],
+        "constraints": [
+          {
+            "os": "linux",
+            "distribution": "alpine"
+          }
+        ]
+      }
+    ]
+  }

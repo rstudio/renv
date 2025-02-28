@@ -1,0 +1,16 @@
+{
+  "patterns": ["\\bnlopt\\b"],
+  "dependencies": [
+    {
+      "packages": [
+        "mingw-w64-x86_64-nlopt",
+        "mingw-w64-i686-nlopt"
+      ],
+      "constraints": [
+        {
+          "os": "windows"
+        }
+      ]
+    }
+  ]
+}

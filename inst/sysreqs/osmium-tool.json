@@ -1,0 +1,22 @@
+{
+    "patterns": ["\\bosmium-tool\\b"],
+    "dependencies": [
+      {
+        "packages": ["osmium-tool"],
+        "constraints": [
+          {
+            "os": "linux",
+            "distribution": "ubuntu"
+          },
+          {
+            "os": "linux",
+            "distribution": "debian"
+          },
+          {
+            "os": "linux",
+            "distribution": "fedora"
+          }
+        ]
+      }
+    ]
+  }

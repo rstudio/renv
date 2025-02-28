@@ -1,8 +1,25 @@
 
-the$sysinfo <- NULL
+the$sysinfo  <- NULL
+the$platform     <- NULL
+the$distribution <- NULL
+the$os           <- NULL
 
 renv_platform_init <- function() {
-  the$sysinfo <- Sys.info()
+
+  the$sysinfo <- as.list(Sys.info())
+
+  the$platform <- if (file.exists("/etc/os-release")) {
+    renv_properties_read(
+      path      = "/etc/os-release",
+      delimiter = "=",
+      dequote   = TRUE,
+      trim      = TRUE
+    )
+  }
+
+  the$os <- tolower(the$sysinfo$sysname)
+  the$distribution <- the$platform$ID
+
 }
 
 renv_platform_unix <- function() {

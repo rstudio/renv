@@ -227,6 +227,9 @@ install <- function(packages = NULL,
     cancel_if(prompt && !proceed())
   }
 
+  # check for installed dependencies
+  renv_sysreqs_check(records)
+
   # install retrieved records
   before <- Sys.time()
   renv_install_impl(records)

@@ -1,0 +1,136 @@
+{
+  "patterns": [
+    "\\bsdl2\\b"
+  ],
+  "dependencies": [
+    {
+      "packages": [
+        "libsdl2-dev"
+      ],
+      "constraints": [
+        {
+          "os": "linux",
+          "distribution": "ubuntu"
+        },
+        {
+          "os": "linux",
+          "distribution": "debian"
+        }
+      ]
+    },
+    {
+      "packages": [
+        "SDL2-devel"
+      ],
+      "constraints": [
+        {
+          "os": "linux",
+          "distribution": "rockylinux",
+          "versions": ["9"]
+        },
+        {
+          "os": "linux",
+          "distribution": "redhat"
+        },
+        {
+          "os": "linux",
+          "distribution": "fedora"
+        },
+        {
+          "os": "linux",
+          "distribution": "sle"
+        }
+      ]
+    },
+    {
+      "pre_install": [
+        {
+          "command": "yum install -y epel-release"
+        }
+      ],
+      "packages": [
+        "SDL2-devel"
+      ],
+      "constraints": [
+        {
+          "os": "linux",
+          "distribution": "centos",
+          "versions": [
+            "6",
+            "7"
+          ]
+        }
+      ]
+    },
+    {
+      "pre_install": [
+        {
+          "command": "dnf install -y dnf-plugins-core"
+        },
+        {
+          "command": "dnf config-manager --set-enabled powertools"
+        },
+        {
+          "command": "dnf install -y epel-release"
+        }
+      ],
+      "packages": [
+        "SDL2-devel"
+      ],
+      "constraints": [
+        {
+          "os": "linux",
+          "distribution": "centos",
+          "versions": [
+            "8"
+          ]
+        }
+      ]
+    },
+    {
+      "packages": [
+        "SDL2-devel"
+      ],
+      "constraints": [
+        {
+          "os": "linux",
+          "distribution": "opensuse",
+          "versions": ["15.6"]
+        },
+        {
+          "os": "linux",
+          "distribution": "sle",
+          "versions": ["15.6"]
+        }
+      ]
+    },
+    {
+      "packages": [
+        "libSDL2-devel"
+      ],
+      "constraints": [
+        {
+          "os": "linux",
+          "distribution": "opensuse",
+          "versions": ["15.0", "15.2", "15.3", "15.4", "15.5"]
+        },
+        {
+          "os": "linux",
+          "distribution": "sle",
+          "versions": ["15.0", "15.2", "15.3", "15.4", "15.5"]
+        }
+      ]
+    },
+    {
+      "packages": [
+        "sdl2-dev"
+      ],
+      "constraints": [
+        {
+          "os": "linux",
+          "distribution": "alpine"
+        }
+      ]
+    }
+  ]
+}

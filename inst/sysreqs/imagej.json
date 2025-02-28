@@ -1,0 +1,31 @@
+{
+  "patterns": ["\\bimagej\\b"],
+  "dependencies": [
+    {
+      "packages": ["imagej"],
+      "constraints": [
+        {
+          "os": "linux",
+          "distribution": "ubuntu"
+        },
+        {
+          "os": "linux",
+          "distribution": "debian"
+        }
+      ]
+    },
+    {
+      "packages": ["imagej"],
+      "constraints": [
+        {
+          "os": "linux",
+          "distribution": "opensuse"
+        },
+        {
+          "os": "linux",
+          "distribution": "fedora"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,61 @@
+{
+    "patterns": ["\\Boost\\b"],
+    "dependencies": [
+      {
+        "packages": ["libboost-all-dev"],
+        "constraints": [
+          {
+            "os": "linux",
+            "distribution": "ubuntu"
+          },
+          {
+            "os": "linux",
+            "distribution": "debian"
+          }
+        ]
+      },
+      {
+        "packages": ["boost-devel"],
+        "constraints": [
+          {
+            "os": "linux",
+            "distribution": "fedora"
+          },
+          {
+            "os": "linux",
+            "distribution": "centos"
+          },
+          {
+            "os": "linux",
+            "distribution": "rockylinux"
+          },
+          {
+            "os": "linux",
+            "distribution": "redhat"
+          }
+        ]
+      },
+      {
+        "packages": ["boost-gnu-hpc-devel"],
+        "constraints": [
+          {
+            "os": "linux",
+            "distribution": "opensuse"
+          },
+          {
+            "os": "linux",
+            "distribution": "sle"
+          }
+        ]
+      },
+      {
+        "packages": ["boost-dev"],
+        "constraints": [
+          {
+            "os": "linux",
+            "distribution": "alpine"
+          }
+        ]
+      }
+    ]
+  }

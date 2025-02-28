@@ -1,0 +1,38 @@
+{
+  "patterns": ["\\bcoin-or clp\\b"],
+  "dependencies": [
+    {
+      "packages": ["coinor-libclp-dev"],
+      "constraints": [
+        {
+          "os": "linux",
+          "distribution": "ubuntu"
+        },
+        {
+          "os": "linux",
+          "distribution": "debian"
+        }
+      ]
+    },
+    {
+      "packages": ["coin-or-Clp-devel"],
+      "constraints": [
+        {
+          "os": "linux",
+          "distribution": "fedora"
+        }
+      ]
+    },
+    {
+      "packages": [
+        "mingw-w64-x86_64-coinor-cbc",
+        "mingw-w64-i686-coinor-cbc"
+      ],
+      "constraints": [
+        {
+          "os": "windows"
+        }
+      ]
+    }
+  ]
+}

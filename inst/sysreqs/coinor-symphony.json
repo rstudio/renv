@@ -1,0 +1,27 @@
+{
+    "patterns": ["\\bsymphony\\b", "\\blibsymphony\\b"],
+    "dependencies": [
+      {
+        "packages": ["coinor-symphony", "coinor-libsymphony-dev"],
+        "constraints": [
+          {
+            "os": "linux",
+            "distribution": "ubuntu"
+          },
+          {
+            "os": "linux",
+            "distribution": "debian"
+          }
+        ]
+      },
+      {
+        "packages": ["coin-or-SYMPHONY", "coin-or-SYMPHONY-devel"],
+        "constraints": [
+          {
+            "os": "linux",
+            "distribution": "fedora"
+          }
+        ]
+      }
+    ]
+  }

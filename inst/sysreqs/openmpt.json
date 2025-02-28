@@ -1,0 +1,61 @@
+{
+  "patterns": ["\\bopenmpt\\b"],
+  "dependencies": [
+    {
+      "packages": ["libopenmpt-dev", "portaudio19-dev"],
+      "constraints": [
+        {
+          "os": "linux",
+          "distribution": "ubuntu"
+        },
+        {
+          "os": "linux",
+          "distribution": "debian"
+        }
+      ]
+    },
+    {
+      "packages": ["libopenmpt-devel", "portaudio-devel"],
+      "constraints": [
+        {
+          "os": "linux",
+          "distribution": "opensuse"
+        },
+        {
+          "os": "linux",
+          "distribution": "fedora"
+        }
+      ]
+    },
+    {
+      "packages": ["libopenmpt-devel", "portaudio-devel"],
+      "pre_install": [
+        { "command": "yum install -y epel-release" }
+      ],
+      "constraints": [
+        {
+          "os": "linux",
+          "distribution": "centos"
+        },
+        {
+          "os": "linux",
+          "distribution": "rockylinux"
+        },
+        {
+          "os": "linux",
+          "distribution": "redhat"
+        }
+      ]
+    },
+    {
+      "packages": ["libopenmpt-dev", "portaudio-dev"],
+      "constraints": [
+        {
+          "os": "linux",
+          "distribution": "alpine",
+          "versions": [ "3.18", "3.19", "3.20", "edge" ]
+        }
+      ]
+    }
+  ]
+}

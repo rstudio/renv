@@ -1,0 +1,28 @@
+{
+  "patterns": ["\\bsaga\\b", "\\bsaga gis\\b"],
+  "dependencies": [
+    {
+      "packages": ["saga"],
+      "constraints": [
+        {
+          "os": "linux",
+          "distribution": "ubuntu"
+        },
+        {
+          "os": "linux",
+          "distribution": "debian"
+        }
+      ]
+    },
+    {
+      "packages": ["saga-devel"],
+      "constraints": [
+        {
+          "os": "linux",
+          "distribution": "fedora",
+          "versions": [ "36", "37" ]
+        }
+      ]
+    }
+  ]
+}

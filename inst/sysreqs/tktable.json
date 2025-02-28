@@ -1,0 +1,27 @@
+{
+  "patterns": ["\\btktable\\b"],
+  "dependencies": [
+    {
+      "packages": ["tk-table"],
+      "constraints": [
+        {
+          "os": "linux",
+          "distribution": "ubuntu"
+        },
+        {
+          "os": "linux",
+          "distribution": "debian"
+        }
+      ]
+    },
+    {
+      "packages": ["tktable"],
+      "constraints": [
+        {
+          "os": "linux",
+          "distribution": "opensuse"
+        }
+      ]
+    }
+  ]
+}

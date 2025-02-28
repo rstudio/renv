@@ -1,0 +1,34 @@
+{
+  "patterns": ["\\bpatch\\b"],
+  "dependencies": [
+    {
+      "packages": ["patch"],
+      "constraints": [
+        {
+          "os": "linux",
+          "distribution": "ubuntu"
+        },
+        {
+          "os": "linux",
+          "distribution": "debian"
+        },
+	{
+	  "os": "linux",
+	  "distribution": "fedora"
+	},
+        {
+          "os": "linux",
+          "distribution": "opensuse"
+        },
+	{
+	  "os": "linux",
+	  "distribution": "rockylinux"
+	},
+	{
+	  "os": "linux",
+	  "distribution": "alpine"
+	}
+      ]
+    }
+  ]
+}

@@ -1,0 +1,14 @@
+{
+  "patterns": ["\\bnvcc\\b", "\\bcuda\\b"],
+  "dependencies": [
+    {
+      "packages": ["nvidia-cuda-dev"],
+      "constraints": [
+        {
+          "os": "linux",
+          "distribution": "ubuntu"
+        }
+      ]
+    }
+  ]
+}

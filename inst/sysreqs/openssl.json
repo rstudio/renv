@@ -1,0 +1,72 @@
+{
+    "patterns": ["\\bopenssl\\b"],
+    "dependencies": [
+      {
+        "packages": ["libssl-dev"],
+        "constraints": [
+          {
+            "os": "linux",
+            "distribution": "ubuntu"
+          },
+          {
+            "os": "linux",
+            "distribution": "debian"
+          }
+        ]
+      },
+      {
+        "packages": ["openssl-devel"],
+        "constraints": [
+          {
+            "os": "linux",
+            "distribution": "centos"
+          },
+          {
+            "os": "linux",
+            "distribution": "rockylinux"
+          },
+          {
+            "os": "linux",
+            "distribution": "redhat"
+          },
+          {
+            "os": "linux",
+            "distribution": "fedora"
+          }
+        ]
+      },
+      {
+        "packages": ["libopenssl-devel"],
+        "constraints": [
+          {
+            "os": "linux",
+            "distribution": "opensuse"
+          },
+          {
+            "os": "linux",
+            "distribution": "sle"
+          }
+        ]
+      },
+      {
+        "packages": ["openssl-dev"],
+        "constraints": [
+          {
+            "os": "linux",
+            "distribution": "alpine"
+          }
+        ]
+      },
+    {
+      "packages": [
+        "mingw-w64-x86_64-openssl",
+        "mingw-w64-i686-openssl"
+      ],
+      "constraints": [
+        {
+          "os": "windows"
+        }
+      ]
+    }
+    ]
+  }

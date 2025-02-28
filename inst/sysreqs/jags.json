@@ -1,0 +1,18 @@
+{
+  "patterns": ["\\bjags\\b"],
+  "dependencies": [
+    {
+      "packages": ["jags"],
+      "constraints": [
+        {
+          "os": "linux",
+          "distribution": "ubuntu"
+        },
+        {
+          "os": "linux",
+          "distribution": "debian"
+        }
+      ]
+    }
+  ]
+}

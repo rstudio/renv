@@ -1,0 +1,152 @@
+{
+  "patterns": ["\\bchrome\\b", "\\bchromium\\b"],
+  "dependencies": [
+    {
+      "pre_install": [
+        { "command": "apt-get install -y software-properties-common" },
+        { "command": "add-apt-repository -y ppa:xtradeb/apps" },
+        { "command": "apt-get update" }
+      ],
+      "packages": ["chromium"],
+      "post_install": [],
+      "constraints": [
+        {
+          "os": "linux",
+          "distribution": "ubuntu",
+          "versions": ["22.04", "24.04"]
+        }
+      ]
+    },
+    {
+      "pre_install": [
+        {
+          "command": "[ $(which google-chrome) ] || apt-get install -y gnupg curl"
+        },
+        {
+          "command": "[ $(which google-chrome) ] || curl -fsSL -o /tmp/google-chrome.deb https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb"
+        },
+        {
+          "command": "[ $(which google-chrome) ] || DEBIAN_FRONTEND='noninteractive' apt-get install -y /tmp/google-chrome.deb"
+        }
+      ],
+      "packages": [],
+      "post_install": [{ "command": "rm -f /tmp/google-chrome.deb" }],
+      "constraints": [
+        {
+          "os": "linux",
+          "distribution": "ubuntu",
+          "versions": ["20.04"]
+        }
+      ]
+    },
+    {
+      "pre_install": [
+        { "command": "dnf install -y dnf-plugins-core" },
+        { "command": "dnf config-manager --set-enabled crb" },
+        { "command": "dnf install -y epel-release" }
+      ],
+      "packages": ["chromium"],
+      "post_install": [],
+      "constraints": [
+        {
+          "os": "linux",
+          "distribution": "rockylinux",
+          "versions": ["9"]
+        }
+      ]
+    },
+    {
+      "pre_install": [
+        { "command": "dnf install -y dnf-plugins-core" },
+        { "command": "dnf config-manager --set-enabled powertools" },
+        { "command": "dnf install -y epel-release" }
+      ],
+      "packages": ["chromium"],
+      "post_install": [],
+      "constraints": [
+        {
+          "os": "linux",
+          "distribution": "rockylinux",
+          "versions": ["8"]
+        }
+      ]
+    },
+    {
+      "pre_install": [
+        {
+          "command": "subscription-manager repos --enable codeready-builder-for-rhel-8-$(arch)-rpms"
+        },
+        {
+          "command": "dnf install -y https://dl.fedoraproject.org/pub/epel/epel-release-latest-8.noarch.rpm"
+        }
+      ],
+      "packages": ["chromium"],
+      "post_install": [],
+      "constraints": [
+        {
+          "os": "linux",
+          "distribution": "redhat",
+          "versions": ["8"]
+        }
+      ]
+    },
+    {
+      "pre_install": [
+        {
+          "command": "subscription-manager repos --enable codeready-builder-for-rhel-9-$(arch)-rpms"
+        },
+        {
+          "command": "dnf install -y https://dl.fedoraproject.org/pub/epel/epel-release-latest-9.noarch.rpm"
+        }
+      ],
+      "packages": ["chromium"],
+      "post_install": [],
+      "constraints": [
+        {
+          "os": "linux",
+          "distribution": "redhat",
+          "versions": ["9"]
+        }
+      ]
+    },
+    {
+      "pre_install": [],
+      "packages": ["chromium"],
+      "post_install": [],
+      "constraints": [
+        {
+          "os": "linux",
+          "distribution": "debian"
+        },
+        {
+          "os": "linux",
+          "distribution": "fedora"
+        },
+        {
+          "os": "linux",
+          "distribution": "alpine"
+        }
+      ]
+    },
+    {
+      "pre_install": [
+        { "command": "yum install -y which" },
+        {
+          "command": "[ $(which google-chrome) ] || curl -fsSL -o /tmp/google-chrome.rpm https://dl.google.com/linux/chrome/rpm/stable/x86_64/google-chrome-stable-125.0.6422.141-1.x86_64.rpm"
+        },
+        {
+          "command": "[ $(which google-chrome) ] || yum install -y /tmp/google-chrome.rpm"
+        }
+      ],
+      "packages": [],
+      "post_install": [{ "command": "rm -f /tmp/google-chrome.rpm" }],
+      "constraints": [
+        {
+          "os": "linux",
+          "distribution": "centos",
+          "versions": ["7", "8"]
+        }
+      ]
+    }
+  ]
+}
