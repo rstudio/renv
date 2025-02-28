@@ -63,6 +63,7 @@ test_that("attempts to initialize a project with a missing package is okay", {
 
 test_that("the remotes field in a DESCRIPTION is honored", {
   skip_on_cran()
+  skip_if_no_github_auth()
 
   renv_tests_scope("halloween")
   install("halloween")
@@ -272,11 +273,15 @@ test_that("init() respects user-requested snapshot type", {
 })
 
 test_that("init() respects Remotes in a project DESCRIPTION file", {
+
   skip_on_cran()
+  skip_if_no_github_auth()
+
   project <- renv_tests_scope("skeleton")
   writeLines("Depends: skeleton\nRemotes: kevinushey/skeleton", con = "DESCRIPTION")
   init()
   expect_true(renv_package_installed("skeleton"))
+
 })
 
 test_that("a project using named remotes can be initialized", {

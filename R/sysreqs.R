@@ -67,34 +67,50 @@ renv_sysreqs_check <- function(records) {
   sysreqs <- renv_sysreqs_get(paths)
 
   # check if those packages are installed
-  packages <- unique(unlist(sysreqs, use.names = FALSE))
+  reqs <- unique(unlist(sysreqs, use.names = FALSE))
   result <- if (nzchar(Sys.which("dpkg-query"))) {
-    command <- sprintf("dpkg-query -W %s 2> /dev/null", paste(packages, collapse = " "))
+    command <- sprintf("dpkg-query -W %s 2> /dev/null", paste(reqs, collapse = " "))
     output <- suppressWarnings(system(command, intern = TRUE))
     renv_properties_read(text = output, delimiter = "\t")
+  } else if (nzchar(Sys.which("rpm"))) {
+    command <- sprintf("rpm -q %s 2> /dev/null", paste(reqs, collapse = " "))
+    output <- suppressWarnings(system(command, intern = TRUE))
+    output <- grep("is not installed", output, fixed = TRUE, value = TRUE, invert = TRUE)
+    renv_properties_read(text = output, delimiter = "\t")
+  } else {
+    return(FALSE)
   }
 
-  # remove architecture suffix if needed
-  idx <- regexpr(":|$", names(result), perl = TRUE)
-  names(result) <- substr(names(result), 1L, idx - 1L)
-
   # check for matches
-  packages <- setdiff(packages, names(result))
-  if (empty(packages))
+  matches <- map_lgl(reqs, function(req) {
+    any(startsWith(names(result), req))
+  })
+
+  missing <- reqs[!matches]
+  if (empty(missing))
     return(TRUE)
 
   # notify the user
   preamble <- "The following required system packages are not installed:"
   postamble <- "The R packages depending on these system packages may fail to install."
-  messages <- map_chr(packages, function(package) {
-    needs <- map_lgl(sysreqs, function(sysreq) package %in% sysreq)
-    sprintf("%s [required by %s]", package, paste(names(sysreqs)[needs], collapse = ", "))
+  messages <- map_chr(missing, function(req) {
+    needs <- map_lgl(sysreqs, function(sysreq) req %in% sysreq)
+    sprintf("%s [required by %s]", req, paste(names(sysreqs)[needs], collapse = ", "))
   })
 
   caution_bullets(preamble, messages, postamble)
 
   preamble <- "An administrator can install these packages with:"
-  command <- paste("sudo apt install", paste(packages, collapse = " "))
+
+  installer <- case(
+    nzchar(Sys.which("apt"))    ~ "apt install",
+    nzchar(Sys.which("dnf"))    ~ "dnf install",
+    nzchar(Sys.which("pacman")) ~ "pacman -S",
+    nzchar(Sys.which("yum"))    ~ "yum install",
+    nzchar(Sys.which("zypper")) ~ "zypper install",
+  )
+
+  command <- paste("sudo", installer, paste(missing, collapse = " "))
   caution_bullets(preamble, command)
 
   cancel_if(!proceed())

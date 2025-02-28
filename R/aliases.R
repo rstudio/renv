@@ -16,6 +16,6 @@ the$aliases <- list(
   xgit         = "Git"
 )
 
-alias <- function(text) {
-  the$aliases[[text]] %||% text
+alias <- function(text, aliases = the$aliases) {
+  aliases[[text]] %||% text
 }
