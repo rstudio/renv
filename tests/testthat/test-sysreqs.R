@@ -6,13 +6,7 @@ test_that("system requirements are reported", {
 
   renv_tests_scope()
 
-  record <- list(
-    Package = "httpuv",
-    SystemRequirements = "zlib"
-  )
-
-  rules <- renv_sysreqs_rules()
-  matches <- renv_sysreqs_match("zlib", rules)
+  matches <- renv_sysreqs_match("zlib")
   expect_true(!is.null(matches$zlib.json))
 
   local({

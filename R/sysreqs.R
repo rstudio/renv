@@ -29,7 +29,7 @@ renv_sysreqs_rules_impl <- function() {
   rules
 }
 
-renv_sysreqs_match <- function(req, rules) {
+renv_sysreqs_match <- function(req, rules = renv_sysreqs_rules()) {
   map(rules, renv_sysreqs_match_impl, req = req)
 }
 
