@@ -57,7 +57,7 @@ renv_sysreqs_match_impl <- function(req, rule) {
 renv_sysreqs_check <- function(records) {
 
   # skip if we're not enabled
-  enabled <- config$sysreqs.check()
+  enabled <- config$sysreqs.check(default = renv_platform_linux())
   if (!identical(enabled, TRUE))
     return(FALSE)
 
@@ -80,25 +80,19 @@ renv_sysreqs_check <- function(records) {
   allsyspkgs <- sort(unique(unlist(syspkgs, use.names = FALSE)))
 
   # check if those packages are installed
-  result <- if (nzchar(Sys.which("dpkg-query"))) {
-    command <- sprintf("dpkg-query -W %s 2> /dev/null", paste(allsyspkgs, collapse = " "))
-    output <- suppressWarnings(system(command, intern = TRUE))
-    renv_properties_read(text = output, delimiter = "\t")
+  installedpkgs <- if (nzchar(Sys.which("dpkg-query"))) {
+    command <- sprintf("dpkg-query -W -f '${Package}\n' %s 2> /dev/null", paste(allsyspkgs, collapse = " "))
+    suppressWarnings(system(command, intern = TRUE))
   } else if (nzchar(Sys.which("rpm"))) {
-    command <- sprintf("rpm -q %s 2> /dev/null", paste(allsyspkgs, collapse = " "))
-    output <- suppressWarnings(system(command, intern = TRUE))
-    output <- grep("is not installed", output, fixed = TRUE, value = TRUE, invert = TRUE)
-    renv_properties_read(text = output, delimiter = "\t")
+    fmt <- "rpm -q --queryformat '%%{NAME}\n' %s 2> /dev/null | grep -v 'is not installed'"
+    command <- sprintf(fmt, paste(allsyspkgs, collapse = " "))
+    suppressWarnings(system(command, intern = TRUE))
   } else {
     return(FALSE)
   }
 
   # check for matches
-  matches <- map_lgl(allsyspkgs, function(syspkg) {
-    any(startsWith(names(result), syspkg))
-  })
-
-  misspkgs <- allsyspkgs[!matches]
+  misspkgs <- setdiff(allsyspkgs, installedpkgs)
   if (empty(misspkgs))
     return(TRUE)
 
@@ -112,7 +106,7 @@ renv_sysreqs_check <- function(records) {
 
   lhs <- extract_chr(parts, 1L)
   rhs <- map_chr(extract(parts, 2L), paste, collapse = ", ")
-  messages <- sprintf("%s [required by %s]", format(lhs), format(rhs))
+  messages <- sprintf("%s  [required by %s]", format(lhs), rhs)
   caution_bullets(preamble, messages, postamble)
 
   installer <- case(
