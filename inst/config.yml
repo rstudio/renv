@@ -321,6 +321,14 @@
   description: >
     Check that the project library is synchronized with the lockfile on load?
 
+- name: "sysreqs.check"
+  type: "logical[1]"
+  default: true
+  description: >
+    Check whether the requisite system packages are installed during package
+    installation and restore? This feature uses the R System Requirements
+    database maintained at <https://github.com/rstudio/r-system-requirements>.
+
 - name: "updates.check"
   type: "logical[1]"
   default: false

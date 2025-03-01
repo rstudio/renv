@@ -1,19 +1,20 @@
 
 the$sysreqs <- NULL
 
-renv_sysreqs_get <- function(packages) {
-  reqs <- map_chr(packages, renv_sysreqs_get_impl)
-  rules <- renv_sysreqs_rules()
-  map(reqs, function(req) {
-    matches <- renv_sysreqs_match(req, rules)
-    unlist(matches, use.names = FALSE)
-  })
+renv_sysreqs_get <- function(package) {
+  sysreqs <- renv_sysreqs_read(package)
+  renv_sysreqs_get_impl(sysreqs)
 }
 
-renv_sysreqs_get_impl <- function(package) {
+renv_sysreqs_get_impl <- function(sysreqs) {
+  rules <- renv_sysreqs_rules()
+  matches <- map(sysreqs, renv_sysreqs_match, rules)
+  unlist(matches, use.names = FALSE)
+}
+
+renv_sysreqs_read <- function(package) {
   desc <- renv_description_read(package)
-  requirements <- desc[["SystemRequirements"]]
-  requirements %||% ""
+  desc[["SystemRequirements"]] %||% ""
 }
 
 renv_sysreqs_rules <- function() {
@@ -55,18 +56,36 @@ renv_sysreqs_match_impl <- function(req, rule) {
 
 renv_sysreqs_check <- function(records) {
 
+  # skip if we're not enabled
+  enabled <- config$sysreqs.check()
+  if (!identical(enabled, TRUE))
+    return(FALSE)
+
   # figure out which system packages are required
-  paths <- map_chr(records, `[[`, "Path")
-  sysreqs <- renv_sysreqs_get(paths)
+  syspkgs <- map(records, function(record) {
+
+    # if we already have system requirements recorded, use those
+    sysreqs <- record[["SystemRequirements"]]
+    if (!is.null(sysreqs))
+      return(renv_sysreqs_get_impl(sysreqs))
+
+    # otherwise, if we have a recorded path, use that instead
+    path <- record[["Path"]]
+    if (!is.null(path))
+      return(renv_sysreqs_get(path))
+
+  })
+
+  # collect list of all packages discovered
+  allsyspkgs <- sort(unique(unlist(syspkgs, use.names = FALSE)))
 
   # check if those packages are installed
-  reqs <- unique(unlist(sysreqs, use.names = FALSE))
   result <- if (nzchar(Sys.which("dpkg-query"))) {
-    command <- sprintf("dpkg-query -W %s 2> /dev/null", paste(reqs, collapse = " "))
+    command <- sprintf("dpkg-query -W %s 2> /dev/null", paste(allsyspkgs, collapse = " "))
     output <- suppressWarnings(system(command, intern = TRUE))
     renv_properties_read(text = output, delimiter = "\t")
   } else if (nzchar(Sys.which("rpm"))) {
-    command <- sprintf("rpm -q %s 2> /dev/null", paste(reqs, collapse = " "))
+    command <- sprintf("rpm -q %s 2> /dev/null", paste(allsyspkgs, collapse = " "))
     output <- suppressWarnings(system(command, intern = TRUE))
     output <- grep("is not installed", output, fixed = TRUE, value = TRUE, invert = TRUE)
     renv_properties_read(text = output, delimiter = "\t")
@@ -75,25 +94,25 @@ renv_sysreqs_check <- function(records) {
   }
 
   # check for matches
-  matches <- map_lgl(reqs, function(req) {
-    any(startsWith(names(result), req))
+  matches <- map_lgl(allsyspkgs, function(syspkg) {
+    any(startsWith(names(result), syspkg))
   })
 
-  missing <- reqs[!matches]
-  if (empty(missing))
+  misspkgs <- allsyspkgs[!matches]
+  if (empty(misspkgs))
     return(TRUE)
 
   # notify the user
   preamble <- "The following required system packages are not installed:"
   postamble <- "The R packages depending on these system packages may fail to install."
-  parts <- map(missing, function(req) {
-    needs <- map_lgl(sysreqs, function(sysreq) req %in% sysreq)
-    list(req, names(sysreqs)[needs])
+  parts <- map(misspkgs, function(misspkg) {
+    needs <- map_lgl(syspkgs, function(syspkg) misspkg %in% syspkg)
+    list(misspkg, names(syspkgs)[needs])
   })
 
   lhs <- extract_chr(parts, 1L)
-  rhs <- extract_chr(parts, 2L)
-  messages <- sprintf("%s [required by %s]", format(lhs), paste(rhs, collapse = ", "))
+  rhs <- map_chr(extract(parts, 2L), paste, collapse = ", ")
+  messages <- sprintf("%s [required by %s]", format(lhs), format(rhs))
   caution_bullets(preamble, messages, postamble)
 
   installer <- case(
@@ -105,7 +124,7 @@ renv_sysreqs_check <- function(records) {
   )
 
   preamble <- "An administrator can install these packages with:"
-  command <- paste("sudo", installer, paste(missing, collapse = " "))
+  command <- paste("sudo", installer, paste(misspkgs, collapse = " "))
   caution_bullets(preamble, command)
 
   cancel_if(!proceed())
