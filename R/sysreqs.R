@@ -2,19 +2,12 @@
 the$sysreqs <- NULL
 
 renv_sysreqs_get <- function(packages) {
-
-  # read package system requirements
   reqs <- map_chr(packages, renv_sysreqs_get_impl)
-
-  # get the rules for these system requirements
   rules <- renv_sysreqs_rules()
-
-  # match rules to the requirements
   map(reqs, function(req) {
     matches <- renv_sysreqs_match(req, rules)
     unlist(matches, use.names = FALSE)
   })
-
 }
 
 renv_sysreqs_get_impl <- function(package) {
@@ -93,14 +86,15 @@ renv_sysreqs_check <- function(records) {
   # notify the user
   preamble <- "The following required system packages are not installed:"
   postamble <- "The R packages depending on these system packages may fail to install."
-  messages <- map_chr(missing, function(req) {
+  parts <- map(missing, function(req) {
     needs <- map_lgl(sysreqs, function(sysreq) req %in% sysreq)
-    sprintf("%s [required by %s]", req, paste(names(sysreqs)[needs], collapse = ", "))
+    list(req, names(sysreqs)[needs])
   })
 
+  lhs <- extract_chr(parts, 1L)
+  rhs <- extract_chr(parts, 2L)
+  messages <- sprintf("%s [required by %s]", format(lhs), paste(rhs, collapse = ", "))
   caution_bullets(preamble, messages, postamble)
-
-  preamble <- "An administrator can install these packages with:"
 
   installer <- case(
     nzchar(Sys.which("apt"))    ~ "apt install",
@@ -110,6 +104,7 @@ renv_sysreqs_check <- function(records) {
     nzchar(Sys.which("zypper")) ~ "zypper install",
   )
 
+  preamble <- "An administrator can install these packages with:"
   command <- paste("sudo", installer, paste(missing, collapse = " "))
   caution_bullets(preamble, command)
 
