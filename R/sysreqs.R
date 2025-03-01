@@ -54,38 +54,24 @@ renv_sysreqs_match_impl <- function(req, rule) {
 
 }
 
-renv_sysreqs_check <- function(records) {
-
-  # skip if we're not enabled
-  enabled <- config$sysreqs.check(default = renv_platform_linux())
-  if (!identical(enabled, TRUE))
-    return(FALSE)
+renv_sysreqs_check <- function(sysreqs) {
 
   # figure out which system packages are required
-  syspkgs <- map(records, function(record) {
-
-    # if we already have system requirements recorded, use those
-    sysreqs <- record[["SystemRequirements"]]
-    if (!is.null(sysreqs))
-      return(renv_sysreqs_get_impl(sysreqs))
-
-    # otherwise, if we have a recorded path, use that instead
-    path <- record[["Path"]]
-    if (!is.null(path))
-      return(renv_sysreqs_get(path))
-
-  })
+  syspkgs <- map(sysreqs, renv_sysreqs_get_impl)
 
   # collect list of all packages discovered
   allsyspkgs <- sort(unique(unlist(syspkgs, use.names = FALSE)))
 
   # check if those packages are installed
   installedpkgs <- if (nzchar(Sys.which("dpkg-query"))) {
-    command <- sprintf("dpkg-query -W -f '${Package}\n' %s 2> /dev/null", paste(allsyspkgs, collapse = " "))
+    fmt <- "dpkg-query -W -f '${Package}\n' %s 2> /dev/null"
+    args <- paste(renv_shell_quote(allsyspkgs), collapse = " ")
+    command <- sprintf(fmt, args)
     suppressWarnings(system(command, intern = TRUE))
   } else if (nzchar(Sys.which("rpm"))) {
     fmt <- "rpm -q --queryformat '%%{NAME}\n' %s 2> /dev/null | grep -v 'is not installed'"
-    command <- sprintf(fmt, paste(allsyspkgs, collapse = " "))
+    args <- paste(renv_shell_quote(allsyspkgs), collapse = " ")
+    command <- sprintf(fmt, args)
     suppressWarnings(system(command, intern = TRUE))
   } else {
     return(FALSE)

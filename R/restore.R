@@ -107,6 +107,11 @@ restore <- function(project = NULL,
   lockfile <- renv_lockfile_repair(lockfile)
 
   # check for system requirements from these packages
+  if (config$sysreqs.check(default = renv_platform_linux())) {
+    records <- renv_lockfile_records(lockfile)
+    sysreqs <- map(records, `[[`, "SystemRequirements")
+    renv_sysreqs_check(unlist(sysreqs, use.names = TRUE))
+  }
 
   # override repositories if requested
   repos <- repos %||% config$repos.override() %||% lockfile$R$Repositories

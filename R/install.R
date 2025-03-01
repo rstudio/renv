@@ -228,7 +228,12 @@ install <- function(packages = NULL,
   }
 
   # check for installed dependencies
-  renv_sysreqs_check(records)
+  if (config$sysreqs.check(default = renv_platform_linux())) {
+    paths <- map(records, `[[`, "Path")
+    sysreqs <- map(paths, renv_sysreqs_read)
+    renv_sysreqs_check(sysreqs)
+  }
+
 
   # install retrieved records
   before <- Sys.time()
