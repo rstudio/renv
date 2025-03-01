@@ -1,5 +1,5 @@
 
-the$sysinfo  <- NULL
+the$sysinfo      <- NULL
 the$platform     <- NULL
 the$distribution <- NULL
 the$os           <- NULL
