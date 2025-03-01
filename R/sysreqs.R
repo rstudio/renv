@@ -1,6 +1,29 @@
 
 the$sysreqs <- NULL
 
+#' R System Requirements
+#'
+#' Compute the system requirements (system libraries; operating system packages)
+#' required by a set of \R packages.
+#'
+#' This function relies on the database of package system requirements
+#' maintained by Posit at <https://github.com/rstudio/r-system-requirements>,
+#' as well as the "meta-CRAN" service at <https://crandb.r-pkg.org>.
+#'
+#' @param packages A vector of \R package names. These can also be remotes
+#'   giving package version of the form `<package>@<version>`.
+#'
+#' @export
+sysreqs <- function(packages) {
+
+  packages <- chartr(packages, "@", "/")
+  urls <- paste("https://crandb.r-pkg.org", packages, sep = "/")
+  map(packages, function(package) {
+
+  })
+
+}
+
 renv_sysreqs_resolve <- function(sysreqs, rules = renv_sysreqs_rules()) {
   matches <- map(sysreqs, renv_sysreqs_match, rules)
   unlist(matches, use.names = FALSE)
