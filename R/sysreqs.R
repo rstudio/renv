@@ -120,21 +120,37 @@ renv_sysreqs_match_impl <- function(req, rule) {
 
 renv_sysreqs_check <- function(sysreqs, prompt) {
 
+  type <- case(
+    nzchar(Sys.which("dpkg")) ~ "deb",
+    nzchar(Sys.which("rpm"))  ~ "rpm",
+    ~ stop("don't know how to check sysreqs on this system")
+  )
+
   # figure out which system packages are required
   syspkgs <- map(sysreqs, renv_sysreqs_resolve)
 
   # collect list of all packages discovered
   allsyspkgs <- sort(unique(unlist(syspkgs, use.names = FALSE)))
 
-  # list all currently-installed packages
-  installedpkgs <- if (nzchar(Sys.which("dpkg-query"))) {
-    system("dpkg-query -W -f '${Package}\n'", intern = TRUE)
-  } else if (nzchar(Sys.which("rpm"))) {
-    system("rpm --query --all --queryformat='%{Name}\n'")
+  # some packages might be virtual packages, and won't be reported as installed
+  # when queried. try to resolve those to the actual underlying packages.
+  # (for example, zlib-devel => zlib-ng-compat-devel)
+  resolvedpkgs <- allsyspkgs
+  if (type == "rpm") {
+    fmt <- "rpm --query --whatprovides %s --queryformat '%%{Name}\n'"
+    args <- paste(renv_shell_quote(allsyspkgs), collapse = " ")
+    command <- sprintf(fmt, args)
+    resolvedpkgs <- system(command, intern = TRUE)
   }
 
+  # list all currently-installed packages
+  installedpkgs <- case(
+    type == "deb" ~ system("dpkg-query -W -f '${Package}\n'", intern = TRUE),
+    type == "rpm" ~ system("rpm --query --all --queryformat='%{Name}\n'", intern = TRUE)
+  )
+
   # check for matches
-  misspkgs <- setdiff(allsyspkgs, installedpkgs)
+  misspkgs <- setdiff(resolvedpkgs, installedpkgs)
   if (empty(misspkgs))
     return(TRUE)
 
