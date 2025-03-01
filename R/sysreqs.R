@@ -4,24 +4,71 @@ the$sysreqs <- NULL
 #' R System Requirements
 #'
 #' Compute the system requirements (system libraries; operating system packages)
-#' required by a set of \R packages.
+#' required by a set of \R packages. Currently available for Linux ohnly.
 #'
 #' This function relies on the database of package system requirements
 #' maintained by Posit at <https://github.com/rstudio/r-system-requirements>,
 #' as well as the "meta-CRAN" service at <https://crandb.r-pkg.org>.
 #'
-#' @param packages A vector of \R package names. These can also be remotes
-#'   giving package version of the form `<package>@<version>`.
+#' @inheritParams renv-params
+#'
+#' @param packages A vector of \R package names. When `NULL`
+#'   (the default), the project's package dependencies as reported via
+#'   [renv::dependencies()] are used.
+#'
+#' @param local Boolean; should `renv` rely on locally-installed copies of
+#'   packages when resolving system requirements? When `FALSE`, `renv` will
+#'   use <https://crandb.r-pkg.org> to resolve the system requirements
+#'   for these packages.
 #'
 #' @export
-sysreqs <- function(packages) {
+sysreqs <- function(packages = NULL,
+                    ...,
+                    local = FALSE,
+                    project = NULL)
+{
+  # resolve packages
+  packages <- packages %||% {
+    project <- renv_project_resolve(project)
+    deps <- dependencies(project, dev = TRUE)
+    sort(unique(deps$Package))
+  }
 
-  packages <- chartr(packages, "@", "/")
-  urls <- paste("https://crandb.r-pkg.org", packages, sep = "/")
-  map(packages, function(package) {
+  # remove 'base' packages
+  base <- installed_packages(priority = "base")
+  packages <- setdiff(packages, base$Package)
+  names(packages) <- packages
 
-  })
+  records <- if (local) {
+    lockfile <- renv_lockfile_create(project, dev = TRUE)
+    renv_lockfile_records(lockfile)
+  } else {
+    printf("Resolving package system requirements ... ")
+    callback <- renv_progress_callback(renv_sysreqs_crandb, length(packages))
+    records <- map(packages, callback)
+    writef("Done!")
+  }
 
+  # extract and resolve the system requirements
+  sysreqs <- map(records, `[[`, "SystemRequirements")
+  syspkgs <- map(sysreqs, renv_sysreqs_resolve)
+  renv_sysreqs_check(sysreqs, prompt = FALSE)
+  invisible(syspkgs)
+
+}
+
+renv_sysreqs_crandb <- function(package) {
+  tryCatch(
+    renv_sysreqs_crandb_impl(package),
+    error = warnify
+  )
+}
+
+renv_sysreqs_crandb_impl <- function(package) {
+  url <- paste("https://crandb.r-pkg.org", package, sep = "/")
+  destfile <- tempfile("renv-crandb-", fileext = ".json")
+  download(url, destfile = destfile, quiet = TRUE)
+  renv_json_read(destfile)
 }
 
 renv_sysreqs_resolve <- function(sysreqs, rules = renv_sysreqs_rules()) {
