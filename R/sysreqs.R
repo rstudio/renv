@@ -1,13 +1,7 @@
 
 the$sysreqs <- NULL
 
-renv_sysreqs_get <- function(package) {
-  sysreqs <- renv_sysreqs_read(package)
-  renv_sysreqs_get_impl(sysreqs)
-}
-
-renv_sysreqs_get_impl <- function(sysreqs) {
-  rules <- renv_sysreqs_rules()
+renv_sysreqs_resolve <- function(sysreqs, rules = renv_sysreqs_rules()) {
   matches <- map(sysreqs, renv_sysreqs_match, rules)
   unlist(matches, use.names = FALSE)
 }
@@ -54,10 +48,10 @@ renv_sysreqs_match_impl <- function(req, rule) {
 
 }
 
-renv_sysreqs_check <- function(sysreqs) {
+renv_sysreqs_check <- function(sysreqs, prompt) {
 
   # figure out which system packages are required
-  syspkgs <- map(sysreqs, renv_sysreqs_get_impl)
+  syspkgs <- map(sysreqs, renv_sysreqs_resolve)
 
   # collect list of all packages discovered
   allsyspkgs <- sort(unique(unlist(syspkgs, use.names = FALSE)))
@@ -79,8 +73,10 @@ renv_sysreqs_check <- function(sysreqs) {
 
   # check for matches
   misspkgs <- setdiff(allsyspkgs, installedpkgs)
-  if (empty(misspkgs))
+  if (empty(misspkgs)) {
+    writef("All R system packages required by this project appear to be installed.")
     return(TRUE)
+  }
 
   # notify the user
   preamble <- "The following required system packages are not installed:"
@@ -107,6 +103,6 @@ renv_sysreqs_check <- function(sysreqs) {
   command <- paste("sudo", installer, paste(misspkgs, collapse = " "))
   caution_bullets(preamble, command)
 
-  cancel_if(!proceed())
+  cancel_if(prompt && !proceed())
 
 }

@@ -110,7 +110,7 @@ restore <- function(project = NULL,
   if (config$sysreqs.check(default = renv_platform_linux())) {
     records <- renv_lockfile_records(lockfile)
     sysreqs <- map(records, `[[`, "SystemRequirements")
-    renv_sysreqs_check(unlist(sysreqs, use.names = TRUE))
+    renv_sysreqs_check(sysreqs, prompt = prompt)
   }
 
   # override repositories if requested

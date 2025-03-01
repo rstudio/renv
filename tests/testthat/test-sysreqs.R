@@ -11,13 +11,13 @@ test_that("system requirements are reported", {
 
   local({
     renv_scope_binding(the, "distribution", "ubuntu")
-    syspkg <- renv_sysreqs_get_impl("zlib")
+    syspkg <- renv_sysreqs_resolve("zlib")
     expect_equal(syspkg, "zlib1g-dev")
   })
 
   local({
     renv_scope_binding(the, "distribution", "redhat")
-    syspkg <- renv_sysreqs_get_impl("zlib")
+    syspkg <- renv_sysreqs_resolve("zlib")
     expect_equal(syspkg, "zlib-devel")
   })
 

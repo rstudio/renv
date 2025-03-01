@@ -231,7 +231,7 @@ install <- function(packages = NULL,
   if (config$sysreqs.check(default = renv_platform_linux())) {
     paths <- map(records, `[[`, "Path")
     sysreqs <- map(paths, renv_sysreqs_read)
-    renv_sysreqs_check(sysreqs)
+    renv_sysreqs_check(sysreqs, prompt = prompt)
   }
 
 
