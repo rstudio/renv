@@ -126,36 +126,17 @@ renv_sysreqs_check <- function(sysreqs, prompt) {
   # collect list of all packages discovered
   allsyspkgs <- sort(unique(unlist(syspkgs, use.names = FALSE)))
 
-  # resolve package aliases
-  resolvedpkgs <- if (nzchar(Sys.which("rpm"))) {
-    fmt <- "rpm -q --whatprovides %s 2> /dev/null"
-    args <- paste(renv_shell_quote(allsyspkgs), collapse = " ")
-    command <- sprintf(fmt, args)
-    suppressWarnings(system(command, intern = TRUE))
-  } else {
-    allsyspkgs
-  }
-
-  # check if those packages are installed
-  installed <- if (nzchar(Sys.which("dpkg-query"))) {
-    # TODO
+  # list all currently-installed packages
+  installedpkgs <- if (nzchar(Sys.which("dpkg-query"))) {
+    system("dpkg-query -W -f '${Package}\n'", intern = TRUE)
   } else if (nzchar(Sys.which("rpm"))) {
-    fmt <- "rpm -q --queryformat '%%{NAME}\n' %s 2> /dev/null"
-    args <- paste(renv_shell_quote(resolvedpkgs), collapse = " ")
-    command <- sprintf(fmt, args)
-    result <- suppressWarnings(system(command, intern = TRUE))
-    !grepl("is not installed", result, fixed = TRUE)
-  } else {
-    warning("sysreqs resolution not yet implemented for this system")
-    return(FALSE)
+    system("rpm --query --all --queryformat='%{Name}\n'")
   }
 
   # check for matches
-  misspkgs <- allsyspkgs[!installed]
-  if (empty(misspkgs)) {
-    writef("All R system packages required by this project appear to be installed.")
+  misspkgs <- setdiff(allsyspkgs, installedpkgs)
+  if (empty(misspkgs))
     return(TRUE)
-  }
 
   # notify the user
   preamble <- "The following required system packages are not installed:"
