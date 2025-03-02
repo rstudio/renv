@@ -125,10 +125,14 @@ sysreqs <- function(packages = NULL,
     all <- sort(unique(unlist(syspkgs)))
     installer <- renv_sysreqs_installer(distro)
     body <- if (collapse) paste(all, collapse = " ") else all
+    message <- paste("sudo", installer, "-y", body)
 
-    preamble <- "The system requirements for these packages can be installed with:"
-    message <- paste("sudo", installer, body)
-    bulletin(preamble, message)
+    if (interactive()) {
+      preamble <- "The requisite system packages can be installed with:"
+      bulletin(preamble, message)
+    } else {
+      writeLines(message)
+    }
 
   }
 
