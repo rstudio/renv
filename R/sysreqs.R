@@ -45,6 +45,11 @@ the$sysreqs <- NULL
 #' @param report Boolean; should `renv` also report the commands which could be
 #'   used to install all of the requisite package dependencies?
 #'
+#' @param collapse Boolean; when reporting which packages need to be installed,
+#'   should the report be collapsed into a single installation command? When
+#'   `FALSE` (the default), a separate installation line is printed for each
+#'   required system package.
+#'
 #' @param distro The name of the Linux distribution for which system requirements
 #'   should be checked -- typical values are "ubuntu", "debian", and "redhat".
 #'   These should match the distribution names used by the R system requirements
@@ -65,12 +70,20 @@ the$sysreqs <- NULL
 #' @export
 sysreqs <- function(packages = NULL,
                     ...,
-                    local   = FALSE,
-                    check   = NULL,
-                    report  = TRUE,
-                    distro  = NULL,
-                    project = NULL)
+                    local    = FALSE,
+                    check    = NULL,
+                    report   = TRUE,
+                    distro   = NULL,
+                    collapse = FALSE,
+                    project  = NULL)
 {
+  # allow user to provide additional package names as part of '...'
+  if (!missing(...)) {
+    dots <- list(...)
+    names(dots) <- names(dots) %||% rep.int("", length(dots))
+    packages <- c(packages, dots[!nzchar(names(dots))])
+  }
+
   # resolve packages
   packages <- packages %||% {
     project <- renv_project_resolve(project)
@@ -94,10 +107,8 @@ sysreqs <- function(packages = NULL,
     lockfile <- renv_lockfile_create(project, dev = TRUE)
     records <- renv_lockfile_records(lockfile)
   } else {
-    printf("Resolving package system requirements ... ")
     callback <- renv_progress_callback(renv_sysreqs_crandb, length(packages))
     records <- map(packages, callback)
-    writef("Done!")
   }
 
   # extract and resolve the system requirements
@@ -110,15 +121,19 @@ sysreqs <- function(packages = NULL,
 
   # report installation commands if requested
   if (report) {
+
     all <- sort(unique(unlist(syspkgs)))
     installer <- renv_sysreqs_installer(distro)
-    shargs <- paste(all, collapse = " ")
-    msg <- paste("-", "sudo", installer, shargs)
-    writef(msg)
+    body <- if (collapse) paste(all, collapse = " ") else all
+
+    preamble <- "The system requirements for these packages can be installed with:"
+    message <- paste("sudo", installer, body)
+    bulletin(preamble, message)
+
   }
 
   # return result
-  syspkgs
+  invisible(syspkgs)
 
 }
 
@@ -130,6 +145,14 @@ renv_sysreqs_crandb <- function(package) {
 }
 
 renv_sysreqs_crandb_impl <- function(package) {
+  memoize(
+    key   = package,
+    value = renv_sysreqs_crandb_impl_one(package),
+    scope = "sysreqs"
+  )
+}
+
+renv_sysreqs_crandb_impl_one <- function(package) {
   url <- paste("https://crandb.r-pkg.org", package, sep = "/")
   destfile <- tempfile("renv-crandb-", fileext = ".json")
   download(url, destfile = destfile, quiet = TRUE)

@@ -9,7 +9,9 @@ sysreqs(
   ...,
   local = FALSE,
   check = NULL,
+  report = TRUE,
   distro = NULL,
+  collapse = FALSE,
   project = NULL
 )
 }
@@ -29,10 +31,18 @@ for these packages.}
 \item{check}{Boolean; should \code{renv} also check whether the requires system
 packages appear to be installed on the current system?}
 
-\item{distro}{The name of the distribution for which system requirements
-should be checked -- typical values are "ubuntu", "debian", and "redhat";
-these should match the distribution names used by the R system requirements
+\item{report}{Boolean; should \code{renv} also report the commands which could be
+used to install all of the requisite package dependencies?}
+
+\item{distro}{The name of the Linux distribution for which system requirements
+should be checked -- typical values are "ubuntu", "debian", and "redhat".
+These should match the distribution names used by the R system requirements
 database.}
+
+\item{collapse}{Boolean; when reporting which packages need to be installed,
+should the report be collapsed into a single installation command? When
+\code{FALSE} (the default), a separate installation line is printed for each
+required system package.}
 
 \item{project}{The project directory. If \code{NULL}, then the active project will
 be used. If no project is currently active, then the current working
