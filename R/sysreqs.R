@@ -111,7 +111,10 @@ sysreqs <- function(packages = NULL,
   # report installation commands if requested
   if (report) {
     all <- sort(unique(unlist(syspkgs)))
-    print(all)
+    installer <- renv_sysreqs_installer(distro)
+    shargs <- paste(all, collapse = " ")
+    msg <- paste("-", "sudo", installer, shargs)
+    writef(msg)
   }
 
   # return result
@@ -242,5 +245,45 @@ renv_sysreqs_check <- function(sysreqs, prompt) {
   bulletin(preamble, command)
 
   cancel_if(prompt && !proceed())
+
+}
+
+renv_sysreqs_installer <- function(distro) {
+  case(
+    distro == "debian" ~ "apt install",
+    distro == "redhat" ~ "dnf install",
+    distro == "ubuntu" ~ "apt install",
+    ~ "<install>"
+  )
+}
+
+renv_sysreqs_update <- function() {
+
+  # save path to sysreqs folder
+  dest <- renv_path_normalize("inst/sysreqs/sysreqs.json")
+
+  # move to temporary directory
+  renv_scope_tempdir()
+
+  # clone the system requirements repository
+  args <- c("clone", "--depth", "1", "https://github.com/rstudio/r-system-requirements")
+  renv_system_exec("git", args, action = "cloing rstudio/r-system-requirements")
+
+  # read all of the rules from the requirements repository
+  files <- list.files(
+    path = "r-system-requirements/rules",
+    pattern = "[.]json$",
+    full.names = TRUE
+  )
+
+  contents <- map(files, renv_json_read)
+
+  # give names without extensions for these files
+  names <- basename(files)
+  idx <- map_int(gregexpr(".", names, fixed = TRUE), tail, n = 1L)
+  names(contents) <- substr(names, 1L, idx - 1L)
+
+  # write to sysreqs.json
+  renv_json_write(contents, file = dest)
 
 }
