@@ -203,6 +203,46 @@ renv_sysreqs_match_impl <- function(sysreq, rule) {
 
 }
 
+renv_sysreqs_aliases_deb <- function() {
+
+  # https://www.debian.org/doc/debian-policy/ch-relationships.html#s-virtual
+  #
+  # > A virtual package is one which appears in the Provides control field of
+  # > another package. The effect is as if the package(s) which provide a
+  # > particular virtual package name had been listed by name everywhere the
+  # > virtual package name appears. (See also Virtual packages)
+  #
+  # read the package database, look which packages 'provide' others,
+  # and then reverse that map to map virtual packages to the concrete
+  # package which provides them
+  #
+  command <- "dpkg-query -W -f '${Package}=${Provides}\n'"
+  output <- system(command, intern = TRUE)
+  result <- renv_properties_read(text = output, delimiter = "=")
+
+  # keep only packages which provide other packages
+  aliases <- result[nzchar(result)]
+
+  # a package might provide multiple other packages, so split those
+  splat <- lapply(aliases, function(alias) {
+    parts <- strsplit(alias, ",\\s*", perl = TRUE)[[1L]]
+    names(renv_properties_read(text = parts, delimiter = " "))
+  })
+
+  # reverse the map, so that we can map virtual packages to the
+  # concrete packages which they refer to
+  envir <- new.env(parent = emptyenv())
+  enumerate(splat, function(package, virtuals) {
+    for (virtual in virtuals) {
+      envir[[virtual]] <<- c(envir[[virtual]], package)
+    }
+  })
+
+  # return as list
+  as.list(envir, all.names = TRUE)
+
+}
+
 renv_sysreqs_check <- function(sysreqs, prompt) {
 
   type <- case(
@@ -219,9 +259,16 @@ renv_sysreqs_check <- function(sysreqs, prompt) {
 
   # some packages might be virtual packages, and won't be reported as installed
   # when queried. try to resolve those to the actual underlying packages.
-  # (for example, zlib-devel => zlib-ng-compat-devel)
+  # some examples follows:
+  #
+  #   Fedora 41:     zlib-devel       => zlib-ng-compat-devel
+  #   Ubuntu 24.04:  libfreetype6-dev => libfreetype-dev
+  #
   resolvedpkgs <- allsyspkgs
-  if (type == "rpm") {
+  if (type == "deb") {
+    aliases <- renv_sysreqs_aliases_deb()
+    resolvedpkgs <- alias(allsyspkgs, aliases)
+  } else if (type == "rpm") {
     fmt <- "rpm --query --whatprovides %s --queryformat '%%{Name}\n'"
     args <- paste(renv_shell_quote(allsyspkgs), collapse = " ")
     command <- sprintf(fmt, args)
