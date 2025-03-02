@@ -1,8 +1,11 @@
 
 test_that("renv can be reloaded within the same session", {
+
   skip_on_cran()
 
   script <- renv_test_code({
+
+    # load renv tools
     renv:::summon()
 
     # set up temporary library path

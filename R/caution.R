@@ -5,12 +5,12 @@ caution <- function(fmt = "", ..., con = stdout()) {
     writeLines(sprintf(fmt, ...), con = con)
 }
 
-caution_bullets <- function(preamble = NULL,
-                            values = NULL,
-                            postamble = NULL,
-                            ...,
-                            bullets = TRUE,
-                            emitter = NULL)
+bulletin <- function(preamble = NULL,
+                     values = NULL,
+                     postamble = NULL,
+                     ...,
+                     bullets = TRUE,
+                     emitter = NULL)
 {
   if (empty(values))
     return(invisible())
@@ -18,7 +18,7 @@ caution_bullets <- function(preamble = NULL,
   renv_dots_check(...)
 
   lines <- c(
-    if (length(preamble))  paste(preamble, collapse = "\n"),
+    if (length(preamble)) paste(preamble, collapse = "\n"),
     if (bullets)
       paste("-", values, collapse = "\n")
     else

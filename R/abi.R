@@ -45,7 +45,7 @@ renv_abi_check <- function(packages = NULL,
   reasons <- unique(tbl$reason)
   if ("Rcpp_precious_list" %in% reasons) {
     packages <- sort(unique(tbl$package[tbl$reason == "Rcpp_precious_list"]))
-    caution_bullets(
+    bulletin(
       "The following packages were built against a newer version of Rcpp than is currently available:",
       packages,
       c(
@@ -61,7 +61,7 @@ renv_abi_check <- function(packages = NULL,
   if ("missing" %in% reasons) {
 
     missing <- tbl[tbl$reason == "missing", ]
-    caution_bullets(
+    bulletin(
       "The following required system libraries are unavailable:",
       unique(missing$dependency),
       c(

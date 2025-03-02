@@ -319,6 +319,8 @@ test_that("snapshot() accepts relative library paths", {
 test_that("snapshot(update = TRUE) preserves old records", {
 
   skip_on_cran()
+  skip_if_no_github_auth()
+
   renv_tests_scope("breakfast")
   init()
 

@@ -1,13 +1,13 @@
 
-test_that("caution_bullets() creates bulleted list with optional postamble", {
+test_that("bulletin() creates bulleted list with optional postamble", {
   expect_snapshot({
-    caution_bullets("preamble", letters[1:3])
-    caution_bullets("preamble", letters[1:3], postamble = "after")
+    bulletin("preamble", letters[1:3])
+    bulletin("preamble", letters[1:3], postamble = "after")
   })
 })
 
-test_that("caution_bullets() doesn't show pre/post amble if no values", {
-  expect_silent(caution_bullets("before", character(), "after"))
+test_that("bulletin() doesn't show pre/post amble if no values", {
+  expect_silent(bulletin("before", character(), "after"))
 })
 
 test_that("options(renv.pretty.print.emitter) is respected", {
@@ -22,7 +22,7 @@ test_that("options(renv.pretty.print.emitter) is respected", {
   renv_scope_options(renv.verbose = TRUE)
 
   # regular pretty printer
-  expect_condition(caution_bullets("preamble", 1), class = cls)
+  expect_condition(bulletin("preamble", 1), class = cls)
 
   # record printer
   lockfile <- renv_lockfile_create(project = getwd())

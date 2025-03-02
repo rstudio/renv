@@ -88,7 +88,7 @@ renv_purge_impl <- function(package,
   missing <- !file.exists(paths)
   if (any(missing)) {
 
-    caution_bullets(
+    bulletin(
       "The following entries were not found in the cache:",
       paths[missing],
       "They will be ignored."
@@ -101,7 +101,7 @@ renv_purge_impl <- function(package,
   # nocov start
   if (prompt || renv_verbose()) {
 
-    caution_bullets(
+    bulletin(
       "The following packages will be purged from the cache:",
       renv_cache_format_path(paths)
     )

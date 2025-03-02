@@ -31,6 +31,7 @@ test_that("we can parse a variety of remotes", {
 test_that("we can parse a variety of remotes", {
 
   skip_on_cran()
+  skip_if_no_github_auth()
   skip_on_os("windows")
 
   renv_tests_scope()

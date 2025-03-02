@@ -29,6 +29,7 @@ diagnostics <- function(project = NULL) {
     renv_diagnostics_project,
     renv_diagnostics_status,
     renv_diagnostics_packages,
+    renv_diagnostics_sysreqs,
     renv_diagnostics_abi,
     renv_diagnostics_profile,
     renv_diagnostics_settings,
@@ -142,6 +143,21 @@ renv_diagnostics_packages <- function(project) {
   fmt <- "[%s]: %s"
   writef()
   writef(fmt, format(seq_along(levels(flibpaths))), format(levels(flibpaths)))
+
+}
+
+renv_diagnostics_sysreqs <- function(project) {
+
+  if (!renv_platform_linux())
+    return()
+
+  writef(header("R System Requirements"))
+
+  lockfile <- renv_lockfile_create(project)
+  records <- renv_lockfile_records(lockfile)
+  sysreqs <- map(records, `[[`, "SystemRequirements")
+  ok <- renv_sysreqs_check(sysreqs, prompt = FALSE)
+  invisible(ok)
 
 }
 

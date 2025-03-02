@@ -92,7 +92,7 @@ renv_repair_sources <- function(library, lockfile, project) {
 
   # ask used
   renv_scope_options(renv.verbose = TRUE)
-  caution_bullets(
+  bulletin(
     c(
       "The following package(s) do not have an explicitly-declared remote source.",
       "However, renv was available to infer remote sources from their DESCRIPTION file."

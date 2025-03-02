@@ -1,6 +1,11 @@
 
 # renv (development version)
 
+* On Linux, `renv` now uses the database from
+  <https://github.com/rstudio/r-system-requirements> when determining if
+  an R package's required system libraries are installed, and notifies
+  the user which packages (if any) are missing during install / restore.
+  
 * Fixed an issue where `renv` could fail to retrieve credentials registered
   for 'github.com' when querying URLs at 'api.github.com'.
 
