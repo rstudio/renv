@@ -237,7 +237,7 @@ renv_status_check_consistent <- function(lockfile, library, used) {
   missing <- issues$used & !issues$installed
   if (all(missing)) {
 
-    caution_bullets(
+    bulletin(
       preamble = "The following package(s) are used in this project, but are not installed:",
       values   = issues$package[missing]
     )

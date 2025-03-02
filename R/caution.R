@@ -5,7 +5,7 @@ caution <- function(fmt = "", ..., con = stdout()) {
     writeLines(sprintf(fmt, ...), con = con)
 }
 
-caution_bullets <- function(preamble = NULL,
+bulletin <- function(preamble = NULL,
                             values = NULL,
                             postamble = NULL,
                             ...,

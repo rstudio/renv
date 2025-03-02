@@ -42,6 +42,9 @@ the$sysreqs <- NULL
 #' @param check Boolean; should `renv` also check whether the requires system
 #'   packages appear to be installed on the current system?
 #'
+#' @param report Boolean; should `renv` also report the commands which could be
+#'   used to install all of the requisite package dependencies?
+#'
 #' @param distro The name of the Linux distribution for which system requirements
 #'   should be checked -- typical values are "ubuntu", "debian", and "redhat".
 #'   These should match the distribution names used by the R system requirements
@@ -64,6 +67,7 @@ sysreqs <- function(packages = NULL,
                     ...,
                     local   = FALSE,
                     check   = NULL,
+                    report  = TRUE,
                     distro  = NULL,
                     project = NULL)
 {
@@ -100,9 +104,15 @@ sysreqs <- function(packages = NULL,
   sysreqs <- map(records, `[[`, "SystemRequirements")
   syspkgs <- map(sysreqs, renv_sysreqs_resolve)
 
-  # report the package status if possible
+  # check the package status if possible
   if (check && renv_platform_linux())
     renv_sysreqs_check(sysreqs, prompt = FALSE)
+
+  # report installation commands if requested
+  if (report) {
+    all <- sort(unique(unlist(syspkgs)))
+    print(all)
+  }
 
   # return result
   syspkgs
@@ -217,7 +227,7 @@ renv_sysreqs_check <- function(sysreqs, prompt) {
   lhs <- extract_chr(parts, 1L)
   rhs <- map_chr(extract(parts, 2L), paste, collapse = ", ")
   messages <- sprintf("%s  [required by %s]", format(lhs), rhs)
-  caution_bullets(preamble, messages, postamble)
+  bulletin(preamble, messages, postamble)
 
   installer <- case(
     nzchar(Sys.which("apt"))    ~ "apt install",
@@ -229,7 +239,7 @@ renv_sysreqs_check <- function(sysreqs, prompt) {
 
   preamble <- "An administrator can install these packages with:"
   command <- paste("sudo", installer, paste(misspkgs, collapse = " "))
-  caution_bullets(preamble, command)
+  bulletin(preamble, command)
 
   cancel_if(prompt && !proceed())
 

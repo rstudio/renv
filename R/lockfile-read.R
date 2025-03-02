@@ -76,7 +76,7 @@ renv_lockfile_read_preflight <- function(contents) {
 
     all <- unlist(parts, recursive = TRUE, use.names = FALSE)
 
-    caution_bullets(
+    bulletin(
       "The lockfile contains one or more merge conflict markers:",
       head(all, n = -1L),
       "You will need to resolve these merge conflicts before the file can be read."

@@ -31,7 +31,7 @@ renv_extsoft_install <- function(quiet = FALSE) {
 
   if (interactive()) {
 
-    caution_bullets(
+    bulletin(
       "The following external software tools will be installed:",
       files,
       sprintf("Tools will be installed into %s.", renv_path_pretty(extsoft))
@@ -135,7 +135,7 @@ renv_extsoft_use <- function(quiet = FALSE) {
 
   if (interactive()) {
 
-    caution_bullets(
+    bulletin(
       "The following entries will be added to ~/.R/Makevars:",
       c(localsoft, libxml, localcpp, locallibs),
       "These tools will be used when compiling R packages from source."
