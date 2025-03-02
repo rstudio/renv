@@ -203,7 +203,14 @@ renv_sysreqs_match_impl <- function(sysreq, rule) {
 
 }
 
-renv_sysreqs_aliases_deb <- function() {
+renv_sysreqs_aliases <- function(type, syspkgs) {
+  case(
+    type == "deb" ~ renv_sysreqs_aliases_deb(syspkgs),
+    type == "rpm" ~ renv_sysreqs_aliases_rpm(syspkgs)
+  )
+}
+
+renv_sysreqs_aliases_deb <- function(pkgs) {
 
   # https://www.debian.org/doc/debian-policy/ch-relationships.html#s-virtual
   #
@@ -243,6 +250,22 @@ renv_sysreqs_aliases_deb <- function() {
 
 }
 
+renv_sysreqs_aliases_rpm <- function(pkgs) {
+
+  # for each package, check if there's another package that 'provides' it
+  fmt <- "rpm --query --whatprovides %s --queryformat '%%{Name}\n'"
+  args <- paste(renv_shell_quote(pkgs), collapse = " ")
+  command <- sprintf(fmt, args)
+  result <- suppressWarnings(system(command, intern = TRUE))
+
+  # return as named list, mapping virtual packages to 'real' packages
+  matches <- grep("no package provides", result, fixed = TRUE, invert = TRUE)
+  aliases <- result[matches]
+  names(aliases) <- pkgs[matches]
+  aliases
+
+}
+
 renv_sysreqs_check <- function(sysreqs, prompt) {
 
   type <- case(
@@ -264,16 +287,8 @@ renv_sysreqs_check <- function(sysreqs, prompt) {
   #   Fedora 41:     zlib-devel       => zlib-ng-compat-devel
   #   Ubuntu 24.04:  libfreetype6-dev => libfreetype-dev
   #
-  resolvedpkgs <- allsyspkgs
-  if (type == "deb") {
-    aliases <- renv_sysreqs_aliases_deb()
-    resolvedpkgs <- alias(allsyspkgs, aliases)
-  } else if (type == "rpm") {
-    fmt <- "rpm --query --whatprovides %s --queryformat '%%{Name}\n'"
-    args <- paste(renv_shell_quote(allsyspkgs), collapse = " ")
-    command <- sprintf(fmt, args)
-    resolvedpkgs <- system(command, intern = TRUE)
-  }
+  aliases <- renv_sysreqs_aliases(type, allsyspkgs)
+  resolvedpkgs <- alias(allsyspkgs, aliases)
 
   # list all currently-installed packages
   installedpkgs <- case(
