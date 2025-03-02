@@ -6,11 +6,11 @@ caution <- function(fmt = "", ..., con = stdout()) {
 }
 
 bulletin <- function(preamble = NULL,
-                            values = NULL,
-                            postamble = NULL,
-                            ...,
-                            bullets = TRUE,
-                            emitter = NULL)
+                     values = NULL,
+                     postamble = NULL,
+                     ...,
+                     bullets = TRUE,
+                     emitter = NULL)
 {
   if (empty(values))
     return(invisible())
@@ -18,7 +18,7 @@ bulletin <- function(preamble = NULL,
   renv_dots_check(...)
 
   lines <- c(
-    if (length(preamble))  paste(preamble, collapse = "\n"),
+    if (length(preamble)) paste(preamble, collapse = "\n"),
     if (bullets)
       paste("-", values, collapse = "\n")
     else
