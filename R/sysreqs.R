@@ -245,8 +245,11 @@ renv_sysreqs_aliases_deb <- function(pkgs) {
     }
   })
 
-  # return as list
-  as.list(envir, all.names = TRUE)
+  # convert to intermediate list
+  result <- as.list(envir, all.names = TRUE)
+
+  # return as named character vector
+  convert(result, type = "character")
 
 }
 
@@ -258,11 +261,12 @@ renv_sysreqs_aliases_rpm <- function(pkgs) {
   command <- sprintf(fmt, args)
   result <- suppressWarnings(system(command, intern = TRUE))
 
-  # return as named list, mapping virtual packages to 'real' packages
+  # return as named vector, mapping virtual packages to 'real' packages
   matches <- grep("no package provides", result, fixed = TRUE, invert = TRUE)
   aliases <- result[matches]
   names(aliases) <- pkgs[matches]
-  aliases
+
+  convert(aliases, type = "character")
 
 }
 

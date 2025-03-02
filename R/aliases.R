@@ -1,6 +1,6 @@
 
 # aliases used primarily for nicer / normalized text output
-the$aliases <- list(
+the$aliases <- c(
   bioc         = "Bioconductor",
   bioconductor = "Bioconductor",
   bitbucket    = "Bitbucket",
