@@ -151,11 +151,8 @@ renv_sysreqs_rules <- function() {
 }
 
 renv_sysreqs_rules_impl <- function() {
-  location <- system.file("sysreqs", package = "renv")
-  files <- list.files(location, full.names = TRUE)
-  rules <- map(files, renv_json_read)
-  names(rules) <- basename(files)
-  rules
+  rules <- system.file("sysreqs/sysreqs.json", package = "renv")
+  renv_json_read(rules)
 }
 
 renv_sysreqs_match <- function(sysreq, rules = renv_sysreqs_rules()) {
