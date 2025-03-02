@@ -11,7 +11,7 @@
 #'
 #' # Note
 #'
-#' `upgrade()` is expected to work for renv versions ≥1.0.1.
+#' `upgrade()` is expected to work for renv versions >= 1.0.1.
 #' To upgrade from prior versions of renv, users should
 #'
 #' `renv::deactivate();`

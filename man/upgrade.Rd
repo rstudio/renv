@@ -39,7 +39,7 @@ If you want to update all packages (including renv) to their latest CRAN
 versions, use \code{\link[=update]{update()}}.
 }
 \section{Note}{
-\code{upgrade()} is expected to work for renv versions ≥1.0.1.
+\code{upgrade()} is expected to work for renv versions >= 1.0.1.
 To upgrade from prior versions of renv, users should
 
 \code{renv::deactivate();}
