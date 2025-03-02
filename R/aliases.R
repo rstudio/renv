@@ -17,5 +17,7 @@ the$aliases <- list(
 )
 
 alias <- function(text, aliases = the$aliases) {
-  aliases[[text]] %||% text
+  matches <- text %in% names(aliases)
+  text[matches] <- aliases[text[matches]]
+  text
 }
