@@ -124,6 +124,8 @@ Defaults to \code{TRUE}.}
 Defaults to \code{NULL}.}
 \subsection{renv.config.synchronized.check}{Check that the project library is synchronized with the lockfile on load?
 Defaults to \code{TRUE}.}
+\subsection{renv.config.sysreqs.check}{Check whether the requisite system packages are installed during package installation and restore? This feature uses the R System Requirements database maintained at \url{https://github.com/rstudio/r-system-requirements}.
+Defaults to \code{TRUE}.}
 \subsection{renv.config.updates.check}{Check for package updates when the session is initialized? This can be useful if you'd like to ensure that your project lockfile remains up-to-date with packages as they are released on CRAN.
 Defaults to \code{FALSE}.}
 \subsection{renv.config.updates.parallel}{Check for package updates in parallel? This can be useful when a large number of packages installed from non-CRAN remotes are installed, as these packages can then be checked for updates in parallel.

@@ -1,6 +1,6 @@
 
 # aliases used primarily for nicer / normalized text output
-the$aliases <- list(
+the$aliases <- c(
   bioc         = "Bioconductor",
   bioconductor = "Bioconductor",
   bitbucket    = "Bitbucket",
@@ -16,6 +16,8 @@ the$aliases <- list(
   xgit         = "Git"
 )
 
-alias <- function(text) {
-  the$aliases[[text]] %||% text
+alias <- function(text, aliases = the$aliases) {
+  matches <- text %in% names(aliases)
+  text[matches] <- aliases[text[matches]]
+  text
 }

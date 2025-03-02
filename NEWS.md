@@ -1,6 +1,15 @@
 
 # renv (development version)
 
+* `renv` gains the `sysreqs()` function, which can be used to query the system
+  packages required by a set of R packages. Functionality is currently available
+  for Debian-based distributions, as well as Red Hat distributions.
+  
+* On Linux, `renv` now uses the database from
+  <https://github.com/rstudio/r-system-requirements> when determining if
+  an R package's required system libraries are installed, and notifies
+  the user which packages (if any) are missing during install / restore.
+  
 * Fixed an issue where `renv` could fail to retrieve credentials registered
   for 'github.com' when querying URLs at 'api.github.com'.
 

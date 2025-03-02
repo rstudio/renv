@@ -3,10 +3,10 @@
 
   # NOTE: needs to be visible to embedded instances of renv as well
   the$envir_self <<- renv_envir_self()
-  
+
   # load extensions if available
   renv_ext_onload(libname, pkgname)
-  
+
   # make sure renv (and packages using renv!!!) use tempdir for storage
   # when running tests, or R CMD check
   if (checking() || testing()) {
@@ -14,7 +14,7 @@
     # set root directory
     root <- Sys.getenv("RENV_PATHS_ROOT", unset = tempfile("renv-root-"))
     Sys.setenv(RENV_PATHS_ROOT = root)
-    
+
     # unset on exit
     reg.finalizer(renv_envir_self(), function(envir) {
       if (identical(root, Sys.getenv("RENV_PATHS_ROOT", unset = NA)))
@@ -29,14 +29,12 @@
     }
 
   }
-  
+
   # don't lock sandbox while testing / checking
   if (testing() || checking() || devmode()) {
     options(renv.sandbox.locking_enabled = FALSE)
     Sys.setenv(RENV_SANDBOX_LOCKING_ENABLED = FALSE)
   }
-  
-  
 
   renv_defer_init()
   renv_metadata_init()
@@ -53,7 +51,7 @@
   renv_sdkroot_init()
   renv_watchdog_init()
   renv_tempdir_init()
-  
+
   if (!renv_metadata_embedded()) {
 
     # TODO: It's not clear if these callbacks are safe to use when renv is

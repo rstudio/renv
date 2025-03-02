@@ -69,6 +69,7 @@ reference:
   - consent
   - diagnostics
   - run
+  - sysreqs
 
 - title: internal
   contents:
@@ -76,7 +77,6 @@ reference:
   - imbue
   - renv-package
   - retrieve
-  - sandbox
   - sandbox
 
 articles:

@@ -766,7 +766,7 @@ renv_load_check_description <- function(project) {
 
   values <- sprintf("[line %i is blank]", bad)
 
-  caution_bullets(
+  bulletin(
     sprintf("%s contains blank lines:", renv_path_pretty(descpath)),
     values,
     c(

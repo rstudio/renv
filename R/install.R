@@ -227,6 +227,14 @@ install <- function(packages = NULL,
     cancel_if(prompt && !proceed())
   }
 
+  # check for installed dependencies
+  if (config$sysreqs.check(default = renv_platform_linux())) {
+    paths <- map(records, `[[`, "Path")
+    sysreqs <- map(paths, renv_sysreqs_read)
+    renv_sysreqs_check(sysreqs, prompt = prompt)
+  }
+
+
   # install retrieved records
   before <- Sys.time()
   renv_install_impl(records)
@@ -766,7 +774,7 @@ renv_install_preflight_requirements <- function(records) {
   fmt <- "Package '%s' requires '%s', but '%s' will be installed"
   text <- sprintf(fmt, format(package), format(requires), format(actual))
   if (renv_verbose()) {
-    caution_bullets(
+    bulletin(
       "The following issues were discovered while preparing for installation:",
       text,
       "Installation of these packages may not succeed."
@@ -789,7 +797,7 @@ renv_install_postamble <- function(packages) {
   installed <- map_chr(packages, renv_package_version)
   loaded <- map_chr(packages, renv_namespace_version)
 
-  caution_bullets(
+  bulletin(
     c("", "The following loaded package(s) have been updated:"),
     packages[installed != loaded],
     "Restart your R session to use the new versions."
@@ -826,7 +834,7 @@ renv_install_preflight_permissions <- function(library) {
     postamble <- sprintf(fmt, info$effective_user %||% info$user)
 
     # print it
-    caution_bullets(
+    bulletin(
       preamble = preamble,
       values = library,
       postamble = postamble

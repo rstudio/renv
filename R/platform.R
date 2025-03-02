@@ -1,8 +1,31 @@
 
-the$sysinfo <- NULL
+the$distro   <- NULL
+the$os       <- NULL
+the$platform <- NULL
+the$sysinfo  <- NULL
 
 renv_platform_init <- function() {
-  the$sysinfo <- Sys.info()
+
+  the$sysinfo <- as.list(Sys.info())
+
+  the$platform <- if (file.exists("/etc/os-release")) {
+    renv_properties_read(
+      path      = "/etc/os-release",
+      delimiter = "=",
+      dequote   = TRUE,
+      trim      = TRUE
+    )
+  }
+
+  the$os <- tolower(the$sysinfo$sysname)
+
+  # NOTE: This is chosen to be compatible with the distribution field
+  # used within r-system-requirements.
+  if (the$os == "linux") {
+    aliases <- list(rhel = "redhat")
+    the$distro <- alias(the$platform$ID, aliases)
+  }
+
 }
 
 renv_platform_unix <- function() {

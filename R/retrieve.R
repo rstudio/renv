@@ -772,7 +772,7 @@ renv_retrieve_repos_error_report <- function(record, errors) {
   fmt <- "The following error(s) occurred while retrieving '%s':"
   preamble <- sprintf(fmt, record$Package)
 
-  caution_bullets(
+  bulletin(
     preamble = preamble,
     values   = paste("-", messages)
   )
@@ -1453,7 +1453,7 @@ renv_retrieve_incompatible_report <- function(package, record, replacement, comp
   postamble <- with(replacement, sprintf(fmt, Package, Version))
 
   if (!renv_tests_running()) {
-    caution_bullets(
+    bulletin(
       preamble = preamble,
       values = values,
       postamble = postamble
