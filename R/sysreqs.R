@@ -4,11 +4,29 @@ the$sysreqs <- NULL
 #' R System Requirements
 #'
 #' Compute the system requirements (system libraries; operating system packages)
-#' required by a set of \R packages. Currently available for Linux ohnly.
+#' required by a set of \R packages.
 #'
 #' This function relies on the database of package system requirements
 #' maintained by Posit at <https://github.com/rstudio/r-system-requirements>,
-#' as well as the "meta-CRAN" service at <https://crandb.r-pkg.org>.
+#' as well as the "meta-CRAN" service at <https://crandb.r-pkg.org>. This
+#' service primarily exists to map the (free-form) `SystemRequirements` field
+#' used by \R packages to the system packages made available by a particular
+#' operating system.
+#'
+#' As an example, the `curl` R package depends on the `libcurl` system library,
+#' and declares this with a `SystemRequirements` field of the form:
+#'
+#' - libcurl (>= 7.62): libcurl-devel (rpm) or libcurl4-openssl-dev (deb)
+#'
+#' This dependency can be satisfied with the following command line invocations
+#' on different systems:
+#'
+#' - Debian: `sudo apt install libcurl4-openssl-dev`
+#' - Redhat: `sudo dnf install libcurl-devel`
+#'
+#' and so `sysreqs("curl")` would help provide the name of the package
+#' whose installation would satisfy the `libcurl` dependency.
+#'
 #'
 #' @inheritParams renv-params
 #'
@@ -21,10 +39,32 @@ the$sysreqs <- NULL
 #'   use <https://crandb.r-pkg.org> to resolve the system requirements
 #'   for these packages.
 #'
+#' @param check Boolean; should `renv` also check whether the requires system
+#'   packages appear to be installed on the current system?
+#'
+#' @param distro The name of the Linux distribution for which system requirements
+#'   should be checked -- typical values are "ubuntu", "debian", and "redhat".
+#'   These should match the distribution names used by the R system requirements
+#'   database.
+#'
+#' @examples
+#'
+#' \dontrun{
+#'
+#' # report the required system packages for this system
+#' sysreqs()
+#'
+#' # report the required system packages for a specific OS
+#' sysreqs(platform = "ubuntu")
+#'
+#' }
+#'
 #' @export
 sysreqs <- function(packages = NULL,
                     ...,
-                    local = FALSE,
+                    local   = FALSE,
+                    check   = NULL,
+                    distro  = NULL,
                     project = NULL)
 {
   # resolve packages
@@ -39,9 +79,16 @@ sysreqs <- function(packages = NULL,
   packages <- setdiff(packages, base$Package)
   names(packages) <- packages
 
-  records <- if (local) {
+  # set up distro
+  distro <- distro %||% the$distro
+  check <- check %||% identical(distro, the$distro)
+  renv_scope_binding(the, "os", "linux")
+  renv_scope_binding(the, "distro", distro)
+
+  # compute package records
+  if (local) {
     lockfile <- renv_lockfile_create(project, dev = TRUE)
-    renv_lockfile_records(lockfile)
+    records <- renv_lockfile_records(lockfile)
   } else {
     printf("Resolving package system requirements ... ")
     callback <- renv_progress_callback(renv_sysreqs_crandb, length(packages))
@@ -52,8 +99,13 @@ sysreqs <- function(packages = NULL,
   # extract and resolve the system requirements
   sysreqs <- map(records, `[[`, "SystemRequirements")
   syspkgs <- map(sysreqs, renv_sysreqs_resolve)
-  renv_sysreqs_check(sysreqs, prompt = FALSE)
-  invisible(syspkgs)
+
+  # report the package status if possible
+  if (check && renv_platform_linux())
+    renv_sysreqs_check(sysreqs, prompt = FALSE)
+
+  # return result
+  syspkgs
 
 }
 
@@ -93,22 +145,22 @@ renv_sysreqs_rules_impl <- function() {
   rules
 }
 
-renv_sysreqs_match <- function(req, rules = renv_sysreqs_rules()) {
-  map(rules, renv_sysreqs_match_impl, req = req)
+renv_sysreqs_match <- function(sysreq, rules = renv_sysreqs_rules()) {
+  map(rules, renv_sysreqs_match_impl, sysreq = sysreq)
 }
 
-renv_sysreqs_match_impl <- function(req, rule) {
+renv_sysreqs_match_impl <- function(sysreq, rule) {
 
   # check for a match in the declared system requirements
   pattern <- paste(rule$patterns, collapse = "|")
-  matches <- grepl(pattern, req, ignore.case = TRUE, perl = TRUE)
+  matches <- grepl(pattern, sysreq, ignore.case = TRUE, perl = TRUE)
 
   # if we got a match, pull out the dependent packages
   if (matches) {
     for (dependency in rule$dependencies) {
       for (constraint in dependency$constraints) {
         if (constraint$os == the$os) {
-          if (constraint$distribution == the$distribution) {
+          if (constraint$distribution == the$distro) {
             return(dependency$packages)
           }
         }

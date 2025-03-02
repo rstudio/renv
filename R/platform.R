@@ -1,8 +1,8 @@
 
-the$sysinfo      <- NULL
-the$platform     <- NULL
-the$distribution <- NULL
-the$os           <- NULL
+the$distro   <- NULL
+the$os       <- NULL
+the$platform <- NULL
+the$sysinfo  <- NULL
 
 renv_platform_init <- function() {
 
@@ -21,11 +21,10 @@ renv_platform_init <- function() {
 
   # NOTE: This is chosen to be compatible with the distribution field
   # used within r-system-requirements.
-  aliases <- list(
-    rhel = "redhat"
-  )
-
-  the$distribution <- alias(the$platform$ID, aliases)
+  if (the$os == "linux") {
+    aliases <- list(rhel = "redhat")
+    the$distro <- alias(the$platform$ID, aliases)
+  }
 
 }
 

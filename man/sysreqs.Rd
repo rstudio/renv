@@ -4,12 +4,35 @@
 \alias{sysreqs}
 \title{R System Requirements}
 \usage{
-sysreqs(packages = NULL, project = NULL)
+sysreqs(
+  packages = NULL,
+  ...,
+  local = FALSE,
+  check = NULL,
+  distro = NULL,
+  project = NULL
+)
 }
 \arguments{
 \item{packages}{A vector of \R package names. When \code{NULL}
 (the default), the project's package dependencies as reported via
 \code{\link[=dependencies]{dependencies()}} are used.}
+
+\item{...}{Unused arguments, reserved for future expansion. If any arguments
+are matched to \code{...}, renv will signal an error.}
+
+\item{local}{Boolean; should \code{renv} rely on locally-installed copies of
+packages when resolving system requirements? When \code{FALSE}, \code{renv} will
+use \url{https://crandb.r-pkg.org} to resolve the system requirements
+for these packages.}
+
+\item{check}{Boolean; should \code{renv} also check whether the requires system
+packages appear to be installed on the current system?}
+
+\item{distro}{The name of the distribution for which system requirements
+should be checked -- typical values are "ubuntu", "debian", and "redhat";
+these should match the distribution names used by the R system requirements
+database.}
 
 \item{project}{The project directory. If \code{NULL}, then the active project will
 be used. If no project is currently active, then the current working
@@ -17,10 +40,42 @@ directory is used instead.}
 }
 \description{
 Compute the system requirements (system libraries; operating system packages)
-required by a set of \R packages. Currently available for Linux ohnly.
+required by a set of \R packages.
 }
 \details{
 This function relies on the database of package system requirements
 maintained by Posit at \url{https://github.com/rstudio/r-system-requirements},
-as well as the "meta-CRAN" service at \url{https://crandb.r-pkg.org}.
+as well as the "meta-CRAN" service at \url{https://crandb.r-pkg.org}. This
+service primarily exists to map the (free-form) \code{SystemRequirements} field
+used by \R packages to the system packages made available by a particular
+operating system.
+
+As an example, the \code{curl} R package depends on the \code{libcurl} system library,
+and declares this with a \code{SystemRequirements} field of the form:
+\itemize{
+\item libcurl (>= 7.62): libcurl-devel (rpm) or libcurl4-openssl-dev (deb)
+}
+
+This dependency can be satisfied with the following command line invocations
+on different systems:
+\itemize{
+\item Debian: \verb{sudo apt install libcurl4-openssl-dev}
+\item Redhat: \verb{sudo dnf install libcurl-devel}
+}
+
+and so \code{sysreqs("curl")} would help provide the name of the package
+whose installation would satisfy the \code{libcurl} dependency.
+}
+\examples{
+
+\dontrun{
+
+# report the required system packages for this system
+sysreqs()
+
+# report the required system packages for a specific OS
+sysreqs(platform = "ubuntu")
+
+}
+
 }
