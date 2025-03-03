@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">renv</a>
 
-    <small class="nav-text text-danger me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="In-development version">1.1.1.9000</small>
+    <small class="nav-text text-danger me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="In-development version">1.1.2.9000</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -53,6 +53,9 @@
 
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="development version" id="renv-development-version">renv (development version)<a class="anchor" aria-label="anchor" href="#renv-development-version"></a></h2>
+</div>
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="1.1.2" id="renv-112">renv 1.1.2<a class="anchor" aria-label="anchor" href="#renv-112"></a></h2>
 <ul><li><p><code>renv</code> gains the <code><a href="../reference/sysreqs.html">sysreqs()</a></code> function, which can be used to query the system packages required by a set of R packages. Functionality is currently available for Debian-based distributions, as well as Red Hat distributions.</p></li>
 <li><p>On Linux, <code>renv</code> now uses the database from <a href="https://github.com/rstudio/r-system-requirements" class="external-link uri">https://github.com/rstudio/r-system-requirements</a> when determining if an R package’s required system libraries are installed, and notifies the user which packages (if any) are missing during install / restore.</p></li>
 <li><p>Fixed an issue where <code>renv</code> could fail to retrieve credentials registered for ‘github.com’ when querying URLs at ‘api.github.com’.</p></li>
