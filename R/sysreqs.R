@@ -120,24 +120,30 @@ sysreqs <- function(packages = NULL,
     renv_sysreqs_check(sysreqs, prompt = FALSE)
 
   # report installation commands if requested
-  if (report) {
-
-    all <- sort(unique(unlist(syspkgs)))
-    installer <- renv_sysreqs_installer(distro)
-    body <- if (collapse) paste(all, collapse = " ") else all
-    message <- paste("sudo", installer, "-y", body)
-
-    if (interactive()) {
-      preamble <- "The requisite system packages can be installed with:"
-      bulletin(preamble, message)
-    } else {
-      writeLines(message)
-    }
-
-  }
+  if (report)
+    renv_sysreqs_report(syspkgs, distro, collapse)
 
   # return result
   invisible(syspkgs)
+
+}
+
+renv_sysreqs_report <- function(syspkgs, distro, collapse) {
+
+  all <- sort(unique(unlist(syspkgs)))
+  if (empty(all))
+    return()
+
+  installer <- renv_sysreqs_installer(distro)
+  body <- if (collapse) paste(all, collapse = " ") else all
+  message <- paste("sudo", installer, "-y", body)
+
+  if (interactive()) {
+    preamble <- "The requisite system packages can be installed with:"
+    bulletin(preamble, message)
+  } else {
+    writeLines(message)
+  }
 
 }
 

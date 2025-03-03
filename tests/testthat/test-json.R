@@ -170,3 +170,18 @@ test_that("json-read.R can function standalone", {
   }
 
 })
+
+test_that("we can parse long JSON strings containing unicode newlines", {
+
+  ns <- 10^(1:5)
+
+  ch <- "\\u000a"
+  for (n in ns) {
+    chs <- paste(rep.int(ch, n), collapse = "")
+    text <- sprintf("\"%s\"", chs)
+    actual <- renv_json_read_default(text = text)
+    expected <- paste(rep.int("\n", n), collapse = "")
+    expect_equal(actual, expected)
+  }
+
+})
