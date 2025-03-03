@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">renv</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">1.1.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">1.1.2</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -276,6 +276,11 @@ Defaults to <code>NULL</code>.</p>
 <div class="section">
 <h3 id="renv-config-synchronized-check">renv.config.synchronized.check<a class="anchor" aria-label="anchor" href="#renv-config-synchronized-check"></a></h3>
 <p>Check that the project library is synchronized with the lockfile on load?
+Defaults to <code>TRUE</code>.</p>
+</div>
+<div class="section">
+<h3 id="renv-config-sysreqs-check">renv.config.sysreqs.check<a class="anchor" aria-label="anchor" href="#renv-config-sysreqs-check"></a></h3>
+<p>Check whether the requisite system packages are installed during package installation and restore? This feature uses the R System Requirements database maintained at <a href="https://github.com/rstudio/r-system-requirements" class="external-link">https://github.com/rstudio/r-system-requirements</a>.
 Defaults to <code>TRUE</code>.</p>
 </div>
 <div class="section">
