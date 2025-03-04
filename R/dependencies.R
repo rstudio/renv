@@ -564,16 +564,18 @@ renv_dependencies_discover_description <- function(path,
     path = path
   )
 
+  names(data) <- fields
+
   # if this is a bioconductor package, add their implicit dependencies
   if ("biocViews" %in% names(dcf)) {
     data[[length(data) + 1L]] <- renv_dependencies_list(
       source = path,
       packages = c(renv_bioconductor_manager(), "BiocVersion")
     )
+    names(data)[[length(data)]] <- "Bioconductor"
   }
 
-  bind(data)
-
+  bind(data, index = "Type")
 }
 
 renv_dependencies_discover_namespace <- function(path) {

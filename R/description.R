@@ -154,16 +154,16 @@ renv_description_dependency_fields_expand <- function(fields) {
     case(
 
       identical(field, FALSE)
-      ~ NULL,
+        ~ NULL,
 
       identical(field, "strong") || is.na(field)
-      ~ c("Depends", "Imports", "LinkingTo"),
+        ~ c("Depends", "Imports", "LinkingTo"),
 
       identical(field, "most") || identical(field, TRUE)
-      ~ c("Depends", "Imports", "LinkingTo", "Suggests"),
+        ~ c("Depends", "Imports", "LinkingTo", "Suggests"),
 
-      identical(field, "all") ~
-        c("Depends", "Imports", "LinkingTo", "Suggests", "Enhances"),
+      identical(field, "all")
+        ~ c("Depends", "Imports", "LinkingTo", "Suggests", "Enhances"),
 
       field
 

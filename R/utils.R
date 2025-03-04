@@ -426,6 +426,9 @@ fsub <- function(pattern, replacement, x, ignore.case = FALSE, useBytes = FALSE)
 
 rows <- function(data, indices) {
 
+  if (is.null(data))
+    return(data_frame())
+
   # convert logical values
   if (is.logical(indices)) {
     if (length(indices) < nrow(data))

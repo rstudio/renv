@@ -1186,12 +1186,17 @@ renv_retrieve_successful <- function(record, path, install = TRUE) {
 
   # figure out the dependency fields to use -- if the user explicitly requested
   # this package be installed, but also provided a 'dependencies' argument in
-  # the call to 'install()', then we want to use those
+  # the call to 'install()', then we want to install those as well.
+  #
+  # however, those packages need to be installed at a lower priority, since it's
+  # common for there to be circular-ish dependency relationships, where one
+  # package A imports package B, but package B suggests package A in turn.
   fields <- if (package %in% state$packages) the$install_dependency_fields else "strong"
   deps <- renv_dependencies_discover_description(path, subdir = subdir, fields = fields)
   if (length(deps$Source))
     deps$Source <- record$Package
 
+  # set up package requirements for 'strong' dependencies
   rowapply(deps, function(dep) {
     package <- dep[["Package"]]
     requirements[[package]] <- requirements[[package]] %||% stack()
@@ -1203,16 +1208,28 @@ renv_retrieve_successful <- function(record, path, install = TRUE) {
   if (length(remotes) && config$install.remotes())
     renv_retrieve_remotes(remotes)
 
-  # ensure its dependencies are retrieved as well
-  if (state$recursive) local({
+  # split into strong + weak dependencies
+  strong     <- deps$Type %in% c("Depends", "Imports", "LinkingTo")
+  strongdeps <- rows(deps, strong)
+  weakdeps   <- rows(deps, !strong)
+
+  # recursively install strong dependencies first
+  if (state$recursive && nrow(strongdeps)) local({
     repos <- if (is.null(desc$biocViews)) getOption("repos") else renv_bioconductor_repos()
     renv_scope_options(repos = repos)
-    renv_retrieve_successful_recurse(deps)
+    renv_retrieve_successful_recurse(strongdeps)
   })
 
   # mark package as requiring install if needed
   if (install && !state$install$contains(package))
     state$install$insert(package, record)
+
+  # now recursively retrieve weak dependencies
+  if (state$recursive && nrow(weakdeps)) local({
+    repos <- if (is.null(desc$biocViews)) getOption("repos") else renv_bioconductor_repos()
+    renv_scope_options(repos = repos)
+    renv_retrieve_successful_recurse(weakdeps)
+  })
 
   TRUE
 

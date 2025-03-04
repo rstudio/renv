@@ -21,7 +21,7 @@ as_data_frame <- function(data) {
 
   # recycle columns
   n <- lengths(data, use.names = FALSE)
-  nrow <- max(n)
+  nrow <- max(n, 0L)
 
   # start recycling
   for (i in seq_along(data)) {
