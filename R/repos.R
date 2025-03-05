@@ -18,15 +18,18 @@ renv_repos_normalize <- function(repos = getOption("repos")) {
 
 renv_repos_names <- function(repos) {
 
-  # if repos is length 1 but has no names, then assume it's CRAN
+  # get names vector
   nms <- names(repos) %||% rep.int("", length(repos))
-  if (identical(nms, ""))
-    return("CRAN")
 
-  # otherwise, just use the repository URLs as placeholder names
-  nms <- names(repos)
-  unnamed <- !nzchar(nms)
-  nms[unnamed] <- repos[unnamed]
+  # if we have an unnamed repository matching a CRAN mirror, call it CRAN
+  cran <- which(!nzchar(nms) & repos %in% renv_cran_mirrors())
+  if (length(cran))
+    nms[[cran[[1L]]]] <- "CRAN"
+
+  # for all other unnamed repositories, use the URL
+  nms[!nzchar(nms)] <- repos[!nzchar(nms)]
+
+  # return names
   nms
 
 }

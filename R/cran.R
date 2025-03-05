@@ -1,5 +1,25 @@
 
 # nocov start
+the$mirrors <- NULL
+
+renv_cran_mirrors <- function() {
+  the$mirrors <- the$mirrors %||% renv_cran_mirrors_impl()
+}
+
+renv_cran_mirrors_impl <- function() {
+
+  # read known CRAN mirrors
+  mirrors <- tryCatch(
+    getCRANmirrors(local.only = TRUE),
+    error = function(cnd) NULL
+  )
+
+  urls <- sort(unique(sub("/$", "", mirrors$URL)))
+
+  # add in commonly-used RStudio mirrors
+  c("https://cran.rstudio.com", "https://cran.rstudio.org", urls)
+
+}
 
 renv_cran_status <- function(email   = NULL,
                              package = NULL,

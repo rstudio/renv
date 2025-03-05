@@ -177,6 +177,10 @@ renv_package_augment_standard <- function(path, record) {
   index <- regexpr(pattern, url, perl = TRUE)
   repos <- substring(url, 1L, index - 1L)
 
+  # drop the repository name if it's identical to the repository itself
+  # https://github.com/rstudio/renv/issues/2104
+  name <- if (!identical(repos, name)) name
+
   # figure out the platform
   platform <- if (identical(type, "binary")) R.version$platform else "source"
 
