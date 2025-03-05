@@ -20,6 +20,8 @@ test_that("we can construct paths to multiple files with path APIs", {
 
 test_that("RENV_PATHS_PREFIX is respected", {
 
+  renv_scope_binding(the, "prefix", NULL)
+
   os <- "ubuntu-bionic"
   renv_scope_envvars(RENV_PATHS_PREFIX = os)
 

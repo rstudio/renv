@@ -2,6 +2,7 @@
 the$distro   <- NULL
 the$os       <- NULL
 the$platform <- NULL
+the$prefix   <- NULL
 the$sysinfo  <- NULL
 
 renv_platform_init <- function() {
@@ -64,7 +65,7 @@ renv_platform_wsl <- function() {
 }
 
 renv_platform_prefix <- function() {
-  renv_bootstrap_platform_prefix()
+  (the$prefix <- the$prefix %||% renv_bootstrap_platform_prefix())
 }
 
 renv_platform_os <- function() {

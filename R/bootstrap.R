@@ -536,11 +536,19 @@ renv_bootstrap_install_impl <- function(library, tarball) {
 
 }
 
-renv_bootstrap_platform_prefix <- function() {
+renv_bootstrap_platform_prefix_default <- function() {
 
-  # construct version prefix
-  version <- paste(R.version$major, R.version$minor, sep = ".")
-  prefix <- paste("R", numeric_version(version)[1, 1:2], sep = "-")
+  # read version component
+  version <- Sys.getenv("RENV_PATHS_VERSION", unset = "R-%v")
+
+  # expand placeholders
+  placeholders <- list(
+    list("%v", format(getRversion()[1, 1:2])),
+    list("%V", format(getRversion()[1, 1:3]))
+  )
+
+  for (placeholder in placeholders)
+    version <- gsub(placeholder[[1L]], placeholder[[2L]], version, fixed = TRUE)
 
   # include SVN revision for development versions of R
   # (to avoid sharing platform-specific artefacts with released versions of R)
@@ -549,10 +557,19 @@ renv_bootstrap_platform_prefix <- function() {
     identical(R.version[["nickname"]], "Unsuffered Consequences")
 
   if (devel)
-    prefix <- paste(prefix, R.version[["svn rev"]], sep = "-r")
+    version <- paste(version, R.version[["svn rev"]], sep = "-r")
+
+  version
+
+}
+
+renv_bootstrap_platform_prefix <- function() {
+
+  # construct version prefix
+  version <- renv_bootstrap_platform_prefix_default()
 
   # build list of path components
-  components <- c(prefix, R.version$platform)
+  components <- c(version, R.version$platform)
 
   # include prefix if provided by user
   prefix <- renv_bootstrap_platform_prefix_impl()
@@ -791,14 +808,14 @@ renv_bootstrap_validate_version <- function(version, description = NULL) {
 }
 
 renv_bootstrap_validate_version_dev <- function(version, description) {
-  
+
   expected <- description[["RemoteSha"]]
   if (!is.character(expected))
     return(FALSE)
-  
+
   pattern <- sprintf("^\\Q%s\\E", version)
   grepl(pattern, expected, perl = TRUE)
-  
+
 }
 
 renv_bootstrap_validate_version_release <- function(version, description) {

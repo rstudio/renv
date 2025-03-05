@@ -1,6 +1,12 @@
 
 # renv (development version)
 
+* The environment variable `RENV_PATHS_VERSION` can now be used to substitute
+  the R version component normally used in library / cache paths. The provided
+  path can include placeholders like `%V` for the full R version including
+  the patch level, and `%v` for the R version without the patch level. Defaults
+  to `R-%v` when unset. (#1687)
+
 * `renv::install()` gains the `transactional` argument, for parity with
   `renv::restore()`. (#1109)
 
