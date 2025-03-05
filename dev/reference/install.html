@@ -82,6 +82,7 @@ installing the latest versions available from CRAN.</p>
 <span>  prompt <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/interactive.html" class="external-link">interactive</a></span><span class="op">(</span><span class="op">)</span>,</span>
 <span>  dependencies <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  verbose <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  transactional <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  lock <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  project <span class="op">=</span> <span class="cn">NULL</span></span>
 <span><span class="op">)</span></span></code></pre></div>
@@ -170,6 +171,13 @@ See <code><a href="https://rdrr.io/r/tools/package_dependencies.html" class="ext
 during installation? When <code>NULL</code> (the default), the value of <code>config$install.verbose()</code>
 will be used. When <code>FALSE</code>, installation output will be emitted only if
 a package fails to install.</p></dd>
+
+
+<dt id="arg-transactional">transactional<a class="anchor" aria-label="anchor" href="#arg-transactional"></a></dt>
+<dd><p>Whether or not to use a 'transactional' package
+installation. See <strong>Transactional Restore</strong> in <code><a href="restore.html">restore()</a></code> for
+more details. When <code>NULL</code> (the default), the value of the
+<code>install.transactional</code> <code><a href="config.html">config</a></code> option will be used.</p></dd>
 
 
 <dt id="arg-lock">lock<a class="anchor" aria-label="anchor" href="#arg-lock"></a></dt>
