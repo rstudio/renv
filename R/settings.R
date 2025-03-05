@@ -362,10 +362,10 @@ renv_settings_impl <- function(name, default, scalar, validate, coerce, update) 
 #'
 #' ## `package.dependency.fields`
 #'
-#' When explicitly installing a package with `install()`, what fields
-#' should be used to determine that packages dependencies? The default
-#' uses `Imports`, `Depends` and `LinkingTo` fields, but you also want
-#' to install `Suggests` dependencies for a package, you can set this to
+#' When installing a package with `install()`, what `DESCRIPTION` fields should
+#' be used to determine that package's dependencies? The default uses
+#' `c("Imports", "Depends", "LinkingTo")`, but if you also want  to install
+#' `Suggests` dependencies for a package, you can set this to
 #' `c("Imports", "Depends", "LinkingTo", "Suggests")`.
 #'
 #' ## `ppm.enabled`

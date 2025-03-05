@@ -50,10 +50,10 @@ added to the lockfile, that entry in the lockfile will not be ignored.
 
 \subsection{\code{package.dependency.fields}}{
 
-When explicitly installing a package with \code{install()}, what fields
-should be used to determine that packages dependencies? The default
-uses \code{Imports}, \code{Depends} and \code{LinkingTo} fields, but you also want
-to install \code{Suggests} dependencies for a package, you can set this to
+When installing a package with \code{install()}, what \code{DESCRIPTION} fields should
+be used to determine that package's dependencies? The default uses
+\code{c("Imports", "Depends", "LinkingTo")}, but if you also want  to install
+\code{Suggests} dependencies for a package, you can set this to
 \code{c("Imports", "Depends", "LinkingTo", "Suggests")}.
 }
 
