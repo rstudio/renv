@@ -16,6 +16,7 @@ install(
   prompt = interactive(),
   dependencies = NULL,
   verbose = NULL,
+  transactional = NULL,
   lock = FALSE,
   project = NULL
 )
@@ -85,6 +86,11 @@ See \code{\link[tools:package_dependencies]{tools::package_dependencies()}} for 
 during installation? When \code{NULL} (the default), the value of \code{config$install.verbose()}
 will be used. When \code{FALSE}, installation output will be emitted only if
 a package fails to install.}
+
+\item{transactional}{Whether or not to use a 'transactional' package
+installation. See \strong{Transactional Restore} in \code{\link[=restore]{restore()}} for
+more details. When \code{NULL} (the default), the value of the
+\code{install.transactional} \code{\link{config}} option will be used.}
 
 \item{lock}{Boolean; update the \code{renv.lock} lockfile after the successful
 installation of the requested packages?}

@@ -57,6 +57,11 @@ the$install_step_width <- 48L
 #'   will be used. When `FALSE`, installation output will be emitted only if
 #'   a package fails to install.
 #'
+#' @param transactional Whether or not to use a 'transactional' package
+#'   installation. See **Transactional Restore** in [renv::restore()] for
+#'   more details. When `NULL` (the default), the value of the
+#'   `install.transactional` [`config`] option will be used.
+#'
 #' @param lock Boolean; update the `renv.lock` lockfile after the successful
 #'   installation of the requested packages?
 #'
@@ -92,17 +97,18 @@ the$install_step_width <- 48L
 #' }
 install <- function(packages = NULL,
                     ...,
-                    include      = NULL,
-                    exclude      = NULL,
-                    library      = NULL,
-                    type         = NULL,
-                    rebuild      = FALSE,
-                    repos        = NULL,
-                    prompt       = interactive(),
-                    dependencies = NULL,
-                    verbose      = NULL,
-                    lock         = FALSE,
-                    project      = NULL)
+                    include       = NULL,
+                    exclude       = NULL,
+                    library       = NULL,
+                    type          = NULL,
+                    rebuild       = FALSE,
+                    repos         = NULL,
+                    prompt        = interactive(),
+                    dependencies  = NULL,
+                    verbose       = NULL,
+                    transactional = NULL,
+                    lock          = FALSE,
+                    project       = NULL)
 {
   renv_consent_check()
   renv_scope_error_handler()
@@ -127,6 +133,10 @@ install <- function(packages = NULL,
   # handle 'verbose'
   verbose <- verbose %||% config$install.verbose()
   renv_scope_options(renv.config.install.verbose = verbose)
+
+  # handle 'transactional'
+  transactional <- transactional %||% config$install.transactional()
+  renv_scope_options(renv.config.install.transactional = transactional)
 
   # set up library paths
   libpaths <- renv_libpaths_resolve(library)

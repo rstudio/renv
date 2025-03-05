@@ -181,7 +181,7 @@ renv_tests_setup_repos <- function(scope = parent.frame()) {
 
   # update the local packrat package version to match what's available
   version <- tryCatch(
-    renv_package_version("packrat"),
+    renv_package_version("packrat") %||% "0.9.2",
     error = function(cnd) "0.9.2"
   )
 

@@ -1,6 +1,10 @@
 
 # renv (development version)
 
+* `renv::install()` gains the `transactional` argument, for parity with
+  `renv::restore()`. (#1109)
+
+
 # renv 1.1.2
 
 * `renv` gains the `sysreqs()` function, which can be used to query the system
