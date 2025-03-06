@@ -1,6 +1,11 @@
 
 # renv (development version)
 
+* `renv::update()` now only updates the packages installed in the project
+  library by default. `renv::update(all = TRUE)` can be used to also
+  check if packages installed in the default library are out-of-date, and
+  install updated copies into the project library. (#2108)
+  
 * Fixed an issue where package installation could fail on Arch Linux with the
   error message "don't know how to check sysreqs on this system". (#2107)
 

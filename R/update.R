@@ -233,6 +233,10 @@ renv_update_find <- function(records) {
 #' @param lock Boolean; update the `renv.lock` lockfile after the successful
 #'   installation of the requested packages?
 #'
+#' @param all Boolean; should `renv` check all library paths for out-of-date
+#'   packages? When `FALSE` (the default), only the project library will be
+#'   checked for out-of-date packages.
+#'
 #' @return A named list of package records which were installed by renv.
 #'
 #' @export
@@ -253,6 +257,7 @@ update <- function(packages = NULL,
                    check   = FALSE,
                    prompt  = interactive(),
                    lock    = FALSE,
+                   all     = FALSE,
                    project = NULL)
 {
   renv_consent_check()
@@ -264,9 +269,8 @@ update <- function(packages = NULL,
   renv_scope_verbose_if(prompt)
 
   # resolve library path
-  libpaths <- renv_libpaths_resolve(library)
-  library <- nth(libpaths, 1L)
-  renv_scope_libpaths(libpaths)
+  library <- renv_libpaths_resolve(library)
+  renv_scope_libpaths(library)
 
   # check for explicitly-provided type -- we handle this specially for PPM
   if (!is.null(type)) {
@@ -284,7 +288,7 @@ update <- function(packages = NULL,
     return(
       renv_pak_install(
         packages = packages,
-        library  = libpaths,
+        library  = library,
         rebuild  = rebuild,
         type     = type,
         prompt   = prompt,
@@ -295,6 +299,7 @@ update <- function(packages = NULL,
 
   # get package records
   renv_scope_binding(the, "snapshot_hash", FALSE)
+  libpaths <- if (all) library else library[[1L]]
   records <- renv_snapshot_libpaths(libpaths = libpaths, project = project)
   packages <- packages %||% names(records)
 
@@ -408,7 +413,7 @@ update <- function(packages = NULL,
   # perform the install
   install(
     packages = updates,
-    library  = libpaths,
+    library  = library,
     rebuild  = rebuild,
     prompt   = prompt,
     lock     = lock,

@@ -140,3 +140,27 @@ test_that("we guard against invalid mc.cores values", {
   })
 
 })
+
+test_that("update() ignores packages in other libraries by default", {
+
+  skip_on_cran()
+  renv_tests_scope()
+
+  # set up dummy library path
+  library <- renv_scope_tempfile("renv-library-")
+  ensure_directory(library)
+  .libPaths(c(.libPaths()[[1L]], library, .Library))
+
+  # install an older version of a package into that library
+  install("bread@0.1.0", library = library)
+  expect_equal(renv_package_version("bread"), "0.1.0")
+
+  # call update(); nothing should happen
+  update()
+  expect_equal(renv_package_version("bread"), "0.1.0")
+
+  # use update(all = TRUE); updated version should be installed
+  update(all = TRUE)
+  expect_equal(renv_package_version("bread"), "1.0.0")
+
+})
