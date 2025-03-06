@@ -282,11 +282,15 @@ renv_sysreqs_aliases_rpm <- function(pkgs) {
 
 renv_sysreqs_check <- function(sysreqs, prompt) {
 
+  # check for a supported package installer
   type <- case(
     nzchar(Sys.which("dpkg")) ~ "deb",
     nzchar(Sys.which("rpm"))  ~ "rpm",
-    ~ stop("don't know how to check sysreqs on this system")
+    ~ NULL
   )
+
+  if (is.null(type))
+    return(NULL)
 
   # figure out which system packages are required
   syspkgs <- map(sysreqs, renv_sysreqs_resolve)
