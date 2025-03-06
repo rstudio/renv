@@ -389,6 +389,7 @@ renv_available_packages_latest <- function(package,
 {
   methods <- list(
     renv_available_packages_latest_repos,
+    renv_available_packages_latest_archive,
     if (renv_p3m_enabled())
       renv_available_packages_latest_p3m
   )
@@ -512,11 +513,76 @@ renv_available_packages_latest_p3m <- function(package,
   )
 }
 
+renv_available_packages_latest_archive_query <- function(repo) {
+
+  index(
+    scope = "available-packages-archive",
+    key   = repo,
+    value = tryCatch(
+      renv_available_packages_latest_archive_query_impl(repo),
+      error = function(e) list()
+    )
+  )
+
+}
+
+renv_available_packages_latest_archive_query_impl <- function(repo) {
+  url <- file.path(repo, "src/contrib/Meta/archive.rds")
+  destfile <- download(url, destfile = tempfile("archive-", fileext = ".rds"), quiet = TRUE)
+  readRDS(destfile)
+}
+
+renv_available_packages_latest_archive <- function(package,
+                                                   type = NULL,
+                                                   repos = NULL)
+{
+  type <- type %||% getOption("pkgType")
+  repos <- repos %||% getOption("repos")
+
+  for (i in seq_along(repos)) {
+
+    # extract pieces of interest
+    name <- names(repos)[[i]]
+    repo <- repos[[i]]
+
+    # check for potential packages in archive
+    archive <- renv_available_packages_latest_archive_query(repo)
+    entries <- archive[[package]]
+    if (NROW(entries) == 0L)
+      next
+
+    # parse the package name + version from the row names
+    rns <- basename(row.names(entries))
+
+    # grab files that look like packages
+    extpat <- "(?:\\.tar\\.gz|\\.tgz|\\.zip)$"
+    parts <- strsplit(rns, "_", fixed = TRUE)
+    package <- map_chr(parts, `[[`, 1L)
+    rest <- map_chr(parts, `[[`, 2L)
+    version <- sub(extpat, "", rest)
+
+    # put it into a data.frame
+    data <- data.frame(Package = package, Version = version)
+
+    # take the newest version
+    ord <- order(numeric_version(version), decreasing = TRUE)
+    entry <- as.list(data[ord[[1L]], ])
+    entry$Source <- "Repository"
+    entry$Repository <- name
+
+    return(entry)
+
+  }
+
+  NULL
+
+}
+
 renv_available_packages_latest_repos <- function(package,
                                                  type = NULL,
                                                  repos = NULL)
 {
-  type  <- type %||% getOption("pkgType")
+  type <- type %||% getOption("pkgType")
   repos <- repos %||% getOption("repos")
 
   # detect requests for only source packages
