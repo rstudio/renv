@@ -14,6 +14,7 @@ update(
   check = FALSE,
   prompt = interactive(),
   lock = FALSE,
+  all = FALSE,
   project = NULL
 )
 }
@@ -49,6 +50,10 @@ compatibility, \code{confirm} is accepted as an alias for \code{prompt}.}
 
 \item{lock}{Boolean; update the \code{renv.lock} lockfile after the successful
 installation of the requested packages?}
+
+\item{all}{Boolean; should \code{renv} check all library paths for out-of-date
+packages? When \code{FALSE} (the default), only the project library will be
+checked for out-of-date packages.}
 
 \item{project}{The project directory. If \code{NULL}, then the active project will
 be used. If no project is currently active, then the current working
