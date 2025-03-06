@@ -57,14 +57,86 @@ renv_renvignore_pattern <- function(path = getwd(), root = path) {
 
 }
 
+renv_renvignore_envir <- function(profile) {
+
+  envir <- new.env(parent = emptyenv())
+
+  # functions which we want to make available in .renvignore
+  envir[["c"]]    <- base::c
+  envir[["list"]] <- base::list
+  envir[["%in%"]] <- base::`%in%`
+  envir[["if"]]   <- base::`if`
+  envir[["=="]]   <- base::`==`
+
+  # also add the profile
+  envir[["profile"]] <- profile
+  envir
+
+}
+
+renv_renvignore_filter <- function(contents) {
+
+  profile <- renv_profile_get() %||% "default"
+
+  # look for commented lines
+  matches <- which(startsWith(contents, "#|"))
+  if (length(matches) == 0L)
+    return(contents)
+
+  # make evaluation environment up-front if needed
+  envir <- renv_renvignore_envir(profile)
+
+  # build ranges
+  starts <- c(1L, matches)
+  ends <- c(matches - 1L, length(contents))
+  ranges <- .mapply(c, list(starts, ends), NULL)
+
+  # for each range, check if the ignore rule applies
+  # (the first range always applies by default)
+  keep <- rep.int(TRUE, length(ranges))
+  for (i in 2:length(ranges)) {
+
+    # pull out code from header
+    start <- ranges[[i]][[1L]]
+    header <- substring(contents[start], 3L)
+    code <- parse(text = header, keep.source = FALSE)[[1L]]
+
+    # if it's a symbol or a string, match against current profile
+    if (is.symbol(code) || is.character(code)) {
+      keep[[i]] <- as.character(code) %in% profile
+      next
+    }
+
+    # if it's code, evaluate it within a safe environment
+    if (is.call(code)) {
+      keep[[i]] <- eval(code, envir = new.env(parent = envir))
+      next
+    }
+
+  }
+
+  # now pull out the sections which apply
+  sections <- map(ranges[keep], function(range) {
+    contents[range[[1L]]:range[[2L]]]
+  })
+
+  unlist(sections, use.names = FALSE)
+
+}
+
 # reads a .gitignore / .renvignore file, and translates the associated
 # entries into PCREs which can be combined and used during directory traversal
 renv_renvignore_parse <- function(contents, prefix = "") {
+
+  # filter .renvignore contents based on profile
+  contents <- renv_renvignore_filter(contents)
 
   # read the ignore entries
   contents <- grep("^\\s*(?:#|$)", contents, value = TRUE, invert = TRUE)
   if (empty(contents))
     return(list())
+
+  # split into regions based on profile comments
 
   # split into inclusion, exclusion patterns
   negate <- substring(contents, 1L, 1L) == "!"
@@ -93,17 +165,17 @@ renv_renvignore_parse <- function(contents, prefix = "") {
   # The exclusion of 'dir' will take precedence, and dir/matched won't
   # get a chance to apply.
   expanded <- map(include, function(rule) {
-    
+
     # check for slashes; leave unslashed rules alone
     idx <- gregexpr("(?:/|$)", rule, perl = TRUE)[[1L]]
     if (length(idx) == 1L)
       return(rule)
-  
+
     # otherwise, split into multiple rules for each sub-directory
     gsub("^/*", "/", substring(rule, 1L, idx))
-    
+
   })
-  
+
   # collapse back into a list
   include <- unique(unlist(expanded))
 

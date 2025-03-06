@@ -166,3 +166,40 @@ test_that("sub-directory inclusion rules are handled properly", {
   expect_setequal(deps$Package, "B")
 
 })
+
+test_that(".renvignore supports profile-specific entries", {
+
+  renv_tests_scope()
+
+  ensure_directory("default")
+  writeLines("library(default)", con = "default/deps.R")
+
+  ensure_directory("extra")
+  writeLines("library(extra)", con = "extra/deps.R")
+
+  contents <- heredoc('
+
+    # ignore all directories by default
+    */
+
+    # "extra" profile uses "default" folder
+    #| profile == "default"
+    !default
+
+    # "extra" profile uses "extra" folder
+    #| profile == "extra"
+    !extra
+
+  ')
+
+  writeLines(contents, con = ".renvignore")
+
+  renv_scope_envvars(RENV_PROFILE = "default")
+  deps <- dependencies(quiet = TRUE)
+  expect_equal(deps$Package, "default")
+
+  renv_scope_envvars(RENV_PROFILE = "extra")
+  deps <- dependencies(quiet = TRUE)
+  expect_equal(deps$Package, "extra")
+
+})

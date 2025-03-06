@@ -127,6 +127,28 @@ data/
 Using ignore files is important if your project contains a large number
 of files; for example, if you have a \verb{data/} directory containing many
 text files.
+\subsection{Profile-specific Ignore Rules}{
+
+Profile-specific sections are also supported in \code{.renvignore} files.
+These sections are marked with a comment header of the form \verb{#| <code>},
+where \verb{<code>} is \R code that indicates if this section of the \code{.renvignore}
+should apply. The \code{profile} variable is set to the same value as the current
+profile, or \code{"default"} if the default profile (no profile) is selected.
+See \code{vignette("profiles", package = "renv")} for more information on profiles.
+
+\if{html}{\out{<div class="sourceCode">}}\preformatted{# ignore all directories by default
+*/
+
+#| profile == "default"
+!default
+
+#| profile == "extra"
+!extra
+}\if{html}{\out{</div>}}
+
+Note that the first section in a \code{.renvignore} file implicitly applies to
+all profiles.
+}
 }
 
 \section{Errors}{

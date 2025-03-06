@@ -73,7 +73,32 @@
 #' Using ignore files is important if your project contains a large number
 #' of files; for example, if you have a `data/` directory containing many
 #' text files.
-
+#'
+#'
+#' ## Profile-specific Ignore Rules
+#'
+#' Profile-specific sections are also supported in `.renvignore` files.
+#' These sections are marked with a comment header of the form `#| <code>`,
+#' where `<code>` is \R code that indicates if this section of the `.renvignore`
+#' should apply. The `profile` variable is set to the same value as the current
+#' profile, or `"default"` if the default profile (no profile) is selected.
+#' See `vignette("profiles", package = "renv")` for more information on profiles.
+#'
+#' ```
+#' # ignore all directories by default
+#' */
+#'
+#' #| profile == "default"
+#' !default
+#'
+#' #| profile == "extra"
+#' !extra
+#' ```
+#'
+#' Note that the first section in a `.renvignore` file implicitly applies to
+#' all profiles.
+#'
+#'
 #' # Errors
 #'
 #' renv's attempts to enumerate package dependencies in your project can fail

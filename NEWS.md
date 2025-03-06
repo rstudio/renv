@@ -1,6 +1,16 @@
 
 # renv (development version)
 
+* `renv` now supports profile-specific comments within `.gitignore` and
+  `.renvignore` files. These are comments of the form `#| <code>`, where
+  `<code>` is R code which should indicate if the `.renvignore` rules should
+  apply. Typically, this should be of the form `#| profile == "extra"`, or
+  `#| profile %in% c("extra", "other")`. Note that only a small subset of
+  base R functions are available for evaluation in this context. Note that
+  the first section in a `.renvignore` implicitly applies to all profiles --
+  if you want to limit it to just the default profile, you can use
+  `#| profile == "default"` for the first line. (#1662)
+  
 * The environment variable `RENV_PATHS_VERSION` can now be used to substitute
   the R version component normally used in library / cache paths. The provided
   path can include placeholders like `%V` for the full R version including
