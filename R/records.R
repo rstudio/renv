@@ -93,21 +93,109 @@ renv_record_validate <- function(package, record) {
 
 }
 
-renv_record_format_remote <- function(record) {
+renv_record_format_remote <- function(record,
+                                      compact = FALSE,
+                                      versioned = TRUE,
+                                      pak = FALSE)
+{
+  # if we have a pkgref, we can use that directly
+  pkgref <- record$RemotePkgRef
+  if (!is.null(pkgref))
+    return(pkgref)
+  
+  # extract some of the commonly used fields up-front
+  source <- renv_record_source(record, normalize = TRUE)
+  package <- record[["Package"]]
+  version <- record[["Version"]]
 
-  remotes <- c("RemoteUsername", "RemoteRepo")
-  if (all(remotes %in% names(record)))
-    return(renv_record_format_short_remote(record))
+  # handle repository remotes
+  if (source %in% c("cran", "repository", "standard")) {
+    parts <- c(package, if (versioned) version)
+    remote <- paste(parts, collapse = "@")
+    return(remote)
+  }
 
-  paste(record$Package, record$Version, sep = "@")
+  # handle bioconductor remotes
+  if (source %in% "bioconductor") {
+    parts <- c(package, if (versioned) version)
+    suffix <- paste(parts, collapse = "@")
+    remote <- paste("bioc", suffix, sep = "::")
+    return(remote)
+  }
 
+  # handle git, svn remotes
+  if (source %in% c("git", "svn")) {
+    url <- record[["RemoteUrl"]]
+    remote <- sprintf("%s::%s", source, url)
+    return(remote)
+  }
+
+  # handle local, url remotes
+  if (source %in% c("local", "url")) {
+    url <- record[["RemoteUrl"]] %||% sub("[^:]+::", "", record[["RemotePkgRef"]])
+    remote <- sprintf("%s=%s::%s", package, source, url)
+    return(remote)
+  }
+
+  # handle other remotes; assumed to be a github-like remote
+  user   <- record[["RemoteUsername"]]
+  repo   <- record[["RemoteRepo"]]
+  type   <- record[["RemoteType"]]
+  ref    <- record[["RemoteRef"]]
+  sha    <- record[["RemoteSha"]]
+  subdir <- record[["RemoteSubdir"]]
+
+  # generate the remote base
+  remote <- paste(user, repo, sep = "/")
+
+  # include type prefix if we're not github
+  if (!identical(type %||% "github", "github"))
+    remote <- paste(type, remote, sep = "::")
+
+  # include package name if it differs from the repo name
+  if (!identical(package, repo))
+    remote <- paste(package, remote, sep = "=")
+
+  # include subdir if available -- note that renv and pak use slightly
+  # different syntax for declaring a subdir
+  if (!is.null(subdir)) {
+    sep <- if (pak) "/" else ":"
+    remote <- paste(remote, subdir, sep = sep)
+  }
+
+  # prefer using 'sha' for pak remotes
+  if (versioned && pak) {
+    remote <- paste(remote, sha %||% ref %||% "HEAD", sep = "@")
+    return(remote)
+  }
+
+  # prefer using 'ref' for compact display
+  if (compact && length(ref)) {
+    ref <- if (ref %in% c("HEAD", "main", "master")) NULL else ref
+    remote <- paste(c(remote, ref), collapse = "@")
+    return(remote)
+  }
+
+  # use sha if available
+  if (versioned && length(sha)) {
+    sha <- if (compact) substring(sha, 1L, 8L) else sha
+    remote <- paste(c(remote, sha), collapse = "@")
+    return(remote)
+  }
+
+  # fall back to using ref
+  remote <- paste(c(remote, ref), collapse = "@")
+  return(remote)
 }
 
 renv_record_format_short <- function(record, versioned = FALSE) {
 
+  if (is.null(record))
+    return(renv_record_placeholder())
+
   remotes <- c("RemoteUsername", "RemoteRepo")
   if (all(remotes %in% names(record))) {
-    remote <- renv_record_format_short_remote(record)
+    remote <- renv_record_format_remote(record, compact = TRUE)
     if (versioned)
       remote <- sprintf("%s  [%s]", record$Version %||% "<NA>", remote)
     return(remote)
@@ -117,34 +205,16 @@ renv_record_format_short <- function(record, versioned = FALSE) {
 
 }
 
-renv_record_format_short_remote <- function(record) {
+renv_record_format_pair <- function(lhs, rhs, separator = "->") {
 
-  text <- paste(record$RemoteUsername, record$RemoteRepo, sep = "/")
-
-  subdir <- record$RemoteSubdir %||% ""
-  if (nzchar(subdir))
-    text <- paste(text, subdir, sep = ":")
-
-  if (!is.null(record$RemoteRef)) {
-    ref <- record$RemoteRef
-    if (!identical(ref, "master"))
-      text <- paste(text, record$RemoteRef, sep = "@")
-  } else if (!is.null(record$RemoteSha)) {
-    sha <- substring(record$RemoteSha, 1L, 8L)
-    text <- paste(text, sha, sep = "@")
-  }
-
-  text
-
-}
-
-renv_record_format_pair <- function(lhs, rhs) {
+  placeholder <- renv_record_placeholder()
 
   # check for install / remove
-  if (is.null(lhs))
-    return(sprintf("[* -> %s]", renv_record_format_short(rhs)))
-  else if (is.null(rhs))
-    return(sprintf("[%s -> *]", renv_record_format_short(lhs)))
+  if (is.null(lhs) || is.null(rhs)) {
+    lhs <- renv_record_format_short(lhs)
+    rhs <- renv_record_format_short(rhs)
+    return(sprintf("[%s %s %s]", lhs, separator, rhs))
+  }
 
   map <- list(
     Source         = "src",
@@ -183,10 +253,10 @@ renv_record_format_pair <- function(lhs, rhs) {
     identical(lhs$Repository, rhs$Repository)
 
   if (isrepo) {
-    fmt <- "[%s -> %s]"
+    fmt <- "[%s %s %s]"
     lhsf <- renv_record_format_short(lhs)
     rhsf <- renv_record_format_short(rhs)
-    return(sprintf(fmt, lhsf, rhsf))
+    return(sprintf(fmt, lhsf, separator, rhsf))
   }
 
   # check for only sha changed
@@ -196,60 +266,60 @@ renv_record_format_pair <- function(lhs, rhs) {
 
   if (usesha) {
 
-    user <- lhs$RemoteUsername %||% "*"
-    repo <- lhs$RemoteRepo %||% "*"
+    user <- lhs$RemoteUsername %||% placeholder
+    repo <- lhs$RemoteRepo %||% placeholder
     spec <- paste(user, repo, sep = "/")
 
-    ref <- lhs$RemoteRef %||% "*"
-    if (!ref %in% c("master", "*"))
+    ref <- lhs$RemoteRef %||% placeholder
+    if (!ref %in% c("main", "master", "*"))
       spec <- paste(spec, ref, sep = "@")
 
-    fmt <- "[%s: %s -> %s]"
-    lsha <- substring(lhs$RemoteSha %||% "*", 1L, 8L)
-    rsha <- substring(rhs$RemoteSha %||% "*", 1L, 8L)
+    fmt <- "[%s: %s %s %s]"
+    lsha <- substring(lhs$RemoteSha %||% placeholder, 1L, 8L)
+    rsha <- substring(rhs$RemoteSha %||% placeholder, 1L, 8L)
 
-    return(sprintf(fmt, spec, lsha, rsha))
+    return(sprintf(fmt, spec, lsha, separator, rsha))
 
   }
 
   # check for only source change
   if (setequal(changed, "Source")) {
-    fmt <- "[%s: %s -> %s]"
-    ver <- lhs$Version %||% "*"
-    lhsf <- lhs$Source %||% "*"
-    rhsf <- rhs$Source %||% "*"
-    return(sprintf(fmt, ver, lhsf, rhsf))
+    fmt <- "[%s: %s %s %s]"
+    ver <- lhs$Version %||% placeholder
+    lhsf <- lhs$Source %||% placeholder
+    rhsf <- rhs$Source %||% placeholder
+    return(sprintf(fmt, ver, lhsf, separator, rhsf))
   }
 
   # check only version changed
   if (setequal(changed, "Version")) {
-    fmt <- "[%s -> %s]"
-    lhsf <- lhs$Version %||% "*"
-    rhsf <- rhs$Version %||% "*"
-    return(sprintf(fmt, lhsf, rhsf))
+    fmt <- "[%s %s %s]"
+    lhsf <- lhs$Version %||% placeholder
+    rhsf <- rhs$Version %||% placeholder
+    return(sprintf(fmt, lhsf, separator, rhsf))
   }
 
   # if the source has changed, highlight that
   if ("Source" %in% changed) {
-    fmt <- "[%s -> %s]"
+    fmt <- "[%s %s %s]"
     lhsf <- renv_record_format_short(lhs)
     rhsf <- renv_record_format_short(rhs)
-    return(sprintf(fmt, lhsf, rhsf))
+    return(sprintf(fmt, lhsf, separator, rhsf))
   }
 
   # otherwise, report each diff individually
   diffs <- map_chr(changed, function(field) {
 
-    lhsf <- lhs[[field]] %||% "*"
-    rhsf <- rhs[[field]] %||% "*"
+    lhsf <- lhs[[field]] %||% placeholder
+    rhsf <- rhs[[field]] %||% placeholder
 
     if (field == "RemoteSha") {
       lhsf <- substring(lhsf, 1L, 8L)
       rhsf <- substring(rhsf, 1L, 8L)
     }
 
-    fmt <- "%s: %s -> %s"
-    sprintf(fmt, map[[field]], lhsf, rhsf)
+    fmt <- "%s: %s %s %s"
+    sprintf(fmt, map[[field]], lhsf, separator, rhsf)
   })
 
   sprintf("[%s]", paste(diffs, collapse = "; "))

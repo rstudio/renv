@@ -17,8 +17,8 @@ renv_lock_acquire <- function(path) {
   # make sure parent directory exists
   ensure_parent_directory(path)
 
-  # make sure warnings are errors here
-  renv_scope_options(warn = 2L)
+  # suppress warnings in this scope
+  renv_scope_options(warn = -1L)
 
   # loop until we acquire the lock
   repeat tryCatch(
@@ -48,7 +48,7 @@ renv_lock_acquire_impl <- function(path) {
   }
 
   # attempt to create the lock
-  dir.create(path, mode = "0755")
+  dir.create(path, mode = "0755", showWarnings = FALSE)
 
 }
 
@@ -69,9 +69,9 @@ renv_lock_release <- function(path) {
 }
 
 renv_lock_release_impl <- function(path) {
-  renv_scope_options(warn = -1L)
   unlink(path, recursive = TRUE, force = TRUE)
-  rm(list = path, envir = the$lock_registry)
+  remaining <- intersect(path, ls(envir = the$lock_registry, all.names = TRUE))
+  rm(list = remaining, envir = the$lock_registry)
   renv_watchdog_notify("LockReleased", list(path = path))
 }
 

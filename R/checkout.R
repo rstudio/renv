@@ -1,7 +1,7 @@
 
 #' Checkout a repository
 #'
-#' `renv::checkout()` can be used to retrieve the latest-availabe packages from
+#' `renv::checkout()` can be used to retrieve the latest-available packages from
 #' a (set of) package repositories.
 #'
 #' `renv::checkout()` is most useful with services like the Posit's
@@ -10,6 +10,15 @@
 #' renv project. In this way, you can upgrade (or downgrade) all of the
 #' packages used in a particular renv project to the package versions
 #' provided by a particular snapshot.
+#'
+#' Note that calling `renv::checkout()` will also install the version of `renv`
+#' available as of the requested snapshot date, which might be older or lack
+#' features available in the currently-installed version of `renv`. In addition,
+#' the project's `renv/activate.R` script will be re-generated after checkout.
+#' If this is undesired, you can re-install a newer version of `renv` after
+#' checkout from your regular \R package repository.
+#'
+#' @section Caveats:
 #'
 #' If your library contains packages installed from other remote sources (e.g.
 #' GitHub), but a version of a package of the same name is provided by the
@@ -33,12 +42,16 @@
 #'   [Package Manager](https://packagemanager.rstudio.com/) instance will be
 #'   used. Ignored if `repos` is non-`NULL`.
 #'
+#' @param restart Should the \R session be restarted after the new
+#'   packages have been checked out? When `NULL` (the default), the
+#'   session is restarted if the `"restore"` action was taken.
+#'
 #' @param actions The action(s) to perform with the requested repositories.
-#'   This can either be "snapshot", in which `renv` will generate a lockfile
+#'   This can either be `"snapshot"`, in which `renv` will generate a lockfile
 #'   based on the latest versions of the packages available from `repos`, or
-#'   "restore" if you'd like to install those packages. You can use
+#'   `"restore"` if you'd like to install those packages. You can use
 #'   `c("snapshot", "restore")` if you'd like to generate a lockfile and
-#'   install those packages in the same step.
+#'   install those packages in a single call.
 #'
 #' @examples
 #' \dontrun{
@@ -47,10 +60,13 @@
 #' renv::checkout(date = "2023-01-02")
 #'
 #' # alternatively, supply the full repository path
-#' renv::checkout(repos = "https://packagemanager.rstudio.com/cran/2023-01-02")
+#' renv::checkout(repos = c(PPM = "https://packagemanager.rstudio.com/cran/2023-01-02"))
 #'
 #' # only check out some subset of packages (and their recursive dependencies)
 #' renv::checkout(packages = "dplyr", date = "2023-01-02")
+#'
+#' # generate a lockfile based on a snapshot date
+#' renv::checkout(date = "2023-01-02", actions = "snapshot")
 #'
 #' }
 #' @export
@@ -60,6 +76,7 @@ checkout <- function(repos = NULL,
                      date     = NULL,
                      clean    = FALSE,
                      actions  = "restore",
+                     restart  = NULL,
                      project  = NULL)
 {
   renv_consent_check()
@@ -82,20 +99,44 @@ checkout <- function(repos = NULL,
   remotes <- renv_checkout_remotes(packages, project)
 
   # parse these into package records
-  records <- map(remotes, renv_remotes_resolve)
+  records <- map(remotes, renv_remotes_resolve, latest = TRUE)
 
   # create a lockfile matching this request
   lockfile <- renv_lockfile_init(project)
   lockfile$Packages <- records
 
-  # perform requested actions
-  for (action in actions) {
-    case(
-      action == "snapshot" ~ renv_lockfile_write(lockfile, file = renv_lockfile_path(project)),
-      action == "restore"  ~ restore(lockfile = lockfile, clean = clean),
-      ~ stopf("unrecognized action '%s'")
-    )
+  if ("restore" %in% actions) local({
+
+    # install the requested packages
+    restore(lockfile = lockfile, clean = clean)
+
+    # make sure we can find 'renv' on the library paths
+    path <- renv_namespace_path("renv")
+    renv_scope_libpaths(c(dirname(path), renv_libpaths_all()))
+
+    # invoke activate
+    args <- c("--vanilla", "-s", "-e", shQuote("renv::activate()"))
+    r(args)
+
+    # update the renv lockfile record
+    # (note: it might not be available when running tests)
+    renv <- renv_lockfile_records(lockfile)[["renv"]]
+    if (!is.null(renv)) {
+      renv_scope_options(renv.verbose = FALSE)
+      record(records = list(renv = renv), project = project)
+    }
+
+  })
+
+  # re-generate the lockfile if requested
+  if ("snapshot" %in% actions) {
+    snapshot(project)
   }
+
+  # try to restart the session if we installed some packages
+  restart <- restart %||% "restore" %in% actions
+  if (restart)
+    renv_restart_request(project = project, reason = "renv has been updated")
 
   invisible(lockfile)
 
@@ -125,7 +166,7 @@ renv_checkout_remotes <- function(packages, project) {
   # remove ignored packages -- note we intentionally do this before
   # computing recursive dependencies as we don't want to allow users
   # to ignore a recursive dependency of a required package
-  ignored <- c("renv", renv_project_ignored_packages(project))
+  ignored <- renv_project_ignored_packages(project)
   packages <- setdiff(packages, ignored)
 
   # compute recursive dependencies for these packages

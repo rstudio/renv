@@ -44,7 +44,7 @@ the$use_libpath <- NULL
 use <- function(...,
                 lockfile = NULL,
                 library  = NULL,
-                isolate  = sandbox,
+                isolate  = TRUE,
                 sandbox  = TRUE,
                 attach   = FALSE,
                 verbose  = TRUE)
@@ -76,18 +76,40 @@ use <- function(...,
     return(invisible())
 
   # resolve the provided remotes
-  remotes <- lapply(dots, renv_remotes_resolve)
-  names(remotes) <- map_chr(remotes, `[[`, "Package")
+  records <- lapply(dots, renv_remotes_resolve, latest = TRUE)
+  names(records) <- map_chr(records, `[[`, "Package")
+
+  # remove any remotes which already appear to be installed
+  compat <- enum_lgl(records, function(package, record) {
+
+    # check if the package is installed
+    if (!renv_package_installed(package, lib.loc = library))
+      return(FALSE)
+
+    # check if the installed package is compatible
+    record <- resolve(record)
+    current <- renv_snapshot_description(package = package)
+    diff <- renv_lockfile_diff_record(record, current)
+
+    # a null diff implies the two records are compatible
+    is.null(diff)
+
+  })
+
+  # drop the already-installed compatible records
+  records <- records[!compat]
+  if (empty(records))
+    return(invisible())
 
   # install packages
   records <- local({
     renv_scope_options(renv.verbose = verbose)
-    install(packages = remotes, library = library, prompt = FALSE)
+    install(packages = records, library = library, rebuild = character(), prompt = FALSE)
   })
 
   # automatically load the requested remotes
   if (attach) {
-    enumerate(remotes, function(package, remote) {
+    enumerate(records, function(package, remote) {
       library(package, character.only = TRUE)
     })
   }
@@ -116,5 +138,12 @@ renv_use_sandbox <- function(sandbox) {
 
   renv_scope_options(renv.config.sandbox.enabled = TRUE)
   renv_sandbox_activate_impl(sandbox = sandbox)
+
+  reg.finalizer(renv_envir_self(), function(envir) {
+    tryCatch(
+      renv_sandbox_unlock(sandbox),
+      condition = identity
+    )
+  }, onexit = TRUE)
 
 }

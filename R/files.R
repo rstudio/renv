@@ -299,19 +299,27 @@ renv_file_same <- function(source, target) {
   if (identical(source, target))
     return(TRUE)
 
-  # if either file is missing, return false
-  if (!renv_file_exists(source) || !renv_file_exists(target))
-    return(FALSE)
 
   # for hard links + junction points, it's difficult to detect
   # whether the two files point to the same object; use some
   # heuristics to guess (note that these aren't perfect)
   sinfo <- renv_file_info(source)
-  tinfo <- renv_file_info(target)
-  if (!identical(c(sinfo), c(tinfo)))
+  if (is.na(sinfo$isdir))
     return(FALSE)
 
-  TRUE
+  tinfo <- renv_file_info(target)
+  if (is.na(tinfo$isdir))
+    return(FALSE)
+
+  # NOTE: we intentionally exclude 'size' for directories, as
+  # on Windows the 'size' field might be reported as 0 for
+  # junction points?
+  if (renv_platform_windows()) {
+    if (sinfo$isdir || tinfo$isdir)
+      sinfo$size <- tinfo$size <- 0L
+  }
+
+  identical(c(sinfo), c(tinfo))
 
 }
 
@@ -334,7 +342,7 @@ renv_file_backup <- function(path) {
   pattern <- sprintf(".renv-backup-%i-%s", Sys.getpid(), basename(path))
   tempfile <- tempfile(pattern, tmpdir = dirname(path))
   if (!renv_file_move(path, tempfile))
-    return(function() {})
+    stopf("couldn't rename '%s' prior to transaction", renv_path_pretty(path))
 
   # return callback that will restore if needed
   function() {
@@ -568,16 +576,13 @@ renv_file_broken_unix <- function(paths) {
   !is.na(Sys.readlink(paths)) & !file.exists(paths)
 }
 
+# unfortunately, as far as I know, there isn't a more reliable
+# way of detecting broken junction points on Windows using vanilla R
 renv_file_broken_win32 <- function(paths) {
-  # TODO: the behavior of file.exists() for a broken junction point
-  # appears to have changed in the development version of R;
-  # we have to be extra careful here...
-  if (getRversion() < "4.2.0") {
-    info <- renv_file_info(paths)
-    (info$isdir %in% TRUE) & is.na(info$mtime)
-  } else {
-    file.access(paths, mode = 0L) == 0L & !file.exists(paths)
-  }
+  time <- Sys.time()
+  map_lgl(paths, function(path) {
+    file.access(path) == 0L && !Sys.setFileTime(path, time)
+  })
 }
 
 renv_file_size <- function(path) {

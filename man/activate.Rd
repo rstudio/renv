@@ -15,7 +15,9 @@ be used. If no project is currently active, then the current working
 directory is used instead.}
 
 \item{profile}{The profile to be activated. See
-\code{vignette("profiles", package = "renv")} for more information.}
+\code{vignette("profiles", package = "renv")} for more information.
+When \code{NULL} (the default), the profile is not changed. Use
+\code{profile = "default"} to revert to the default \code{renv} profile.}
 
 \item{clean}{If \code{TRUE}, will also remove the \verb{renv/} directory and the
 lockfile.}
@@ -54,7 +56,7 @@ the \code{RENV_CONFIG_AUTOLOADER_ENABLED} envvar, e.g.
 renv::activate()
 
 # activate a separate project
-renv::activate("~/projects/analysis")
+renv::activate(project = "~/projects/analysis")
 
 # deactivate the currently-activated project
 renv::deactivate()

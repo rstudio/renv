@@ -1,25 +1,40 @@
 
 pip_freeze <- function(..., python = NULL) {
+
   python <- python %||% renv_python_active()
+  hook <- getOption("renv.hooks.pip_freeze")
+  if (is.function(hook))
+    return(hook(python = python))
+
   renv_scope_envvars(PIP_DISABLE_PIP_VERSION_CHECK = "1")
   python <- renv_path_canonicalize(python)
   args <- c("-m", "pip", "freeze")
   action <- "invoking pip freeze"
   renv_system_exec(python, args, action, ...)
+
 }
 
 pip_install <- function(modules, ..., python = NULL) {
+
   python <- python %||% renv_python_active()
+  hook <- getOption("renv.hooks.pip_install")
+  if (is.function(hook))
+    return(hook(modules = modules, python = python))
+
   renv_scope_envvars(PIP_DISABLE_PIP_VERSION_CHECK = "1")
   python <- renv_path_canonicalize(python)
   args <- c("-m", "pip", "install", "--upgrade", modules)
   action <- paste("installing", paste(shQuote(modules), collapse = ", "))
   renv_system_exec(python, args, action, ...)
+
 }
 
 pip_install_requirements <- function(requirements, ..., python = NULL) {
 
   python <- python %||% renv_python_active()
+  hook <- getOption("renv.hooks.pip_install_requirements")
+  if (is.function(hook))
+    return(hook(requirements = requirements, python = python))
 
   file <- renv_scope_tempfile("renv-requirements-", fileext = ".txt")
   writeLines(requirements, con = file)
@@ -35,6 +50,9 @@ pip_install_requirements <- function(requirements, ..., python = NULL) {
 pip_uninstall <- function(modules, ..., python = NULL) {
 
   python <- python %||% renv_python_active()
+  hook <- getOption("renv.hooks.pip_uninstall")
+  if (is.function(hook))
+    return(hook(modules = modules, python = python))
 
   renv_scope_envvars(PIP_DISABLE_PIP_VERSION_CHECK = "1")
   python <- renv_path_canonicalize(python)

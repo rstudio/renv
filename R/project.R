@@ -32,15 +32,19 @@ renv_project_get <- function(default = NULL) {
   the$project_path %||% default
 }
 
-# NOTE: RENV_PROJECT kept for backwards compatibility with RStudio
+# NOTE: 'RENV_PROJECT' kept for backwards compatibility with RStudio
 renv_project_set <- function(project) {
   the$project_path <- project
+  # https://github.com/rstudio/renv/issues/2036
+  options(renv.project.path = project)
   Sys.setenv(RENV_PROJECT = project)
 }
 
 # NOTE: 'RENV_PROJECT' kept for backwards compatibility with RStudio
 renv_project_clear <- function() {
   the$project_path <- NULL
+  # https://github.com/rstudio/renv/issues/2036
+  options(renv.project.path = NULL)
   Sys.unsetenv("RENV_PROJECT")
 }
 
@@ -102,16 +106,13 @@ renv_project_type_impl <- function(path) {
 
 }
 
-renv_project_remotes <- function(project, fields = NULL) {
+renv_project_remotes <- function(project, filter = NULL, resolve = FALSE) {
 
   descpath <- file.path(project, "DESCRIPTION")
   if (!file.exists(descpath))
     return(NULL)
 
-  # first, parse remotes (if any)
-  remotes <- renv_description_remotes(descpath)
-
-  # next, find packages mentioned in the DESCRIPTION file
+  # find packages mentioned in the DESCRIPTION file
   deps <- renv_dependencies_discover_description(
     path    = descpath,
     project = project
@@ -140,6 +141,13 @@ renv_project_remotes <- function(project, fields = NULL) {
     }
   }
 
+  # parse remotes if available
+  remotes <- renv_description_remotes(descpath)
+
+  # apply filter
+  if (!is.null(filter))
+    specs <- filter(specs, remotes)
+
   # now, try to resolve the packages
   records <- enumerate(specs, function(package, spec) {
 
@@ -153,22 +161,25 @@ renv_project_remotes <- function(project, fields = NULL) {
 
       # check for explicit version requirement
       explicit <- spec[spec$Require == "==", ]
-      if (nrow(explicit) == 0)
-        return(renv_remotes_resolve(package))
+      if (nrow(explicit)) {
+        version <- explicit$Version[[1L]]
+        if (nzchar(version)) {
+          entry <- paste(package, version, sep = "@")
+          return(renv_remotes_resolve(entry))
+        }
+      }
 
-      version <- spec$Version[[1]]
-      if (!nzchar(version))
-        return(renv_remotes_resolve(package))
-
-      entry <- paste(package, version, sep = "@")
-      renv_remotes_resolve(entry)
+      # check if we're being invoked during restore or install
+      # if so, we may want to re-use an already-existing package
+      # https://github.com/rstudio/renv/issues/2071
+      packages <- renv_restore_state(key = "packages")
+      renv_remotes_resolve(package, infer = !package %in% packages)
 
     }
 
   })
 
-  # return records
-  records
+  if (resolve) map(records, resolve) else records
 
 }
 

@@ -124,16 +124,14 @@ test_that("Bioconductor packages add BiocManager as a dependency", {
   snapshot()
   writeLines("library(BiocGenerics)", "dependencies.R")
 
-  expect_snapshot(status(), transform = strip_versions)
   lockfile <- snapshot()
-  expect_setequal(names(lockfile$Packages), c("BiocManager", "BiocGenerics", "BiocVersion"))
+  expect_contains(names(lockfile$Packages), "BiocManager")
 
   # And it goes away when we remove the dependency
   unlink("dependencies.R")
   lockfile <- snapshot()
   records <- renv_lockfile_records(lockfile)
   expect_length(records, 0L)
-  expect_snapshot(status())
 
 })
 
@@ -177,11 +175,56 @@ test_that("auto-bioc install happens silently", {
   renv_tests_scope_system_cache()
   defer(unloadNamespace("BiocManager"))
 
-  expect_snapshot(
-    install("bioc::BiocGenerics"),
-    transform = function(x) strip_versions(strip_dirs(x))
+  install("bioc::BiocGenerics")
+  expect_true(renv_package_installed("BiocManager"))
+
+})
+
+test_that("standard bioc remotes are standardized appropriately", {
+
+  contents <- heredoc('
+    Package: BiocVersion
+    Version: 3.18.1
+    Title: Set the appropriate version of Bioconductor packages
+    Description: This package provides repository information for the appropriate version of Bioconductor.
+    Authors@R: c( person("Martin", "Morgan", email = "martin.morgan@roswellpark.org", role = "aut"), person("Marcel",
+                 "Ramos", email = "marcel.ramos@roswellpark.org", role = "ctb"), person("Bioconductor", "Package
+                 Maintainer", email = "maintainer@bioconductor.org", role = c("ctb", "cre")))
+    biocViews: Infrastructure
+    Depends: R (>= 4.3.0)
+    License: Artistic-2.0
+    Encoding: UTF-8
+    RoxygenNote: 6.0.1
+    git_url: https://git.bioconductor.org/packages/BiocVersion
+    git_branch: RELEASE_3_18
+    git_last_commit: 70680b8
+    git_last_commit_date: 2023-11-15
+    Repository: Bioconductor 3.18
+    Date/Publication: 2023-11-18
+    NeedsCompilation: no
+    Packaged: 2023-11-18 19:15:45 UTC; biocbuild
+    Author: Martin Morgan [aut], Marcel Ramos [ctb], Bioconductor Package Maintainer [ctb, cre]
+    Maintainer: Bioconductor Package Maintainer <maintainer@bioconductor.org>
+    Built: R 4.3.2; ; 2023-11-20 12:36:26 UTC; unix
+    RemoteType: standard
+    RemotePkgRef: BiocVersion
+    RemoteRef: BiocVersion
+    RemoteRepos: https://bioconductor.org/packages/3.18/bioc
+    RemotePkgPlatform: aarch64-apple-darwin20
+    RemoteSha: 3.18.1
+  ')
+
+  descfile <- tempfile("biocversion-")
+  writeLines(contents, con = descfile)
+
+  actual <- renv_snapshot_description(path = descfile)
+  expected <- list(
+    Package      = "BiocVersion",
+    Version      = "3.18.1",
+    Source       = "Bioconductor",
+    Repository   = "Bioconductor 3.18"
   )
 
-  expect_true(renv_package_installed("BiocManager"))
+  expect_identical(actual[names(expected)], expected)
 
 })

@@ -29,7 +29,7 @@
 #'
 #' @param repos The repositories to use when restoring packages installed
 #'   from CRAN or a CRAN-like repository. By default, the repositories recorded
-#'   in the lockfile will be, ensuring that (e.g.) CRAN packages are
+#'   in the lockfile will be used, ensuring that (e.g.) CRAN packages are
 #'   re-installed from the same CRAN mirror.
 #'
 #'   Use `repos = getOption("repos")` to override with the repositories set
@@ -38,12 +38,32 @@
 #'
 #' @param profile The profile to be activated. See
 #'   `vignette("profiles", package = "renv")` for more information.
+#'   When `NULL` (the default), the profile is not changed. Use
+#'   `profile = "default"` to revert to the default `renv` profile.
 #'
 #' @param dependencies A vector of DESCRIPTION field names that should be used
 #'   for package dependency resolution. When `NULL` (the default), the value
 #'   of `renv::settings$package.dependency.fields` is used. The aliases
 #'   "strong", "most", and "all" are also supported.
 #'   See [tools::package_dependencies()] for more details.
+#'
+#' @param packages Either `NULL` (the default) to install all packages required
+#'  by the project, or a character vector of packages to install. renv
+#'  supports a subset of the remotes syntax used for package installation,
+#'  e.g:
+#'
+#'  * `pkg`: install latest version of `pkg` from CRAN.
+#'  * `pkg@version`: install specified version of `pkg` from CRAN.
+#'  * `username/repo`: install package from GitHub
+#'  * `bioc::pkg`: install `pkg` from Bioconductor.
+#'
+#'  See <https://remotes.r-lib.org/articles/dependencies.html> and the examples
+#'  below for more details.
+#'
+#'  renv deviates from the remotes spec in one important way: subdirectories
+#'  are separated from the main repository specification with a `:`, not `/`.
+#'  So to install from the `subdir` subdirectory of GitHub package
+#'  `username/repo` you'd use `"username/repo:subdir`.
 #'
 #' @return The project directory, invisibly. Note that this function is normally
 #'   called for its side effects.

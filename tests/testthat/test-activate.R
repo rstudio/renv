@@ -35,7 +35,7 @@ test_that("renv can bootstrap a dev version", {
   attr(version, "sha") <- "5049cef8a"
   renv_infrastructure_write_activate(version = version)
 
-  args <- c("-s", "-e", shQuote("library(renv, warn.conflicts = FALSE)"))
+  args <- c("-s", "-e", shQuote("requireNamespace(\"renv\")"))
   stdout <- stderr <- if (interactive()) "" else FALSE
   status <- system2(R(), args, stdout = stdout, stderr = stderr)
   expect_equal(status, 0L)

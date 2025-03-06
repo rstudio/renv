@@ -32,15 +32,15 @@ test_that("versions are compared as expected", {
 
 })
 
-test_that("inject inserts text at expected anchor point", {
+test_that("insert inserts text at expected anchor point", {
 
   text <- c("alpha", "beta", "gamma")
 
-  injected <- inject(text, "beta", "BETA")
-  expect_equal(injected, c("alpha", "BETA", "gamma"))
+  inserted <- insert(text, "beta", "BETA")
+  expect_equal(inserted, c("alpha", "BETA", "gamma"))
 
-  injected <- inject(text, "BETA", "BETA", "beta")
-  expect_equal(injected, c("alpha", "beta", "BETA", "gamma"))
+  inserted <- insert(text, "BETA", "BETA", "beta")
+  expect_equal(inserted, c("alpha", "beta", "BETA", "gamma"))
 
 })
 

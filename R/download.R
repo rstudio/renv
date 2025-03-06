@@ -146,8 +146,16 @@ renv_download_impl <- function(url, destfile, type = NULL, request = "GET", head
     renv_download_default
   )
 
-  # run downloader, catching errors and warnings
-  catchall(downloader(url, destfile, type, request, headers))
+  # disable warnings in this scope; it is not safe to try and catch
+  # warnings as R will try to clean up open sockets after emitting
+  # warnings, and catching a warning would hence prevent that
+  # https://bugs.r-project.org/show_bug.cgi?id=18634
+  catch(
+    withCallingHandlers(
+      downloader(url, destfile, type, request, headers),
+      warning = function(cnd) invokeRestart("muffleWarning")
+    )
+  )
 
 }
 
@@ -273,14 +281,14 @@ renv_download_curl <- function(url, destfile, type, request, headers) {
   auth <- renv_download_auth(url, type)
   if (length(auth)) {
     authtext <- paste(names(auth), auth, sep = ": ")
-    names(authtext) <- "header"
+    names(authtext) <- rep.int("header", times = length(authtext))
     fields <- c(fields, authtext)
   }
 
   # add other custom headers
   if (length(headers)) {
     lines <- paste(names(headers), headers, sep = ": ")
-    names(lines) <- "header"
+    names(lines) <- rep.int("header", times = length(lines))
     fields <- c(fields, lines)
   }
 
@@ -288,6 +296,10 @@ renv_download_curl <- function(url, destfile, type, request, headers) {
   keys <- names(fields)
   vals <- renv_json_quote(fields)
   text <- paste(keys, vals, sep = " = ")
+
+  # remove duplicated authorization headers
+  dupes <- startsWith(text, "header =") & duplicated(text)
+  text <- text[!dupes]
 
   # add in stand-along flags
   flags <- c("location", "fail", "silent", "show-error")
@@ -310,10 +322,12 @@ renv_download_curl <- function(url, destfile, type, request, headers) {
       args$push(extra)
   }
 
-  # honor R_LIBCURL_SSL_REVOKE_BEST_EFFORT
-  # https://github.com/wch/r-source/commit/f1ec503e986593bced6720a5e9099df58a4162e7
-  if (Sys.getenv("R_LIBCURL_SSL_REVOKE_BEST_EFFORT") %in% c("T", "t", "TRUE", "true"))
-    args$push("--ssl-revoke-best-effort")
+  # https://github.com/rstudio/renv/issues/1739
+  if (renv_platform_windows()) {
+    enabled <- Sys.getenv("R_LIBCURL_SSL_REVOKE_BEST_EFFORT", unset = "TRUE")
+    if (truthy(enabled))
+      args$push("--ssl-revoke-best-effort")
+  }
 
   # add in any user configuration files
   userconfig <- getOption(
@@ -458,7 +472,7 @@ renv_download_auth_type <- function(url) {
   )
 
   for (host in github_hosts)
-    if (startswith(url, host))
+    if (startsWith(url, host))
       return("github")
 
   gitlab_hosts <- c(
@@ -466,7 +480,7 @@ renv_download_auth_type <- function(url) {
   )
 
   for (host in gitlab_hosts)
-    if (startswith(url, host))
+    if (startsWith(url, host))
       return("gitlab")
 
   bitbucket_hosts <- c(
@@ -475,7 +489,7 @@ renv_download_auth_type <- function(url) {
   )
 
   for (host in bitbucket_hosts)
-    if (startswith(url, host))
+    if (startsWith(url, host))
       return("bitbucket")
 
   "unknown"
@@ -488,7 +502,7 @@ renv_download_auth <- function(url, type) {
   switch(
     type,
     bitbucket = renv_download_auth_bitbucket(),
-    github = renv_download_auth_github(),
+    github = renv_download_auth_github(url),
     gitlab = renv_download_auth_gitlab(),
     character()
   )
@@ -513,25 +527,60 @@ renv_download_auth_bitbucket <- function() {
 
 }
 
-renv_download_auth_github <- function() {
+renv_download_auth_github <- function(url) {
 
-  pat <- renv_download_auth_github_pat()
-  if (is.null(pat))
+  token <- renv_download_auth_github_token(url)
+  if (is.null(token))
     return(character())
 
-  c("Authorization" = paste("token", pat))
+  c("Authorization" = paste("token", token))
 
 }
 
-renv_download_auth_github_pat <- function() {
+renv_download_auth_github_token <- function(url) {
 
-  pat <- Sys.getenv("GITHUB_PAT", unset = NA)
-  if (!is.na(pat))
-    return(pat)
+  # check for an existing token from environment variable
+  token <- renv_bootstrap_github_token()
+  if (length(token))
+    return(token)
 
-  token <- tryCatch(gitcreds::gitcreds_get(), error = function(e) NULL)
-  if (!is.null(token))
-    return(token$password)
+  # if gitcreds is available, try to use it
+  gitcreds <-
+    getOption("renv.gitcreds.enabled", default = TRUE) &&
+    requireNamespace("gitcreds", quietly = TRUE)
+
+  if (gitcreds) {
+
+    # ensure URL has protocol pre-pended
+    url <- renv_retrieve_origin(url)
+
+    # use 'github.com' for credentials instead of 'api.github.com'
+    url <- sub("https://api.github.com", "https://github.com", url, fixed = TRUE)
+
+    # request credentials for URL
+    dlog("download", "requesting git credentials for url '%s'", url)
+    creds <- tryCatch(
+      gitcreds::gitcreds_get(url),
+      error = function(cnd) {
+        warning(conditionMessage(cnd))
+        NULL
+      }
+    )
+
+    # use if available
+    if (!is.null(creds))
+      return(creds$password)
+
+  }
+
+  # ask the user to set a GITHUB_PAT
+  if (once()) {
+    writeLines(c(
+      "- GitHub authentication credentials are not available.",
+      "- Please set GITHUB_PAT, or ensure the 'gitcreds' package is installed.",
+      "- See https://usethis.r-lib.org/articles/git-credentials.html for more details."
+    ))
+  }
 
 }
 
@@ -545,7 +594,7 @@ renv_download_auth_gitlab <- function() {
 
 }
 
-renv_download_headers <- function(url, type, headers) {
+renv_download_headers <- function(url, type = NULL, headers = NULL) {
 
   # check for compatible download method
   method <- renv_download_method()
@@ -560,7 +609,7 @@ renv_download_headers <- function(url, type, headers) {
     destfile = file,
     type     = type,
     request  = "HEAD",
-    headers  = headers
+    headers  = headers %||% renv_download_custom_headers(url)
   )
 
   # check for failure
@@ -737,9 +786,9 @@ renv_download_local_copy <- function(url, destfile, headers) {
 
   # remove file prefix (to get path to local / server file)
   url <- case(
-    startswith(url, "file:///") ~ substring(url, 8L),
-    startswith(url, "file://")  ~ substring(url, 6L),
-    startswith(url, "file:")    ~ substring(url, 6L),
+    startsWith(url, "file:///") ~ substring(url, 8L),
+    startsWith(url, "file://")  ~ substring(url, 6L),
+    startsWith(url, "file:")    ~ substring(url, 6L),
     TRUE                        ~ url
   )
 

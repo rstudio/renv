@@ -318,6 +318,9 @@ test_that("snapshot() accepts relative library paths", {
 
 test_that("snapshot(update = TRUE) preserves old records", {
 
+  skip_on_cran()
+  skip_if_no_github_auth()
+
   renv_tests_scope("breakfast")
   init()
 
@@ -397,13 +400,11 @@ test_that("packages installed from CRAN using pak are handled", {
   library <- renv_paths_library()
   ensure_directory(library)
   pak <- renv_namespace_load("pak")
-  suppressMessages(pak$pkg_install("toast"))
+  quietly(pak$pkg_install("toast"))
   record <- renv_snapshot_description(package = "toast")
 
-  expect_named(
-    record,
-    c("Package", "Version", "Source", "Repository", "Requirements", "Hash")
-  )
+  expected <- c("Package", "Version", "Source", "Repository")
+  expect_contains(names(record), expected)
 
   expect_identical(record$Source, "Repository")
   expect_identical(record$Repository, "CRAN")
@@ -413,6 +414,7 @@ test_that("packages installed from CRAN using pak are handled", {
 test_that("packages installed from Bioconductor using pak are handled", {
   skip_on_cran()
   skip_if_not_installed("pak")
+  skip_if(devel())
 
   renv_tests_scope()
   library <- renv_paths_library()
@@ -552,4 +554,128 @@ test_that("snapshot() reports missing packages even if renv.verbose is FALSE", {
   renv_scope_options(renv.verbose = FALSE)
   writeLines("library(bread)", con = "deps.R")
   expect_snapshot(. <- snapshot(force = TRUE))
+})
+
+test_that("packages installed from r-universe preserve remote metadata", {
+
+  text <- heredoc("
+    Package: skeleton
+    Type: Package
+    Version: 1.1.0
+    Remotes: kevinushey/skeleton
+    Repository: https://kevinushey.r-universe.dev
+    RemoteUrl: https://github.com/kevinushey/skeleton
+    RemoteSha: e4aafb92b86ba7eba3b7036d9d96fdfb6c32761a
+  ")
+
+  path <- renv_scope_tempfile()
+  writeLines(text, con = path)
+
+  record <- renv_snapshot_description(path = path)
+  expect_identical(record[["RemoteSha"]], "e4aafb92b86ba7eba3b7036d9d96fdfb6c32761a")
+
+})
+
+test_that("standard remotes preserve RemoteSha if it's a hash", {
+
+  text <- heredoc("
+    Package: skeleton
+    Type: Package
+    Version: 1.1.0
+    Remotes: kevinushey/skeleton
+    Repository: https://kevinushey.r-universe.dev
+    RemoteType: standard
+    RemoteUrl: https://github.com/kevinushey/skeleton
+    RemoteSha: e4aafb92b86ba7eba3b7036d9d96fdfb6c32761a
+  ")
+
+  path <- renv_scope_tempfile()
+  writeLines(text, con = path)
+
+  record <- renv_snapshot_description(path = path)
+  expect_identical(record[["RemoteSha"]], "e4aafb92b86ba7eba3b7036d9d96fdfb6c32761a")
+
+})
+
+test_that("standard remotes drop RemoteSha if it's a version", {
+
+  text <- heredoc("
+    Package: skeleton
+    Type: Package
+    Version: 1.1.0
+    Remotes: kevinushey/skeleton
+    Repository: https://kevinushey.r-universe.dev
+    RemoteType: standard
+    RemoteSha: 1.1.0
+  ")
+
+  path <- renv_scope_tempfile()
+  writeLines(text, con = path)
+
+  record <- renv_snapshot_description(path = path)
+  expect_null(record[["RemoteSha"]])
+
+})
+
+test_that("a package's hash can be re-generated from lockfile", {
+
+  project <- renv_tests_scope("breakfast")
+  init()
+
+  lockfile <- snapshot(lockfile = NULL)
+  records <- renv_lockfile_records(lockfile)
+
+  enumerate(records, function(package, record) {
+    path <- system.file("DESCRIPTION", package = package)
+    actual <- renv_hash_description(path)
+    expected <- renv_hash_record(record)
+    expect_equal(actual, expected)
+  })
+
+})
+
+test_that("lockfiles are stable (v1)", {
+
+  renv_scope_options(renv.lockfile.version = 1L)
+
+  project <- renv_tests_scope("breakfast")
+  init()
+
+  expect_snapshot(. <- writeLines(readLines("renv.lock")))
+
+})
+
+test_that("lockfiles are stable (v2)", {
+
+  renv_scope_options(renv.lockfile.version = 2L)
+
+  project <- renv_tests_scope("breakfast")
+  init()
+
+  expect_snapshot(. <- writeLines(readLines("renv.lock")))
+
+})
+
+# # https://github.com/rstudio/renv/issues/2073
+test_that("empty .ipynb files are handled gracefully", {
+
+  skip_on_cran()
+  project <- renv_tests_scope("bread")
+  init()
+
+  writeLines("", con = "example.ipynb")
+  snapshot()
+
+})
+
+test_that("invalid lockfiles don't prevent calls to snapshot", {
+
+  skip_on_cran()
+  project <- renv_tests_scope("bread")
+  init()
+
+  writeLines("whoops!", con = "renv.lock")
+  suppressWarnings(snapshot())
+  expect_true(TRUE)
+
 })

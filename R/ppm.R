@@ -75,14 +75,14 @@ renv_ppm_transform_impl <- function(url) {
     getOption("renv.ppm.repos", default = NULL)
   )
 
-  if (any(startswith(url, known))) {
+  if (any(startsWith(url, known))) {
     parts <- c(dirname(url), "__linux__", platform, basename(url))
     binurl <- paste(parts, collapse = "/")
     return(binurl)
   }
 
-  # try to query the status endpoint
-  # TODO: this could fail if the URL is a proxy back to PPM?
+  # try to query the status endpoint -- if this fails,
+  # assume the repository is not a ppm URL
   base <- dirname(dirname(url))
   status <- catch(renv_ppm_status(base))
   if (inherits(status, "error"))
@@ -206,9 +206,9 @@ renv_ppm_platform_rhel <- function(properties) {
   id <- properties$VERSION_ID
   if (is.null(id))
     return(NULL)
-  rhel_version <- ifelse(numeric_version(id) < "9", "centos", "rhel")
 
-  paste0(rhel_version, substring(id, 1L, 1L))
+  version <- ifelse(numeric_version(id) < "9", "centos", "rhel")
+  paste0(version, substring(id, 1L, 1L))
 
 }
 
@@ -217,9 +217,9 @@ renv_ppm_platform_rocky <- function(properties) {
   id <- properties$VERSION_ID
   if (is.null(id))
     return(NULL)
-  rhel_version <- ifelse(numeric_version(id) < "9", "centos", "rhel")
 
-  paste0(rhel_version, substring(id, 1L, 1L))
+  version <- ifelse(numeric_version(id) < "9", "centos", "rhel")
+  paste0(version, substring(id, 1L, 1L))
 
 }
 
@@ -228,9 +228,9 @@ renv_ppm_platform_alma <- function(properties) {
   id <- properties$VERSION_ID
   if (is.null(id))
     return(NULL)
-  rhel_version <- ifelse(numeric_version(id) < "9", "centos", "rhel")
 
-  paste0(rhel_version, substring(id, 1L, 1L))
+  version <- ifelse(numeric_version(id) < "9", "centos", "rhel")
+  paste0(version, substring(id, 1L, 1L))
 
 }
 

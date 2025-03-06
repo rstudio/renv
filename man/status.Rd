@@ -59,7 +59,7 @@ it invisibly returns a list containing the following components:
 \description{
 \code{renv::status()} reports issues caused by inconsistencies across the project
 lockfile, library, and \code{\link[=dependencies]{dependencies()}}. In general, you should strive to
-ensure that \code{status()} reports no issues, as this maximises your chances of
+ensure that \code{status()} reports no issues, as this maximizes your chances of
 successfully \code{restore()}ing the project in the future or on another machine.
 
 \code{renv::load()} will report if any issues are detected when starting an
@@ -126,6 +126,23 @@ to restore from known good state in the lockfile.
 If you're not sure which case applies, it's generally safer to call
 \code{renv::snapshot()}. If you want to rollback to an earlier known good
 status, see \code{\link[=history]{history()}} and \code{\link[=revert]{revert()}}.
+}
+
+\section{Different R Version}{
+renv will also notify you if the version of R used when the lockfile was
+generated, and the version of R currently in use, do not match. In this
+scenario, you'll need to consider:
+\itemize{
+\item Is the version of R recorded in the lockfile correct? If so, you'll want
+to ensure that version of R is installed and used when working in this
+project.
+\item Otherwise, you can call \code{renv::snapshot()} to update the version of R
+recorded in the lockfile, to match the version of R currently in use.
+}
+
+If you'd like to set the version of R recorded in a lockfile independently
+of the version of R currently in use, you can set the \code{r.version} project
+setting -- see \link{settings} for more details.
 }
 
 \examples{

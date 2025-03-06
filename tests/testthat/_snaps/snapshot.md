@@ -226,3 +226,136 @@
       
       - The lockfile is already up to date.
 
+# lockfiles are stable (v1)
+
+    Code
+      . <- writeLines(readLines("renv.lock"))
+    Output
+      {
+        "R": {
+          "Version": "<r-version>",
+          "Repositories": [
+            {
+              "Name": "CRAN",
+              "URL": "<test-repo>"
+            }
+          ]
+        },
+        "Packages": {
+          "bread": {
+            "Package": "bread",
+            "Version": "1.0.0",
+            "Source": "Repository",
+            "Repository": "CRAN",
+            "Hash": "3d2aa8db4086921058b23ce646e01c7a"
+          },
+          "breakfast": {
+            "Package": "breakfast",
+            "Version": "1.0.0",
+            "Source": "Repository",
+            "Repository": "CRAN",
+            "Requirements": [
+              "oatmeal",
+              "toast"
+            ],
+            "Hash": "0fcd2a795901b4b21326a3e35442c97c"
+          },
+          "oatmeal": {
+            "Package": "oatmeal",
+            "Version": "1.0.0",
+            "Source": "Repository",
+            "Repository": "CRAN",
+            "Hash": "1997110c04a1a14551dc791abb7cf8cf"
+          },
+          "toast": {
+            "Package": "toast",
+            "Version": "1.0.0",
+            "Source": "Repository",
+            "Repository": "CRAN",
+            "Requirements": [
+              "bread"
+            ],
+            "Hash": "d2f51ee89552a4668cbe9fc25b1f7c1e"
+          }
+        }
+      }
+
+# lockfiles are stable (v2)
+
+    Code
+      . <- writeLines(readLines("renv.lock"))
+    Output
+      {
+        "R": {
+          "Version": "<r-version>",
+          "Repositories": [
+            {
+              "Name": "CRAN",
+              "URL": "<test-repo>"
+            }
+          ]
+        },
+        "Packages": {
+          "bread": {
+            "Package": "bread",
+            "Version": "1.0.0",
+            "Source": "Repository",
+            "Type": "Package",
+            "Repository": "CRAN",
+            "License": "GPL",
+            "Description": "renv test package",
+            "Title": "renv test package",
+            "Author": "Anonymous Person <Anonymous@rstudio.org>",
+            "Maintainer": "Anonymous Person <Anonymous@rstudio.org>",
+            "Config/Needs/protein": "egg"
+          },
+          "breakfast": {
+            "Package": "breakfast",
+            "Version": "1.0.0",
+            "Source": "Repository",
+            "Type": "Package",
+            "Depends": [
+              "oatmeal",
+              "toast (>= 1.0.0)"
+            ],
+            "Suggests": [
+              "egg"
+            ],
+            "Repository": "CRAN",
+            "License": "GPL",
+            "Description": "renv test package",
+            "Title": "renv test package",
+            "Author": "Anonymous Person <Anonymous@rstudio.org>",
+            "Maintainer": "Anonymous Person <Anonymous@rstudio.org>",
+            "Config/Needs/protein": "egg"
+          },
+          "oatmeal": {
+            "Package": "oatmeal",
+            "Version": "1.0.0",
+            "Source": "Repository",
+            "Type": "Package",
+            "Repository": "CRAN",
+            "License": "GPL",
+            "Description": "renv test package",
+            "Title": "renv test package",
+            "Author": "Anonymous Person <Anonymous@rstudio.org>",
+            "Maintainer": "Anonymous Person <Anonymous@rstudio.org>"
+          },
+          "toast": {
+            "Package": "toast",
+            "Version": "1.0.0",
+            "Source": "Repository",
+            "Depends": [
+              "bread"
+            ],
+            "Type": "Package",
+            "Repository": "CRAN",
+            "License": "GPL",
+            "Description": "renv test package",
+            "Title": "renv test package",
+            "Author": "Anonymous Person <Anonymous@rstudio.org>",
+            "Maintainer": "Anonymous Person <Anonymous@rstudio.org>"
+          }
+        }
+      }
+

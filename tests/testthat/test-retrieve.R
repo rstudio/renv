@@ -264,7 +264,7 @@ test_that("explicit path to binary packages work", {
 
 test_that("remotes::install_local() records are handled", {
 
-  renv_scope_envvars(RENV_PATHS_LOCAL = "")
+  renv_scope_envvars(RENV_PATHS_LOCAL = NULL)
 
   record <- list(
     Package    = "skeleton",
@@ -382,5 +382,23 @@ test_that("retrieve handles local sources", {
     file.copy(url[1, 2], record$Source)
 
   renv_test_retrieve(record)
+
+})
+
+test_that("we can use retrieve() to download packages without installing", {
+  project <- renv_tests_scope()
+  init()
+
+  result <- retrieve(packages = "breakfast")
+  expect_false(renv_package_installed("breakfast"))
+  expect_contains(names(result), "breakfast")
+  expect_contains(names(result), "bread")
+
+  result <- retrieve(packages = "bread", destdir = ".")
+  expect_equal(result, c(bread = "./bread_1.0.0.tar.gz"))
+
+  install("bread")
+  result <- retrieve(packages = "bread", destdir = ".")
+  expect_equal(result, c(bread = "./bread_1.0.0.tar.gz"))
 
 })

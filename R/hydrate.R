@@ -87,9 +87,34 @@ hydrate <- function(packages = NULL,
   # remove 'renv' since it's managed separately
   deps$renv <- NULL
 
+  # figure out required packages which aren't installed
+  missing <- deps[!nzchar(deps)]
+
+  # also consider remotes; if a package is listed within Remotes,
+  # then choose to install that package instead of linking it
+  filter <- function(specs, remotes) {
+    
+    packages <- enum_chr(remotes, function(package, remote) {
+      
+      # if we have a package name, use it
+      if (is.character(package) && nzchar(package))
+        return(package)
+      
+      # otherwise, resolve the remote and use the package field
+      remote <- resolve(remote)
+      remote[["Package"]]
+      
+    })
+    
+    keep(specs, packages)
+    
+  }
+
+  remotes <- renv_project_remotes(project, filter = filter, resolve = TRUE)
+  missing[map_chr(remotes, `[[`, "Package")] <- ""
+
   # remove base + missing packages
   base <- renv_packages_base()
-  missing <- deps[!nzchar(deps)]
   packages <- deps[renv_vector_diff(names(deps), c(names(missing), base))]
 
   # figure out if we will copy or link
@@ -133,7 +158,7 @@ hydrate <- function(packages = NULL,
   }
 
   # attempt to install missing packages (if any)
-  missing <- renv_hydrate_resolve_missing(project, library, missing)
+  missing <- renv_hydrate_resolve_missing(project, library, remotes, missing)
 
   # we're done!
   result <- list(packages = packages, missing = missing)
@@ -143,16 +168,12 @@ hydrate <- function(packages = NULL,
 renv_hydrate_filter <- function(packages, library, update) {
 
   # run filter
-  keep <- enumerate(
-    packages,
-    renv_hydrate_filter_impl,
-    library = library,
-    update = update,
-    FUN.VALUE = logical(1)
-  )
+  keep <- enumerate(packages, function(package, path) {
+    renv_hydrate_filter_impl(package, path, library, update)
+  })
 
   # filter based on kept packages
-  packages[keep]
+  packages[as.logical(keep)]
 
 }
 
@@ -293,22 +314,20 @@ renv_hydrate_copy_packages <- function(packages, library, project) {
   copied
 }
 
-renv_hydrate_resolve_missing <- function(project, library, na) {
+renv_hydrate_resolve_missing <- function(project, library, remotes, missing) {
 
   # make sure requested library is made active
   #
   # note that we only want to place the requested library on the library path;
   # we want to ensure that all required packages are hydrated into the
-  # reqeusted library
+  # requested library
   #
   # https://github.com/rstudio/renv/issues/1177
   ensure_directory(library)
   renv_scope_libpaths(library)
 
-  # figure out which packages are missing (if any)
-  packages <- names(na)
-  installed <- installed_packages(lib.loc = library)
-  if (all(packages %in% installed$Package))
+  packages <- names(missing)
+  if (empty(packages))
     return()
 
   writef("- Resolving missing dependencies ... ")
@@ -321,19 +340,16 @@ renv_hydrate_resolve_missing <- function(project, library, na) {
       errors$push(list(package = package, error = error))
   }
 
-  # get project records, if any
-  records <- renv_project_remotes(project = project)
-
   # perform the restore
   renv_scope_restore(
     project  = project,
     library  = library,
     packages = packages,
-    records  = records,
+    records  = remotes,
     handler  = handler
   )
 
-  records <- retrieve(packages)
+  records <- renv_retrieve_impl(packages)
   renv_install_impl(records)
 
   # if we failed to restore anything, warn the user
@@ -350,7 +366,7 @@ renv_hydrate_resolve_missing <- function(project, library, na) {
       sprintf("[%s]: %s", package, short)
     })
 
-    caution_bullets(
+    bulletin(
       "The following package(s) were not installed successfully:",
       text,
       "You may need to manually download and install these packages."
@@ -400,7 +416,7 @@ renv_hydrate_report <- function(packages, na, linkable) {
   }
 
   if (length(na)) {
-    caution_bullets(
+    bulletin(
       "The following packages are used in this project, but not available locally:",
       csort(names(na)),
       "renv will attempt to download and install these packages."

@@ -9,9 +9,11 @@ update(
   ...,
   exclude = NULL,
   library = NULL,
+  type = NULL,
   rebuild = FALSE,
   check = FALSE,
   prompt = interactive(),
+  lock = FALSE,
   project = NULL
 )
 }
@@ -30,6 +32,9 @@ a specific set of excluded packages.}
 \item{library}{The \R library to be used. When \code{NULL}, the active project
 library will be used instead.}
 
+\item{type}{The type of package to install ("source" or "binary"). Defaults
+to the value of \code{getOption("pkgType")}.}
+
 \item{rebuild}{Force packages to be rebuilt, thereby bypassing any installed
 versions of the package available in the cache? This can either be a
 boolean (indicating that all installed packages should be rebuilt), or a
@@ -41,6 +46,9 @@ what updates are available, without actually installing those updates.}
 
 \item{prompt}{Boolean; prompt the user before taking any action? For backwards
 compatibility, \code{confirm} is accepted as an alias for \code{prompt}.}
+
+\item{lock}{Boolean; update the \code{renv.lock} lockfile after the successful
+installation of the requested packages?}
 
 \item{project}{The project directory. If \code{NULL}, then the active project will
 be used. If no project is currently active, then the current working

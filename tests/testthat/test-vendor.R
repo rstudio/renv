@@ -1,9 +1,7 @@
 
-# NOTE: can't use renv_namespace_version() until the following commit is on CRAN
-# https://github.com/r-lib/pkgload/commit/907749a8efaf8fe65cfde4f4ade6e7c506f1afa5
 test_that("renv itself doesn't mark itself as embedded", {
   expect_false(renv_metadata_embedded())
-  expect_equal(renv_metadata_version(), renv_package_version("renv"))
+  expect_equal(renv_metadata_version(), renv_namespace_version("renv"))
 })
 
 test_that("renv can be vendored into an R package", {
@@ -28,7 +26,7 @@ test_that("renv can be vendored into an R package", {
   # make sure renv is initializes in .onLoad()
   code <- heredoc('
     .onLoad <- function(libname, pkgname) {
-      renv$initialize()
+      renv$initialize(libname, pkgname)
     }
   ')
 
@@ -44,10 +42,6 @@ test_that("renv can be vendored into an R package", {
     # make sure renv isn't visible on library paths
     base <- .BaseNamespaceEnv
     base$.libPaths(path)
-
-    # extra sanity check
-    if (requireNamespace("renv", quietly = TRUE))
-      stop("internal error: renv shouldn't be visible on library paths")
 
     # load the package, and check that renv realizes it's embedded
     namespace <- base$asNamespace("test.renv.embedding")

@@ -8,7 +8,7 @@ test_that("renv/profile is read and used to select a profile", {
   init(profile = "testing")
 
   # make sure we have renv installed for this test
-  libpaths <- the$libpaths[[".libPaths()"]]
+  libpaths <- the$default_libpaths[[".libPaths()"]]
   source <- find.package("renv", lib.loc = libpaths)
   renv_imbue_self(project)
 

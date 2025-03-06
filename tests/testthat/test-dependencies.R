@@ -175,6 +175,12 @@ test_that("packages referenced by modules::import() are discovered", {
   expect_setequal(deps$Package, c("A", "B", "C", "D", "G", "H", "modules"))
 })
 
+# https://github.com/rstudio/renv/issues/2007
+test_that("module without parameter doesn't give an error", {
+  deps <- dependencies("resources/modules-empty.R")
+  expect_setequal(deps$Package, character())
+})
+
 test_that("dependencies specified in R Markdown site generators are found", {
 
   renv_tests_scope()
@@ -298,8 +304,14 @@ test_that("renv.ignore=FALSE, eval=TRUE is handled", {
   expect_false("a" %in% deps$Package)
 })
 
+test_that("eval=<expr> is treated as truthy", {
+  deps <- dependencies("resources/chunk-eval.Rmd", quiet = TRUE)
+  expect_true("A" %in% deps$Package)
+  expect_false("a" %in% deps$Package)
+})
+
 test_that("piped expressions can be parsed for dependencies", {
-  deps <- dependencies("resources/magrittr.R")
+  deps <- dependencies(renv_tests_path("resources/magrittr.R"))
   expect_setequal(deps$Package, c("A", "B", "C"))
 })
 
@@ -421,9 +433,9 @@ test_that("dependencies ignore pseudo-code in YAML metadata", {
 })
 
 test_that("~/.Rprofile included in dev dependencies when config$user.profile()", {
-  path <- renv_scope_tempfile("renv-profile")
+  path <- renv_scope_tempfile("renv-profile", fileext = ".R")
   writeLines("library(utils)", path)
-  renv_scope_envvars(R_PROFILE_USER = path)
+  renv_scope_envvars(R_PROFILE_USER = normalizePath(path, winslash = "/"))
   renv_scope_options(renv.config.user.profile = TRUE)
 
   renv_tests_scope()
@@ -499,4 +511,147 @@ test_that("dependencies() can parse NAMESPACE files", {
   deps <- dependencies()
   expect_setequal(deps$Package, c("graphics", "tools", "utils"))
 
+})
+
+test_that("dependencies() handles upper-case engine names", {
+
+  document <- heredoc("
+    ```{R}
+    library(A)
+    ```
+  ")
+
+  file <- renv_scope_tempfile(fileext = ".Rmd")
+  writeLines(document, con = file)
+  deps <- dependencies(file, quiet = TRUE)
+  expect_true("A" %in% deps$Package)
+
+})
+
+test_that("dependencies() ignores R when specified in a DESCRIPTION file", {
+
+  project <- renv_tests_scope()
+  desc <- heredoc("
+    Type: Package
+    Package: test
+    Version: 0.1.0
+    Depends: R (>= 4.0.0)
+  ")
+  writeLines(desc, con = "DESCRIPTION")
+
+  deps <- dependencies(quiet = TRUE)
+  expect_false("R" %in% deps$Package)
+
+})
+
+test_that("dependencies() with different extensions", {
+
+  project <- renv_tests_scope()
+
+  writeLines("library(A)", con = "a.R")
+  writeLines("```{r}\nlibrary(B)\n```", con = "a.Rmd")
+
+  deps <- dependencies(quiet = TRUE)
+  expect_true("A" %in% deps$Package)
+  expect_true("B" %in% deps$Package)
+
+})
+
+test_that("dependencies() can infer an svglite dependency from ggsave", {
+
+  document <- heredoc('
+    library(ggplot2)
+    ggsave(filename = "test.svg")
+  ')
+
+  file <- renv_scope_tempfile("renv-test-", fileext = ".R")
+  writeLines(document, con = file)
+
+  deps <- dependencies(file, quiet = TRUE)
+  expect_contains(deps$Package, "svglite")
+
+})
+
+test_that("dependencies() can handle calls", {
+
+  document <- heredoc('
+    ```{r}
+    #| eval = c(1, 2)
+    ```
+  ')
+
+  file <- renv_scope_tempfile("renv-test-", fileext = ".Rmd")
+  writeLines(document, con = file)
+
+  expect_no_warning(
+    dependencies(file, quiet = TRUE)
+  )
+
+})
+
+test_that("dependencies() detects usages of Junit test reporters", {
+
+  check <- function(document) {
+    file <- renv_scope_tempfile("renv-test-", fileext = ".R")
+    writeLines(document, con = file)
+    deps <- dependencies(file, quiet = TRUE)
+    expect_contains(deps$Package, "xml2")
+  }
+
+  check("JunitReporterMock <- R6::R6Class(\"JunitReporterMock\", inherit = JunitReporter)")
+  check("JunitReporter$new()")
+  check("testthat::test_dir(reporter = JunitReporter)")
+  check("testthat::test_dir(reporter = \"junit\")")
+
+})
+
+test_that("dependencies() detects usage of ragg_png device", {
+
+  check <- function(document) {
+
+    file <- renv_scope_tempfile("renv-test-", fileext = ".R")
+    writeLines(document, con = file)
+
+    deps <- dependencies(file, quiet = TRUE)
+    expect_contains(deps$Package, "ragg")
+  }
+
+  check("opts_chunk$set(dev = \"ragg_png\")")
+  check("knitr::opts_chunk$set(dev = \"ragg_png\")")
+
+})
+
+test_that("dependencies() does not create 'object' in parent environment", {
+  result <- dependencies("resources/code.R", quiet = TRUE)
+  expect_false(exists("object", envir = environment(), inherits = FALSE))
+})
+
+test_that("R scripts that appear destined for knitr::spin() are detected", {
+  result <- dependencies("resources/knitr-spin.R", quiet = TRUE)
+  expect_contains(result$Package, c("knitr", "rmarkdown"))
+})
+
+test_that("renv infers a dev. dependency on lintr", {
+  project <- renv_tests_scope()
+  file.create(".lintr")
+  deps <- dependencies(quiet = TRUE, dev = TRUE)
+  expect_contains(deps$Package, "lintr")
+})
+
+test_that("https://github.com/rstudio/renv/issues/2052", {
+
+  renv_scope_tempdir()
+  dir.create("subdir")
+  writeLines("library(A)", con = "subdir/test.R")
+  writeLines(c("*", "!/**/", "!*.*"), con = ".renvignore")
+  deps <- dependencies(quiet = TRUE, root = getwd())
+  expect_contains(deps$Package, "A")
+
+})
+
+test_that("https://github.com/rstudio/renv/issues/2047", {
+  renv_tests_scope()
+  writeLines("citation(\"breakfast\")", con = "_deps.R")
+  init()
+  expect_true(renv_package_installed("breakfast"))
 })

@@ -3,7 +3,7 @@
 \name{embed}
 \alias{embed}
 \alias{use}
-\title{Capture and re-use dependencies within a \code{.R} or \code{.Rmd}}
+\title{Capture and re-use dependencies within a \code{.R}, \code{.Rmd} or \code{.qmd}}
 \usage{
 embed(path = NULL, ..., lockfile = NULL, project = NULL)
 
@@ -11,7 +11,7 @@ use(
   ...,
   lockfile = NULL,
   library = NULL,
-  isolate = sandbox,
+  isolate = TRUE,
   sandbox = TRUE,
   attach = FALSE,
   verbose = TRUE
@@ -70,7 +70,7 @@ generates and inserts a call to \code{use()} that looks something like this:
 )
 }\if{html}{\out{</div>}}
 
-Then, when you next run your R script or render your \code{.Rmd}, \code{use()} will:
+Then, when you next run your R script or render your \code{.Rmd} or \code{.qmd}, \code{use()} will:
 \enumerate{
 \item Create a temporary library path.
 \item Install the requested packages and their recursive dependencies into that

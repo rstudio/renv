@@ -131,7 +131,7 @@ renv_clean_library_tempdirs <- function(project, prompt) {
   # nocov start
   if (prompt || renv_verbose()) {
 
-    caution_bullets("The following directories will be removed:", bad)
+    bulletin("The following directories will be removed:", bad)
 
     if (prompt && !proceed())
       cancel()
@@ -177,7 +177,7 @@ renv_clean_system_library <- function(project, prompt) {
   # nocov start
   if (prompt || renv_verbose()) {
 
-    caution_bullets(
+    bulletin(
       "The following non-system packages are installed in the system library:",
       packages,
       c(
@@ -207,9 +207,12 @@ renv_clean_unused_packages <- function(project, prompt) {
 
   # find packages installed in the project library
   library <- renv_paths_library(project = project)
-  installed <- list.files(library)
+  installed <- list.files(library, pattern = renv_regexps_package_name())
   if (empty(installed))
     return(ntd())
+  
+  # ignore 'pak' if we're configured to use it
+  installed <- setdiff(installed, if (config$pak.enabled()) "pak")
 
   # find packages used in the project and their recursive dependencies
   packages <- renv_snapshot_dependencies(project, dev = TRUE)
@@ -224,7 +227,7 @@ renv_clean_unused_packages <- function(project, prompt) {
   # nocov start
   if (prompt || renv_verbose()) {
 
-    caution_bullets(
+    bulletin(
       c(
         "The following packages are installed in the project library,",
         "but appear to be no longer used in your project."
@@ -269,7 +272,7 @@ renv_clean_package_locks <- function(project, prompt) {
   # nocov start
   if (prompt || renv_verbose()) {
 
-    caution_bullets(
+    bulletin(
       "The following stale package locks were discovered in your library:",
       basename(old),
       "These locks will be removed."
@@ -303,7 +306,7 @@ renv_clean_cache <- function(project, prompt) {
   missing <- !file.exists(projlist)
   if (any(missing)) {
 
-    caution_bullets(
+    bulletin(
       "The following projects are monitored by renv, but no longer exist:",
       projlist[missing],
       "These projects will be removed from renv's project list."
@@ -339,7 +342,7 @@ renv_clean_cache <- function(project, prompt) {
 
   if (prompt || renv_verbose()) {
 
-    caution_bullets(
+    bulletin(
       "The following packages are installed in the cache but no longer used:",
       renv_cache_format_path(diff),
       "These packages will be removed."

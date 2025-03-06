@@ -69,7 +69,7 @@ newly-launched R sessions within renv projects.
 To activate the "default" profile used by a project, use:
 
 ```
-renv::activate(profile = NULL)
+renv::activate(profile = "default")
 ```
 
 

@@ -8,7 +8,13 @@ test_that("use() works as intended", {
 
   oldpaths <- .libPaths()
 
-  use("toast", isolate = FALSE, attach = FALSE, verbose = FALSE, sandbox = FALSE)
+  use(
+    package = "toast",
+    isolate = FALSE,
+    attach  = FALSE,
+    verbose = FALSE,
+    sandbox = FALSE
+  )
 
   newpaths <- .libPaths()
 

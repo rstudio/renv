@@ -45,6 +45,7 @@ reference:
 - title: Lockfile Management
   contents:
   - lockfiles
+  - lockfile_validate
   - record
   - remote
   - modify
@@ -68,13 +69,14 @@ reference:
   - consent
   - diagnostics
   - run
+  - sysreqs
 
 - title: internal
   contents:
-  - renv-package
-  - sandbox
-  - imbue
   - graph
+  - imbue
+  - renv-package
+  - retrieve
   - sandbox
 
 articles:

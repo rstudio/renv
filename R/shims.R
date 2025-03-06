@@ -3,9 +3,20 @@ the$shims <- new.env(parent = emptyenv())
 
 # determine whether we can safely handle a call to install.packages()
 renv_shim_install_packages_compatible <- function(matched) {
+
+  # check if the user has only specified arguments which we know how to handle
   ok <- c("", "dependencies", "pkgs", "lib", "repos", "type")
   unhandled <- setdiff(names(matched), ok)
-  length(unhandled) == 0L
+  if (length(unhandled) != 0L)
+    return(FALSE)
+
+  # if 'repos' is explicitly NULL, assume this is a request for local install
+  if ("repos" %in% names(matched) && is.null(matched[["repos"]]))
+    return(FALSE)
+
+  # ok, we can handle it
+  TRUE
+
 }
 
 renv_shim_install_packages <- function(pkgs, ...) {

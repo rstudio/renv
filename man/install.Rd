@@ -7,6 +7,7 @@
 install(
   packages = NULL,
   ...,
+  include = NULL,
   exclude = NULL,
   library = NULL,
   type = NULL,
@@ -14,6 +15,9 @@ install(
   repos = NULL,
   prompt = interactive(),
   dependencies = NULL,
+  verbose = NULL,
+  transactional = NULL,
+  lock = FALSE,
   project = NULL
 )
 }
@@ -40,6 +44,11 @@ So to install from the \code{subdir} subdirectory of GitHub package
 \item{...}{Unused arguments, reserved for future expansion. If any arguments
 are matched to \code{...}, renv will signal an error.}
 
+\item{include}{Packages which should be installed. \code{include} can
+occasionally be useful when you'd like to call \code{renv::install()} with
+no arguments, but restrict package installation to only some subset
+of dependencies in the project.}
+
 \item{exclude}{Packages which should not be installed. \code{exclude} is useful
 when using \code{renv::install()} to install all dependencies in a project,
 except for a specific set of packages.}
@@ -57,7 +66,7 @@ vector of package names indicating which packages should be rebuilt.}
 
 \item{repos}{The repositories to use when restoring packages installed
 from CRAN or a CRAN-like repository. By default, the repositories recorded
-in the lockfile will be, ensuring that (e.g.) CRAN packages are
+in the lockfile will be used, ensuring that (e.g.) CRAN packages are
 re-installed from the same CRAN mirror.
 
 Use \code{repos = getOption("repos")} to override with the repositories set
@@ -72,6 +81,19 @@ for package dependency resolution. When \code{NULL} (the default), the value
 of \code{renv::settings$package.dependency.fields} is used. The aliases
 "strong", "most", and "all" are also supported.
 See \code{\link[tools:package_dependencies]{tools::package_dependencies()}} for more details.}
+
+\item{verbose}{Boolean; report output from \verb{R CMD build} and \verb{R CMD INSTALL}
+during installation? When \code{NULL} (the default), the value of \code{config$install.verbose()}
+will be used. When \code{FALSE}, installation output will be emitted only if
+a package fails to install.}
+
+\item{transactional}{Whether or not to use a 'transactional' package
+installation. See \strong{Transactional Restore} in \code{\link[=restore]{restore()}} for
+more details. When \code{NULL} (the default), the value of the
+\code{install.transactional} \code{\link{config}} option will be used.}
+
+\item{lock}{Boolean; update the \code{renv.lock} lockfile after the successful
+installation of the requested packages?}
 
 \item{project}{The project directory. If \code{NULL}, then the active project will
 be used. If no project is currently active, then the current working

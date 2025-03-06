@@ -25,24 +25,17 @@ renv_lockfile_init_r_version <- function(project) {
 
 }
 
-renv_lockfile_init_r_repos <- function(project) {
+renv_lockfile_init_r_repos <- function(project, repos = getOption("repos")) {
 
-  repos <- getOption("repos")
-
-  # save names
-  nms <- names(repos)
-
-  # force as character
-  repos <- as.character(repos)
-
-  # clear RStudio attribute
+  # unset the RStudio attribute if it was set
   attr(repos, "RStudio") <- NULL
 
-  # set a default URL
-  repos[repos == "@CRAN@"] <- getOption(
-    "renv.repos.cran",
-    "https://cloud.r-project.org"
-  )
+  # make sure it's a character vector in this scope
+  repos <- convert(repos, "character")
+
+  # make sure a CRAN repository is set
+  cran <- getOption("renv.repos.cran", "https://cloud.r-project.org")
+  repos[repos == "@CRAN@"] <- cran
 
   # remove PPM bits from URL
   if (renv_ppm_enabled()) {
@@ -50,13 +43,8 @@ renv_lockfile_init_r_repos <- function(project) {
     repos <- sub(pattern, "/", repos)
   }
 
-  # force as list
-  repos <- as.list(repos)
-
-  # ensure names
-  names(repos) <- nms
-
-  repos
+  # all done; return as list
+  convert(repos, "list")
 
 }
 
@@ -134,7 +122,7 @@ renv_lockfile_save <- function(lockfile, project) {
 }
 
 renv_lockfile_load <- function(project, strict = FALSE) {
-
+  
   path <- renv_lockfile_path(project)
   if (file.exists(path))
     return(renv_lockfile_read(path))
@@ -144,6 +132,13 @@ renv_lockfile_load <- function(project, strict = FALSE) {
       "This project does not contain a lockfile.",
       i = "Have you called `snapshot()` yet?"
     ))
+  }
+
+  manifest <- file.path(project, "manifest.json")
+  if (file.exists(manifest)) {
+    caution("No lockfile found; creating from `manifest.json`.")
+    renv_lockfile_from_manifest(manifest, path)
+    return(renv_lockfile_read(path))
   }
 
   renv_lockfile_init(project = project)
@@ -258,9 +253,9 @@ renv_lockfile_compact <- function(lockfile) {
   records <- renv_lockfile_records(lockfile)
   remotes <- map_chr(records, renv_record_format_remote)
 
-  remotes <- csort(remotes)
+  remotes <- remotes[sort(names(remotes))]
 
-  formatted <- sprintf("  \"%s\"", remotes)
+  formatted <- sprintf("  %s = \"%s\"", format(names(remotes)), remotes)
   joined <- paste(formatted, collapse = ",\n")
 
   all <- c("renv::use(", joined, ")")

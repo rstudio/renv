@@ -18,6 +18,12 @@ renv_properties_read <- function(path = NULL,
 
   # split into key / value pairs
   index <- regexpr(delimiter, parts, fixed = TRUE)
+
+  # if we couldn't match a delimiter, treat the whole thing as a key
+  missed <- index == -1
+  index[missed] <- nchar(parts)[missed] + 1L
+
+  # perform the subsetting
   keys <- substring(parts, 1L, index - 1L)
   vals <- substring(parts, index + 1L)
 

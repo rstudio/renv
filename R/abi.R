@@ -5,7 +5,7 @@ renv_abi_check <- function(packages = NULL,
                            project  = NULL)
 {
   if (renv_platform_windows()) {
-    writef("- ABI conflict checks are not yet implemented on Windows.")
+    writef("- ABI conflict checks are not available on Windows.")
     return()
   }
 
@@ -30,10 +30,10 @@ renv_abi_check <- function(packages = NULL,
     )
   })
 
-  # report problmes
+  # report problems
   data <- problems$data()
   if (empty(data)) {
-    fmt <- "- No ABI conflicts were detected in the set of installed packages."
+    fmt <- "- No ABI problems were detected in the set of installed packages."
     writef(fmt)
     return(invisible(data))
   }
@@ -45,7 +45,7 @@ renv_abi_check <- function(packages = NULL,
   reasons <- unique(tbl$reason)
   if ("Rcpp_precious_list" %in% reasons) {
     packages <- sort(unique(tbl$package[tbl$reason == "Rcpp_precious_list"]))
-    caution_bullets(
+    bulletin(
       "The following packages were built against a newer version of Rcpp than is currently available:",
       packages,
       c(
@@ -58,6 +58,27 @@ renv_abi_check <- function(packages = NULL,
     )
   }
 
+  if ("missing" %in% reasons) {
+
+    missing <- tbl[tbl$reason == "missing", ]
+    bulletin(
+      "The following required system libraries are unavailable:",
+      unique(missing$dependency),
+      c(
+        "These system libraries may need to be re-installed.",
+        "Alternatively, you may need to re-install the packages which depend on these libraries."
+      )
+    )
+
+    # now, for each dependency, list the packages which require it
+    for (dep in unique(missing$dependency)) {
+      caution(header(sprintf("%s (required by)", dep)))
+      caution(paste("-", sort(tbl$package[missing$dependency == dep])))
+      caution()
+    }
+
+  }
+
   invisible(tbl)
 
 }
@@ -66,6 +87,12 @@ renv_abi_check_impl <- function(package, problems) {
 
   # find path to package
   pkgpath <- renv_package_find(package)
+
+  # check for dependency issues
+  if (renv_platform_macos())
+    renv_abi_deps_macos(package, problems)
+  else if (renv_platform_linux())
+    renv_abi_deps_linux(package, problems)
 
   # look for an associated shared object
   shlib <- renv_package_shlib(pkgpath)
@@ -163,5 +190,46 @@ renv_abi_packages <- function(project, libpaths) {
 
   # return package names
   names(lockfile$Packages)
+
+}
+
+renv_abi_deps_macos <- function(package, problems) {
+  # TODO
+}
+
+renv_abi_deps_linux <- function(package, problems) {
+
+  # get shlib path, if any
+  shlib <- renv_package_shlib(package)
+  if (!file.exists(shlib))
+    return()
+
+  # attempt to read dependencies
+  output <- renv_system_exec("ldd", renv_shell_path(shlib))
+
+  # look for 'not found' entries
+  idx <- regexpr(" => not found", output, fixed = TRUE)
+  matches <- substring(output, 2L, idx - 1L)
+
+  # drop duplicates, empty strings
+  names <- unique(matches[nzchar(matches)])
+  if (empty(names))
+    return()
+
+  # add problems
+  for (name in names) {
+
+    fmt <- "%s %s (%s)"
+    package <- sprintf(fmt, package, renv_package_version(package), shlib)
+
+    problem <- renv_abi_problem(
+      package    = package,
+      dependency = name,
+      reason     = "missing"
+    )
+
+    problems$push(problem)
+
+  }
 
 }

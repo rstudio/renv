@@ -24,10 +24,12 @@ diagnostics <- function(project = NULL) {
   renv_scope_options(renv.verbose = TRUE)
 
   reporters <- list(
+    renv_diagnostics_os,
     renv_diagnostics_session,
     renv_diagnostics_project,
     renv_diagnostics_status,
     renv_diagnostics_packages,
+    renv_diagnostics_sysreqs,
     renv_diagnostics_abi,
     renv_diagnostics_profile,
     renv_diagnostics_settings,
@@ -45,6 +47,19 @@ diagnostics <- function(project = NULL) {
   for (reporter in reporters) {
     tryCatch(reporter(project), error = renv_error_handler)
     writef()
+  }
+
+}
+
+renv_diagnostics_os <- function(project) {
+
+  if (renv_platform_linux()) {
+    releases <- list.files("/etc", pattern = "-release$", full.names = TRUE)
+    for (release in releases) {
+      writef(header(release))
+      writeLines(readLines(release))
+      writef()
+    }
   }
 
 }
@@ -128,6 +143,21 @@ renv_diagnostics_packages <- function(project) {
   fmt <- "[%s]: %s"
   writef()
   writef(fmt, format(seq_along(levels(flibpaths))), format(levels(flibpaths)))
+
+}
+
+renv_diagnostics_sysreqs <- function(project) {
+
+  if (!renv_platform_linux())
+    return()
+
+  writef(header("R System Requirements"))
+
+  lockfile <- renv_lockfile_create(project)
+  records <- renv_lockfile_records(lockfile)
+  sysreqs <- map(records, `[[`, "SystemRequirements")
+  ok <- renv_sysreqs_check(sysreqs, prompt = FALSE)
+  invisible(ok)
 
 }
 
@@ -260,6 +290,7 @@ renv_diagnostics_envvars <- function(project) {
   useful <- c(
     "R_LIBS_USER", "R_LIBS_SITE", "R_LIBS",
     "HOME", "LANG", "MAKE",
+    grep("_proxy", names(envvars), ignore.case = TRUE, value = TRUE),
     grep("^RENV_", names(envvars), value = TRUE)
   )
 

@@ -7,10 +7,23 @@ numeric_version <- function(x, strict = TRUE) {
 }
 
 sprintf <- function(fmt, ...) {
-  if (nargs() == 1L)
-    fmt
-  else
-    base::sprintf(fmt, ...)
+  message <- if (nargs() == 1L) fmt else base::sprintf(fmt, ...)
+  ansify(message)
+}
+
+substring <- function(text, first, last = .Machine$integer.max) {
+
+  if (!is.character(text))
+    text <- as.character(text)
+
+  n <- length(text)
+  if (n == 0L)
+    return(text)
+
+  m <- max(n, length(first), length(last))
+  text <- rep_len(text, length.out = m)
+  substr(text, first, last)
+
 }
 
 unique <- function(x) {
@@ -43,3 +56,10 @@ untar <- function(tarfile,
   result
 }
 
+# prefer writing files as UTF-8
+writeLines <- function(text, con = stdout(), sep = "\n", useBytes = FALSE) {
+  if (is.character(con) && missing(useBytes))
+    base::writeLines(enc2utf8(text), con = con, sep = sep, useBytes = TRUE)
+  else
+    base::writeLines(text, con, sep, useBytes)
+}

@@ -17,6 +17,7 @@ test_that("update() finds packages requiring updates from CRAN", {
 test_that("update() can upgrade GitHub packages", {
 
   skip_if(getRversion() < "3.5.3")
+  skip_on_cran()
   skip_if_no_github_auth()
   skip_slow()
 
@@ -48,6 +49,7 @@ test_that("update() can upgrade GitHub packages", {
 test_that("update() can upgrade Git packages", {
 
   skip_if(getRversion() < "3.5.3")
+  skip_on_cran()
   skip_if_no_github_auth()
   skip_slow()
 
@@ -89,6 +91,8 @@ test_that("update() can upgrade Git packages", {
 
 test_that("can upgrade bitbucket", {
 
+  skip_on_cran()
+
   latest <- outdated <- renv_remotes_resolve("bitbucket::kevinushey/skeleton")
   outdated$Version <- "1.0.0"
   outdated$RemoteSha <- "5fd5d3b"
@@ -102,6 +106,8 @@ test_that("can upgrade bitbucket", {
 
 test_that("can upgrade gitlab", {
 
+  skip_on_cran()
+
   latest <- outdated <- renv_remotes_resolve("gitlab::kevinushey/skeleton")
   outdated$Version <- "1.0.0"
   outdated$RemoteSha <- "5fd5d3b"
@@ -110,5 +116,27 @@ test_that("can upgrade gitlab", {
 
   expect_equal(updated$skeleton$Version, latest$Version)
   expect_equal(updated$skeleton$RemoteSha, latest$RemoteSha)
+
+})
+
+test_that("we guard against invalid mc.cores values", {
+
+  skip_on_windows()
+  renv_scope_options(renv.config.updates.parallel = TRUE)
+
+  local({
+    renv_scope_options(mc.cores = 4L)
+    expect_equal(renv_parallel_cores(), 4L)
+  })
+
+  local({
+    renv_scope_options(mc.cores = NA)
+    expect_equal(renv_parallel_cores(), 1L)
+  })
+
+  local({
+    renv_scope_options(mc.cores = "oops")
+    expect_equal(renv_parallel_cores(), 1L)
+  })
 
 })

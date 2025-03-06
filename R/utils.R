@@ -102,8 +102,13 @@ catch <- function(expr) {
 
 catchall <- function(expr) {
   tryCatch(
-    withCallingHandlers(expr, condition = renv_error_capture),
-    condition = renv_error_tag
+    withCallingHandlers(
+      expr = expr,
+      error = renv_error_capture,
+      warning = renv_error_capture
+    ),
+    error = renv_error_tag,
+    warning = renv_error_tag
   )
 }
 
@@ -119,6 +124,15 @@ ask <- function(question, default = FALSE) {
     return(default)
 
   if (!interactive())
+    return(default)
+
+  # can't prompt for input when autoloading; code run from `.Rprofile` should
+  # not attempt to interact with the user
+  # from `?Startup`:
+  # "It is not intended that there be interaction with the user during startup
+  # code. Attempting to do so can crash the R process."
+  # https://github.com/rstudio/renv/issues/1879
+  if (autoloading())
     return(default)
 
   # be verbose in this scope, as we're asking the user for input
@@ -167,13 +181,11 @@ proceed <- function(default = TRUE) {
 menu <- function(choices, title, default = 1L) {
 
   testing <- getOption("renv.menu.choice", integer())
-  if (length(testing)) {
-    selected <- testing[[1]]
-    options(renv.menu.choice = testing[-1])
+  selected <- if (length(testing)) {
+    options(renv.menu.choice = testing[-1L])
+    testing[[1L]]
   } else if (testing()) {
-    selected <- default
-  } else {
-    selected <- NULL
+    default
   }
 
   if (!is.null(selected)) {
@@ -203,7 +215,7 @@ menu <- function(choices, title, default = 1L) {
 
 # nocov end
 
-inject <- function(contents,
+insert <- function(contents,
                    pattern,
                    replacement,
                    anchor = NULL,
@@ -271,6 +283,11 @@ visited <- function(name, envir) {
   value <- envir[[name]] %||% FALSE
   envir[[name]] <- TRUE
   value
+}
+
+zmap <- function(x, f) {
+  callback <- function(x) do.call(f, x)
+  lapply(x, callback)
 }
 
 rowapply <- function(X, FUN, ...) {
@@ -376,21 +393,6 @@ nth <- function(x, i) {
   x[[i]]
 }
 
-heredoc <- function(text, leave = 0) {
-
-  # remove leading, trailing whitespace
-  trimmed <- gsub("^\\s*\\n|\\n\\s*$", "", text)
-
-  # split into lines
-  lines <- strsplit(trimmed, "\n", fixed = TRUE)[[1L]]
-
-  # compute common indent
-  indent <- regexpr("[^[:space:]]", lines)
-  common <- min(setdiff(indent, -1L)) - leave
-  paste(substring(lines, common), collapse = "\n")
-
-}
-
 find <- function(x, f, ...) {
   for (i in seq_along(x))
     if (!is.null(value <- f(x[[i]], ...)))
@@ -423,6 +425,9 @@ fsub <- function(pattern, replacement, x, ignore.case = FALSE, useBytes = FALSE)
 }
 
 rows <- function(data, indices) {
+
+  if (is.null(data))
+    return(data_frame())
 
   # convert logical values
   if (is.logical(indices)) {
@@ -521,13 +526,14 @@ take <- function(data, index = NULL) {
   if (is.null(index)) data else .subset2(data, index)
 }
 
-cancel <- function() {
+cancel <- function(verbose = TRUE) {
 
   renv_snapshot_auto_suppress_next()
   if (testing())
     stop("Operation canceled", call. = FALSE)
 
-  message("- Operation canceled.")
+  if (verbose)
+    message("- Operation canceled.")
   invokeRestart("abort")
 
 }
@@ -570,8 +576,6 @@ summon <- function() {
   list2env(as.list(renv), envir = envir)
 }
 
-assert <- function(...) stopifnot(...)
-
 overlay <- function(lhs, rhs) {
   modifyList(as.list(lhs), as.list(rhs))
 }
@@ -591,4 +595,15 @@ topfun <- function() {
 warnify <- function(cnd) {
   class(cnd) <- c("warning", "condition")
   warning(cnd)
+}
+
+# note: also handles stringy values like 'True'
+not <- function(value) {
+  if (value) FALSE else TRUE
+}
+
+wait <- function(predicate, ...) {
+  while (TRUE)
+    if (predicate(...))
+      break
 }

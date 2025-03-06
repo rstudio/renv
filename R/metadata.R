@@ -16,9 +16,17 @@ renv_metadata_version <- function() {
 }
 
 renv_metadata_version_create <- function(record) {
+
+  # get package version
   version <- record[["Version"]]
-  attr(version, "sha") <- record[["RemoteSha"]]
+
+  # tag with RemoteSha if renv was installed from GitHub
+  if ("github" %in% record[["RemoteType"]])
+    attr(version, "sha") <- record[["RemoteSha"]]
+
+  # return version
   version
+
 }
 
 renv_metadata_remote <- function(metadata = the$metadata) {

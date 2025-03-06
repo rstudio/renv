@@ -19,7 +19,6 @@ test_that("requested version in DESCRIPTION file is honored", {
   writeLines(desc, con = "DESCRIPTION")
 
   install()
-
   expect_true(renv_package_version("bread") == "0.1.0")
 
 })
@@ -109,6 +108,8 @@ test_that("packages can be installed from sources", {
 })
 
 test_that("various remote styles can be used during install", {
+
+  skip_on_cran()
   skip_if_no_github_auth()
 
   renv_tests_scope()
@@ -152,6 +153,8 @@ test_that("various remote styles can be used during install", {
 })
 
 test_that("Remotes fields in a project DESCRIPTION are respected", {
+
+  skip_on_cran()
   skip_if_no_github_auth()
 
   renv_tests_scope()
@@ -262,7 +265,6 @@ test_that("renv can install packages from Bitbucket", {
 test_that("install via version succeeds", {
   skip_on_cran()
   renv_tests_scope()
-
   install("bread@0.0.1")
   expect_true(renv_package_installed("bread"))
   expect_true(renv_package_version("bread") == "0.0.1")
@@ -372,7 +374,17 @@ test_that("packages embedded in the project use a project-local RemoteURL", {
   skip_if(is.null(usethis$create_package))
   renv_scope_options(usethis.quiet = TRUE)
   unlink("example", recursive = TRUE)
-  usethis$create_package("example", rstudio = FALSE, open = FALSE)
+
+  fields <- list(
+    "Authors@R" = utils::person(
+      "Kevin", "Ushey",
+      email = "kevinushey@gmail.com",
+      role = c("aut", "cre"),
+      comment = c(ORCID = "0000-0003-2880-7407")
+    )
+  )
+
+  usethis$create_package("example", fields = fields, rstudio = FALSE, open = FALSE)
 
   install("./example")
   lockfile <- snapshot(lockfile = NULL)
@@ -630,11 +642,16 @@ test_that("install() succeeds even some repositories cannot be queried", {
 })
 
 test_that("install() doesn't duplicate authentication headers", {
+
+  skip_on_cran()
+  skip_if_no_github_auth()
+
   renv_scope_envvars(RENV_DOWNLOAD_METHOD = "libcurl")
   project <- renv_tests_scope()
   init()
   install("kevinushey/skeleton")
   expect_true(renv_package_installed("skeleton"))
+
 })
 
 test_that("install() stores repository information for installed packages", {
@@ -672,6 +689,9 @@ test_that("install() stores repository information for installed packages", {
 
 test_that("install() lazily resolves project remotes", {
 
+  skip_on_cran()
+  skip_if_no_github_auth()
+
   project <- renv_tests_scope()
   init()
 
@@ -707,5 +727,79 @@ test_that("recursive dependency versions are properly resolved", {
   install("jamie")
 
   expect_equal(renv_package_version("phone"), "1.0.0")
+
+})
+
+test_that("install(lock = TRUE) updates lockfile", {
+
+  project <- renv_tests_scope()
+  init()
+
+  # first, get a lockfile as created via install + lock
+  install("breakfast", lock = TRUE)
+  actual <- renv_lockfile_load(project = project)
+
+  # now, try re-computing the lockfile via snapshot
+  writeLines("library(breakfast)", con = "dependencies.R")
+  expected <- snapshot(lockfile = NULL)
+
+  # make sure they're equal
+  expect_mapequal(
+    renv_lockfile_records(actual),
+    renv_lockfile_records(expected)
+  )
+
+})
+
+test_that("installation of package from local sources works", {
+
+  project <- renv_tests_scope()
+
+  # test the shim
+  repopath <- renv_tests_repopath()
+  setwd(file.path(repopath, "src/contrib"))
+  renv_shim_install_packages("bread_1.0.0.tar.gz", repos = NULL, type = "source")
+  expect_true(renv_package_installed("bread"))
+
+  # test a regular invocation of install
+  remove.packages("bread")
+  info <- download.packages("bread", destdir = tempdir())
+  install(info[, 2], repos = NULL, type = "source")
+  expect_true(renv_package_installed("bread"))
+
+})
+
+test_that("packages installed from r-universe preserve their remote metadata", {
+  skip_on_cran()
+  skip_on_ci()
+
+  project <- renv_tests_scope(packages = "rlang")
+  install("rlang", repos = "https://r-lib.r-universe.dev")
+  record <- renv_snapshot_description(package = "rlang")
+  expect_true(is.character(record[["RemoteSha"]]))
+})
+
+# https://github.com/rstudio/renv/issues/2071
+test_that("irrelevant R version requirements don't prevent package installation", {
+
+  renv_tests_scope()
+  init()
+
+  # package in repository not compatible with this version of R
+  expect_error(install("today"))
+
+  # but older version can be successfully installed
+  install("today@0.1.0")
+  expect_true(renv_package_installed("today"))
+  expect_equal(renv_package_version("today"), "0.1.0")
+
+  # other packages can be installed even if this project depends on it
+  writeLines("Depends: future, today", con = "DESCRIPTION")
+  install("future")
+  expect_true(renv_package_installed("future"))
+  remove("future")
+
+  # but installing that package should still fail
+  expect_error(install("today"))
 
 })

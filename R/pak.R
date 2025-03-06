@@ -4,9 +4,10 @@ the$pak_minver <- numeric_version("0.7.0")
 
 renv_pak_init <- function(stream = NULL, force = FALSE) {
 
-  stream <- stream %||% renv_pak_stream()
-  if (force || !renv_pak_available())
+  if (force || !renv_pak_available()) {
+    stream <- stream %||% renv_pak_stream()
     renv_pak_init_impl(stream)
+  }
 
   renv_namespace_load("pak")
 
@@ -50,8 +51,11 @@ renv_pak_repos <- function(stream) {
 
 renv_pak_init_impl <- function(stream) {
 
-  repos <- c("r-lib" = renv_pak_repos(stream))
-  renv_scope_options(renv.config.pak.enabled = FALSE, repos = repos)
+  renv_scope_options(
+    renv.config.pak.enabled = FALSE,
+    renv.config.ppm.enabled = FALSE,
+    repos = c("r-lib" = renv_pak_repos(stream))
+  )
 
   library <- renv_libpaths_active()
   install("pak", library = library)
@@ -59,10 +63,51 @@ renv_pak_init_impl <- function(stream) {
 
 }
 
-renv_pak_install <- function(packages, library, project) {
-
+renv_pak_update <- function(project, library, prompt) {
+  
   pak <- renv_namespace_load("pak")
-  lib <- library[[1L]]
+
+  # if this project contains a DESCRIPTION file, use it when
+  # determining which packages to update
+  if (file.exists(file.path(project, "DESCRIPTION"))) {
+    
+    result <- pak$local_install_dev_deps(
+      root = project,
+      lib  = library[[1L]],
+      ask  = prompt
+    )
+    
+    return(result)
+  }
+  
+  # read description files for all installed packages
+  # TODO: do we want to also update packages in other library paths,
+  # or just packages installed in the project library?
+  records <- renv_snapshot_libpaths(library[[1L]], project = project)
+  remotes <- map_chr(records, renv_record_format_remote, versioned = FALSE, pak = TRUE)
+  if (length(remotes) == 0L) {
+    caution("- There are no packages to update.")
+    return(invisible(NULL))
+  }
+  
+  # update those packages
+  pak$pkg_install(
+    pkg = unname(remotes),
+    lib = library[[1L]],
+    upgrade = TRUE,
+    ask = prompt
+  )
+
+}
+
+renv_pak_install <- function(packages,
+                             library,
+                             type,
+                             rebuild,
+                             prompt,
+                             project)
+{
+  pak <- renv_namespace_load("pak")
 
   # transform repositories
   if (renv_ppm_enabled()) {
@@ -82,20 +127,44 @@ renv_pak_install <- function(packages, library, project) {
   else
     as.character(packages)
 
+  # if no packages were specified, treat this as a request to
+  # install / update packages used in the project
   if (length(packages) == 0L)
-    return(pak$local_install_dev_deps(root = project, lib = lib))
+    return(renv_pak_update(project, library, prompt))
+  
+  # pak doesn't support ':' as a sub-directory separator, so try to
+  # repair that here
+  # https://github.com/rstudio/renv/issues/2011
+  pattern <- "(?<!:):([^/#@:]+)"
+  packages <- gsub(pattern, "/\\1", packages, perl = TRUE)
+  
+  # build parameters
+  packages <- map_chr(packages, function(package) {
+
+    params <- c(
+      if (identical(type, "source")) "source",
+      if (identical(rebuild, TRUE) || package %in% rebuild) "reinstall"
+    )
+
+    if (length(params))
+      paste(package, paste(params, collapse = "&"), sep = "?")
+    else
+      package
+
+  })
 
   pak$pkg_install(
     pkg     = packages,
-    lib     = lib,
+    lib     = library[[1L]],
+    ask     = prompt,
     upgrade = TRUE
   )
-
 }
 
 renv_pak_restore <- function(lockfile,
                              packages = NULL,
                              exclude = NULL,
+                             prompt = FALSE,
                              project = NULL)
 {
   pak <- renv_namespace_load("pak")
@@ -117,14 +186,8 @@ renv_pak_restore <- function(lockfile,
   packages <- setdiff(packages %||% names(records), c(exclude, "pak", "renv"))
   records <- records[packages]
 
-  # attempt to link packages that have cache entries
-  if (renv_cache_config_enabled(project = project)) {
-    linked <- map_lgl(records, renv_cache_synchronize)
-    records <- records[!linked]
-  }
-
   # convert into specs compatible with pak, and install
-  remotes <- map_chr(records, renv_record_format_remote)
+  remotes <- map_chr(records, renv_record_format_remote, pak = TRUE)
 
   # TODO: We previously tried converting version-ed remotes into "plain" remotes
   # if the package version happened to be current, but then 'pak' would choose
@@ -137,6 +200,13 @@ renv_pak_restore <- function(lockfile,
   }
 
   # perform installation
-  pak$pkg_install(remotes)
+  pak$pkg_install(
+    pkg = remotes,
+    ask = prompt
+  )
+
+  # return installed records
+  records
+
 }
 

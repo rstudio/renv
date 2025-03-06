@@ -6,7 +6,9 @@ local({
   attr(version, "sha") <- ..sha..
 
   # the project directory
-  project <- getwd()
+  project <- Sys.getenv("RENV_PROJECT")
+  if (!nzchar(project))
+    project <- getwd()
 
   # use start-up diagnostics if enabled
   diagnostics <- Sys.getenv("RENV_STARTUP_DIAGNOSTICS", unset = "FALSE")
@@ -31,8 +33,16 @@ local({
     if (!is.null(override))
       return(override)
 
+    # if we're being run in a context where R_LIBS is already set,
+    # don't load -- presumably we're being run as a sub-process and
+    # the parent process has already set up library paths for us
+    rcmd <- Sys.getenv("R_CMD", unset = NA)
+    rlibs <- Sys.getenv("R_LIBS", unset = NA)
+    if (!is.na(rlibs) && !is.na(rcmd))
+      return(FALSE)
+
     # next, check environment variables
-    # TODO: prefer using the configuration one in the future
+    # prefer using the configuration one in the future
     envvars <- c(
       "RENV_CONFIG_AUTOLOADER_ENABLED",
       "RENV_AUTOLOADER_ENABLED",
@@ -58,7 +68,7 @@ local({
     profile <- Sys.getenv("R_PROFILE_USER", unset = "~/.Rprofile")
     if (file.exists(profile)) {
       cfg <- Sys.getenv("RENV_CONFIG_USER_PROFILE", unset = "TRUE")
-      if (cfg %in% c("TRUE", "True", "true", "T", "1"))
+      if (tolower(cfg) %in% c("true", "t", "1"))
         sys.source(profile, envir = globalenv())
     }
 

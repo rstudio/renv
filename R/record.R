@@ -81,12 +81,11 @@ renv_record_normalize <- function(record) {
 
   # normalize source
   source <- record$Source %||% "unknown"
-  if (source %in% c("CRAN", "PPM", "RSPM"))
+  if (source %in% c("CRAN", "P3M", "PPM", "RSPM"))
     record$Source <- "Repository"
 
   # drop remotes from records with a repository source
-  if (identical(record$Source, "Repository") ||
-      identical(record$RemoteType, "standard"))
+  if (renv_record_cranlike(record))
     record <- record[grep("^Remote", names(record), invert = TRUE)]
 
   # keep only specific records for comparison
@@ -112,4 +111,15 @@ renv_record_tag <- function(record, type, url, name) {
 renv_record_tagged <- function(record) {
   attrs <- attributes(record)
   all(c("url", "type") %in% names(attrs))
+}
+
+# abstracted out in case we want to use a different sigil in the future,
+# like `_`, `<NA>`, or something else
+renv_record_placeholder <- function() {
+  "*"
+}
+
+renv_record_cranlike <- function(record) {
+  type <- record[["RemoteType"]]
+  is.null(type) || tolower(type) %in% c("cran", "repository", "standard")
 }

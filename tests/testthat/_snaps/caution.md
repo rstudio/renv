@@ -1,7 +1,7 @@
-# caution_bullets() creates bulleted list with optional postamble
+# bulletin() creates bulleted list with optional postamble
 
     Code
-      caution_bullets("preamble", letters[1:3])
+      bulletin("preamble", letters[1:3])
     Output
       preamble
       - a
@@ -9,7 +9,7 @@
       - c
       
     Code
-      caution_bullets("preamble", letters[1:3], postamble = "after")
+      bulletin("preamble", letters[1:3], postamble = "after")
     Output
       preamble
       - a

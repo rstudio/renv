@@ -60,27 +60,27 @@ package names to the files in which they were discovered. Note that the
 package name.
 }
 \description{
-\code{dependencies()} will crawl files within your project, looking for \R files
+\code{dependencies()} will scan files within your project, looking for \R files
 and the packages used within those \R files. This is done primarily by
 parsing the code and looking for calls of the form \code{library(package)},
 \code{require(package)}, \code{requireNamespace("package")}, and \code{package::method()}.
 renv also supports package loading with
 \href{https://cran.r-project.org/package=box}{box} (\code{box::use(...)}) and
-\href{https://cran.r-project.org/package=pacman}{pacman} (\code{pacman::p_load(...)})
-.
+\href{https://cran.r-project.org/package=pacman}{pacman} (\code{pacman::p_load(...)}).
 
-For \R package projects, dependencies expressed in the \code{DESCRIPTION} file
-will also be discovered.
+For \R package projects, \code{renv} will also detect dependencies expressed
+in the \code{DESCRIPTION} file. For projects using Python, \R dependencies within
+the \R code chunks of your project's \code{.ipynb} files will also be used.
 
-Note that the rmarkdown package is required in order to crawl dependencies
-in R Markdown files.
+Note that the \code{\link[rmarkdown:rmarkdown-package]{rmarkdown}} package is
+required in order to scan dependencies in R Markdown files.
 }
 \section{Missing dependencies}{
 \code{dependencies()} uses static analysis to determine which packages are used
-by your project. This means that it inspects, but doesn't run, your
-source. Static analysis generally works well, but is not 100\% reliable in
-detecting the packages required by your project. For example, renv is
-unable to detect this kind of usage:
+by your project. This means that it inspects, but doesn't run, the \R code
+in your project. Static analysis generally works well, but is not
+100\% reliable in detecting the packages required by your project. For
+example, \code{renv} is unable to detect this kind of usage:
 
 \if{html}{\out{<div class="sourceCode r">}}\preformatted{for (package in c("dplyr", "ggplot2")) \{
   library(package, character.only = TRUE)
@@ -88,8 +88,9 @@ unable to detect this kind of usage:
 }\if{html}{\out{</div>}}
 
 It also can't generally tell if one of the packages you use, uses one of
-its suggested packages. For example, \code{tidyr::separate_wider_delim()}
-uses the stringr package which is only suggested, not required by tidyr.
+its suggested packages. For example, the \code{tidyr::separate_wider_delim()}
+function requires the \code{stringr} package, but \code{stringr} is only suggested,
+not required, by \code{tidyr}.
 
 If you find that renv's dependency discovery misses one or more packages
 that you actually use in your project, one escape hatch is to include a file
@@ -98,24 +99,6 @@ called \verb{_dependencies.R} that includes straightforward library calls:
 \if{html}{\out{<div class="sourceCode">}}\preformatted{library(dplyr)
 library(ggplot2)
 library(stringr)
-}\if{html}{\out{</div>}}
-}
-
-\section{Explicit dependencies}{
-Alternatively, you can suppress dependency discover and instead rely
-on an explicit set of packages recorded by you in a project \code{DESCRIPTION} file.
-Call \code{renv::settings$snapshot.type("explicit")} to enable "explicit" mode,
-then enumerate your dependencies in a project \code{DESCRIPTION} file.
-
-In that case, your \code{DESCRIPTION} might look something like this:
-
-\if{html}{\out{<div class="sourceCode">}}\preformatted{Type: project
-Description: My project.
-Depends:
-    tidyverse,
-    devtools,
-    shiny,
-    data.table
 }\if{html}{\out{</div>}}
 }
 
@@ -144,6 +127,28 @@ data/
 Using ignore files is important if your project contains a large number
 of files; for example, if you have a \verb{data/} directory containing many
 text files.
+\subsection{Profile-specific Ignore Rules}{
+
+Profile-specific sections are also supported in \code{.renvignore} files.
+These sections are marked with a comment header of the form \verb{#| <code>},
+where \verb{<code>} is \R code that indicates if this section of the \code{.renvignore}
+should apply. The \code{profile} variable is set to the same value as the current
+profile, or \code{"default"} if the default profile (no profile) is selected.
+See \code{vignette("profiles", package = "renv")} for more information on profiles.
+
+\if{html}{\out{<div class="sourceCode">}}\preformatted{# ignore all directories by default
+*/
+
+#| profile == "default"
+!default
+
+#| profile == "extra"
+!extra
+}\if{html}{\out{</div>}}
+
+Note that the first section in a \code{.renvignore} file implicitly applies to
+all profiles.
+}
 }
 
 \section{Errors}{

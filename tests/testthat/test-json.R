@@ -132,7 +132,56 @@ test_that("NA values are properly serialized", {
 test_that("we fall back to the internal JSON reader if jsonlite fails", {
 
   skip_if_not_installed("jsonlite")
-  json <- renv_json_read(text = "[key: NA]")
+  json <- renv_json_read(text = "[\"key\": NA]")
   expect_equal(json, list(key = NA))
+
+})
+
+test_that("json-read.R can function standalone", {
+
+  renv_tests_scope()
+
+  renv <- asNamespace("renv")
+  keys <- ls(envir = renv, pattern = "^renv_json_read", all.names = TRUE)
+  vals <- mget(c("%||%", keys), envir = renv)
+
+  # put those into a separate environment inheriting only from base, and
+  # re-mark those as inheriting from base (so they only 'see' each-other)
+  envir <- new.env(parent = baseenv())
+  list2env(vals, envir = envir)
+
+  # for each function, check that it only uses functions from base
+  ok <- list()
+  for (val in vals) {
+    recurse(body(val), function(node) {
+      if (is.call(node) && is.symbol(node[[1L]])) {
+        lhs <- as.character(node[[1L]])
+        ok[[lhs]] <<- exists(lhs, envir = envir)
+      }
+    })
+  }
+
+  # convert to logical vector
+  ok <- convert(ok, "logical")
+  bad <- names(ok)[!ok]
+  if (length(bad) != 0L) {
+    fmt <- "json-read.R is not standalone: %s"
+    stopf(fmt, paste(bad, collapse = ", "))
+  }
+
+})
+
+test_that("we can parse long JSON strings containing unicode newlines", {
+
+  ns <- 10^(1:5)
+
+  ch <- "\\u000a"
+  for (n in ns) {
+    chs <- paste(rep.int(ch, n), collapse = "")
+    text <- sprintf("\"%s\"", chs)
+    actual <- renv_json_read_default(text = text)
+    expected <- paste(rep.int("\n", n), collapse = "")
+    expect_equal(actual, expected)
+  }
 
 })

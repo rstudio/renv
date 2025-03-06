@@ -63,6 +63,7 @@ test_that("attempts to initialize a project with a missing package is okay", {
 
 test_that("the remotes field in a DESCRIPTION is honored", {
   skip_on_cran()
+  skip_if_no_github_auth()
 
   renv_tests_scope("halloween")
   install("halloween")
@@ -171,8 +172,16 @@ test_that("a project with unnamed repositories can be initialized", {
   renv_scope_options(repos = repos)
   init()
 
-  repos <- getOption("repos")
-  expect_equal(names(repos), c("CRAN", "https://cloud.r-project.org"))
+  lockfile <- renv_lockfile_read("renv.lock")
+  repos <- lockfile[["R"]][["Repositories"]]
+
+  expect_equal(
+    repos,
+    list(
+      CRAN = "https://cran.rstudio.com",
+      "https://cloud.r-project.org" = "https://cloud.r-project.org"
+    )
+  )
 
 })
 
@@ -202,7 +211,7 @@ test_that("RENV_PATHS_RENV is respected on init", {
     writeLines(Sys.getenv("RENV_PATHS_RENV"))
   })
 
-  renv_scope_envvars(R_PROFILE_USER = NULL)
+  renv_scope_envvars(R_PROFILE_USER = NULL, RENV_PROJECT = NULL)
   args <- c("-s", "-f", script)
   renv <- renv_system_exec(R(), args, action = "reading RENV_PATHS_RENV")
 
@@ -263,9 +272,30 @@ test_that("init() respects user-requested snapshot type", {
   expect_equal(settings$snapshot.type(), "explicit")
 })
 
-test_that("init() respected Remotes in a project DESCRIPTION file", {
+test_that("init() respects Remotes in a project DESCRIPTION file", {
+
+  skip_on_cran()
+  skip_if_no_github_auth()
+
   project <- renv_tests_scope("skeleton")
   writeLines("Depends: skeleton\nRemotes: kevinushey/skeleton", con = "DESCRIPTION")
   init()
   expect_true(renv_package_installed("skeleton"))
+
+})
+
+test_that("a project using named remotes can be initialized", {
+  project <- renv_tests_scope()
+
+  contents <- heredoc('
+    Depends:
+      toast
+    Remotes:
+      toast=toast
+  ')
+  writeLines(contents, con = "DESCRIPTION")
+
+  init(settings = list(snapshot.type = "explicit"))
+  expect_true(renv_package_installed("toast"))
+
 })

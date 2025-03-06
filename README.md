@@ -9,7 +9,7 @@
 stable](https://img.shields.io/badge/lifecycle-stable-brightgreen.svg)](https://lifecycle.r-lib.org/articles/stages.html)
 [![CRAN
 status](https://www.r-pkg.org/badges/version/renv)](https://CRAN.R-project.org/package=renv)
-[![R-CMD-check](https://github.com/rstudio/renv/workflows/R-CMD-check/badge.svg)](https://github.com/rstudio/renv/actions)
+[![R-CMD-check](https://github.com/rstudio/renv/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/rstudio/renv/actions/workflows/R-CMD-check.yaml)
 
 <!-- badges: end -->
 
@@ -48,7 +48,7 @@ them) are recorded into a **lockfile**, `renv.lock`, and a `.Rprofile`
 ensures that the library is used every time you open that project.
 
 As you continue to work on your project, you will install and upgrade
-packages, either using `install.packages()` and `update.packages` or
+packages, either using `install.packages()` and `update.packages()` or
 `renv::install()` and `renv::update()`. After you’ve confirmed your code
 works as expected, use `renv::snapshot()` to record the packages and
 their sources in the lockfile.
@@ -67,7 +67,7 @@ will help you understand the most important verbs and nouns of renv.
 If you have a question about renv, please first check the
 [FAQ](https://rstudio.github.io/renv/articles/faq.html) to see whether
 your question has already been addressed. If it hasn’t, please feel free
-to ask on the [RStudio Community forums](https://community.rstudio.com).
+to ask on the [Posit Forum](https://forum.posit.co).
 
 If you believe you’ve found a bug in renv, please file a bug (and, if
 possible, a [reproducible example](https://reprex.tidyverse.org)) at

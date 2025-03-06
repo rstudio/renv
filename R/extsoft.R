@@ -31,7 +31,7 @@ renv_extsoft_install <- function(quiet = FALSE) {
 
   if (interactive()) {
 
-    caution_bullets(
+    bulletin(
       "The following external software tools will be installed:",
       files,
       sprintf("Tools will be installed into %s.", renv_path_pretty(extsoft))
@@ -119,23 +119,23 @@ renv_extsoft_use <- function(quiet = FALSE) {
   contents <- original
 
   localsoft <- paste("LOCAL_SOFT", extsoft, sep = " = ")
-  contents <- inject(contents, "^#?LOCAL_SOFT", localsoft)
+  contents <- insert(contents, "^#?LOCAL_SOFT", localsoft)
 
   localcpp <- "LOCAL_CPPFLAGS = -I\"$(LOCAL_SOFT)/include\""
-  contents <- inject(contents, "^#?LOCAL_CPPFLAGS", localcpp)
+  contents <- insert(contents, "^#?LOCAL_CPPFLAGS", localcpp)
 
   locallibs <- "LOCAL_LIBS = -L\"$(LOCAL_SOFT)/lib$(R_ARCH)\" -L\"$(LOCAL_SOFT)/lib\""
-  contents <- inject(contents, "^#?LOCAL_LIBS", locallibs)
+  contents <- insert(contents, "^#?LOCAL_LIBS", locallibs)
 
   libxml <- paste("LIB_XML", extsoft, sep = " = ")
-  contents <- inject(contents, "^#?LIB_XML", libxml)
+  contents <- insert(contents, "^#?LIB_XML", libxml)
 
   if (identical(original, contents))
     return(TRUE)
 
   if (interactive()) {
 
-    caution_bullets(
+    bulletin(
       "The following entries will be added to ~/.R/Makevars:",
       c(localsoft, libxml, localcpp, locallibs),
       "These tools will be used when compiling R packages from source."

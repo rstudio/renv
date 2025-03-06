@@ -57,3 +57,25 @@ test_that("load() reports on problems", {
   expect_snapshot(load())
 
 })
+
+test_that("load() delegates to base::load() when appropriate", {
+
+  renv_tests_scope()
+
+  value <- 42
+  save(value, file = ".RData")
+  rm(value)
+
+  load(".RData")
+  expect_equal(value, 42)
+  rm(value)
+
+  load(file = ".RData")
+  expect_equal(value, 42)
+  rm(value)
+
+  envir <- new.env(parent = emptyenv())
+  load(".RData", envir = envir)
+  expect_equal(envir$value, 42)
+
+})

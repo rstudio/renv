@@ -7,4 +7,12 @@ if (!renv:::renv_tests_supported()) {
   if (!interactive()) quit(status = 0L)
 }
 
+if (Sys.info()[["sysname"]] == "Linux") {
+  tools <- asNamespace("tools")
+  if (is.function(tools$R_user_dir)) {
+    cachedir <- tools$R_user_dir("renv", "cache")
+    dir.create(cachedir, recursive = TRUE, showWarnings = FALSE)
+  }
+}
+
 test_check("renv")

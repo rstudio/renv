@@ -32,8 +32,22 @@ header <- function(label,
 
 }
 
-startswith <- function(string, prefix) {
-  substring(string, 1, nchar(prefix)) == prefix
+heredoc <- function(text, leave = 0) {
+
+  # remove leading, trailing whitespace
+  trimmed <- gsub("^\\s*\\n|\\n\\s*$", "", text)
+
+  # split into lines
+  lines <- strsplit(trimmed, "\n", fixed = TRUE)[[1L]]
+
+  # compute common indent
+  indent <- regexpr("[^[:space:]]", lines)
+  common <- min(setdiff(indent, -1L)) - leave
+  text <- paste(substring(lines, common), collapse = "\n")
+
+  # substitute in ANSI links for executable renv code
+  ansify(text)
+
 }
 
 bootstrap <- function(version, library) {
@@ -191,8 +205,11 @@ renv_bootstrap_download_impl <- function(url, destfile) {
     quiet    = TRUE
   )
 
-  if ("headers" %in% names(formals(utils::download.file)))
-    args$headers <- renv_bootstrap_download_custom_headers(url)
+  if ("headers" %in% names(formals(utils::download.file))) {
+    headers <- renv_bootstrap_download_custom_headers(url)
+    if (length(headers) && is.character(headers))
+      args$headers <- headers
+  }
 
   do.call(utils::download.file, args)
 
@@ -271,10 +288,21 @@ renv_bootstrap_download_cran_latest_find <- function(version) {
   for (type in types) {
     for (repos in renv_bootstrap_repos()) {
 
+      # build arguments for utils::available.packages() call
+      args <- list(type = type, repos = repos)
+
+      # add custom headers if available -- note that
+      # utils::available.packages() will pass this to download.file()
+      if ("headers" %in% names(formals(utils::download.file))) {
+        headers <- renv_bootstrap_download_custom_headers(repos)
+        if (length(headers) && is.character(headers))
+          args$headers <- headers
+      }
+
       # retrieve package database
       db <- tryCatch(
         as.data.frame(
-          utils::available.packages(type = type, repos = repos),
+          do.call(utils::available.packages, args),
           stringsAsFactors = FALSE
         ),
         error = identity
@@ -356,6 +384,14 @@ renv_bootstrap_download_tarball <- function(version) {
 
 }
 
+renv_bootstrap_github_token <- function() {
+  for (envvar in c("GITHUB_TOKEN", "GITHUB_PAT", "GH_TOKEN")) {
+    envval <- Sys.getenv(envvar, unset = NA)
+    if (!is.na(envval))
+      return(envval)
+  }
+}
+
 renv_bootstrap_download_github <- function(version) {
 
   enabled <- Sys.getenv("RENV_BOOTSTRAP_FROM_GITHUB", unset = "TRUE")
@@ -363,16 +399,19 @@ renv_bootstrap_download_github <- function(version) {
     return(FALSE)
 
   # prepare download options
-  pat <- Sys.getenv("GITHUB_PAT")
-  if (nzchar(Sys.which("curl")) && nzchar(pat)) {
+  token <- renv_bootstrap_github_token()
+  if (is.null(token))
+    token <- ""
+
+  if (nzchar(Sys.which("curl")) && nzchar(token)) {
     fmt <- "--location --fail --header \"Authorization: token %s\""
-    extra <- sprintf(fmt, pat)
+    extra <- sprintf(fmt, token)
     saved <- options("download.file.method", "download.file.extra")
     options(download.file.method = "curl", download.file.extra = extra)
     on.exit(do.call(base::options, saved), add = TRUE)
-  } else if (nzchar(Sys.which("wget")) && nzchar(pat)) {
+  } else if (nzchar(Sys.which("wget")) && nzchar(token)) {
     fmt <- "--header=\"Authorization: token %s\""
-    extra <- sprintf(fmt, pat)
+    extra <- sprintf(fmt, token)
     saved <- options("download.file.method", "download.file.extra")
     options(download.file.method = "wget", download.file.extra = extra)
     on.exit(do.call(base::options, saved), add = TRUE)
@@ -497,11 +536,19 @@ renv_bootstrap_install_impl <- function(library, tarball) {
 
 }
 
-renv_bootstrap_platform_prefix <- function() {
+renv_bootstrap_platform_prefix_default <- function() {
 
-  # construct version prefix
-  version <- paste(R.version$major, R.version$minor, sep = ".")
-  prefix <- paste("R", numeric_version(version)[1, 1:2], sep = "-")
+  # read version component
+  version <- Sys.getenv("RENV_PATHS_VERSION", unset = "R-%v")
+
+  # expand placeholders
+  placeholders <- list(
+    list("%v", format(getRversion()[1, 1:2])),
+    list("%V", format(getRversion()[1, 1:3]))
+  )
+
+  for (placeholder in placeholders)
+    version <- gsub(placeholder[[1L]], placeholder[[2L]], version, fixed = TRUE)
 
   # include SVN revision for development versions of R
   # (to avoid sharing platform-specific artefacts with released versions of R)
@@ -510,10 +557,19 @@ renv_bootstrap_platform_prefix <- function() {
     identical(R.version[["nickname"]], "Unsuffered Consequences")
 
   if (devel)
-    prefix <- paste(prefix, R.version[["svn rev"]], sep = "-r")
+    version <- paste(version, R.version[["svn rev"]], sep = "-r")
+
+  version
+
+}
+
+renv_bootstrap_platform_prefix <- function() {
+
+  # construct version prefix
+  version <- renv_bootstrap_platform_prefix_default()
 
   # build list of path components
-  components <- c(prefix, R.version$platform)
+  components <- c(version, R.version$platform)
 
   # include prefix if provided by user
   prefix <- renv_bootstrap_platform_prefix_impl()
@@ -534,6 +590,9 @@ renv_bootstrap_platform_prefix_impl <- function() {
 
   # if the user has requested an automatic prefix, generate it
   auto <- Sys.getenv("RENV_PATHS_PREFIX_AUTO", unset = NA)
+  if (is.na(auto) && getRversion() >= "4.4.0")
+    auto <- "TRUE"
+
   if (auto %in% c("TRUE", "True", "true", "1"))
     return(renv_bootstrap_platform_prefix_auto())
 
@@ -725,24 +784,23 @@ renv_bootstrap_validate_version <- function(version, description = NULL) {
 
   # the loaded version of renv doesn't match the requested version;
   # give the user instructions on how to proceed
-  remote <- if (!is.null(description[["RemoteSha"]])) {
+  dev <- identical(description[["RemoteType"]], "github")
+  remote <- if (dev)
     paste("rstudio/renv", description[["RemoteSha"]], sep = "@")
-  } else {
+  else
     paste("renv", description[["Version"]], sep = "@")
-  }
 
   # display both loaded version + sha if available
   friendly <- renv_bootstrap_version_friendly(
     version = description[["Version"]],
-    sha     = description[["RemoteSha"]]
+    sha     = if (dev) description[["RemoteSha"]]
   )
 
-  fmt <- paste(
-    "renv %1$s was loaded from project library, but this project is configured to use renv %2$s.",
-    "- Use `renv::record(\"%3$s\")` to record renv %1$s in the lockfile.",
-    "- Use `renv::restore(packages = \"renv\")` to install renv %2$s into the project library.",
-    sep = "\n"
-  )
+  fmt <- heredoc("
+    renv %1$s was loaded from project library, but this project is configured to use renv %2$s.
+    - Use `renv::record(\"%3$s\")` to record renv %1$s in the lockfile.
+    - Use `renv::restore(packages = \"renv\")` to install renv %2$s into the project library.
+  ")
   catf(fmt, friendly, renv_bootstrap_version_friendly(version), remote)
 
   FALSE
@@ -750,8 +808,14 @@ renv_bootstrap_validate_version <- function(version, description = NULL) {
 }
 
 renv_bootstrap_validate_version_dev <- function(version, description) {
+
   expected <- description[["RemoteSha"]]
-  is.character(expected) && startswith(expected, version)
+  if (!is.character(expected))
+    return(FALSE)
+
+  pattern <- sprintf("^\\Q%s\\E", version)
+  grepl(pattern, expected, perl = TRUE)
+
 }
 
 renv_bootstrap_validate_version_release <- function(version, description) {
@@ -931,10 +995,10 @@ renv_bootstrap_version_friendly <- function(version, shafmt = NULL, sha = NULL) 
 
 renv_bootstrap_exec <- function(project, libpath, version) {
   if (!renv_bootstrap_load(project, libpath, version))
-    renv_bootstrap_run(version, libpath)
+    renv_bootstrap_run(project, libpath, version)
 }
 
-renv_bootstrap_run <- function(version, libpath) {
+renv_bootstrap_run <- function(project, libpath, version) {
 
   # perform bootstrap
   bootstrap(version, libpath)
@@ -945,7 +1009,7 @@ renv_bootstrap_run <- function(version, libpath) {
 
   # try again to load
   if (requireNamespace("renv", lib.loc = libpath, quietly = TRUE)) {
-    return(renv::load(project = getwd()))
+    return(renv::load(project = project))
   }
 
   # failed to download or load renv; warn the user

@@ -5,6 +5,7 @@
 ^\.Rproj\.user$
 
 ^.*\.backup$
+\.clang-format$
 \.covrignore$
 \.renvignore$
 \.vscode
@@ -27,6 +28,7 @@
 ^examples$
 ^git$
 ^internal$
+^libs$
 ^logs$
 ^Makefile$
 ^pkgdown$

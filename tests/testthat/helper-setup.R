@@ -12,9 +12,6 @@ renv_tests_setup <- function(scope = parent.frame()) {
   if (!once())
     return()
 
-  # force gitcreds to initialize early
-  renv_download_auth_github()
-
   # remove automatic tasks so we can capture explicitly in tests
   renv_task_unload()
 
@@ -47,6 +44,10 @@ renv_tests_setup_envvars <- function(scope = parent.frame()) {
   root <- renv_scope_tempfile("renv-root-", scope = scope)
   ensure_directory(root)
 
+  # set up sandbox directory
+  sandbox <- file.path(root, "sandbox")
+  ensure_directory(sandbox)
+
   renv_scope_envvars(
     RENV_AUTOLOAD_ENABLED = FALSE,
     RENV_CONFIG_LOCKING_ENABLED = FALSE,
@@ -57,6 +58,7 @@ renv_tests_setup_envvars <- function(scope = parent.frame()) {
     RENV_PATHS_LOCAL = NULL,
     RENV_PATHS_LOCKFILE = NULL,
     RENV_PATHS_RENV = NULL,
+    RENV_PATHS_SANDBOX = sandbox,
     RENV_WATCHDOG_ENABLED = FALSE,
     RENV_WATCHDOG_DEBUG = FALSE,
     scope = scope
@@ -151,6 +153,17 @@ renv_tests_setup_sandbox <- function(scope = parent.frame()) {
 
 renv_tests_setup_repos <- function(scope = parent.frame()) {
 
+  # use internal tar implementations here; on Windows, external is too slow
+  # note the environment variable names are not case sensitive on Windows
+  if (renv_platform_windows()) {
+    renv_scope_envvars(TAR = "internal")
+  } else {
+    renv_scope_envvars(TAR = "internal", tar = "internal")
+  }
+
+  # also prefer using internal R copy method
+  renv_scope_options(renv.config.copy.method = "r")
+
   # generate our dummy repository
   repopath <- renv_tests_repopath()
   if (file.exists(repopath))
@@ -166,10 +179,14 @@ renv_tests_setup_repos <- function(scope = parent.frame()) {
   renv_file_copy(source, target)
   renv_scope_wd(target)
 
-  # update the local packrat package version
-  record <- renv_available_packages_latest(package = "packrat")
+  # update the local packrat package version to match what's available
+  version <- tryCatch(
+    renv_package_version("packrat") %||% "0.9.2",
+    error = function(cnd) "0.9.2"
+  )
+
   dcf <- renv_dcf_read(file = "packrat/DESCRIPTION")
-  dcf$Version <- record$Version
+  dcf$Version <- version
   renv_dcf_write(dcf, file = "packrat/DESCRIPTION")
 
   # helper function for 'uploading' a package to our test repo
@@ -217,6 +234,7 @@ renv_tests_setup_repos <- function(scope = parent.frame()) {
     descpath <- file.path(path, "DESCRIPTION")
     desc <- renv_description_read(descpath)
     desc$Version <- "0.1.0"
+    desc$Depends <- gsub("99.99.99", "1.0.0", desc$Depends %||% "", fixed = TRUE)
     write.dcf(desc, file = descpath)
 
     # place these packages into the archive

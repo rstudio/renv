@@ -11,6 +11,7 @@ checkout(
   date = NULL,
   clean = FALSE,
   actions = "restore",
+  restart = NULL,
   project = NULL
 )
 }
@@ -35,18 +36,22 @@ the target library? Use \code{clean = TRUE} if you'd like the library state
 to exactly reflect the lockfile contents after \code{restore()}.}
 
 \item{actions}{The action(s) to perform with the requested repositories.
-This can either be "snapshot", in which \code{renv} will generate a lockfile
+This can either be \code{"snapshot"}, in which \code{renv} will generate a lockfile
 based on the latest versions of the packages available from \code{repos}, or
-"restore" if you'd like to install those packages. You can use
+\code{"restore"} if you'd like to install those packages. You can use
 \code{c("snapshot", "restore")} if you'd like to generate a lockfile and
-install those packages in the same step.}
+install those packages in a single call.}
+
+\item{restart}{Should the \R session be restarted after the new
+packages have been checked out? When \code{NULL} (the default), the
+session is restarted if the \code{"restore"} action was taken.}
 
 \item{project}{The project directory. If \code{NULL}, then the active project will
 be used. If no project is currently active, then the current working
 directory is used instead.}
 }
 \description{
-\code{renv::checkout()} can be used to retrieve the latest-availabe packages from
+\code{renv::checkout()} can be used to retrieve the latest-available packages from
 a (set of) package repositories.
 }
 \details{
@@ -57,6 +62,16 @@ renv project. In this way, you can upgrade (or downgrade) all of the
 packages used in a particular renv project to the package versions
 provided by a particular snapshot.
 
+Note that calling \code{renv::checkout()} will also install the version of \code{renv}
+available as of the requested snapshot date, which might be older or lack
+features available in the currently-installed version of \code{renv}. In addition,
+the project's \code{renv/activate.R} script will be re-generated after checkout.
+If this is undesired, you can re-install a newer version of \code{renv} after
+checkout from your regular \R package repository.
+}
+\section{Caveats}{
+
+
 If your library contains packages installed from other remote sources (e.g.
 GitHub), but a version of a package of the same name is provided by the
 repositories being checked out, then please be aware that the package will be
@@ -65,6 +80,7 @@ be a concern if your project uses \R packages from GitHub whose name matches
 that of an existing CRAN package, but is otherwise unrelated to the package
 on CRAN.
 }
+
 \examples{
 \dontrun{
 
@@ -72,10 +88,13 @@ on CRAN.
 renv::checkout(date = "2023-01-02")
 
 # alternatively, supply the full repository path
-renv::checkout(repos = "https://packagemanager.rstudio.com/cran/2023-01-02")
+renv::checkout(repos = c(PPM = "https://packagemanager.rstudio.com/cran/2023-01-02"))
 
 # only check out some subset of packages (and their recursive dependencies)
 renv::checkout(packages = "dplyr", date = "2023-01-02")
+
+# generate a lockfile based on a snapshot date
+renv::checkout(date = "2023-01-02", actions = "snapshot")
 
 }
 }

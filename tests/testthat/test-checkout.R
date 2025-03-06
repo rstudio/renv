@@ -2,10 +2,12 @@
 test_that("we can check out packages from our local repository", {
 
   # enter test scope
-  project <- renv_tests_scope("breakfast")
+  project <- renv_tests_scope()
+  init()
 
   # check out a package + its dependencies; this invocation is
   # similar in spirit to a plain `install()` call
+  renv_tests_dependencies("breakfast")
   checkout(packages = "breakfast")
 
   # check that they were installed

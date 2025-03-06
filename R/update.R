@@ -71,22 +71,6 @@ renv_update_find_git_impl <- function(record) {
 
 renv_update_find_github <- function(records) {
 
-  # check for GITHUB_PAT
-  if (!renv_envvar_exists("GITHUB_PAT")) {
-
-    msg <- paste(
-      "GITHUB_PAT is unset. Updates may fail due to GitHub's API rate limit.",
-      "",
-      "To increase your GitHub API rate limit:",
-      "- Use `usethis::create_github_token()` to create a Personal Access Token (PAT).",
-      "- Use `usethis::edit_r_environ()` and add the token as `GITHUB_PAT`.",
-      sep = "\n"
-    )
-
-    warning(msg, call. = FALSE)
-
-  }
-
   names(records) <- map_chr(records, `[[`, "Package")
   results <- renv_parallel_exec(records, function(record) {
     catch(renv_update_find_github_impl(record))
@@ -114,8 +98,14 @@ renv_update_find_github_impl <- function(record) {
   if (sha == record$RemoteSha)
     return(NULL)
 
+  url <- record$RemoteUrl %||% {
+    origin <- fsub("api.github.com", "github.com", renv_retrieve_origin(host))
+    parts <- c(origin, user, repo)
+    paste(parts, collapse = "/")
+  }
+
   # get updated record
-  desc <- renv_remotes_resolve_github_description(host, user, repo, subdir, sha)
+  desc <- renv_remotes_resolve_github_description(url, host, user, repo, subdir, sha)
   current <- list(
     Package        = desc$Package,
     Version        = desc$Version,
@@ -240,6 +230,9 @@ renv_update_find <- function(records) {
 #'   Use `renv::update(exclude = <...>)` to update all packages except for
 #'   a specific set of excluded packages.
 #'
+#' @param lock Boolean; update the `renv.lock` lockfile after the successful
+#'   installation of the requested packages?
+#'
 #' @return A named list of package records which were installed by renv.
 #'
 #' @export
@@ -255,9 +248,11 @@ update <- function(packages = NULL,
                    ...,
                    exclude = NULL,
                    library = NULL,
+                   type    = NULL,
                    rebuild = FALSE,
                    check   = FALSE,
                    prompt  = interactive(),
+                   lock    = FALSE,
                    project = NULL)
 {
   renv_consent_check()
@@ -273,6 +268,12 @@ update <- function(packages = NULL,
   library <- nth(libpaths, 1L)
   renv_scope_libpaths(libpaths)
 
+  # check for explicitly-provided type -- we handle this specially for PPM
+  if (!is.null(type)) {
+    renv_scope_binding(the, "install_pkg_type", type)
+    renv_scope_options(pkgType = type)
+  }
+
   # resolve exclusions
   exclude <- c(exclude, settings$ignored.packages(project = project))
 
@@ -280,7 +281,16 @@ update <- function(packages = NULL,
   if (config$pak.enabled() && !recursing()) {
     packages <- setdiff(packages, exclude)
     renv_pak_init()
-    return(renv_pak_install(packages, libpaths, project))
+    return(
+      renv_pak_install(
+        packages = packages,
+        library  = libpaths,
+        rebuild  = rebuild,
+        type     = type,
+        prompt   = prompt,
+        project  = project
+      )
+    )
   }
 
   # get package records
@@ -296,7 +306,7 @@ update <- function(packages = NULL,
   if (!empty(missing)) {
 
     if (prompt || renv_verbose()) {
-      caution_bullets(
+      bulletin(
         "The following package(s) are not currently installed:",
         missing,
         "The latest available versions of these packages will be installed instead."
@@ -401,6 +411,7 @@ update <- function(packages = NULL,
     library  = libpaths,
     rebuild  = rebuild,
     prompt   = prompt,
+    lock     = lock,
     project  = project
   )
 
@@ -446,7 +457,7 @@ renv_update_errors_emit_impl <- function(key, preamble, postamble) {
     sprintf("%s: %s", format(package), errmsg)
   })
 
-  caution_bullets(
+  bulletin(
     preamble = preamble,
     values = messages,
     postamble = postamble

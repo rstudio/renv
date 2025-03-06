@@ -43,27 +43,27 @@ the$install_step_width <- 48L
 #'
 #' @inherit renv-params
 #'
-#' @param packages Either `NULL` (the default) to install all packages required
-#'  by the project, or a character vector of packages to install. renv
-#'  supports a subset of the remotes syntax used for package installation,
-#'  e.g:
-#'
-#'  * `pkg`: install latest version of `pkg` from CRAN.
-#'  * `pkg@version`: install specified version of `pkg` from CRAN.
-#'  * `username/repo`: install package from GitHub
-#'  * `bioc::pkg`: install `pkg` from Bioconductor.
-#'
-#'  See <https://remotes.r-lib.org/articles/dependencies.html> and the examples
-#'  below for more details.
-#'
-#'  renv deviates from the remotes spec in one important way: subdirectories
-#'  are separated from the main repository specification with a `:`, not `/`.
-#'  So to install from the `subdir` subdirectory of GitHub package
-#'  `username/repo` you'd use `"username/repo:subdir`.
+#' @param include Packages which should be installed. `include` can
+#'   occasionally be useful when you'd like to call `renv::install()` with
+#'   no arguments, but restrict package installation to only some subset
+#'   of dependencies in the project.
 #'
 #' @param exclude Packages which should not be installed. `exclude` is useful
 #'   when using `renv::install()` to install all dependencies in a project,
 #'   except for a specific set of packages.
+#'
+#' @param verbose Boolean; report output from `R CMD build` and `R CMD INSTALL`
+#'   during installation? When `NULL` (the default), the value of `config$install.verbose()`
+#'   will be used. When `FALSE`, installation output will be emitted only if
+#'   a package fails to install.
+#'
+#' @param transactional Whether or not to use a 'transactional' package
+#'   installation. See **Transactional Restore** in [renv::restore()] for
+#'   more details. When `NULL` (the default), the value of the
+#'   `install.transactional` [`config`] option will be used.
+#'
+#' @param lock Boolean; update the `renv.lock` lockfile after the successful
+#'   installation of the requested packages?
 #'
 #' @return A named list of package records which were installed by renv.
 #'
@@ -97,14 +97,18 @@ the$install_step_width <- 48L
 #' }
 install <- function(packages = NULL,
                     ...,
-                    exclude      = NULL,
-                    library      = NULL,
-                    type         = NULL,
-                    rebuild      = FALSE,
-                    repos        = NULL,
-                    prompt       = interactive(),
-                    dependencies = NULL,
-                    project      = NULL)
+                    include       = NULL,
+                    exclude       = NULL,
+                    library       = NULL,
+                    type          = NULL,
+                    rebuild       = FALSE,
+                    repos         = NULL,
+                    prompt        = interactive(),
+                    dependencies  = NULL,
+                    verbose       = NULL,
+                    transactional = NULL,
+                    lock          = FALSE,
+                    project       = NULL)
 {
   renv_consent_check()
   renv_scope_error_handler()
@@ -126,6 +130,14 @@ install <- function(packages = NULL,
     renv_scope_binding(the, "install_dependency_fields", fields)
   }
 
+  # handle 'verbose'
+  verbose <- verbose %||% config$install.verbose()
+  renv_scope_options(renv.config.install.verbose = verbose)
+
+  # handle 'transactional'
+  transactional <- transactional %||% config$install.transactional()
+  renv_scope_options(renv.config.install.transactional = transactional)
+
   # set up library paths
   libpaths <- renv_libpaths_resolve(library)
   renv_scope_libpaths(libpaths)
@@ -144,7 +156,16 @@ install <- function(packages = NULL,
   # if users have requested the use of pak, delegate there
   if (config$pak.enabled() && !recursing()) {
     renv_pak_init()
-    return(renv_pak_install(packages, libpaths, project))
+    return(
+      renv_pak_install(
+        packages = packages,
+        library  = libpaths,
+        type     = type,
+        rebuild  = rebuild,
+        prompt   = prompt,
+        project  = project
+      )
+    )
   }
 
   # resolve remotes from explicitly-requested packages
@@ -160,6 +181,10 @@ install <- function(packages = NULL,
   # apply exclude parameter
   if (length(exclude))
     packages <- setdiff(packages, exclude)
+
+  # apply include parameter
+  if (length(include))
+    packages <- intersect(packages, include)
 
   if (empty(packages)) {
     writef("- There are no packages to install.")
@@ -201,7 +226,7 @@ install <- function(packages = NULL,
   )
 
   # retrieve packages
-  records <- retrieve(packages)
+  records <- renv_retrieve_impl(packages)
   if (empty(records)) {
     writef("- There are no packages to install.")
     return(invisible(list()))
@@ -211,6 +236,14 @@ install <- function(packages = NULL,
     renv_install_report(records, library = renv_libpaths_active())
     cancel_if(prompt && !proceed())
   }
+
+  # check for installed dependencies
+  if (config$sysreqs.check(default = renv_platform_linux())) {
+    paths <- map(records, `[[`, "Path")
+    sysreqs <- map(paths, renv_sysreqs_read)
+    renv_sysreqs_check(sysreqs, prompt = prompt)
+  }
+
 
   # install retrieved records
   before <- Sys.time()
@@ -223,6 +256,31 @@ install <- function(packages = NULL,
 
   # check loaded packages and inform user if out-of-sync
   renv_install_postamble(names(records))
+
+  # update lockfile if requested
+  if (lock && length(records)) {
+
+    # avoid next automatic snapshot
+    renv_snapshot_auto_suppress_next()
+
+    # re-compute the records, to ensure they're normalized in the same
+    # way as they might be in snapshot()
+    # https://github.com/rstudio/renv/issues/1828
+    updates <- renv_lockfile_create(
+      project  = project,
+      libpaths = libpaths,
+      packages = names(records),
+      exclude  = exclude,
+      prompt   = FALSE,
+      force    = TRUE
+    )
+
+    # overlay these records onto the existing lockfile
+    lockfile <- renv_lockfile_load(project = project)
+    lockfile <- renv_lockfile_modify(lockfile, renv_lockfile_records(updates))
+    renv_lockfile_save(lockfile, project = project)
+
+  }
 
   invisible(records)
 }
@@ -402,12 +460,14 @@ renv_install_package <- function(record) {
 
   # link into cache
   if (renv_cache_config_enabled(project = project)) {
-    renv_cache_synchronize(record, linkable = linkable)
-    feedback <- paste0(feedback, " and cached")
+    cached <- renv_cache_synchronize(record, linkable = linkable)
+    if (cached)
+      feedback <- paste(feedback, "and cached")
   }
 
+  verbose <- config$install.verbose()
   elapsed <- difftime(after, before, units = "auto")
-  renv_install_step_ok(feedback, elapsed = elapsed)
+  renv_install_step_ok(feedback, elapsed = elapsed, verbose = verbose)
 
   invisible()
 
@@ -438,7 +498,7 @@ renv_install_package_cache <- function(record, cache, linker) {
   defer(callback())
 
   # report successful link to user
-  renv_install_step_start("Installing", record$Package)
+  renv_install_step_start("Installing", record$Package, verbose = FALSE)
 
   before <- Sys.time()
   linker(cache, target)
@@ -513,7 +573,8 @@ renv_install_package_impl_prebuild <- function(record, path, quiet) {
     return(path)
   }
 
-  renv_install_step_start("Building", record$Package)
+  verbose <- config$install.verbose()
+  renv_install_step_start("Building", record$Package, verbose = verbose)
 
   before <- Sys.time()
   package <- record$Package
@@ -551,7 +612,10 @@ renv_install_package_impl <- function(record, quiet = TRUE) {
 
   # check whether we should build before install
   path <- renv_install_package_impl_prebuild(record, path, quiet)
-  renv_install_step_start("Installing", record$Package)
+
+  # report start of installation to user
+  verbose <- config$install.verbose()
+  renv_install_step_start("Installing", record$Package, verbose = verbose)
 
   # run user-defined hooks before, after install
   options <- renv_install_package_options(package)
@@ -646,10 +710,11 @@ renv_install_test <- function(package) {
   # we use 'loadNamespace()' rather than 'library()' because some packages might
   # intentionally throw an error in their .onAttach() hooks
   # https://github.com/rstudio/renv/issues/1611
-  code <- substitute({
+  code <- expr({
+    .libPaths(!!.libPaths())
     options(warn = 1L)
-    loadNamespace(package)
-  }, list(package = package))
+    loadNamespace(!!package)
+  })
 
   # write it to a tempfile
   script <- renv_scope_tempfile("renv-install-", fileext = ".R")
@@ -719,7 +784,7 @@ renv_install_preflight_requirements <- function(records) {
   fmt <- "Package '%s' requires '%s', but '%s' will be installed"
   text <- sprintf(fmt, format(package), format(requires), format(actual))
   if (renv_verbose()) {
-    caution_bullets(
+    bulletin(
       "The following issues were discovered while preparing for installation:",
       text,
       "Installation of these packages may not succeed."
@@ -742,7 +807,7 @@ renv_install_postamble <- function(packages) {
   installed <- map_chr(packages, renv_package_version)
   loaded <- map_chr(packages, renv_namespace_version)
 
-  caution_bullets(
+  bulletin(
     c("", "The following loaded package(s) have been updated:"),
     packages[installed != loaded],
     "Restart your R session to use the new versions."
@@ -779,7 +844,7 @@ renv_install_preflight_permissions <- function(library) {
     postamble <- sprintf(fmt, info$effective_user %||% info$user)
 
     # print it
-    caution_bullets(
+    bulletin(
       preamble = preamble,
       values = library,
       postamble = postamble
@@ -812,14 +877,20 @@ renv_install_report <- function(records, library) {
   )
 }
 
-renv_install_step_start <- function(action, package) {
+renv_install_step_start <- function(action, package, verbose = FALSE) {
+
+  if (verbose)
+    return(writef("- %s %s ...", action, package))
+
   message <- sprintf("- %s %s ... ", action, package)
   printf(format(message, width = the$install_step_width))
+
 }
 
-renv_install_step_ok <- function(..., elapsed = NULL) {
+renv_install_step_ok <- function(..., elapsed = NULL, verbose = FALSE) {
   renv_report_ok(
     message = paste(..., collapse = ""),
-    elapsed = elapsed
+    elapsed = elapsed,
+    verbose = verbose
   )
 }

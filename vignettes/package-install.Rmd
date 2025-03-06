@@ -55,9 +55,9 @@ This is much slower, so is worth avoiding.
 You can find the location of the current cache with `renv::paths$cache()`.
 By default, it will be in one of the following folders:
 
--   Linux: `~/.local/share/renv`
--   macOS: `~/Library/Application Support/renv`
--   Windows: `%LOCALAPPDATA%/renv`
+-   Linux:   `~/.cache/R/renv/cache`
+-   macOS:   `~/Library/Caches/org.R-project.R/R/renv/cache`
+-   Windows: `%LOCALAPPDATA%/renv/cache`
 
 If you'd like to share the package cache across multiple users, you can do so by setting the `RENV_PATHS_CACHE` environment variable to a shared path.
 This variable should be set in an R startup file to make it apply to all R sessions.
@@ -136,7 +136,7 @@ For example:
 
 ```{r, eval = FALSE}
 # installation of RNetCDF may require us to set include paths for netcdf
-configure.args = c(RNetCDF = "--with-netcdf-include=/usr/include/udunits2"))
+configure.args = c(RNetCDF = "--with-netcdf-include=/usr/include/udunits2")
 options(configure.args = configure.args)
 renv::install("RNetCDF")
 ```
@@ -170,7 +170,7 @@ renv::install("xml2")
 renv does not build vignettes when installing a package from source.
 This is because vignettes often require suggested packages, and installing all suggested packages (particularly from source) can be arduous.
 
-If you want to distribute vignettes for your own packages, we suggest creating your own repository of binaries, either with [R Universe](https://r-universe.dev/search/) (for publicly hosted packages on GitHub), with [Posit Package Manager](https://posit.co/products/enterprise/package-manager/), or with [drat](https://eddelbuettel.github.io/drat/).
+If you want to distribute vignettes for your own packages, we suggest creating your own repository of binaries, either with [R Universe](https://r-universe.dev/) (for publicly hosted packages on GitHub), with [Posit Package Manager](https://posit.co/products/enterprise/package-manager/), or with [drat](https://eddelbuettel.github.io/drat/).
 
 ## Downloads
 
@@ -247,7 +247,7 @@ If your downloads need to go through a proxy server, then there are a variety of
     This file should be placed in your home folder (see `Sys.getenv("HOME")`, or `Sys.getenv("R_USER")` on Windows); alternatively, you can set the `CURL_HOME` environment variable to point to a custom 'home' folder to be used by `curl` when resolving the runtime configuration file.
     On Windows, you can also place your `_curlrc` in the same directory where the `curl.exe` binary is located.
 
-See the curl documentation on [proxies](https://everything.curl.dev/usingcurl/proxies.html) and [config files](https://everything.curl.dev/cmdline/configfile.html) for more details.
+See the curl documentation on [proxies](https://ec.haxx.se/usingcurl/proxies/) and [config files](https://ec.haxx.se/cmdline/configfile.html) for more details.
 
 As an [example](https://github.com/rstudio/renv/issues/146), the following `_curlrc` works when using authentication with NTLM and SSPI on Windows:
 
@@ -317,6 +317,36 @@ For example, the igraph package on GitHub at <https://github.com/igraph/rigraph>
 ```         
 renv::install("igraph=igraph/rigraph")
 ```
+
+
+#### Azure DevOps
+
+Authentication with Azure DevOps may require credentials to be set in a slightly different way. In particular, you can use:
+
+```
+GITHUB_USER = <username>
+GITHUB_PASS = <password>
+```
+
+replacing `<username>` and `<password>` as appropriate -- for example, your password may just be a PAT. See https://github.com/rstudio/renv/issues/1751 for more details.
+
+
+#### Git and Personal Access Tokens
+
+Rather than username + password, some remote Git repositories might require Personal Access Tokens (PATs) for authentication. Typically, such servers expect authentication credentials where:
+
+- Your PAT is supplied as the username,
+- Either an empty response, or the string `x-oauth-basic`, is provided as the password.
+
+To help facilitate this, you can set:
+
+```
+GIT_USER = <pat>
+GIT_PASS = x-oauth-basic
+```
+
+in an appropriate startup R file.
+
 
 ### Custom headers
 

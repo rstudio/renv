@@ -12,24 +12,6 @@ renv_cache_version_previous <- function() {
   paste("v", number - 1L, sep = "")
 }
 
-renv_cache_init <- function() {
-
-  if (testing() || checking())
-    return()
-
-  root <- renv_paths_root()
-  if (!file.exists(root))
-    return()
-
-  cache <- renv_paths_cache()
-  ensure_directory(cache)
-
-  ignorefile <- file.path(cache, ".renvignore")
-  if (!file.exists(ignorefile))
-    writeLines("*", con = ignorefile)
-
-}
-
 # given a record, find a compatible version of that package in the cache,
 # using a computed hash if available; if no hash is available, then try
 # to match based on the package name + version
@@ -92,8 +74,8 @@ renv_cache_find <- function(record) {
     record <- record[nzchar(record)]
     dcf <- dcf[nzchar(dcf)]
 
-    # drop remote fields for standard remotes
-    if (identical(dcf$RemoteType, "standard"))
+    # drop remote fields for cranlike remotes
+    if (renv_record_cranlike(dcf))
       dcf <- dcf[grep("^Remote(?!s)", names(dcf), invert = TRUE, perl = TRUE)]
 
     # check identical
@@ -293,7 +275,7 @@ renv_cache_diagnose_corrupt_metadata <- function(paths, problems, verbose) {
 
     # nocov start
     if (verbose) {
-      caution_bullets(
+      bulletin(
         "The following package(s) are missing 'Meta/package.rds':",
         renv_cache_format_path(bad),
         "These packages should be purged and reinstalled."
@@ -322,7 +304,7 @@ renv_cache_diagnose_corrupt_metadata <- function(paths, problems, verbose) {
 
     # nocov start
     if (verbose) {
-      caution_bullets(
+      bulletin(
         "The following package(s) have corrupt 'Meta/package.rds' files:",
         renv_cache_format_path(bad),
         "These packages should be purged and reinstalled."
@@ -353,7 +335,7 @@ renv_cache_diagnose_missing_descriptions <- function(paths, problems, verbose) {
 
   # nocov start
   if (verbose) {
-    caution_bullets(
+    bulletin(
       "The following packages are missing DESCRIPTION files in the cache:",
       renv_cache_format_path(bad),
       "These packages should be purged and reinstalled."
@@ -387,7 +369,7 @@ renv_cache_diagnose_bad_hash <- function(paths, problems, verbose) {
     fmt <- "%s %s [Hash: %s != %s]"
     entries <- sprintf(fmt, lhs$Package, lhs$Version, lhs$Hash, rhs$Hash)
 
-    caution_bullets(
+    bulletin(
       "The following packages have incorrect hashes:",
       entries,
       "Consider using `renv::rehash()` to re-hash these packages."
@@ -430,7 +412,7 @@ renv_cache_diagnose_wrong_built_version <- function(paths, problems, verbose) {
     # nocov start
     if (verbose) {
 
-      caution_bullets(
+      bulletin(
         "The following packages have no 'Built' field recorded in their DESCRIPTION file:",
         paths[isna],
         "renv is unable to validate the version of R this package was built for."
@@ -468,7 +450,7 @@ renv_cache_diagnose_wrong_built_version <- function(paths, problems, verbose) {
   # nocov start
   if (verbose) {
 
-    caution_bullets(
+    bulletin(
       "The following packages in the cache were built for a different version of R:",
       renv_cache_format_path(paths[wrong]),
       "These packages will need to be purged and reinstalled."

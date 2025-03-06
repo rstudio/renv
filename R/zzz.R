@@ -1,10 +1,89 @@
 
 .onLoad <- function(libname, pkgname) {
-  renv_zzz_load()
+
+  # NOTE: needs to be visible to embedded instances of renv as well
+  the$envir_self <<- renv_envir_self()
+
+  # load extensions if available
+  renv_ext_onload(libname, pkgname)
+
+  # make sure renv (and packages using renv!!!) use tempdir for storage
+  # when running tests, or R CMD check
+  if (checking() || testing()) {
+
+    # set root directory
+    root <- Sys.getenv("RENV_PATHS_ROOT", unset = tempfile("renv-root-"))
+    Sys.setenv(RENV_PATHS_ROOT = root)
+
+    # unset on exit
+    reg.finalizer(renv_envir_self(), function(envir) {
+      if (identical(root, Sys.getenv("RENV_PATHS_ROOT", unset = NA)))
+        Sys.unsetenv("RENV_PATHS_ROOT")
+    }, onexit = TRUE)
+
+    # set up sandbox -- only done on non-Windows due to strange intermittent
+    # test failures that seemed to occur there?
+    if (renv_platform_unix()) {
+      sandbox <- Sys.getenv("RENV_PATHS_SANDBOX", unset = tempfile("renv-sandbox-"))
+      Sys.setenv(RENV_PATHS_SANDBOX = sandbox)
+    }
+
+  }
+
+  # don't lock sandbox while testing / checking
+  if (testing() || checking() || devmode()) {
+    options(renv.sandbox.locking_enabled = FALSE)
+    Sys.setenv(RENV_SANDBOX_LOCKING_ENABLED = FALSE)
+  }
+
+  renv_defer_init()
+  renv_metadata_init()
+  renv_ext_init()
+  renv_ansify_init()
+  renv_platform_init()
+  renv_virtualization_init()
+  renv_envvars_init()
+  renv_log_init()
+  renv_methods_init()
+  renv_libpaths_init()
+  renv_patch_init()
+  renv_sandbox_init()
+  renv_sdkroot_init()
+  renv_watchdog_init()
+  renv_tempdir_init()
+
+  if (!renv_metadata_embedded()) {
+
+    # TODO: It's not clear if these callbacks are safe to use when renv is
+    # embedded, but it's unlikely that clients would want them anyhow.
+    renv_task_create(renv_sandbox_task)
+    renv_task_create(renv_snapshot_task)
+  }
+
+  # if an renv project already appears to be loaded, then re-activate
+  # the sandbox now -- this is primarily done to support suspend and
+  # resume with RStudio where the user profile might not have been run,
+  # but RStudio would have restored options from the prior session
+  #
+  # https://github.com/rstudio/renv/issues/2036
+  if (renv_rstudio_available()) {
+    project <- getOption("renv.project.path")
+    if (!is.null(project)) {
+      renv_project_set(project)
+      renv_sandbox_activate(project = project)
+    }
+  }
+
+  # make sure renv is unloaded on exit, so locks etc. are released
+  # we previously tried to orchestrate this via unloadNamespace(),
+  # but this fails when a package importing renv is already loaded
+  # https://github.com/rstudio/renv/issues/1621
+  reg.finalizer(renv_envir_self(), renv_unload_finalizer, onexit = TRUE)
+
 }
 
 .onAttach <- function(libname, pkgname) {
-  renv_zzz_attach()
+  renv_rstudio_fixup()
 }
 
 .onUnload <- function(libpath) {
@@ -19,7 +98,7 @@
 
   # flush the help db to avoid errors on reload
   # https://github.com/rstudio/renv/issues/1294
-  helpdb <- system.file(package = "renv", "help/renv.rdb")
+  helpdb <- file.path(libpath, "help/renv.rdb")
   .Internal <- .Internal
   lazyLoadDBflush <- function(...) {}
 
@@ -32,84 +111,15 @@
 
 # NOTE: required for devtools::load_all()
 .onDetach <- function(libpath) {
-  package <- Sys.getenv("DEVTOOLS_LOAD", unset = NA)
-  if (identical(package, .packageName))
+  if (devmode())
     .onUnload(libpath)
-}
-
-renv_zzz_load <- function() {
-
-  # NOTE: needs to be visible to embedded instances of renv as well
-  the$envir_self <<- renv_envir_self()
-
-  # make sure renv (and packages using renv!!!) use tempdir for storage
-  # when running tests, or R CMD check
-  if (checking() || testing()) {
-
-    # set root directory
-    root <- Sys.getenv("RENV_PATHS_ROOT", unset = tempfile("renv-root-"))
-    Sys.setenv(RENV_PATHS_ROOT = root)
-
-    # set up sandbox -- only done on non-Windows due to strange intermittent
-    # test failures that seemed to occur there?
-    if (renv_platform_unix()) {
-      sandbox <- Sys.getenv("RENV_PATHS_SANDBOX", unset = tempfile("renv-sandbox-"))
-      Sys.setenv(RENV_PATHS_SANDBOX = sandbox)
-    }
-
-    # don't lock sandbox while testing / checking
-    options(renv.sandbox.locking_enabled = FALSE)
-
-  }
-
-  renv_defer_init()
-  renv_metadata_init()
-  renv_platform_init()
-  renv_virtualization_init()
-  renv_envvars_init()
-  renv_log_init()
-  renv_methods_init()
-  renv_cache_init()
-  renv_libpaths_init()
-  renv_patch_init()
-  renv_sandbox_init()
-  renv_sdkroot_init()
-  renv_watchdog_init()
-
-  if (!renv_metadata_embedded()) {
-
-    # TODO: It's not clear if these callbacks are safe to use when renv is
-    # embedded, but it's unlikely that clients would want them anyhow.
-    renv_task_create(renv_sandbox_task)
-    renv_task_create(renv_snapshot_task)
-  }
-
-  # if an renv project already appears to be loaded, then re-activate
-  # the sandbox now -- this is primarily done to support suspend and
-  # resume with RStudio where the user profile might not be run
-  if (renv_rstudio_available()) {
-    project <- getOption("renv.project.path")
-    if (!is.null(project))
-      renv_sandbox_activate(project = project)
-  }
-
-  # make sure renv is unloaded on exit, so locks etc. are released
-  # we previously tried to orchestrate this via unloadNamespace(),
-  # but this fails when a package importing renv is already loaded
-  # https://github.com/rstudio/renv/issues/1621
-  reg.finalizer(renv_envir_self(), renv_unload_finalizer, onexit = TRUE)
-
-}
-
-renv_zzz_attach <- function() {
-  renv_rstudio_fixup()
 }
 
 renv_zzz_run <- function() {
 
   # check if we're in pkgload::load_all()
   # if so, then create some files
-  if (renv_envvar_exists("DEVTOOLS_LOAD")) {
+  if (devmode()) {
     renv_zzz_bootstrap_activate()
     renv_zzz_bootstrap_config()
   }
@@ -125,7 +135,7 @@ renv_zzz_bootstrap_activate <- function() {
 
   source <- "templates/template-activate.R"
   target <- "inst/resources/activate.R"
-  scripts <- c("R/bootstrap.R", "R/json-read.R")
+  scripts <- c("R/ansify.R", "R/bootstrap.R", "R/json-read.R")
 
   # Do we need an update
   source_mtime <- max(renv_file_info(c(source, scripts))$mtime)

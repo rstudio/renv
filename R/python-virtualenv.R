@@ -95,7 +95,7 @@ renv_python_virtualenv_snapshot <- function(project, prompt, python) {
     return(FALSE)
   }
 
-  caution_bullets("The following will be written to requirements.txt:", after)
+  bulletin("The following will be written to requirements.txt:", after)
 
   cancel_if(prompt && !proceed())
 
@@ -115,19 +115,18 @@ renv_python_virtualenv_restore <- function(project, prompt, python) {
   if (!file.exists(path))
     return(FALSE)
 
-  before <- readLines(path, warn = FALSE)
-  after <- pip_freeze(python = python)
-  diff <- renv_vector_diff(before, after)
+  saved <- readLines(path, warn = FALSE)
+  current <- pip_freeze(python = python)
+  diff <- renv_vector_diff(saved, current)
   if (empty(diff)) {
     writef("- The Python library is already up to date.")
     return(FALSE)
   }
 
-  caution_bullets("The following Python packages will be restored:", diff)
-
+  bulletin("The following Python packages will be restored:", diff)
   cancel_if(prompt && !proceed())
 
-  pip_install_requirements(diff, python = python, stream = TRUE)
+  pip_install_requirements(saved, python = python, stream = TRUE)
   TRUE
 
 }

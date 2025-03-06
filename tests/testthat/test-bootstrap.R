@@ -31,6 +31,7 @@ test_that("we can install a version of renv with a sha", {
 
   skip_on_cran()
   skip_on_ci()
+  skip_if_no_github_auth()
 
   renv_tests_scope()
 
@@ -48,7 +49,7 @@ test_that("we can install a version of renv with a sha", {
 test_that("bootstrap functions don't depend on non-bootstrap APIs", {
 
   # pattern matching things that are bootstrapped for renv
-  pattern <- "^renv_(?:bootstrap|json)_"
+  pattern <- "^renv_(?:bootstrap|json|options|remote)_"
 
   # get all of the bootstrap functions defined in renv
   renv <- asNamespace("renv")
@@ -58,7 +59,7 @@ test_that("bootstrap functions don't depend on non-bootstrap APIs", {
 
   # iterate over those functions and look for the called functions
   calls <- stack(mode = "character")
-  recurse(bodies, function(node, stack) {
+  recurse(bodies, function(node) {
     if (is.call(node) && is.symbol(node[[1L]]))
       calls$push(as.character(node[[1L]]))
   })
@@ -235,6 +236,7 @@ test_that("renv_boostrap_version_validate() gives good warnings", {
       version = structure("1.2.3-1", sha = "22d015905828c3398728a5ff9e381e0433976263"),
       description = list(
         Version = "1.2.3-1",
+        RemoteType = "github",
         RemoteSha = "6b09befaaba3f55e0e2c141cb45c5d247b61ef1e"
       )
     )
@@ -248,5 +250,23 @@ test_that("renv_boostrap_version_validate() gives good warnings", {
     )
 
   })
+
+})
+
+test_that("bootstrap version validation handles 'standard' remote types", {
+
+  renv_scope_options(renv.bootstrap.quiet = FALSE)
+  expect_snapshot(
+
+    . <- renv_bootstrap_validate_version(
+      version = "1.0.0",
+      description = list(
+        Version = "1.0.1",
+        RemoteType = "standard",
+        RemoteSha = "1.0.1"
+      )
+    )
+
+  )
 
 })

@@ -6,7 +6,7 @@ the$status_running <- FALSE
 #' @description
 #' `renv::status()` reports issues caused by inconsistencies across the project
 #' lockfile, library, and [dependencies()]. In general, you should strive to
-#' ensure that `status()` reports no issues, as this maximises your chances of
+#' ensure that `status()` reports no issues, as this maximizes your chances of
 #' successfully `restore()`ing the project in the future or on another machine.
 #'
 #' `renv::load()` will report if any issues are detected when starting an
@@ -71,6 +71,23 @@ the$status_running <- FALSE
 #' If you're not sure which case applies, it's generally safer to call
 #' `renv::snapshot()`. If you want to rollback to an earlier known good
 #' status, see [renv::history()] and [renv::revert()].
+#'
+#' # Different R Version
+#'
+#' renv will also notify you if the version of R used when the lockfile was
+#' generated, and the version of R currently in use, do not match. In this
+#' scenario, you'll need to consider:
+#'
+#' - Is the version of R recorded in the lockfile correct? If so, you'll want
+#'   to ensure that version of R is installed and used when working in this
+#'   project.
+#'
+#' - Otherwise, you can call `renv::snapshot()` to update the version of R
+#'   recorded in the lockfile, to match the version of R currently in use.
+#'
+#' If you'd like to set the version of R recorded in a lockfile independently
+#' of the version of R currently in use, you can set the `r.version` project
+#' setting -- see [settings] for more details.
 #'
 #' @inherit renv-params
 #'
@@ -162,9 +179,11 @@ status <- function(project = NULL,
   renv_lockfile_records(lockfile) <- omit(renv_lockfile_records(lockfile), ignored)
   renv_lockfile_records(library) <- omit(renv_lockfile_records(library), ignored)
 
-  synchronized <-
-    renv_status_check_consistent(lockfile, library, packages) &&
-    renv_status_check_synchronized(lockfile, library)
+  synchronized <- all(
+    renv_status_check_consistent(lockfile, library, packages),
+    renv_status_check_synchronized(lockfile, library),
+    renv_status_check_version(lockfile)
+  )
 
   if (sources) {
     synchronized <- synchronized &&
@@ -177,7 +196,7 @@ status <- function(project = NULL,
   if (synchronized)
     writef("No issues found -- the project is in a consistent state.")
   else
-    writef(c("", "See ?renv::status() for advice on resolving these issues."))
+    writef("See `?renv::status` for advice on resolving these issues.")
 
   result <- list(
     library      = library,
@@ -200,36 +219,43 @@ renv_status_check_consistent <- function(lockfile, library, used) {
 
   packages <- sort(unique(c(names(library), names(lockfile), used)))
 
-  status <- data.frame(
-    package = packages,
+  status <- data_frame(
+    package   = packages,
     installed = packages %in% names(library),
-    recorded = packages %in% names(lockfile),
-    used = packages %in% used
+    recorded  = packages %in% names(lockfile),
+    used      = packages %in% used
   )
 
   ok <- status$installed & (status$used == status$recorded)
   if (all(ok))
     return(TRUE)
 
-  if (renv_verbose()) {
-    # If any packages are not installed, we don't know for sure what's used
-    # because our dependency graph is incomplete
-    issues <- status[!ok, , drop = FALSE]
-    missing <- !issues$installed
-    issues$installed <- ifelse(issues$installed, "y", "n")
-    issues$recorded <- ifelse(issues$recorded, "y", "n")
-    issues$used <- ifelse(issues$used, "y", if (any(missing)) "?" else "n")
+  if (!renv_verbose())
+    return(FALSE)
 
-    if (any(missing)) {
-      msg <- "The following package(s) are missing:"
-      issues <- issues[missing, ]
-    } else {
-      msg <- "The following package(s) are in an inconsistent state:"
-    }
-    writef(msg)
-    writef()
-    print(issues, row.names = FALSE, right = FALSE)
+  issues <- status[!ok, , drop = FALSE]
+  missing <- issues$used & !issues$installed
+  if (all(missing)) {
+
+    bulletin(
+      preamble = "The following package(s) are used in this project, but are not installed:",
+      values   = issues$package[missing]
+    )
+
+    return(FALSE)
+
   }
+
+  issues$installed <- ifelse(issues$installed, "y", "n")
+  issues$recorded <- ifelse(issues$recorded, "y", "n")
+  issues$used <- ifelse(issues$used, "y", if (any(missing)) "?" else "n")
+
+  preamble <- "The following package(s) are in an inconsistent state:"
+
+  writef(preamble)
+  writef()
+  print(issues, row.names = FALSE, right = FALSE)
+  writef()
 
   FALSE
 
@@ -284,16 +310,33 @@ renv_status_check_synchronized <- function(lockfile, library) {
   actions <- renv_lockfile_diff_packages(lockfile, library)
   rest <- c("upgrade", "downgrade", "crossgrade")
 
-  if (all(!rest %in% actions)) {
+  if (all(!rest %in% actions))
     return(TRUE)
-  }
 
   pkgs <- names(actions[actions %in% rest])
+  formatter <- function(lhs, rhs)
+    renv_record_format_pair(lhs, rhs, separator = "!=")
+
   renv_pretty_print_records_pair(
-    preamble = "The following package(s) are out of sync [lockfile -> library]:",
-    lockfile[pkgs],
-    library[pkgs],
+    preamble = "The following package(s) are out of sync [lockfile != library]:",
+    old = lockfile[pkgs],
+    new = library[pkgs],
+    formatter = formatter
   )
+
+  FALSE
+
+}
+
+renv_status_check_version <- function(lockfile) {
+
+  version <- lockfile$R$Version
+  if (renv_version_eq(version, getRversion(), n = 2L))
+    return(TRUE)
+
+  fmt <- "The lockfile was generated with R %s, but you're using R %s."
+  writef(fmt, version, getRversion())
+  writef()
 
   FALSE
 

@@ -31,7 +31,7 @@ renv_watchdog_enabled_impl <- function() {
   if (getRversion() < "4.0.0")
     return(FALSE)
 
-  # skip if explicitly disabled via envvar
+  # allow override via environment variable
   enabled <- Sys.getenv("RENV_WATCHDOG_ENABLED", unset = NA)
   if (!is.na(enabled))
     return(truthy(enabled))
@@ -81,7 +81,7 @@ renv_watchdog_start_impl <- function() {
   # can communicate what port it'll be listening on for messages
   dlog("watchdog", "launching watchdog")
   server <- renv_socket_server()
-  socket <- server$socket; port <- server$port
+  socket <- server$socket
   defer(close(socket))
 
   # generate script to invoke watchdog
@@ -94,20 +94,9 @@ renv_watchdog_start_impl <- function() {
   else
     renv_libpaths_default()
 
-  # for R CMD check
-  name <- .packageName
-  pid <- Sys.getpid()
-
-  env <- list(
-    name    = name,
-    library = library,
-    pid     = pid,
-    port    = port
-  )
-
-  code <- substitute(env = env, {
-    client <- list(pid = pid, port = port)
-    host <- loadNamespace(name, lib.loc = library)
+  code <- expr({
+    client <- list(pid = !!Sys.getpid(), port = !!server$port)
+    host <- loadNamespace(!!.packageName, lib.loc = !!library)
     renv <- if (!is.null(host$renv)) host$renv else host
     renv$renv_watchdog_server_start(client)
   })

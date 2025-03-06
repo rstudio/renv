@@ -176,6 +176,7 @@ test_that("renv can detect broken junctions / symlinks", {
 
   if (renv_platform_windows()) {
 
+    file.create("file")
     dir.create("dir")
     dir.create("nowhere")
     Sys.junction("dir", "junction")
@@ -199,3 +200,23 @@ test_that("renv can detect broken junctions / symlinks", {
 
 })
 
+test_that("renv can detect junction points", {
+  skip_on_cran()
+  skip_if(!renv_platform_windows())
+
+  renv_scope_tempdir()
+  dir.create("source")
+  defer(unlink("source", recursive = TRUE))
+
+  # create some files -- should give the directory a size,
+  # but this seems unreliable?
+  files <- sprintf("source/%05i.txt", 1:100)
+  file.create(files)
+
+  # create a junction point
+  Sys.junction("source", "junction")
+  defer(unlink("junction", recursive = TRUE))
+
+  # check that they're the same
+  expect_true(renv_file_same("source", "junction"))
+})

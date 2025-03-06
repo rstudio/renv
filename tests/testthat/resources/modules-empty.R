@@ -1,0 +1,4 @@
+
+example <- function() {
+  module()
+}

@@ -76,3 +76,8 @@ renv_scope_local <- function() {
   path <- renv_tests_path("local")
   renv_scope_envvars(RENV_PATHS_LOCAL = path, scope = parent.frame())
 }
+
+renv_tests_dependencies <- function(packages) {
+  code <- sprintf("library(%s)", packages)
+  cat(code, file = "dependencies.R", sep = "\n", append = TRUE)
+}

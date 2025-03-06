@@ -49,6 +49,29 @@ test_that("we can create lockfiles from manifests", {
 
 })
 
+test_that("we create lockfile from a manifest automatically when no lockfile found", {
+
+  skip_on_cran()
+
+  project <- tempfile()
+  dir.create(project)
+
+  path <- renv_tests_path("resources/manifest.json")
+  expected <- renv_lockfile_from_manifest(path)
+  file.copy(path, file.path(project, "manifest.json"))
+
+  # when called with `strict = TRUE` does not create manifest
+  expect_error(renv_lockfile_load(project, strict = TRUE))
+
+  # creates and reads lockfile
+  actual <- renv_lockfile_load(project)
+  expect_identical(expected, actual)
+  expect_true(file.exists(file.path(project, "renv.lock")))
+
+  unlink(project, recursive = TRUE)
+
+})
+
 test_that("the Requirements field is read as character", {
 
   lockfile <- renv_lockfile_read(text = '
@@ -98,5 +121,27 @@ test_that("lockfile APIs can be used", {
 
   # check that it's the same
   expect_equal(lockfile, lockfile_read())
+
+})
+
+test_that("lockfiles with UTF-8 contents can be written, read", {
+
+  author <- enc2utf8("cr\u00e8me br\u00fbl\u00e9e")
+  Encoding(author) <- "UTF-8"
+
+  lockfile <- list(
+    Packages = list(
+      example = list(
+        Package = "example",
+        Version = "1.0.0",
+        Author  = author
+      )
+    )
+  )
+
+  path <- renv_scope_tempfile("renv-lockfile-")
+  renv_lockfile_write(lockfile, file = path)
+  actual <- renv_lockfile_read(path)
+  expect_identical(unclass(actual), lockfile)
 
 })

@@ -8,19 +8,20 @@ the$init_running <- FALSE
 #'
 #' 1. Set up project infrastructure (as described in [scaffold()]) including
 #'    the project library and the `.Rprofile` that ensures renv will be
-#'    used in all future sessions.
+#'    used in all future sessions,
 #'
-#' 1. Discover the packages that are currently being used in your project and
-#'    install them into the project library (as described in [hydrate()]).
+#' 1. Discover the packages that are currently being used in your project
+#'    (via [dependencies()]), and install them into the project library
+#'    (as described in [hydrate()]),
 #'
 #' 1. Create a lockfile that records the state of the project library so it
-#'    can be restored by others (as described in [snapshot()]).
+#'    can be restored by others (as described in [snapshot()]),
 #'
-#' 1. Restarts R (if running inside RStudio).
+#' 1. Restart R (if running inside RStudio).
 #'
-#' If you call `init()` on a project that already uses renv, it will attempt
-#' to do the right thing: it will restore the project library if it's missing,
-#' or otherwise ask you what to do.
+#' If you call `renv::init()` with a project that is already using renv, it will
+#' attempt to do the right thing: it will restore the project library if it's
+#' missing, or otherwise ask you what to do.
 #'
 #' # Repositories
 #'
@@ -40,12 +41,12 @@ the$init_running <- FALSE
 #' @param settings A list of [settings] to be used with the newly-initialized
 #'   project.
 #'
-#' @param bare Boolean; initialize the project without attempting to discover
-#'   and install R package dependencies?
+#' @param bare Boolean; initialize the project with an empty project library,
+#'   without attempting to discover and install \R package dependencies?
 #'
 #' @param force Boolean; force initialization? By default, renv will refuse
 #'   to initialize the home directory as a project, to defend against accidental
-#'   mis-usages of `init()`.
+#'   misusages of `init()`.
 #'
 #' @param repos The \R repositories to be used in this project.
 #'   See **Repositories** for more details.
@@ -60,7 +61,7 @@ the$init_running <- FALSE
 #'
 #' @param restart Boolean; attempt to restart the \R session after initializing
 #'   the project? A session restart will be attempted if the `"restart"` \R
-#'   option is set by the frontend embedding \R.
+#'   option is set by the frontend hosting \R.
 #'
 #' @export
 #'
@@ -91,6 +92,7 @@ init <- function(project = NULL,
 
   # normalize repos
   repos <- renv_repos_normalize(repos %||% renv_init_repos())
+  renv_scope_options(repos = repos)
 
   # form path to lockfile, library
   library  <- renv_paths_library(project = project)
@@ -104,12 +106,16 @@ init <- function(project = NULL,
   biocver <- renv_init_bioconductor(bioconductor, project)
   if (!is.null(biocver)) {
 
+    # validate that this version of bioconductor is appropriate
+    renv_bioconductor_validate(version = biocver)
+
     # make sure a Bioconductor package manager is installed
     renv_bioconductor_init(library = library)
 
     # retrieve bioconductor repositories appropriate for this project
     repos <- renv_bioconductor_repos(project = project, version = biocver)
-
+    renv_scope_options(repos = repos)
+  
     # notify user
     writef("- Using Bioconductor version '%s'.", biocver)
     settings[["bioconductor.version"]] <- biocver
@@ -127,7 +133,7 @@ init <- function(project = NULL,
   }
 
   # compute and cache dependencies to (a) reveal problems early and (b) compute once
-  deps <- renv_snapshot_dependencies(project, type = type, dev = TRUE)
+  renv_snapshot_dependencies(project, type = type, dev = TRUE)
 
   # determine appropriate action
   action <- renv_init_action(project, library, lockfile, bioconductor)
@@ -141,9 +147,10 @@ init <- function(project = NULL,
     renv_scope_options(renv.config.dependency.errors = "ignored")
     renv_imbue_impl(project, library = library)
     hydrate(library = library, repos = repos, prompt = FALSE, report = FALSE, project = project)
-    snapshot(library = libpaths, repos = repos, prompt = FALSE, project = project)
+    snapshot(library = libpaths, repos = repos, prompt = FALSE, project = project, force = TRUE)
   } else if (action == "restore") {
     ensure_directory(library)
+    renv_sandbox_activate(project = project)
     restore(project = project, library = libpaths, repos = repos, prompt = FALSE)
   }
 
@@ -220,11 +227,20 @@ renv_init_action_conflict_library <- function(project, library, lockfile) {
   if (!interactive())
     return("nothing")
 
-  # if the project library exists, but it's empty, or only renv is installed,
+  # if the project library exists, but it's empty,
   # treat this as a request to initialize the project
   # https://github.com/rstudio/renv/issues/1668
   db <- installed_packages(lib.loc = library, priority = NA_character_)
-  if (nrow(db) == 0L || identical(db$Package, "renv"))
+  if (nrow(db) == 0L)
+    return("init")
+
+  # if only renv is installed, but it matches the version of renv being used
+  renvonly <-
+    NROW(db) == 1L &&
+    db[["Package"]] == "renv" &&
+    db[["Version"]] == renv_package_version("renv")
+
+  if (renvonly)
     return("init")
 
   title <- "This project already has a private library. What would you like to do?"
@@ -296,25 +312,37 @@ renv_init_bioconductor <- function(bioconductor, project) {
 
 }
 
-renv_init_repos <- function() {
+renv_init_repos <- function(repos = getOption("repos")) {
 
   # if PPM is disabled, just use default repositories
-  repos <- convert(getOption("repos"), "list")
+  repos <- convert(repos, "list")
   if (!renv_ppm_enabled())
     return(repos)
 
+  # check whether the user has opted into using PPM by default
   enabled <- config$ppm.default()
   if (!enabled)
     return(repos)
 
-  # check for default repositories set
-  rstudio <- attr(repos, "RStudio", exact = TRUE)
-  if (identical(rstudio, TRUE) || identical(repos, list(CRAN = "@CRAN@"))) {
+  # check for default repositories
+  #
+  # note that if the user is using RStudio, we only want to override
+  # the repositories if they haven't explicitly set their own repo URL
+  #
+  # https://github.com/rstudio/renv/issues/1782
+  rstudio <- structure(
+    list(CRAN = "https://cran.rstudio.com/"),
+    RStudio = TRUE
+  )
+
+  isdefault <-
+    identical(repos, list(CRAN = "@CRAN@")) ||
+    identical(repos, rstudio)
+
+  if (isdefault) {
     repos[["CRAN"]] <- config$ppm.url()
-    return(repos)
   }
 
-  # repos appears to have been configured separately; just use it
   repos
 
 }

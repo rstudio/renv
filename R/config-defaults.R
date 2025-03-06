@@ -339,6 +339,15 @@ config <- list(
     )
   },
 
+  sysreqs.check = function(..., default = TRUE) {
+    renv_config_get(
+      name    = "sysreqs.check",
+      type    = "logical[1]",
+      default = default,
+      args    = list(...)
+    )
+  },
+
   updates.check = function(..., default = FALSE) {
     renv_config_get(
       name    = "updates.check",

@@ -1,7 +1,7 @@
 
 renv <- new.env(parent = new.env())
 
-renv$initialize <- function() {
+renv$initialize <- function(libname, pkgname) {
 
   # set up renv + imports environments
   attr(renv, "name") <- "embedded:renv"
@@ -25,7 +25,7 @@ renv$initialize <- function() {
   renv$the$metadata <- ..metadata..
 
   # run our load / attach hooks so internal state is initialized
-  renv$renv_zzz_load()
+  renv$.onLoad(libname, pkgname)
 
   # remove our initialize method when we're done
   rm(list = "initialize", envir = renv)

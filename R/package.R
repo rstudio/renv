@@ -46,9 +46,14 @@ renv_package_version <- function(package) {
 }
 
 renv_package_description_field <- function(package, field) {
+
   path <- renv_package_find(package)
+  if (!nzchar(path))
+    return(NULL)
+
   desc <- renv_description_read(path)
   desc[[field]]
+
 }
 
 renv_package_type <- function(path, quiet = FALSE, default = "source") {
@@ -147,17 +152,24 @@ renv_package_pkgtypes <- function() {
 
 }
 
-renv_package_augment_standard <- function(record) {
-
-  # only done for repository remotes
-  if (!identical(record$Source, "Repository"))
-    return(record)
+renv_package_augment_standard <- function(path, record) {
 
   # check whether we tagged a url + type for this package
   url  <- attr(record, "url", exact = TRUE)
   type <- attr(record, "type", exact = TRUE)
   name <- attr(record, "name", exact = TRUE)
   if (is.null(url) || is.null(type))
+    return(record)
+
+  # skip if this isn't a repository remote
+  if (!identical(record$Source, "Repository"))
+    return(record)
+
+  # skip if the DESCRIPTION file already has Remote fields
+  # (mainly relevant for r-universe)
+  descpath <- file.path(path, "DESCRIPTION")
+  desc <- renv_description_read(descpath)
+  if (any(grepl("^Remote", names(desc))))
     return(record)
 
   # figure out base of repository URL
@@ -185,8 +197,8 @@ renv_package_augment_standard <- function(record) {
 
 renv_package_augment <- function(installpath, record) {
 
-  # try to include repository fields
-  record <- renv_package_augment_standard(record)
+  # figure out if we should write this as a 'standard' remote
+  record <- renv_package_augment_standard(installpath, record)
 
   # check for remotes fields
   remotes <- record[grep("^Remote", names(record))]
@@ -442,15 +454,6 @@ renv_package_unpack <- function(package, path, subdir = "", force = FALSE) {
   # find DESCRIPTION files in the archive
   descpaths <- renv_archive_find(path, "(?:^|/)DESCRIPTION$")
 
-  # check for a top-level DESCRIPTION file
-  # this is done in case the archive has been already been re-packed, so that a
-  # package originally located within a sub-directory is now at the top level
-  if (!force) {
-    descpath <- grep("^[^/]+/DESCRIPTION$", descpaths, perl = TRUE, value = TRUE)
-    if (length(descpath))
-      return(path)
-  }
-
   # try to resolve the path to the DESCRIPTION file in the archive
   descpath <- if (nzchar(subdir)) {
     pattern <- sprintf("(?:^|/)\\Q%s\\E/DESCRIPTION$", subdir)
@@ -460,7 +463,16 @@ renv_package_unpack <- function(package, path, subdir = "", force = FALSE) {
     descpaths[n == min(n)]
   }
 
-  # if this failed, error
+  # if this failed, check for a top-level DESCRIPTION file
+  # this is done in case the archive has been already been re-packed, so that a
+  # package originally located within a sub-directory is now at the top level
+  if (!force && length(descpath) != 1L) {
+    descpath <- grep("^[^/]+/DESCRIPTION$", descpaths, perl = TRUE, value = TRUE)
+    if (length(descpath))
+      return(path)
+  }
+
+  # if this still failed, error
   if (length(descpath) != 1L) {
     fmt <- "internal error: couldn't find DESCRIPTION file for package '%s' in archive '%s'"
     stopf(fmt, package, path)
@@ -482,4 +494,10 @@ renv_package_unpack <- function(package, path, subdir = "", force = FALSE) {
   # use newpath
   newpath
 
+}
+
+renv_package_libsdir <- function(package, arch = NULL) {
+  package <- renv_package_find(package)
+  arch <- arch %||% if (nzchar(.Platform$r_arch)) .Platform$r_arch
+  paste(c(package, "libs", arch), collapse = "/")
 }
