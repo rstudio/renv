@@ -13,15 +13,12 @@ sprintf <- function(fmt, ...) {
 
 substring <- function(text, first, last = .Machine$integer.max) {
 
-  if (!is.character(text))
-    text <- as.character(text)
-
   n <- length(text)
   if (n == 0L)
     return(text)
 
   m <- max(n, length(first), length(last))
-  text <- rep_len(text, length.out = m)
+  text <- rep_len(as.character(text), length.out = m)
   substr(text, first, last)
 
 }

@@ -133,33 +133,32 @@ renv_config_decode_envvar <- function(envname, envval) {
     return(get(envval, envir = map, inherits = FALSE))
 
   libvars <- c("RENV_CONFIG_EXTERNAL_LIBRARIES", "RENV_CONFIG_HYDRATE_LIBPATHS")
-  pattern <- if (envname %in% libvars)
-    "\\s*[:;,]\\s*"
-  else
-    "\\s*,\\s*"
-
-  values <- strsplit(envval, pattern, perl = TRUE)[[1L]]
-
-  # fix up single-letter paths for Windows
-  # https://github.com/rstudio/renv/issues/2069
-  result <- stack(mode = "character")
-
-  i <- 1L
-  while (i <= length(values)) {
-
-    if (nchar(values[[i]]) == 1L) {
-      value <- paste(values[[i]], values[[i + 1L]], sep = ":")
-      result$push(value)
-      i <- i + 2L
-    } else {
-      value <- values[[i]]
-      result$push(value)
-      i <- i + 1L
-    }
-
+  if (envname %in% libvars) {
+    decoded <- renv_config_decode_libpaths(envval)
+    return(decoded)
   }
 
-  result$data()
+  strsplit(envval, "\\s*,\\s*", perl = TRUE)[[1L]]
+
+}
+
+renv_config_decode_libpaths <- function(envval) {
+
+  # get the location of potential split delimiters
+  pattern <- "\\s*[:;,]\\s*"
+  indices <- gregexpr(pattern, envval, perl = TRUE)[[1L]]
+  if (identical(c(indices), -1L))
+    return(envval)
+
+  # drop delimiters that are a distance of 2 from previous
+  # https://github.com/rstudio/renv/issues/2069
+  diffs <- diff(c(0L, indices))
+  indices <- indices[diffs != 2L]
+
+  # split at the discovered indices
+  starts <- c(1L, indices + 1L)
+  ends <- c(indices - 1L, nchar(envval))
+  substring(envval, starts, ends)
 
 }
 
