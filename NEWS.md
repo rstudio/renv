@@ -1,6 +1,9 @@
 
 # renv (development version)
 
+* Fixed an issue where `renv::hydrate()` could fail to install packages
+  discovered in the user library during `renv::init()`. (#2109)
+
 * `renv::update()` now only updates the packages installed in the project
   library by default. `renv::update(all = TRUE)` can be used to also
   check if packages installed in the default library are out-of-date, and

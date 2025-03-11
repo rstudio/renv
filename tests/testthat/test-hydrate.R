@@ -43,3 +43,25 @@ test_that("hydrate(update = FALSE) does not update older packages", {
   expect_true(renv_package_version("bread") == "1.0.0")
 
 })
+
+test_that("hydrate succeeds when package installed into user library", {
+
+  # use alternate (empty) cache for this test
+  cachedir <- renv_scope_tempfile("renv-cache-")
+  ensure_directory(cachedir)
+  renv_scope_envvars(RENV_PATHS_CACHE = cachedir)
+
+  # initialize empty project
+  project <- renv_tests_scope()
+  init()
+
+  # make sure 'bread' isn't in the cache currently
+  # install 'bread' into a user library path
+  userlib <- renv_scope_tempdir("renv-library-")
+  install("bread", library = userlib)
+
+  # try to hydrate from that source
+  hydrate(packages = "bread", sources = userlib)
+  expect_true(renv_package_installed("bread"))
+
+})
