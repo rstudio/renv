@@ -96,7 +96,7 @@ renv_cache_find <- function(record) {
 # were moved to the renv cache
 renv_cache_path <- function(path) {
   record <- renv_description_read(path)
-  record$Hash <- renv_hash_description(path)
+  record[["Hash"]] <- renv_hash_description(path)
   renv_cache_find(record)
 }
 
@@ -130,7 +130,7 @@ renv_cache_synchronize <- function(record, linkable = FALSE) {
     return(FALSE)
 
   # if we don't have a hash, compute it now
-  record$Hash <- record$Hash %||% renv_hash_description(path)
+  record[["Hash"]] <- record[["Hash"]] %||% renv_hash_description(path)
 
   # construct cache entry
   caches <- renv_cache_find(record)

@@ -93,21 +93,21 @@ hydrate <- function(packages = NULL,
   # also consider remotes; if a package is listed within Remotes,
   # then choose to install that package instead of linking it
   filter <- function(specs, remotes) {
-    
+
     packages <- enum_chr(remotes, function(package, remote) {
-      
+
       # if we have a package name, use it
       if (is.character(package) && nzchar(package))
         return(package)
-      
+
       # otherwise, resolve the remote and use the package field
       remote <- resolve(remote)
       remote[["Package"]]
-      
+
     })
-    
+
     keep(specs, packages)
-    
+
   }
 
   remotes <- renv_project_remotes(project, filter = filter, resolve = TRUE)
@@ -258,11 +258,15 @@ renv_hydrate_libpaths <- function() {
 # to the (private) library 'library'
 renv_hydrate_link_package <- function(package, location, library) {
 
-  # construct path to cache
+  # compute package record
   record <- catch(renv_snapshot_description(location))
   if (inherits(record, "error"))
     return(FALSE)
 
+  # compute a hash now if we don't have one
+  record[["Hash"]] <- record[["Hash"]] %||% renv_hash_description(location)
+
+  # construct path to cache
   cache <- renv_cache_find(record)
   if (!nzchar(cache))
     return(FALSE)

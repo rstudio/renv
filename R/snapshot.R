@@ -1,8 +1,4 @@
 
-# controls whether hashes are computed when computing a snapshot
-# can be scoped to FALSE when hashing is not necessary
-the$auto_snapshot_hash <- TRUE
-
 #' Record current state of the project library in the lockfile
 #'
 #' @description
@@ -763,12 +759,10 @@ renv_snapshot_description_impl_v1 <- function(dcf, path = NULL) {
   }
 
   # generate a hash if we can
-  dcf[["Hash"]] <- if (the$auto_snapshot_hash) {
-    if (is.null(path))
-      renv_hash_record(dcf)
-    else
-      renv_hash_description(path)
-  }
+  dcf[["Hash"]] <- if (is.null(path))
+    renv_hash_record(dcf)
+  else
+    renv_hash_description(path)
 
   # generate a Requirements field -- primarily for use by 'pak'
   fields <- c("Depends", "Imports", "LinkingTo")
