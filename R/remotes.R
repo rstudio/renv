@@ -924,10 +924,7 @@ renv_remotes_resolve_gitlab <- function(remote) {
 
 renv_remotes_resolve_url <- function(url, quiet = FALSE) {
 
-  tempfile <- renv_scope_tempfile("renv-url-")
-  writeLines(url, con = tempfile)
-  hash <- md5sum(tempfile)
-
+  hash <- md5(url)
   ext <- fileext(url, default = ".tar.gz")
   name <- paste(hash, ext, sep = "")
   path <- renv_paths_source("url", name)

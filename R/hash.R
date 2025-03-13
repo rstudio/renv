@@ -74,9 +74,7 @@ renv_hash_record <- function(record) {
   # sort names (use C locale to ensure consistent ordering)
   ordered <- subsetted[csort(names(subsetted))]
 
-  # write to tempfile (use binary connection to ensure unix-style
-  # newlines for cross-platform hash stability)
-  tempfile <- tempfile("renv-description-hash-")
+  # paste together into single string
   contents <- paste(names(ordered), ordered, sep = ": ", collapse = "\n")
 
   # remove whitespace -- it's possible that tools (e.g. Packrat) that
@@ -88,26 +86,7 @@ renv_hash_record <- function(record) {
   # configured based on the 'width' option)
   contents <- gsub("[[:space:]]", "", contents)
 
-  # create the file connection (use binary so that unix newlines are used
-  # across platforms, for more stable hashing)
-  con <- file(tempfile, open = "wb")
-
-  # write to the file
-  writeLines(enc2utf8(contents), con = con, useBytes = TRUE)
-
-  # flush to ensure we've written to file
-  flush(con)
-
-  # close the connection and remove the file
-  close(con)
-
-  # ready for hasing
-  hash <- unname(md5sum(tempfile))
-
-  # remove the old file
-  unlink(tempfile)
-
-  # return hash
-  invisible(hash)
+  # compute the hash
+  invisible(md5(contents))
 
 }
