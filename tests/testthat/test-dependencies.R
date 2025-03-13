@@ -655,3 +655,10 @@ test_that("https://github.com/rstudio/renv/issues/2047", {
   init()
   expect_true(renv_package_installed("breakfast"))
 })
+
+test_that("https://github.com/rstudio/renv/issues/2110", {
+  renv_tests_scope()
+  writeLines("library()", con = "_deps.R")
+  deps <- dependencies(quiet = TRUE, root = getwd())
+  expect_equal(nrow(deps), 0L)
+})

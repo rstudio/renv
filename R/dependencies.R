@@ -254,17 +254,20 @@ renv_dependencies_impl <- function(
   elapsed <- difftime(after, before, units = "secs")
 
   renv_condition_signal("renv.dependencies.elapsed_time", elapsed)
-
   renv_dependencies_report(errors)
 
-  deps <- if (empty(deps) || nrow(deps) == 0L) {
-    renv_dependencies_list_empty()
-  } else {
-    # drop NAs, and only keep 'dev' dependencies if requested
-    rows(deps, deps$Dev %in% c(dev, FALSE))
+  if (empty(deps) || nrow(deps) == 0L) {
+    result <- renv_dependencies_list_empty()
+    return(take(result, field))
   }
 
-  take(deps, field)
+  # drop other NAs, just in case -- this really is an issue in the underlying
+  # dependency computation code somewhere, but we still want to insulate users
+  # from unexpected errors
+  #
+  # https://github.com/rstudio/renv/issues/2110
+  keep <- !is.na(deps$Package) & deps$Dev %in% c(dev, FALSE)
+  take(rows(deps, keep), field)
 }
 
 renv_dependencies_root <- function(path = getwd()) {
