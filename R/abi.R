@@ -109,7 +109,7 @@ renv_abi_check_impl <- function(package, problems) {
 
   # handle Rcpp
   linkdeps <- renv_description_parse_field(pkgdesc$LinkingTo)
-  if ("Rcpp" %in% linkdeps$Package)
+  if ("Rcpp" %in% linkdeps$Package && renv_package_installed("Rcpp"))
     renv_abi_check_impl_rcpp(package, symbols, problems)
 
   # TODO: other checks? more direct symbol checks for other packages?
@@ -139,6 +139,11 @@ renv_abi_check_impl_rcpp_preciouslist <- function(package, symbols, rcppsyms, pr
   if (length(available))
     return()
 
+  # skip if Rcpp appears to be new enough anyhow
+  version <- renv_package_version("Rcpp")
+  if (renv_version_ge(version, "1.0.7"))
+    return()
+
   problem <- renv_abi_problem(
     package    = paste(package, renv_package_version(package)),
     dependency = paste("Rcpp", renv_package_version("Rcpp")),
@@ -154,7 +159,7 @@ renv_abi_symbols <- function(path, args = NULL) {
   # invoke nm to read symbols
   output <- renv_system_exec(
     command = "nm",
-    args    = c(args, renv_shell_path(path)),
+    args    = c("-D", args, renv_shell_path(path)),
     action  = "reading symbols"
   )
 
