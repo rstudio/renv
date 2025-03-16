@@ -96,7 +96,7 @@ sysreqs <- function(packages = NULL,
   packages <- setdiff(packages, base$Package)
   names(packages) <- packages
 
-  # set up distro
+  # set up os, distro
   distro <- distro %||% the$distro
   check <- check %||% identical(distro, the$distro)
   renv_scope_binding(the, "os", "linux")
@@ -202,14 +202,29 @@ renv_sysreqs_match_impl <- function(sysreq, rule) {
   if (matches) {
     for (dependency in rule$dependencies) {
       for (constraint in dependency$constraints) {
-        if (constraint$os == the$os) {
-          if (constraint$distribution == the$distro) {
-            return(dependency$packages)
-          }
+        if (renv_sysreqs_satisfies(constraint)) {
+          return(dependency$packages)
         }
       }
     }
   }
+
+}
+
+renv_sysreqs_satisfies <- function(constraint) {
+
+  if (constraint$os == the$os) {
+    if (constraint$distribution == the$distro) {
+      versions <- constraint$versions %||% the$platform$VERSION_ID
+      for (version in versions) {
+        if (startsWith(the$platform$VERSION_ID, version)) {
+          return(TRUE)
+        }
+      }
+    }
+  }
+
+  FALSE
 
 }
 
