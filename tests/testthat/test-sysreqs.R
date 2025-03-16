@@ -46,11 +46,12 @@ test_that("version constraints are respected", {
 test_that("system requirements are reported as expected", {
 
   skip_on_cran()
+  skip_if(!identical(the$platform$ID, "ubuntu"))
 
-  renv_scope_binding(the, "os", "linux")
-  renv_scope_binding(the, "distro", "ubuntu")
-  renv_scope_binding(the, "platform", list(VERSION_ID = "24.04"))
+  # check a package that is unlikely to be installed
+  status <- system("dpkg-query -W blender 2> /dev/null")
+  skip_if(status == 0L)
 
-  renv_sysreqs_check("zlib", FALSE)
+  expect_snapshot(. <- renv_sysreqs_check(list("<unknown>" = "blender"), FALSE))
 
 })
