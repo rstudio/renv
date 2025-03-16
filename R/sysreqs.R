@@ -113,7 +113,7 @@ sysreqs <- function(packages = NULL,
 
   # extract and resolve the system requirements
   sysreqs <- map(records, `[[`, "SystemRequirements")
-  syspkgs <- map(sysreqs, renv_sysreqs_resolve)
+  sysdeps <- map(sysreqs, renv_sysreqs_resolve)
 
   # check the package status if possible
   if (check && renv_platform_linux())
@@ -121,22 +121,29 @@ sysreqs <- function(packages = NULL,
 
   # report installation commands if requested
   if (report)
-    renv_sysreqs_report(syspkgs, distro, collapse)
+    renv_sysreqs_report(sysdeps, distro, collapse)
 
   # return result
-  invisible(syspkgs)
+  invisible(sysdeps)
 
 }
 
-renv_sysreqs_report <- function(syspkgs, distro, collapse) {
+renv_sysreqs_report <- function(sysdeps, distro, collapse) {
 
-  all <- sort(unique(unlist(syspkgs)))
+  # collect all system packages
+  syspkgs <- map(sysdeps, `[[`, "packages")
+  allpkgs <- sort(unique(unlist(syspkgs)))
   if (empty(all))
     return()
 
+  # generate installation commands
   installer <- renv_sysreqs_installer(distro)
   body <- if (collapse) paste(all, collapse = " ") else all
   message <- paste("sudo", installer, "-y", body)
+
+  # include pre-install commands as well, if any
+  preinstall <- unlist(map(sysdeps, `[[`, "pre_install"))
+  message <- paste("sudo", preinstall)
 
   if (interactive()) {
     preamble <- "The requisite system packages can be installed with:"
@@ -171,7 +178,7 @@ renv_sysreqs_crandb_impl_one <- function(package) {
 
 renv_sysreqs_resolve <- function(sysreqs, rules = renv_sysreqs_rules()) {
   matches <- map(sysreqs, renv_sysreqs_match, rules)
-  unlist(matches, use.names = FALSE)
+  unlist(matches, recursive = FALSE)
 }
 
 renv_sysreqs_read <- function(package) {
@@ -189,7 +196,14 @@ renv_sysreqs_rules_impl <- function() {
 }
 
 renv_sysreqs_match <- function(sysreq, rules = renv_sysreqs_rules()) {
-  map(rules, renv_sysreqs_match_impl, sysreq = sysreq)
+
+  for (rule in rules) {
+    match <- renv_sysreqs_match_impl(sysreq, rule)
+    if (!is.null(match)) {
+      return(match)
+    }
+  }
+
 }
 
 renv_sysreqs_match_impl <- function(sysreq, rule) {
@@ -203,7 +217,7 @@ renv_sysreqs_match_impl <- function(sysreq, rule) {
     for (dependency in rule$dependencies) {
       for (constraint in dependency$constraints) {
         if (renv_sysreqs_satisfies(constraint)) {
-          return(dependency$packages)
+          return(dependency)
         }
       }
     }
@@ -308,7 +322,8 @@ renv_sysreqs_check <- function(sysreqs, prompt) {
     return(NULL)
 
   # figure out which system packages are required
-  syspkgs <- map(sysreqs, renv_sysreqs_resolve)
+  sysdeps <- map(sysreqs, renv_sysreqs_resolve)
+  syspkgs <- map(sysdeps, `[[`, "packages")
 
   # collect list of all packages discovered
   allsyspkgs <- sort(unique(unlist(syspkgs, use.names = FALSE)))
