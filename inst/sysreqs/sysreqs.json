@@ -162,6 +162,7 @@
             "os": "linux",
             "distribution": "alpine",
             "versions": [
+              "3.21",
               "edge"
             ]
           }
@@ -394,6 +395,7 @@
               "3.18",
               "3.19",
               "3.20",
+              "3.21",
               "edge"
             ]
           }
@@ -2354,10 +2356,22 @@
           {
             "os": "linux",
             "distribution": "ubuntu"
-          },
+          }
+        ]
+      },
+      {
+        "packages": [
+          "ggobi"
+        ],
+        "constraints": [
           {
             "os": "linux",
-            "distribution": "debian"
+            "distribution": "debian",
+            "versions": [
+              "10",
+              "11",
+              "12"
+            ]
           }
         ]
       },
@@ -9074,6 +9088,7 @@
               "3.18",
               "3.19",
               "3.20",
+              "3.21",
               "edge"
             ]
           }
@@ -9517,6 +9532,7 @@
               "3.18",
               "3.19",
               "3.20",
+              "3.21",
               "edge"
             ]
           }
@@ -11175,6 +11191,7 @@
               "3.18",
               "3.19",
               "3.20",
+              "3.21",
               "edge"
             ]
           }
@@ -13041,6 +13058,23 @@
           {
             "command": "apk add udunits-dev --repository=https://dl-cdn.alpinelinux.org/alpine/edge/community"
           }
+        ],
+        "constraints": [
+          {
+            "os": "linux",
+            "distribution": "alpine",
+            "versions": [
+              "3.15",
+              "3.16",
+              "3.17",
+              "3.18"
+            ]
+          }
+        ]
+      },
+      {
+        "packages": [
+          "udunits-dev"
         ],
         "constraints": [
           {
