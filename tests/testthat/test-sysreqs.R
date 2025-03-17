@@ -46,7 +46,7 @@ test_that("version constraints are respected", {
 test_that("system requirements are reported as expected", {
 
   skip_on_cran()
-  skip_if(!identical(the$platform$ID, "ubuntu"))
+  skip_if(!renv_platform_linux())
 
   # check a package that is unlikely to be installed
   status <- system("dpkg-query -W blender 2> /dev/null")
@@ -54,5 +54,15 @@ test_that("system requirements are reported as expected", {
 
   sysreqs <- list("<unknown>" = "blender")
   expect_snapshot(. <- renv_sysreqs_check(sysreqs, FALSE))
+
+})
+
+test_that("system requirements for alternate distributions are reported", {
+
+  skip_on_cran()
+  skip_if(!renv_platform_linux())
+
+  packages <- c("magick", "tesseract")
+  expect_snapshot(. <- sysreqs(packages, distro = "redhat:8"))
 
 })
