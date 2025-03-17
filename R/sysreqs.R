@@ -40,7 +40,8 @@ the$sysreqs <- NULL
 #'   for these packages.
 #'
 #' @param check Boolean; should `renv` also check whether the requires system
-#'   packages appear to be installed on the current system?
+#'   packages appear to be installed on the current system? Ignored when
+#'   `distro` is supplied.
 #'
 #' @param report Boolean; should `renv` also report the commands which could be
 #'   used to install all of the requisite package dependencies?
@@ -53,7 +54,7 @@ the$sysreqs <- NULL
 #' @param distro The name of the Linux distribution for which system requirements
 #'   should be checked -- typical values are "ubuntu", "debian", and "redhat".
 #'   These should match the distribution names used by the R system requirements
-#'   database.
+#'   database. A version suffix can be included; for example, "ubuntu:24.04".
 #'
 #' @examples
 #'
@@ -96,11 +97,18 @@ sysreqs <- function(packages = NULL,
   packages <- setdiff(packages, base$Package)
   names(packages) <- packages
 
-  # set up distro
+  # resolve check
+  check <- check %||% is.null(distro)
+
+  # resolve distro
   distro <- distro %||% the$distro
-  check <- check %||% identical(distro, the$distro)
-  renv_scope_binding(the, "os", "linux")
-  renv_scope_binding(the, "distro", distro)
+  if (!identical(distro, the$distro)) {
+    parts <- strsplit(distro, ":", fixed = TRUE)[[1L]]
+    distro <- parts[[1L]]
+    renv_scope_binding(the, "os", "linux")
+    renv_scope_binding(the, "distro", parts[[1L]])
+    renv_scope_binding(the, "platform", list(VERSION_ID = parts[[2L]]))
+  }
 
   # compute package records
   if (local) {
@@ -113,29 +121,43 @@ sysreqs <- function(packages = NULL,
 
   # extract and resolve the system requirements
   sysreqs <- map(records, `[[`, "SystemRequirements")
-  syspkgs <- map(sysreqs, renv_sysreqs_resolve)
+  sysdeps <- map(sysreqs, renv_sysreqs_resolve)
 
   # check the package status if possible
-  if (check && renv_platform_linux())
+  if (check)
     renv_sysreqs_check(sysreqs, prompt = FALSE)
 
   # report installation commands if requested
   if (report)
-    renv_sysreqs_report(syspkgs, distro, collapse)
+    renv_sysreqs_report(sysdeps, distro, collapse)
 
   # return result
-  invisible(syspkgs)
+  invisible(sysdeps)
 
 }
 
-renv_sysreqs_report <- function(syspkgs, distro, collapse) {
+renv_sysreqs_report <- function(sysdeps, distro, collapse) {
 
-  all <- sort(unique(unlist(syspkgs)))
-  if (empty(all))
+  # collect all system packages
+  syspkgs <- map(sysdeps, `[[`, "packages")
+  allpkgs <- sort(unique(unlist(syspkgs)))
+  if (empty(allpkgs))
     return()
 
+  # include pre-install commands as well, if any
+  preinstall <- unlist(map(sysdeps, `[[`, "pre_install"))
+  if (length(preinstall)) {
+    if (interactive()) {
+      preamble <- "System pre-requisites can be installed with:"
+      bulletin(preamble, preinstall)
+    } else {
+      writeLines(preinstall)
+    }
+  }
+
+  # generate installation commands
   installer <- renv_sysreqs_installer(distro)
-  body <- if (collapse) paste(all, collapse = " ") else all
+  body <- if (collapse) paste(allpkgs, collapse = " ") else allpkgs
   message <- paste("sudo", installer, "-y", body)
 
   if (interactive()) {
@@ -171,7 +193,7 @@ renv_sysreqs_crandb_impl_one <- function(package) {
 
 renv_sysreqs_resolve <- function(sysreqs, rules = renv_sysreqs_rules()) {
   matches <- map(sysreqs, renv_sysreqs_match, rules)
-  unlist(matches, use.names = FALSE)
+  unlist(matches, recursive = FALSE)
 }
 
 renv_sysreqs_read <- function(package) {
@@ -189,7 +211,14 @@ renv_sysreqs_rules_impl <- function() {
 }
 
 renv_sysreqs_match <- function(sysreq, rules = renv_sysreqs_rules()) {
-  map(rules, renv_sysreqs_match_impl, sysreq = sysreq)
+
+  for (rule in rules) {
+    match <- renv_sysreqs_match_impl(sysreq, rule)
+    if (!is.null(match)) {
+      return(match)
+    }
+  }
+
 }
 
 renv_sysreqs_match_impl <- function(sysreq, rule) {
@@ -202,14 +231,29 @@ renv_sysreqs_match_impl <- function(sysreq, rule) {
   if (matches) {
     for (dependency in rule$dependencies) {
       for (constraint in dependency$constraints) {
-        if (constraint$os == the$os) {
-          if (constraint$distribution == the$distro) {
-            return(dependency$packages)
-          }
+        if (renv_sysreqs_satisfies(constraint)) {
+          return(dependency)
         }
       }
     }
   }
+
+}
+
+renv_sysreqs_satisfies <- function(constraint) {
+
+  if (constraint$os == the$os) {
+    if (constraint$distribution == the$distro) {
+      versions <- constraint$versions %||% the$platform$VERSION_ID
+      for (version in versions) {
+        if (startsWith(the$platform$VERSION_ID, version)) {
+          return(TRUE)
+        }
+      }
+    }
+  }
+
+  FALSE
 
 }
 
@@ -293,7 +337,8 @@ renv_sysreqs_check <- function(sysreqs, prompt) {
     return(NULL)
 
   # figure out which system packages are required
-  syspkgs <- map(sysreqs, renv_sysreqs_resolve)
+  sysdeps <- map(sysreqs, renv_sysreqs_resolve)
+  syspkgs <- map(sysdeps, `[[`, "packages")
 
   # collect list of all packages discovered
   allsyspkgs <- sort(unique(unlist(syspkgs, use.names = FALSE)))
