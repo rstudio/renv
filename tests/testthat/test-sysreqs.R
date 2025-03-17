@@ -52,6 +52,7 @@ test_that("system requirements are reported as expected", {
   status <- system("dpkg-query -W blender 2> /dev/null")
   skip_if(status == 0L)
 
-  expect_snapshot(. <- renv_sysreqs_check(list("<unknown>" = "blender"), FALSE))
+  sysreqs <- list("<unknown>" = "blender")
+  expect_snapshot(. <- renv_sysreqs_check(sysreqs, FALSE))
 
 })

@@ -1,7 +1,7 @@
 # system requirements are reported as expected
 
     Code
-      . <- renv_sysreqs_check(list(`<unknown>` = "blender"), FALSE)
+      . <- renv_sysreqs_check(sysreqs, FALSE)
     Output
       The following required system packages are not installed:
       - blender  [required by <unknown>]
