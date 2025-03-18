@@ -662,3 +662,9 @@ test_that("https://github.com/rstudio/renv/issues/2110", {
   deps <- dependencies(quiet = TRUE, root = getwd())
   expect_equal(nrow(deps), 0L)
 })
+
+test_that("documents with empty YAML headers are handled", {
+  path <- renv_tests_path("resources/empty-yaml-header.Rmd")
+  result <- dependencies(path)
+  expect_equal(result$Package, "rmarkdown")
+})

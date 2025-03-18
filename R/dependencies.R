@@ -755,6 +755,12 @@ renv_dependencies_discover_rmd_yaml_header <- function(path, mode) {
   if (inherits(yaml, "error"))
     return(renv_dependencies_error(path, error = yaml, packages = "rmarkdown"))
 
+  # https://github.com/rstudio/renv/issues/2117
+  if (!is.list(yaml)) {
+    msg <- "document contains an unexpected or malformed YAML header"
+    return(renv_dependencies_error(path, error = msg, packages = "rmarkdown"))
+  }
+
   # check for Shiny runtime
   runtime <- yaml[["runtime"]] %||% ""
   if (pstring(runtime) && grepl("shiny", runtime, fixed = TRUE))
@@ -1874,6 +1880,10 @@ renv_dependencies_error <- function(path, error = NULL, packages = NULL) {
   # if no error, return early
   if (is.null(error))
     return(renv_dependencies_list(path, packages))
+
+  # coerce character message errors
+  if (is.character(error))
+    error <- simpleError(error)
 
   # push the error report
   renv_dependencies_error_push(path, error)

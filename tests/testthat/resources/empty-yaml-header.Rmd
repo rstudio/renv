@@ -1,0 +1,5 @@
+---
+whoops: no
+---
+    
+# This document has an empty YAML header.

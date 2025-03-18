@@ -1,4 +1,9 @@
+
 # renv (development version)
+
+* Fixed an issue where `renv::dependencies()` could fail with an
+  unhelpful error message if the scanned document contained a
+  malformed YAML header. (#2117)
 
 
 # renv 1.1.3
