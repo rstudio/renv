@@ -1,5 +1,5 @@
 
-# renv (development version)
+# renv 1.1.3
 
 * Fixed an issue where `renv::hydrate()` could fail to install packages
   discovered in the user library during `renv::init()`. (#2109)
