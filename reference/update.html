@@ -17,7 +17,7 @@ available on CRAN, that updated version will not be seen."><meta property="og:im
 
     <a class="navbar-brand me-2" href="../index.html">renv</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">1.1.2</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">1.1.3</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -83,6 +83,7 @@ available on CRAN, that updated version will not be seen.</p>
 <span>  check <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  prompt <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/interactive.html" class="external-link">interactive</a></span><span class="op">(</span><span class="op">)</span>,</span>
 <span>  lock <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  all <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  project <span class="op">=</span> <span class="cn">NULL</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
@@ -139,6 +140,12 @@ compatibility, <code>confirm</code> is accepted as an alias for <code>prompt</co
 <dt id="arg-lock">lock<a class="anchor" aria-label="anchor" href="#arg-lock"></a></dt>
 <dd><p>Boolean; update the <code>renv.lock</code> lockfile after the successful
 installation of the requested packages?</p></dd>
+
+
+<dt id="arg-all">all<a class="anchor" aria-label="anchor" href="#arg-all"></a></dt>
+<dd><p>Boolean; should <code>renv</code> check all library paths for out-of-date
+packages? When <code>FALSE</code> (the default), only the project library will be
+checked for out-of-date packages.</p></dd>
 
 
 <dt id="arg-project">project<a class="anchor" aria-label="anchor" href="#arg-project"></a></dt>

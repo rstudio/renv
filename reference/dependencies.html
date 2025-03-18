@@ -29,7 +29,7 @@ required in order to scan dependencies in R Markdown files."><meta property="og:
 
     <a class="navbar-brand me-2" href="../index.html">renv</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">1.1.2</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">1.1.3</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -204,7 +204,28 @@ the <code>.gitignore</code>.</p>
 <span id="cb1-8"><a href="#cb1-8" tabindex="-1"></a><span class="er">/</span>data<span class="sc">/</span></span></code></pre><p></p></div>
 <p>Using ignore files is important if your project contains a large number
 of files; for example, if you have a <code>data/</code> directory containing many
-text files.</p>
+text files.</p><div class="section">
+<h3 id="profile-specific-ignore-rules">Profile-specific Ignore Rules<a class="anchor" aria-label="anchor" href="#profile-specific-ignore-rules"></a></h3>
+
+
+<p>Profile-specific sections are also supported in <code>.renvignore</code> files.
+These sections are marked with a comment header of the form <code>#| &lt;code&gt;</code>,
+where <code>&lt;code&gt;</code> is <span style="R">R</span> code that indicates if this section of the <code>.renvignore</code>
+should apply. The <code>profile</code> variable is set to the same value as the current
+profile, or <code>"default"</code> if the default profile (no profile) is selected.
+See <code><a href="../articles/profiles.html">vignette("profiles", package = "renv")</a></code> for more information on profiles.</p>
+<p></p><div class="sourceCode"><pre><code><span id="cb1-1"><a href="#cb1-1" tabindex="-1"></a><span class="co"># ignore all directories by default</span></span>
+<span id="cb1-2"><a href="#cb1-2" tabindex="-1"></a><span class="sc">*</span><span class="er">/</span></span>
+<span id="cb1-3"><a href="#cb1-3" tabindex="-1"></a></span>
+<span id="cb1-4"><a href="#cb1-4" tabindex="-1"></a><span class="co">#| profile == "default"</span></span>
+<span id="cb1-5"><a href="#cb1-5" tabindex="-1"></a><span class="sc">!</span>default</span>
+<span id="cb1-6"><a href="#cb1-6" tabindex="-1"></a></span>
+<span id="cb1-7"><a href="#cb1-7" tabindex="-1"></a><span class="co">#| profile == "extra"</span></span>
+<span id="cb1-8"><a href="#cb1-8" tabindex="-1"></a><span class="sc">!</span>extra</span></code></pre><p></p></div>
+<p>Note that the first section in a <code>.renvignore</code> file implicitly applies to
+all profiles.</p>
+</div>
+
     </div>
     <div class="section level2">
     <h2 id="errors">Errors<a class="anchor" aria-label="anchor" href="#errors"></a></h2>

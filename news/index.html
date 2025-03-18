@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">renv</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">1.1.2</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">1.1.3</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -52,7 +52,16 @@
     </div>
 
     <div class="section level2">
-<h2 class="pkg-version" data-toc-text="1.1.2" id="renv-112">renv 1.1.2<a class="anchor" aria-label="anchor" href="#renv-112"></a></h2>
+<h2 class="pkg-version" data-toc-text="1.1.3" id="renv-113">renv 1.1.3<a class="anchor" aria-label="anchor" href="#renv-113"></a></h2><p class="text-muted">CRAN release: 2025-03-18</p>
+<ul><li><p>Fixed an issue where <code><a href="../reference/hydrate.html">renv::hydrate()</a></code> could fail to install packages discovered in the user library during <code><a href="../reference/init.html">renv::init()</a></code>. (<a href="https://github.com/rstudio/renv/issues/2109" class="external-link">#2109</a>)</p></li>
+<li><p><code><a href="../reference/update.html">renv::update()</a></code> now only updates the packages installed in the project library by default. <code>renv::update(all = TRUE)</code> can be used to also check if packages installed in the default library are out-of-date, and install updated copies into the project library. (<a href="https://github.com/rstudio/renv/issues/2108" class="external-link">#2108</a>)</p></li>
+<li><p>Fixed an issue where package installation could fail on Arch Linux with the error message “don’t know how to check sysreqs on this system”. (<a href="https://github.com/rstudio/renv/issues/2107" class="external-link">#2107</a>)</p></li>
+<li><p><code>renv</code> now supports profile-specific comments within <code>.gitignore</code> and <code>.renvignore</code> files. These are comments of the form <code>#| &lt;code&gt;</code>, where <code>&lt;code&gt;</code> is R code which should indicate if the <code>.renvignore</code> rules should apply. Typically, this should be of the form <code>#| profile == "extra"</code>, or <code>#| profile %in% c("extra", "other")</code>. Note that only a small subset of base R functions are available for evaluation in this context. Note that the first section in a <code>.renvignore</code> implicitly applies to all profiles – if you want to limit it to just the default profile, you can use <code>#| profile == "default"</code> for the first line. (<a href="https://github.com/rstudio/renv/issues/1662" class="external-link">#1662</a>)</p></li>
+<li><p>The environment variable <code>RENV_PATHS_VERSION</code> can now be used to substitute the R version component normally used in library / cache paths. The provided path can include placeholders like <code>%V</code> for the full R version including the patch level, and <code>%v</code> for the R version without the patch level. Defaults to <code>R-%v</code> when unset. (<a href="https://github.com/rstudio/renv/issues/1687" class="external-link">#1687</a>)</p></li>
+<li><p><code><a href="../reference/install.html">renv::install()</a></code> gains the <code>transactional</code> argument, for parity with <code><a href="../reference/restore.html">renv::restore()</a></code>. (<a href="https://github.com/rstudio/renv/issues/1109" class="external-link">#1109</a>)</p></li>
+</ul></div>
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="1.1.2" id="renv-112">renv 1.1.2<a class="anchor" aria-label="anchor" href="#renv-112"></a></h2><p class="text-muted">CRAN release: 2025-03-02</p>
 <ul><li><p><code>renv</code> gains the <code><a href="../reference/sysreqs.html">sysreqs()</a></code> function, which can be used to query the system packages required by a set of R packages. Functionality is currently available for Debian-based distributions, as well as Red Hat distributions.</p></li>
 <li><p>On Linux, <code>renv</code> now uses the database from <a href="https://github.com/rstudio/r-system-requirements" class="external-link uri">https://github.com/rstudio/r-system-requirements</a> when determining if an R package’s required system libraries are installed, and notifies the user which packages (if any) are missing during install / restore.</p></li>
 <li><p>Fixed an issue where <code>renv</code> could fail to retrieve credentials registered for ‘github.com’ when querying URLs at ‘api.github.com’.</p></li>
