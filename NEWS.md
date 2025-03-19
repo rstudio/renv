@@ -1,6 +1,9 @@
 
 # renv (development version)
 
+* `renv` now only checks for archived packages during installation when
+  `options(renv.install.allowArchivedPackages = TRUE)` is set.
+
 * Fixed an issue where `renv::dependencies()` could fail with an
   unhelpful error message if the scanned document contained a
   malformed YAML header. (#2117)

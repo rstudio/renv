@@ -389,7 +389,8 @@ renv_available_packages_latest <- function(package,
 {
   methods <- list(
     renv_available_packages_latest_repos,
-    renv_available_packages_latest_archive,
+    if (getOption("renv.install.allowArchivedPackages", default = FALSE))
+      renv_available_packages_latest_archive,
     if (renv_p3m_enabled())
       renv_available_packages_latest_p3m
   )
