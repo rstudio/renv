@@ -183,13 +183,17 @@ renv_package_augment_standard <- function(path, record) {
   # build pak-compatible standard remote reference
   remotes <- list(
     RemoteType        = "standard",
-    RemotePkgRef      = record$Package,
     RemoteRef         = record$Package,
+    RemotePkgRef      = record$Package,
     RemoteRepos       = repos,
     RemoteReposName   = name,
     RemotePkgPlatform = platform,
     RemoteSha         = record$Version
   )
+
+  # if the repository value and name are identical, then exclude the name
+  if (identical(repos, name))
+    remotes$RemoteReposName <- NULL
 
   overlay(record, remotes)
 

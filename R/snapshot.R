@@ -882,6 +882,11 @@ renv_snapshot_description_source_custom <- function(dcf) {
   if (!is.null(biocviews))
     return(NULL)
 
+  # if the declared repository appears to be a CRAN mirror, skip it
+  mirrors <- renv_cran_mirrors()
+  if (any(renv_repos_matches(remoterepos, mirrors)))
+    return(NULL)
+
   # if this package appears to have been installed from a
   # repository which we have knowledge of, skip
   repos <- as.list(getOption("repos"))
@@ -889,11 +894,17 @@ renv_snapshot_description_source_custom <- function(dcf) {
   if (!is.null(repository) && repository %in% names(repos))
     return(NULL)
 
-  # check whether this repository is already in use;
-  # if so, we can skip declaring it
+  # check whether the declared repository matches one of the
+  # repositories that are currently in use; if so, skip it
+  #
+  # we explicitly ignore 'CRAN' as a repository name here, since older
+  # versions of renv may have erroneously marked packages installed from
+  # other package repositories as 'CRAN'
+  #
+  # https://github.com/rstudio/renv/issues/2104
   name <- dcf[["RemoteReposName"]]
-  declared <- if (is.null(name))
-    remoterepos %in% repos
+  declared <- if (is.null(name) || identical(name, "CRAN"))
+    renv_repos_matches(remoterepos, repos)
   else
     name %in% names(repos)
 

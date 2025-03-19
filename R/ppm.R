@@ -55,15 +55,11 @@ renv_ppm_transform_impl <- function(url) {
 
   # check if this is an 'ignored' URL; that is, a repository which we
   # know is not a PPM URL
-  mirrors <- catch(getCRANmirrors(local.only = TRUE))
+  mirrors <- renv_cran_mirrors()
   ignored <- c(
     getOption("renv.ppm.ignoredUrls", default = character()),
     settings$ppm.ignored.urls(),
-    mirrors$URL,
-    "http://cran.rstudio.com",
-    "http://cran.rstudio.org",
-    "https://cran.rstudio.com",
-    "https://cran.rstudio.org"
+    mirrors
   )
 
   if (sub("/+$", "", url) %in% sub("/+$", "", ignored))

@@ -36,4 +36,32 @@ renv_cran_status_maintainer_email <- function(package = NULL) {
 
 }
 
+renv_cran_mirrors_impl <- function() {
+
+  tryCatch(
+    getCRANmirrors(local.only = TRUE),
+    error = function(cnd) {
+      warning(conditionMessage(cnd))
+      NULL
+    }
+  )
+
+}
+
+renv_cran_mirrors <- function() {
+
+  mirrors <- memoize(
+    key = "renv_cran_mirrors",
+    value = renv_cran_mirrors_impl()
+  )
+
+  c(
+    getOption("renv.cran.mirrors", default = character()),
+    mirrors$URL,
+    "https://cran.rstudio.com/",
+    "https://cran.rstudio.org/"
+  )
+
+}
+
 # nocov end

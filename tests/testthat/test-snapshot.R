@@ -679,3 +679,28 @@ test_that("invalid lockfiles don't prevent calls to snapshot", {
   expect_true(TRUE)
 
 })
+
+test_that("package records with erroneous CRAN RemoteRepos are handled", {
+
+  skip_on_cran()
+
+  contents <- heredoc('
+    Package: example
+    Version: 1.0.0
+    RemoteType: standard
+    RemotePkgRef: example
+    RemoteRef: example
+    RemoteRepos: https://packagemanager.posit.co/cran/2025-03-03
+    RemoteReposName: CRAN
+    RemotePkgPlatform: aarch64-apple-darwin20
+    RemoteSha: 1.0.0
+  ')
+
+  descfile <- renv_scope_tempfile("renv-description-")
+  writeLines(contents, con = descfile)
+  record <- renv_snapshot_description(descfile)
+
+  expect_equal(record$Source,     "Repository")
+  expect_equal(record$Repository, "https://packagemanager.posit.co/cran/2025-03-03")
+
+})

@@ -166,7 +166,7 @@ test_that("a project with unnamed repositories can be initialized", {
 
   repos <- c(
     CRAN = "https://cran.rstudio.com",
-    "https://cloud.r-project.org"
+    "https://localhost:12345"
   )
 
   renv_scope_options(repos = repos)
@@ -179,7 +179,7 @@ test_that("a project with unnamed repositories can be initialized", {
     repos,
     list(
       CRAN = "https://cran.rstudio.com",
-      "https://cloud.r-project.org" = "https://cloud.r-project.org"
+      "https://localhost:12345" = "https://localhost:12345"
     )
   )
 

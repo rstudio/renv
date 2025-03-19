@@ -29,7 +29,8 @@ use \url{https://crandb.r-pkg.org} to resolve the system requirements
 for these packages.}
 
 \item{check}{Boolean; should \code{renv} also check whether the requires system
-packages appear to be installed on the current system?}
+packages appear to be installed on the current system? Ignored when
+\code{distro} is supplied.}
 
 \item{report}{Boolean; should \code{renv} also report the commands which could be
 used to install all of the requisite package dependencies?}
@@ -37,7 +38,7 @@ used to install all of the requisite package dependencies?}
 \item{distro}{The name of the Linux distribution for which system requirements
 should be checked -- typical values are "ubuntu", "debian", and "redhat".
 These should match the distribution names used by the R system requirements
-database.}
+database. A version suffix can be included; for example, "ubuntu:24.04".}
 
 \item{collapse}{Boolean; when reporting which packages need to be installed,
 should the report be collapsed into a single installation command? When
