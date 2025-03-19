@@ -97,7 +97,8 @@ for these packages.</p></dd>
 
 <dt id="arg-check">check<a class="anchor" aria-label="anchor" href="#arg-check"></a></dt>
 <dd><p>Boolean; should <code>renv</code> also check whether the requires system
-packages appear to be installed on the current system?</p></dd>
+packages appear to be installed on the current system? Ignored when
+<code>distro</code> is supplied.</p></dd>
 
 
 <dt id="arg-report">report<a class="anchor" aria-label="anchor" href="#arg-report"></a></dt>
@@ -109,7 +110,7 @@ used to install all of the requisite package dependencies?</p></dd>
 <dd><p>The name of the Linux distribution for which system requirements
 should be checked – typical values are "ubuntu", "debian", and "redhat".
 These should match the distribution names used by the R system requirements
-database.</p></dd>
+database. A version suffix can be included; for example, "ubuntu:24.04".</p></dd>
 
 
 <dt id="arg-collapse">collapse<a class="anchor" aria-label="anchor" href="#arg-collapse"></a></dt>
