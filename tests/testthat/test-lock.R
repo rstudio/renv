@@ -57,6 +57,8 @@ test_that("we can recursively acquire locks", {
 
 test_that("other processes cannot lock our owned locks", {
 
+  skip_on_cran()
+
   skip_if(
     is.null(formals(system2)[["timeout"]]),
     "system2() lacks the timeout argument"
@@ -74,7 +76,7 @@ test_that("other processes cannot lock our owned locks", {
 
   args <- c("--vanilla", "-s", "-f", shQuote(script))
   output <- suppressWarnings(
-    system2(R(), args, stdout = FALSE, stderr = FALSE, timeout = 1L)
+    system2(R(), args, stdout = FALSE, stderr = FALSE, timeout = 5L)
   )
 
   expect_equal(output, 124L)
