@@ -1,5 +1,5 @@
 
-# renv (development version)
+# renv 1.1.4
 
 * Fixed an issue where `renv` could erroneously record packages installed
   from Posit Package Manager snapshots as being installed from CRAN. (#2104)
