@@ -9,7 +9,7 @@ required by a set of R packages."><meta property="og:image" content="https://rst
 
     <a class="navbar-brand me-2" href="../index.html">renv</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">1.1.3</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">1.1.4</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -97,7 +97,8 @@ for these packages.</p></dd>
 
 <dt id="arg-check">check<a class="anchor" aria-label="anchor" href="#arg-check"></a></dt>
 <dd><p>Boolean; should <code>renv</code> also check whether the requires system
-packages appear to be installed on the current system?</p></dd>
+packages appear to be installed on the current system? Ignored when
+<code>distro</code> is supplied.</p></dd>
 
 
 <dt id="arg-report">report<a class="anchor" aria-label="anchor" href="#arg-report"></a></dt>
@@ -109,7 +110,7 @@ used to install all of the requisite package dependencies?</p></dd>
 <dd><p>The name of the Linux distribution for which system requirements
 should be checked – typical values are "ubuntu", "debian", and "redhat".
 These should match the distribution names used by the R system requirements
-database.</p></dd>
+database. A version suffix can be included; for example, "ubuntu:24.04".</p></dd>
 
 
 <dt id="arg-collapse">collapse<a class="anchor" aria-label="anchor" href="#arg-collapse"></a></dt>
