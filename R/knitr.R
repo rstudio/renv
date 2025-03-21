@@ -44,7 +44,7 @@ renv_knitr_options_header_impl <- function(rest) {
 
   # insert the label back in
   names(params) <- names(params) %||% rep.int("", length(params))
-  if (length(params) > 1 && names(params)[[2L]] == "")
+  if (length(params) > 1L && identical(names(params)[[2L]], ""))
     names(params)[[2L]] <- "label"
 
   # fix up 'label' if it's a missing value

@@ -665,6 +665,11 @@ test_that("https://github.com/rstudio/renv/issues/2110", {
 
 test_that("documents with empty YAML headers are handled", {
   path <- renv_tests_path("resources/empty-yaml-header.Rmd")
-  result <- dependencies(path)
+  result <- dependencies(path, quiet = TRUE)
   expect_equal(result$Package, "rmarkdown")
+})
+
+test_that("unexpected Sweave chunk options are handled", {
+  path <- renv_tests_path("resources/result-equal-hide.Rnw")
+  result <- dependencies(path, quiet = TRUE)
 })
