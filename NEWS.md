@@ -1,6 +1,11 @@
 
 # renv (development version)
 
+* Fixed an issue where multimode R documents containing chunk headers
+  which did not parse to an R list could cause dependency inference
+  to fail. (#2110)
+
+
 # renv 1.1.4
 
 * Fixed an issue where `renv` could erroneously record packages installed
@@ -8,8 +13,8 @@
 
 * `renv` now only checks for archived packages during installation when
   `options(renv.install.allowArchivedPackages = TRUE)` is set. This fixes
-  an issue where `renv` could erroneously discover that Rcpp 1.3 was available
-  when using the Posit Package Manager repository.
+  an issue where `renv` could erroneously discover that Rcpp 1.3 was
+  available when using the Posit Package Manager repository.
 
 * Fixed an issue where `renv::dependencies()` could fail with an
   unhelpful error message if the scanned document contained a
