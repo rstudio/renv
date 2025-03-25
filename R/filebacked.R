@@ -102,6 +102,7 @@ filebacked <- function(context, path, callback, ...) {
 renv_filebacked_invalidate <- function(path) {
   renv_scope_options(warn = -1L)
   eapply(the$filebacked_cache, function(context) {
-    rm(list = path, envir = context)
+    if (exists(path, envir = context))
+      rm(list = path, envir = context)
   })
 }
