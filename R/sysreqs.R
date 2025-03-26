@@ -395,10 +395,20 @@ renv_sysreqs_check <- function(sysreqs, prompt) {
 }
 
 renv_sysreqs_installer <- function(distro) {
+
+  installer <- getOption("renv.sysreqs.installer", default = NULL)
+  if (!is.null(installer))
+    return(installer)
+
   case(
-    distro == "debian" ~ "apt install",
-    distro == "redhat" ~ "dnf install",
-    distro == "ubuntu" ~ "apt install",
+    distro == "alpine"     ~ "apk add",
+    distro == "debian"     ~ "apt install",
+    distro == "fedora"     ~ "dnf install",
+    distro == "opensuse"   ~ "zypper install",
+    distro == "redhat"     ~ "dnf install",
+    distro == "rockylinux" ~ "dnf install",
+    distro == "sle"        ~ "zypper install",
+    distro == "ubuntu"     ~ "apt install",
     ~ "<install>"
   )
 }
