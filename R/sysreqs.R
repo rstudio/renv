@@ -103,11 +103,12 @@ sysreqs <- function(packages = NULL,
   # resolve distro
   distro <- distro %||% the$distro
   if (!identical(distro, the$distro)) {
-    parts <- strsplit(distro, ":", fixed = TRUE)[[1L]]
-    distro <- parts[[1L]]
+    parts   <- strsplit(distro, ":", fixed = TRUE)[[1L]]
+    distro  <- parts[[1L]]
+    version <- if (length(parts) >= 2L) parts[[2L]]
     renv_scope_binding(the, "os", "linux")
     renv_scope_binding(the, "distro", parts[[1L]])
-    renv_scope_binding(the, "platform", list(VERSION_ID = parts[[2L]]))
+    renv_scope_binding(the, "platform", list(VERSION_ID = version))
   }
 
   # compute package records

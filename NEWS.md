@@ -1,6 +1,9 @@
 
 # renv (development version)
 
+* Fixed an issue where `renv::sysreqs(distro = <...>)` could fail when
+  passed an alternate distribution without a version specifier. (#2105)
+
 * Fixed an issue where multimode R documents containing chunk headers
   which did not parse to an R list could cause dependency inference
   to fail. (#2110)
