@@ -68,7 +68,7 @@ renv_autoload_impl <- function() {
   }
 
   # if we have an activate script, run it
-  activate <- file.path(project, "renv/activate.R")
+  activate <- renv_paths_renv("activate.R", profile = FALSE, project = project)
   if (file.exists(activate)) {
     sys.source(activate, envir = globalenv())
     return(TRUE)
