@@ -1,61 +1,78 @@
-
-test_that("a known-good lockfile passes validation", {
-  
+test_that("a known-good full lockfile passes validation", {
   skip_on_cran()
   skip_if_not_installed("jsonvalidate")
-  
+
   lockfile <- '
 {
   "R": {
-    "Version": "4.2.3",
+    "Version": "4.4.3",
     "Repositories": [
-      {
-        "Name": "CRAN",
-        "URL": "https://cloud.r-project.org"
-      },
-      {
-        "Name": "BioCsoft",
-        "URL": "https://bioconductor.org/packages/3.8/bioc"
-      }
+      { "Name": "CRAN", "URL": "https://cloud.r-project.org" }
     ]
   },
   "Python": {
-    "Version": "3.10.12",
+    "Name": ".venv",
     "Type": "virtualenv",
-    "Name": "./renv/python/virtualenvs/renv-python-3.10"
+    "Version": "3.10.12"
   },
   "Bioconductor": {
-    "Version": "3.8"
+    "Version": "3.18"
   },
   "Packages": {
-    "markdown": {
-      "Package": "markdown",
-      "Version": "1.0",
+    "fullpkg": {
+      "Package": "fullpkg",
+      "Version": "1.2.3",
       "Source": "Repository",
       "Repository": "CRAN",
-      "Hash": "4584a57f565dd7987d59dda3a02cfb41"
-    },
-    "mime": {
-      "Package": "mime",
-      "Version": "0.12.1",
-      "Source": "GitHub",
+      "Hash": "0123456789abcdef0123456789abcdef",
+      "biocViews": "Genomics",
       "RemoteType": "github",
       "RemoteHost": "api.github.com",
-      "RemoteUsername": "yihui",
-      "RemoteRepo": "mime",
+      "RemoteUsername": "rstudio",
+      "RemoteRepo": "fullpkg",
+      "RemoteRepos": "https://cloud.r-project.org",
       "RemoteRef": "main",
-      "RemoteSha": "1763e0dcb72fb58d97bab97bb834fc71f1e012bc",
-      "Requirements": [
-        "tools"
-      ],
-      "Hash": "c2772b6269924dad6784aaa1d99dbb86"
+      "RemotePkgRef": "fullpkg",
+      "RemotePkgPlatform": "x86_64-pc-linux-gnu",
+      "RemoteSha": "abcdefabcdefabcdefabcdefabcdefab",
+      "Title": "A Full Featured Package",
+      "Authors@R": "person(\\"Jane\\", \\"Doe\\", role = c(\\"aut\\", \\"cre\\"), email = \\"jane@doe.com\\")",
+      "Description": "This is a comprehensive DESCRIPTION-like entry with every field populated.",
+      "License": "MIT + file LICENSE",
+      "URL": "https://github.com/rstudio/fullpkg",
+      "BugReports": "https://github.com/rstudio/fullpkg/issues",
+      "Author": "Jane Doe [aut, cre]",
+      "Maintainer": "Jane Doe <jane@doe.com>",
+      "Depends": ["R (>= 4.0)"],
+      "Imports": ["cli", "rlang"],
+      "LinkingTo": ["cpp11"],
+      "Suggests": ["testthat", "knitr"],
+      "Enhances": ["shiny"],
+      "SystemRequirements": "libxml2 (>= 2.9.0)",
+      "VignetteBuilder": "knitr",
+      "Type": "Package",
+      "Date": "2025-04-01",
+      "ByteCompile": "true",
+      "Biarch": "TRUE",
+      "Encoding": "UTF-8",
+      "Language": "en-US",
+      "RoxygenNote": "7.4.0",
+      "NeedsCompilation": "yes",
+      "Copyright": "© 2025 Jane Doe",
+      "Config/Needs/website": "pkgdown",
+      "Config/testthat/edition": "3",
+      "Config/testthat/parallel": "true",
+      "Config/testthat/start-first": "install,restore",
+      "Config/autostyle/scope": "line_breaks",
+      "Config/autostyle/strict": "true",
+      "Config/autostyle/rmd": "false"
     }
   }
 }
 '
   expect_no_error(lockfile_validate(lockfile = lockfile))
   expect_true(lockfile_validate(lockfile = lockfile))
-  
+
 })
 
 
@@ -117,7 +134,7 @@ test_that("a known-good lockfile with extra fields passes validation", {
 '
   expect_no_error(lockfile_validate(lockfile = lockfile))
   expect_true(lockfile_validate(lockfile = lockfile))
-  
+
 })
 
 test_that("a custom schema file can be used for successful validation", {
@@ -172,7 +189,7 @@ test_that("a custom schema file can be used for successful validation", {
 '
   expect_no_error(lockfile_validate(lockfile = lockfile, schema = schema))
   expect_true(lockfile_validate(lockfile = lockfile, schema = schema))
-  
+
 })
 
 test_that("a custom schema file can be used for failed validation", {
@@ -226,7 +243,7 @@ test_that("a custom schema file can be used for failed validation", {
 '
 
   expect_false(lockfile_validate(lockfile = lockfile, schema = schema))
-  
+
 })
 
 test_that("an incorrect Packages$Hash field fails validation", {
@@ -258,7 +275,7 @@ test_that("an incorrect Packages$Hash field fails validation", {
 '
 
   expect_false(lockfile_validate(lockfile = lockfile))
-  
+
 })
 
 test_that("invalid JSON fails validation", {
@@ -290,7 +307,7 @@ test_that("invalid JSON fails validation", {
 }
 '
   expect_error(lockfile_validate(lockfile = lockfile, error = TRUE))
-  
+
 })
 
 test_that("strict mode catches unknown keyword in provided schema", {
@@ -339,6 +356,8 @@ test_that("strict mode catches unknown keyword in provided schema", {
 }
 '
   expect_true(lockfile_validate(lockfile = lockfile, schema = schema))
-  expect_error(lockfile_validate(lockfile = lockfile, schema = schema, strict = TRUE))
-  
+  expect_error(
+    lockfile_validate(lockfile = lockfile, schema = schema, strict = TRUE)
+  )
+
 })
