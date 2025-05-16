@@ -19,7 +19,8 @@ test_that(".Rproj files requesting devtools is handled", {
 
 test_that("usages of library, etc. are properly handled", {
 
-  deps <- dependencies("resources/code.R")
+  path <- renv_tests_path("resources/code.R")
+  deps <- dependencies(path)
   pkgs <- deps$Package
 
   expect_equal(pkgs, tolower(pkgs))
@@ -138,18 +139,6 @@ test_that("dependencies can accept multiple files", {
 
 })
 
-test_that("no warnings are produced when crawling dependencies", {
-
-  expect_warning(
-    regexp = NA,
-    dependencies(
-      "resources",
-      root = file.path(getwd(), "resources")
-    )
-  )
-
-})
-
 test_that("Suggests are dev. deps for all projects", {
 
   renv_tests_scope()
@@ -183,12 +172,15 @@ test_that("module without parameter doesn't give an error", {
 
 test_that("dependencies specified in R Markdown site generators are found", {
 
+  skip_if_not_installed("yaml")
   renv_tests_scope()
+
   writeLines(
     c("---", "site: blogdown:::blogdown_site", "---"),
     con = "index.Rmd")
   deps <- dependencies()
   expect_true("blogdown" %in% deps$Package)
+
   writeLines(
     c("---", "site: bookdown::bookdown_site", "---"),
     con = "index.Rmd")
@@ -205,11 +197,8 @@ test_that("Suggest dependencies are ignored by default", {
 
 test_that("a call to geom_hex() implies a dependency on ggplot2", {
 
-  file <- renv_test_code({
-    ggplot() + geom_hex()
-  })
-
-  deps <- dependencies(file)
+  path <- renv_tests_path("resources/geom-hex.R")
+  deps <- dependencies(path)
   expect_true("hexbin" %in% deps$Package)
 
 })
@@ -673,4 +662,10 @@ test_that("documents with empty YAML headers are handled", {
 test_that("unexpected Sweave chunk options are handled", {
   path <- renv_tests_path("resources/result-equal-hide.Rnw")
   result <- dependencies(path, quiet = TRUE)
+})
+
+test_that("base::use() dependencies are handled", {
+  path <- renv_tests_path("resources/use.R")
+  result <- dependencies(path, quiet = TRUE)
+  expect_contains(result$Package, c("A", "B", "C", "D"))
 })

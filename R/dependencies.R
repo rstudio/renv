@@ -1093,7 +1093,7 @@ renv_dependencies_discover_r <- function(path  = NULL,
     renv_dependencies_discover_r_pacman,
     renv_dependencies_discover_r_modules,
     renv_dependencies_discover_r_import,
-    renv_dependencies_discover_r_box,
+    renv_dependencies_discover_r_use,
     renv_dependencies_discover_r_targets,
     renv_dependencies_discover_r_glue,
     renv_dependencies_discover_r_ggplot2,
@@ -1418,20 +1418,65 @@ renv_dependencies_discover_r_import <- function(node, envir) {
 
 }
 
-renv_dependencies_discover_r_box <- function(node, envir) {
+renv_dependencies_discover_r_use <- function(node, envir) {
 
-  node <- renv_call_expect(node, "box", "use")
-  if (is.null(node))
+  # There are multiple possible packages providing a function called 'use'.
+  # renv will currently assume that any invocation of 'use' without a
+  # package prefix is one that belongs to 'base'.
+  if (is.call(node) && identical(node[[1L]], as.symbol("use")))
+    return(renv_dependencies_discover_r_use_base(node, envir))
+
+  # `base::use()`
+  m <- renv_call_expect(node, "base", "use")
+  if (length(m))
+    return(renv_dependencies_discover_r_use_base(m, envir))
+
+  # `renv::use()`
+  m <- renv_call_expect(node, "renv", "use")
+  if (length(m)) {
+    pkgs <- setdiff(names(m), names(formals(renv::use)))
+    for (pkg in pkgs)
+      if (nzchar(pkg))
+        envir[[pkg]] <- TRUE
+    return(TRUE)
+  }
+
+  # `box::use()`
+  m <- renv_call_expect(node, "box", "use")
+  if (length(m)) {
+    for (i in seq.int(2L, length.out = length(m) - 1L))
+      renv_dependencies_discover_r_use_box(m[[i]], envir)
+    return(TRUE)
+  }
+
+  # no implementation matched
+  FALSE
+
+}
+
+renv_dependencies_discover_r_use_base <- function(node, envir) {
+
+  # attempt to match the call
+  matched <- tryCatch(
+    match.call(function(package, include.only) {}, node),
+    error = identity
+  )
+
+  if (inherits(matched, "error"))
     return(FALSE)
 
-  for (i in seq.int(2L, length.out = length(node) - 1L))
-    renv_dependencies_discover_r_box_impl(node[[i]], envir)
+  # check for a character argument
+  package <- matched[["package"]]
+  if (!is.character(package))
+    return(FALSE)
 
+  # add to dependency set
+  envir[[package]] <- TRUE
   TRUE
 
 }
 
-renv_dependencies_discover_r_box_impl <- function(node, envir) {
+renv_dependencies_discover_r_use_box <- function(node, envir) {
 
   # if the call uses /, it's a path, not a package
   if (renv_call_matches(node, "/"))

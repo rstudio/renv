@@ -1,6 +1,11 @@
 
 # renv (development version)
 
+* `renv`'s dependency discovery now supports usages of `base::use()`. (#2130)
+
+* `renv` now supports dependency discovery for projects using
+  `base::use()` to load packages. (#2130)
+
 * Fixed an issue where `renv` could fail to parse remote references
   containing an `@` character. (#2135)
 
