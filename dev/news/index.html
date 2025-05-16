@@ -53,7 +53,9 @@
 
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="development version" id="renv-development-version">renv (development version)<a class="anchor" aria-label="anchor" href="#renv-development-version"></a></h2>
-<ul><li><p>Fixed an issue where <code>renv</code> could fail to parse remote references containing an <code>@</code> character. (<a href="https://github.com/rstudio/renv/issues/2135" class="external-link">#2135</a>)</p></li>
+<ul><li><p><code>renv</code>’s dependency discovery now supports usages of <code><a href="https://rdrr.io/r/base/use.html" class="external-link">base::use()</a></code>. (<a href="https://github.com/rstudio/renv/issues/2130" class="external-link">#2130</a>)</p></li>
+<li><p><code>renv</code> now supports dependency discovery for projects using <code><a href="https://rdrr.io/r/base/use.html" class="external-link">base::use()</a></code> to load packages. (<a href="https://github.com/rstudio/renv/issues/2130" class="external-link">#2130</a>)</p></li>
+<li><p>Fixed an issue where <code>renv</code> could fail to parse remote references containing an <code>@</code> character. (<a href="https://github.com/rstudio/renv/issues/2135" class="external-link">#2135</a>)</p></li>
 <li><p>Fixed an issue where <code>renv::sysreqs(distro = &lt;...&gt;)</code> could fail when passed an alternate distribution without a version specifier. (<a href="https://github.com/rstudio/renv/issues/2105" class="external-link">#2105</a>)</p></li>
 <li><p>Fixed an issue where multimode R documents containing chunk headers which did not parse to an R list could cause dependency inference to fail. (<a href="https://github.com/rstudio/renv/issues/2110" class="external-link">#2110</a>)</p></li>
 </ul></div>
