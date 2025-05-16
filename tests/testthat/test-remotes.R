@@ -231,3 +231,24 @@ test_that("remote specs referencing packages in sub-sub-directories are parsed c
   expect_equal(remote, expected)
 
 })
+
+test_that("we can parse remotes containing multiple '@'s", {
+
+  spec <- "user/repo@ref-has-@-inside"
+  remote <- renv_remotes_parse(spec)
+
+  expected <- list(
+    spec    = spec,
+    package = NULL,
+    type    = "github",
+    host    = NULL,
+    user    = "user",
+    repo    = "repo",
+    subdir  = NULL,
+    pull    = NULL,
+    ref     = "ref-has-@-inside"
+  )
+
+  expect_equal(remote, expected)
+
+})

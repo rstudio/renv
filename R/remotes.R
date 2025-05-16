@@ -138,9 +138,9 @@ renv_remotes_resolve_impl <- function(spec, latest = FALSE) {
 
 }
 
-renv_remotes_parse_impl <- function(spec, pattern, fields, perl = FALSE) {
+renv_remotes_parse_impl <- function(spec, pattern, fields) {
 
-  matches <- regexec(pattern, spec, perl = perl)
+  matches <- regexec(pattern, spec, perl = TRUE)
   strings <- regmatches(spec, matches)[[1]]
   if (empty(strings))
     stopf("'%s' is not a valid remote", spec)
@@ -176,10 +176,10 @@ renv_remotes_parse_remote <- function(spec) {
     "(?:([[:alpha:]][[:alnum:].]*[[:alnum:]])=)?",  # optional package name
     "(?:([^@:]+)(?:@([^:]+))?::)?",                 # optional prefix, providing type + host
     "([^/#@:]+)",                                   # a username
-    "(?:/([^@#:]+))?",                              # a repository (allow sub-repositories)
-    "(?::([^@#:]+))?",                              # optional subdirectory
-    "(?:#([^@#:]+))?",                              # optional hash (e.g. pull request)
-    "(?:@([^@#:]+))?",                              # optional ref (e.g. branch or commit)
+    "(?:[/]([^@#:]+))?",                            # a repository (allow sub-repositories)
+    "(?:[:]([^@#]+))?",                             # optional subdirectory
+    "(?:[#]([^@]+))?",                              # optional hash (e.g. pull request)
+    "(?:[@](.+))?",                                 # optional ref (e.g. branch or commit)
     "$"
   )
 
@@ -220,7 +220,7 @@ renv_remotes_parse_gitssh <- function(spec) {
     "subdir", "pull", "ref"
   )
 
-  remote <- renv_remotes_parse_impl(spec, pattern, fields, perl = TRUE)
+  remote <- renv_remotes_parse_impl(spec, pattern, fields)
   if (!nzchar(remote$repo))
     stopf("'%s' is not a valid remote", spec)
 
@@ -263,7 +263,7 @@ renv_remotes_parse_git <- function(spec) {
     "subdir", "pull", "ref"
   )
 
-  remote <- renv_remotes_parse_impl(spec, pattern, fields, perl = TRUE)
+  remote <- renv_remotes_parse_impl(spec, pattern, fields)
   if (!nzchar(remote$repo))
     stopf("'%s' is not a valid remote", spec)
 
@@ -291,7 +291,7 @@ renv_remotes_parse_url <- function(spec) {
   )
 
   fields <- c("spec", "package", "type", "url", "protocol", "path", "subdir")
-  remote <- renv_remotes_parse_impl(spec, pattern, fields, perl = TRUE)
+  remote <- renv_remotes_parse_impl(spec, pattern, fields)
   if (!nzchar(remote$url))
     stopf("'%s' is not a valid remote", spec)
 
