@@ -29,7 +29,18 @@ test_that("packages can be installed, restored from Bioconductor", {
     renv_tests_scope_system_cache()
     install("BiocManager")
   })
-  suppressMessages(BiocManager::install("Biobase", quiet = TRUE, update = FALSE, ask = FALSE))
+
+  local({
+    renv_scope_options(repos = c(CRAN = "https://cran.r-project.org"))
+    suppressMessages(
+      BiocManager::install(
+        pkgs   = "Biobase",
+        quiet  = TRUE,
+        update = FALSE,
+        ask    = FALSE
+      )
+    )
+  })
 
   expect_true(renv_package_installed("BiocManager"))
   expect_true(renv_package_installed("BiocVersion"))
