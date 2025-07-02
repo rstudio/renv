@@ -1215,9 +1215,16 @@ renv_retrieve_successful <- function(record, path, install = TRUE) {
 
   # recursively install strong dependencies first
   if (state$recursive && nrow(strongdeps)) local({
-    repos <- if (is.null(desc$biocViews)) getOption("repos") else renv_bioconductor_repos()
-    renv_scope_options(repos = repos)
+
+    # make sure bioconductor repositories are active before install if necessary
+    if (nzchar(desc[["biocViews"]] %||% "")) {
+      repos <- renv_bioconductor_repos()
+      renv_scope_options(repos = repos)
+    }
+
+    # now recurse
     renv_retrieve_successful_recurse(strongdeps)
+
   })
 
   # mark package as requiring install if needed
@@ -1226,9 +1233,16 @@ renv_retrieve_successful <- function(record, path, install = TRUE) {
 
   # now recursively retrieve weak dependencies
   if (state$recursive && nrow(weakdeps)) local({
-    repos <- if (is.null(desc$biocViews)) getOption("repos") else renv_bioconductor_repos()
-    renv_scope_options(repos = repos)
+
+    # make sure bioconductor repositories are active before install if necessary
+    if (nzchar(desc[["biocViews"]] %||% "")) {
+      repos <- renv_bioconductor_repos()
+      renv_scope_options(repos = repos)
+    }
+
+    # now recursive
     renv_retrieve_successful_recurse(weakdeps)
+
   })
 
   TRUE

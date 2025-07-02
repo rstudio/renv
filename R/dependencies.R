@@ -595,7 +595,9 @@ renv_dependencies_discover_description <- function(path,
   names(data) <- fields
 
   # if this is a bioconductor package, add their implicit dependencies
-  if ("biocViews" %in% names(dcf)) {
+  # guard against packages which have an empty biocViews field
+  # https://github.com/rstudio/renv/issues/2149
+  if (nzchar(dcf[["biocViews"]] %||% "")) {
     data[[length(data) + 1L]] <- renv_dependencies_list(
       source = path,
       packages = c(renv_bioconductor_manager(), "BiocVersion")

@@ -750,7 +750,7 @@ renv_snapshot_description_impl_v1 <- function(dcf, path = NULL) {
   # if this is a standard remote for a bioconductor package,
   # remove the other remote fields
   bioc <-
-    !is.null(dcf[["biocViews"]]) &&
+    nzchar(dcf[["biocViews"]] %||% "") &&
     identical(dcf[["RemoteType"]], "standard")
 
   if (bioc) {
@@ -822,7 +822,7 @@ renv_snapshot_description_impl_v2 <- function(dcf, path) {
   # if this is a standard remote for a bioconductor package,
   # remove the other remote fields
   bioc <-
-    !is.null(dcf[["biocViews"]]) &&
+    nzchar(dcf[["biocViews"]] %||% "") &&
     identical(dcf[["RemoteType"]], "standard")
 
   if (bioc) {
@@ -878,8 +878,7 @@ renv_snapshot_description_source_custom <- function(dcf) {
     return(NULL)
 
   # if this package appears to be installed from Bioconductor, skip
-  biocviews <- dcf[["biocViews"]]
-  if (!is.null(biocviews))
+  if (nzchar(dcf[["biocViews"]] %||% ""))
     return(NULL)
 
   # if the declared repository appears to be a CRAN mirror, skip it
@@ -931,7 +930,7 @@ renv_snapshot_description_source <- function(dcf) {
 
   # packages from Bioconductor are normally tagged with a 'biocViews' entry;
   # use that to infer a Bioconductor source
-  if (!is.null(dcf[["biocViews"]]))
+  if (nzchar(dcf[["biocViews"]] %||% ""))
     return(list(Source = "Bioconductor"))
 
   # check for a declared repository

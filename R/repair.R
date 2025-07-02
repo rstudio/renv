@@ -130,9 +130,11 @@ renv_repair_sources <- function(library, lockfile, project) {
 renv_repair_sources_infer <- function(dcf) {
 
   # if this package appears to have a declared remote, use as-is
-  for (field in c("RemoteType", "Repository", "biocViews"))
-    if (!is.null(dcf[[field]]))
+  for (field in c("RemoteType", "Repository", "biocViews")) {
+    value <- dcf[[field]]
+    if (nzchar(value %||% ""))
       return(NULL)
+  }
 
   # ok, this is a package installed from sources that "looks" like
   # the development version of a package; try to guess its remote
