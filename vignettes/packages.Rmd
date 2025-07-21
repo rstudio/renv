@@ -22,7 +22,7 @@ Often, R packages will have other R packages as dependencies. For this, one must
 declare their R package dependencies within the package `DESCRIPTION` file. If
 you want to prepare your environment for package development, you can use:
 
-```
+```{r}
 renv::install()
 ```
 
@@ -33,7 +33,7 @@ If you're developing a package that you intend to release to CRAN, then you
 likely want to build and test your package against the latest versions of your
 dependencies as available on CRAN. For this, you should consider using:
 
-```
+```{r}
 renv::update()
 ```
 
