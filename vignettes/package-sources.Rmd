@@ -83,7 +83,7 @@ Custom and local R package repositories are supported as well. The only
 requirement is that these repositories are set as part of the `repos` R
 option, and that these repositories are named. For example, you might use:
 
-```
+```{r, eval=FALSE}
 repos <- c(CRAN = "https://cloud.r-project.org", WORK = "https://work.example.org")
 options(repos = repos)
 ```
@@ -199,7 +199,7 @@ most useful if you are building an renv lockfile "by hand", or need to tweak
 an existing lockfile to point at a separate package for installation. For
 example, you could have a package record in `renv.lock` of the form:
 
-```
+```json
 {
   "Package": "skeleton",
   "Version": "1.0.1",
@@ -243,7 +243,7 @@ versions) a particular package was built against.
 R packages might occasionally (and unintentionally) take a build-time
 dependency on another R package -- for example, a package with the code:
 
-```
+```{r, eval=FALSE}
 `%>%` <- magrittr::`%>%`
 ```
 
