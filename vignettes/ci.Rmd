@@ -95,7 +95,7 @@ See also the [example][github-actions-renv] on GitHub actions.
 The following template can be used as a base when using renv with
 [GitLab CI][gitlab-ci]:
 
-```
+```yaml
 variables:
   RENV_PATHS_ROOT: ${CI_PROJECT_DIR}/renv
 
