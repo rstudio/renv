@@ -84,7 +84,10 @@ requirement is that these repositories are set as part of the `repos` R
 option, and that these repositories are named. For example, you might use:
 
 ```{r, eval=FALSE}
-repos <- c(CRAN = "https://cloud.r-project.org", WORK = "https://work.example.org")
+repos <- c(
+  CRAN = "https://cloud.r-project.org",
+  WORK = "https://work.example.org"
+)
 options(repos = repos)
 ```
 
