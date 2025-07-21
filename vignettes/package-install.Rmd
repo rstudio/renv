@@ -73,7 +73,7 @@ For example, you might want to make both a user-local package cache, as well as 
 To do so, you can specify the paths to the cache separated with a `;` (or `:` on Unix if preferred).
 For example:
 
-```         
+```bash
 RENV_PATHS_CACHE=/path/to/local/cache;/path/to/global/cache
 ```
 
@@ -193,7 +193,7 @@ You can also configure which `curl` executable is used by setting the `RENV_CURL
 If you've already configured R's downloader and would like to bypass renv's attempts to use `curl`, you can use the R option `renv.download.override`.
 For example, executing:
 
-``` r
+```{r, eval=FALSE}
 options(renv.download.override = utils::download.file)
 ```
 
@@ -203,7 +203,7 @@ Advanced users can also provide their own download function, provided its signat
 You can also instruct renv to use a different download method by setting the `RENV_DOWNLOAD_METHOD` environment variable.
 For example:
 
-```         
+```{r, eval=FALSE}
 # use Windows' internal download machinery
 Sys.setenv(RENV_DOWNLOAD_METHOD = "wininet")
 
@@ -260,7 +260,7 @@ As an [example](https://github.com/rstudio/renv/issues/146), the following `_cur
 
 The [curl](https://cran.r-project.org/package=curl) R package also has a helper:
 
-```         
+```{r, eval=FALSE}
 curl::ie_get_proxy_for_url()
 ```
 
@@ -286,7 +286,7 @@ If you require custom authentication for different packages (for example, your p
 `renv.auth` can either be a a named list associating package names with environment variables, or a function accepting a package name + record, and returning a list of environment variables.
 For example:
 
-``` r
+```{r, eval=FALSE}
 # define a function providing authentication
 options(renv.auth = function(package, record) {
   if (package == "MyPackage")
@@ -314,7 +314,7 @@ Authentication may be required when resolving a package from a remote specificat
 If the package name cannot be inferred directly from the remote, it can be supplied with a prefix of the form `<package>=`.
 For example, the igraph package on GitHub at <https://github.com/igraph/rigraph> could be installed with:
 
-```         
+```{r, eval=FALSE}
 renv::install("igraph=igraph/rigraph")
 ```
 
@@ -323,7 +323,7 @@ renv::install("igraph=igraph/rigraph")
 
 Authentication with Azure DevOps may require credentials to be set in a slightly different way. In particular, you can use:
 
-```
+```bash
 GITHUB_USER = <username>
 GITHUB_PASS = <password>
 ```
@@ -340,7 +340,7 @@ Rather than username + password, some remote Git repositories might require Pers
 
 To help facilitate this, you can set:
 
-```
+```bash
 GIT_USER = <pat>
 GIT_PASS = x-oauth-basic
 ```
@@ -356,7 +356,7 @@ It should be a function that accepts a URL, and returns a named character vector
 For example, suppose you have a package repository hosted at `https://my/repository`, and the credentials required to access that repository are stored in the `AUTH_HEADER` environment variable.
 You could define `renv.download.headers` like so:
 
-``` r
+```{r, eval=FALSE}
 options(renv.download.headers = function(url) {
   if (grepl("^https://my/repository", url))
     return(c(Authorization = Sys.getenv("AUTH_HEADER")))
@@ -369,6 +369,6 @@ With the above, renv will set the `Authorization` header whenever it attempts to
 
 If having problems with downloads, you can get more debugging information (including raw requests and responses) by setting:
 
-```R
+```{r, eval=FALSE}
 options(renv.download.trace = TRUE) 
 ```
