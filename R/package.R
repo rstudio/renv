@@ -493,10 +493,23 @@ renv_package_unpack <- function(package, path, subdir = "", force = FALSE) {
   # rename (without sub-directory)
   oldpath <- file.path(old, dirname(descpath))
   newpath <- file.path(new, package)
-  file.rename(oldpath, newpath)
 
-  # use newpath
-  newpath
+  # https://github.com/rstudio/renv/issues/2156
+  status <- tryCatch(file.rename(oldpath, newpath), error = identity)
+  if (identical(status, TRUE))
+    return(newpath)
+
+  fmt <- "file.rename() failed while unpacking package %s; retrying..."
+  dlog("package", fmt, package)
+
+  for (i in 1:60) {
+    Sys.sleep(1)
+    status <- tryCatch(file.rename(oldpath, newpath), error = identity)
+    if (identical(status, TRUE))
+      return(newpath)
+  }
+
+  stop(status)
 
 }
 

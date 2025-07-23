@@ -1,6 +1,9 @@
 
 # renv (development version)
 
+* Fixed an issue where `file.rename()` could fail when unpacking a
+  package during installation in certain Windows environments. (#2156)
+
 * `renv`'s dependency discovery now supports usages of `base::use()`. (#2130)
 
 * Fixed an issue where `renv` could fail to parse remote references
