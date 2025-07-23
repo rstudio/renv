@@ -495,7 +495,7 @@ renv_package_unpack <- function(package, path, subdir = "", force = FALSE) {
   newpath <- file.path(new, package)
 
   # https://github.com/rstudio/renv/issues/2156
-  status <- tryCatch(file.rename(oldpath, newpath), error = identity)
+  status <- tryCatch(file.rename(oldpath, newpath), condition = identity)
   if (identical(status, TRUE))
     return(newpath)
 
@@ -504,7 +504,7 @@ renv_package_unpack <- function(package, path, subdir = "", force = FALSE) {
 
   for (i in 1:60) {
     Sys.sleep(1)
-    status <- tryCatch(file.rename(oldpath, newpath), error = identity)
+    status <- tryCatch(file.rename(oldpath, newpath), condition = identity)
     if (identical(status, TRUE))
       return(newpath)
   }
