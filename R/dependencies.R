@@ -859,9 +859,13 @@ renv_dependencies_discover_chunks_ignore <- function(chunk) {
     return(TRUE)
 
   # skip chunks whose labels end in '-display'
-  label <- chunk$params[["label"]] %||% ""
-  if (grepl("-display$", label))
+  label <- chunk$params[["label"]]
+  if (is.character(label) &&
+      length(label) == 1L &&
+      grepl("-display$", label))
+  {
     return(TRUE)
+  }
 
   # ok, don't ignore this chunk
   FALSE
