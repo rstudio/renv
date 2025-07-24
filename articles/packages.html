@@ -6,16 +6,15 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <title>Package development • renv</title>
-<!-- favicons --><link rel="icon" type="image/png" sizes="16x16" href="../favicon-16x16.png">
-<link rel="icon" type="image/png" sizes="32x32" href="../favicon-32x32.png">
-<link rel="apple-touch-icon" type="image/png" sizes="180x180" href="../apple-touch-icon.png">
-<link rel="apple-touch-icon" type="image/png" sizes="120x120" href="../apple-touch-icon-120x120.png">
-<link rel="apple-touch-icon" type="image/png" sizes="76x76" href="../apple-touch-icon-76x76.png">
-<link rel="apple-touch-icon" type="image/png" sizes="60x60" href="../apple-touch-icon-60x60.png">
+<!-- favicons --><link rel="icon" type="image/png" sizes="96x96" href="../favicon-96x96.png">
+<link rel="icon" type="”image/svg+xml”" href="../favicon.svg">
+<link rel="apple-touch-icon" sizes="180x180" href="../apple-touch-icon.png">
+<link rel="icon" sizes="any" href="../favicon.ico">
+<link rel="manifest" href="../site.webmanifest">
 <script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <link href="../deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet">
-<script src="../deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="../deps/Source_Sans_Pro-0.4.9/font.css" rel="stylesheet">
-<link href="../deps/Source_Code_Pro-0.4.9/font.css" rel="stylesheet">
+<script src="../deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="../deps/Source_Sans_Pro-0.4.10/font.css" rel="stylesheet">
+<link href="../deps/Source_Code_Pro-0.4.10/font.css" rel="stylesheet">
 <link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
 <link href="../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet">
 <script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><link href="../extra.css" rel="stylesheet">
@@ -30,7 +29,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">renv</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">1.1.4</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">1.1.5</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -97,7 +96,8 @@
 this, one must declare their R package dependencies within the package
 <code>DESCRIPTION</code> file. If you want to prepare your environment
 for package development, you can use:</p>
-<pre><code><span><span class="fu">renv</span><span class="fu">::</span><span class="fu"><a href="../reference/install.html">install</a></span><span class="op">(</span><span class="op">)</span></span></code></pre>
+<div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu">renv</span><span class="fu">::</span><span class="fu"><a href="../reference/install.html">install</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
 <p>to install the packages as declared in the package’s
 <code>DESCRIPTION</code> file. This action is roughly analogous to
 <code><a href="https://remotes.r-lib.org/reference/install_deps.html" class="external-link">remotes::install_deps()</a></code>.</p>
@@ -105,7 +105,8 @@ for package development, you can use:</p>
 then you likely want to build and test your package against the latest
 versions of your dependencies as available on CRAN. For this, you should
 consider using:</p>
-<pre><code><span><span class="fu">renv</span><span class="fu">::</span><span class="fu"><a href="../reference/update.html">update</a></span><span class="op">(</span><span class="op">)</span></span></code></pre>
+<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu">renv</span><span class="fu">::</span><span class="fu"><a href="../reference/update.html">update</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
 <p>to ensure your package dependencies are up-to-date, as
 appropriate.</p>
 </div>
@@ -123,8 +124,8 @@ installed in your system library.</p>
 <p>In these cases, you can declare your development dependencies using
 the <code>Remotes</code> field of the <code>DESCRIPTION</code> file;
 e.g.</p>
-<pre><code><span><span class="va">Remotes</span><span class="op">:</span></span>
-<span>  <span class="va">r</span><span class="op">-</span><span class="va">lib</span><span class="op">/</span><span class="va">ggplot2</span></span></code></pre>
+<div class="sourceCode" id="cb3"><pre class="sourceCode sh"><code class="sourceCode bash"><span id="cb3-1"><a href="#cb3-1" tabindex="-1"></a><span class="ex">Remotes:</span></span>
+<span id="cb3-2"><a href="#cb3-2" tabindex="-1"></a>  <span class="ex">r-lib/ggplot2</span></span></code></pre></div>
 <p>and <code><a href="../reference/install.html">renv::install()</a></code> will parse that remotes declaration
 and retrieve the requested package. See the remotes vignette, <a href="https://remotes.r-lib.org/articles/dependencies.html" class="external-link">Dependency
 resolution for R package development</a>, for more details.</p>
@@ -135,9 +136,9 @@ resolution for R package development</a>, for more details.</p>
 <p>For package projects using renv, a library path outside of the
 project directory will be used instead. As an example, on macOS, this
 might look like:</p>
-<pre><code>&gt; .libPaths()
-[1] "/Users/kevin/Library/Caches/org.R-project.R/R/renv/library/example-552f6e80/R-4.3/aarch64-apple-darwin20"
-[2] "/Users/kevin/Library/Caches/org.R-project.R/R/renv/sandbox/R-4.3/aarch64-apple-darwin20/ac5c2659"</code></pre>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" tabindex="-1"></a><span class="sc">&gt;</span> <span class="fu">.libPaths</span>()</span>
+<span id="cb4-2"><a href="#cb4-2" tabindex="-1"></a>[<span class="dv">1</span>] <span class="st">"/Users/kevin/Library/Caches/org.R-project.R/R/renv/library/example-552f6e80/R-4.3/aarch64-apple-darwin20"</span></span>
+<span id="cb4-3"><a href="#cb4-3" tabindex="-1"></a>[<span class="dv">2</span>] <span class="st">"/Users/kevin/Library/Caches/org.R-project.R/R/renv/sandbox/R-4.3/aarch64-apple-darwin20/ac5c2659"</span></span></code></pre></div>
 <p>This is done to avoid issues with <code>R CMD build</code>, which can
 become very slow if your project contains a large number of files – as
 can happen if the project library is located in
@@ -150,10 +151,10 @@ normally are.</p>
 project libraries in this scenario, you can use the
 <code>RENV_PATHS_LIBRARY_ROOT</code> environment variable. For
 example:</p>
-<pre><code>RENV_PATHS_LIBRARY_ROOT = ~/.renv/library</code></pre>
+<div class="sourceCode" id="cb5"><pre class="sourceCode sh"><code class="sourceCode bash"><span id="cb5-1"><a href="#cb5-1" tabindex="-1"></a><span class="ex">RENV_PATHS_LIBRARY_ROOT</span> = ~/.renv/library</span></code></pre></div>
 <p>If you’d still prefer to keep your project library within the project
 directory, you can set:</p>
-<pre><code><span><span class="va">RENV_PATHS_LIBRARY</span> <span class="op">=</span> <span class="va">renv</span><span class="op">/</span><span class="va">library</span></span></code></pre>
+<div class="sourceCode" id="cb6"><pre class="sourceCode sh"><code class="sourceCode bash"><span id="cb6-1"><a href="#cb6-1" tabindex="-1"></a><span class="ex">RENV_PATHS_LIBRARY</span> = renv/library</span></code></pre></div>
 <p>within an appropriate <code>.Renviron</code> start-up profile – but
 please be aware of the caveats to doing this, as the performance of
 <code>R CMD build</code> will be affected.</p>
@@ -179,8 +180,8 @@ the other R packages currently available on CRAN. For that reason, when
 preparing your package for submission, you’ll need to ensure your source
 package tarball does not include any <code>renv</code> infrastructure.
 <code>renv</code> makes this easy by automatically including</p>
-<pre><code>^renv$
-^renv\.lock$</code></pre>
+<div class="sourceCode" id="cb7"><pre class="sourceCode sh"><code class="sourceCode bash"><span id="cb7-1"><a href="#cb7-1" tabindex="-1"></a><span class="ex">^renv$</span></span>
+<span id="cb7-2"><a href="#cb7-2" tabindex="-1"></a><span class="ex">^renv\.lock$</span></span></code></pre></div>
 <p>in your package’s <code>.Rbuildignore</code> file. This instructs
 <code>R CMD build</code> to not include these files and folders in the
 generated package tarball. Through this, even if <code>renv</code> is
@@ -201,7 +202,7 @@ your package to CRAN as you would when developing packages without
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.1.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.3.</p>
 </div>
 
   </div></footer><!-- Google Tag Manager (noscript) --><noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-KHBDBW7" height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>

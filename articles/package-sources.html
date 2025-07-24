@@ -6,16 +6,15 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <title>Package sources • renv</title>
-<!-- favicons --><link rel="icon" type="image/png" sizes="16x16" href="../favicon-16x16.png">
-<link rel="icon" type="image/png" sizes="32x32" href="../favicon-32x32.png">
-<link rel="apple-touch-icon" type="image/png" sizes="180x180" href="../apple-touch-icon.png">
-<link rel="apple-touch-icon" type="image/png" sizes="120x120" href="../apple-touch-icon-120x120.png">
-<link rel="apple-touch-icon" type="image/png" sizes="76x76" href="../apple-touch-icon-76x76.png">
-<link rel="apple-touch-icon" type="image/png" sizes="60x60" href="../apple-touch-icon-60x60.png">
+<!-- favicons --><link rel="icon" type="image/png" sizes="96x96" href="../favicon-96x96.png">
+<link rel="icon" type="”image/svg+xml”" href="../favicon.svg">
+<link rel="apple-touch-icon" sizes="180x180" href="../apple-touch-icon.png">
+<link rel="icon" sizes="any" href="../favicon.ico">
+<link rel="manifest" href="../site.webmanifest">
 <script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <link href="../deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet">
-<script src="../deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="../deps/Source_Sans_Pro-0.4.9/font.css" rel="stylesheet">
-<link href="../deps/Source_Code_Pro-0.4.9/font.css" rel="stylesheet">
+<script src="../deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="../deps/Source_Sans_Pro-0.4.10/font.css" rel="stylesheet">
+<link href="../deps/Source_Code_Pro-0.4.10/font.css" rel="stylesheet">
 <link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
 <link href="../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet">
 <script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><link href="../extra.css" rel="stylesheet">
@@ -30,7 +29,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">renv</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">1.1.4</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">1.1.5</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -91,25 +90,14 @@
     
     
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://rstudio.github.io/renv/">renv</a></span><span class="op">)</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; Attaching package: 'renv'</span></span>
-<span><span class="co">#&gt; The following objects are masked from 'package:stats':</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt;     embed, update</span></span>
-<span><span class="co">#&gt; The following objects are masked from 'package:utils':</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt;     history, upgrade</span></span>
-<span><span class="co">#&gt; The following objects are masked from 'package:base':</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt;     autoload, load, remove, use</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://rstudio.github.io/renv/">renv</a></span><span class="op">)</span></span></code></pre></div>
 <div class="section level2">
 <h2 id="package-sources">Package sources<a class="anchor" aria-label="anchor" href="#package-sources"></a>
 </h2>
 <p>renv uses an installed package’s <code>DESCRIPTION</code> file to
 infer its source. For example, packages installed from the CRAN
 repositories typically have the field:</p>
-<pre><code><span><span class="va">Repository</span><span class="op">:</span> <span class="va">CRAN</span></span></code></pre>
+<div class="sourceCode" id="cb2"><pre class="sourceCode sh"><code class="sourceCode bash"><span id="cb2-1"><a href="#cb2-1" tabindex="-1"></a><span class="ex">Repository:</span> CRAN</span></code></pre></div>
 <p>set, and renv takes this as a signal that the package was retrieved
 from CRAN.</p>
 <div class="section level3">
@@ -144,15 +132,15 @@ accessible from your machine.</p>
 during <code><a href="../reference/snapshot.html">renv::snapshot()</a></code> – for example, if we attempted to
 snapshot a package called <code>skeleton</code> with no known
 source:</p>
-<pre><code>&gt; renv::snapshot()
-The following package(s) were installed from an unknown source:
-
-        skeleton
-
-renv may be unable to restore these packages in the future.
-Consider reinstalling these packages from a known source (e.g. CRAN).
-
-Do you want to proceed? [y/N]:</code></pre>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" tabindex="-1"></a><span class="sc">&gt;</span> renv<span class="sc">::</span><span class="fu">snapshot</span>()</span>
+<span id="cb3-2"><a href="#cb3-2" tabindex="-1"></a>The following <span class="fu">package</span>(s) were installed from an unknown source<span class="sc">:</span></span>
+<span id="cb3-3"><a href="#cb3-3" tabindex="-1"></a></span>
+<span id="cb3-4"><a href="#cb3-4" tabindex="-1"></a>        skeleton</span>
+<span id="cb3-5"><a href="#cb3-5" tabindex="-1"></a></span>
+<span id="cb3-6"><a href="#cb3-6" tabindex="-1"></a>renv may be unable to restore these packages <span class="cf">in</span> the future.</span>
+<span id="cb3-7"><a href="#cb3-7" tabindex="-1"></a>Consider reinstalling these packages from a known <span class="fu">source</span> (e.g. CRAN).</span>
+<span id="cb3-8"><a href="#cb3-8" tabindex="-1"></a></span>
+<span id="cb3-9"><a href="#cb3-9" tabindex="-1"></a>Do you want to proceed? [y<span class="sc">/</span>N]<span class="sc">:</span></span></code></pre></div>
 <p>While you can still create a lockfile with such packages,
 <code><a href="../reference/restore.html">restore()</a></code> will likely fail unless you can ensure this
 package is installed through some other mechanism.</p>
@@ -164,8 +152,9 @@ package is installed through some other mechanism.</p>
 only requirement is that these repositories are set as part of the
 <code>repos</code> R option, and that these repositories are named. For
 example, you might use:</p>
-<pre><code><span><span class="va">repos</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>CRAN <span class="op">=</span> <span class="st">"https://cloud.r-project.org"</span>, WORK <span class="op">=</span> <span class="st">"https://work.example.org"</span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/options.html" class="external-link">options</a></span><span class="op">(</span>repos <span class="op">=</span> <span class="va">repos</span><span class="op">)</span></span></code></pre>
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">repos</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>CRAN <span class="op">=</span> <span class="st">"https://cloud.r-project.org"</span>, WORK <span class="op">=</span> <span class="st">"https://work.example.org"</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/options.html" class="external-link">options</a></span><span class="op">(</span>repos <span class="op">=</span> <span class="va">repos</span><span class="op">)</span></span></code></pre></div>
 <p>to tell renv to work with both the official CRAN package repository,
 as well as a package repository you have hosted and set up in your work
 environment.</p>
@@ -277,11 +266,11 @@ desired. This is most useful if you are building an renv lockfile “by
 hand”, or need to tweak an existing lockfile to point at a separate
 package for installation. For example, you could have a package record
 in <code>renv.lock</code> of the form:</p>
-<pre><code>{
-  "Package": "skeleton",
-  "Version": "1.0.1",
-  "Source": "/mnt/r/pkg/skeleton_1.0.1.tar.gz"
-}</code></pre>
+<div class="sourceCode" id="cb9"><pre class="sourceCode json"><code class="sourceCode json"><span id="cb9-1"><a href="#cb9-1" tabindex="-1"></a><span class="fu">{</span></span>
+<span id="cb9-2"><a href="#cb9-2" tabindex="-1"></a>  <span class="dt">"Package"</span><span class="fu">:</span> <span class="st">"skeleton"</span><span class="fu">,</span></span>
+<span id="cb9-3"><a href="#cb9-3" tabindex="-1"></a>  <span class="dt">"Version"</span><span class="fu">:</span> <span class="st">"1.0.1"</span><span class="fu">,</span></span>
+<span id="cb9-4"><a href="#cb9-4" tabindex="-1"></a>  <span class="dt">"Source"</span><span class="fu">:</span> <span class="st">"/mnt/r/pkg/skeleton_1.0.1.tar.gz"</span></span>
+<span id="cb9-5"><a href="#cb9-5" tabindex="-1"></a><span class="fu">}</span></span></code></pre></div>
 <p>Packages should have the following extensions, depending on whether
 the archive contains a binary copy of the package or the package
 sources:</p>
@@ -339,7 +328,9 @@ was built against.</p>
 <p>R packages might occasionally (and unintentionally) take a build-time
 dependency on another R package – for example, a package with the
 code:</p>
-<pre><code><span><span class="va">`%&gt;%`</span> <span class="op">&lt;-</span> <span class="fu">magrittr</span><span class="fu">::</span><span class="va">`%&gt;%`</span></span></code></pre>
+<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># please don't do this!</span></span>
+<span><span class="va">`%&gt;%`</span> <span class="op">&lt;-</span> <span class="fu">magrittr</span><span class="fu">::</span><span class="va">`%&gt;%`</span></span></code></pre></div>
 <p>would take the version of <code>%&gt;%</code> that was available from
 the version of magrittr that was available at <em>build</em> time, not
 the one available at <em>run</em> time. This could be problematic if,
@@ -366,7 +357,7 @@ file).</p>
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.1.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.3.</p>
 </div>
 
   </div></footer><!-- Google Tag Manager (noscript) --><noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-KHBDBW7" height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>

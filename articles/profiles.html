@@ -6,16 +6,15 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <title>Project profiles • renv</title>
-<!-- favicons --><link rel="icon" type="image/png" sizes="16x16" href="../favicon-16x16.png">
-<link rel="icon" type="image/png" sizes="32x32" href="../favicon-32x32.png">
-<link rel="apple-touch-icon" type="image/png" sizes="180x180" href="../apple-touch-icon.png">
-<link rel="apple-touch-icon" type="image/png" sizes="120x120" href="../apple-touch-icon-120x120.png">
-<link rel="apple-touch-icon" type="image/png" sizes="76x76" href="../apple-touch-icon-76x76.png">
-<link rel="apple-touch-icon" type="image/png" sizes="60x60" href="../apple-touch-icon-60x60.png">
+<!-- favicons --><link rel="icon" type="image/png" sizes="96x96" href="../favicon-96x96.png">
+<link rel="icon" type="”image/svg+xml”" href="../favicon.svg">
+<link rel="apple-touch-icon" sizes="180x180" href="../apple-touch-icon.png">
+<link rel="icon" sizes="any" href="../favicon.ico">
+<link rel="manifest" href="../site.webmanifest">
 <script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <link href="../deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet">
-<script src="../deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="../deps/Source_Sans_Pro-0.4.9/font.css" rel="stylesheet">
-<link href="../deps/Source_Code_Pro-0.4.9/font.css" rel="stylesheet">
+<script src="../deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="../deps/Source_Sans_Pro-0.4.10/font.css" rel="stylesheet">
+<link href="../deps/Source_Code_Pro-0.4.10/font.css" rel="stylesheet">
 <link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
 <link href="../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet">
 <script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><link href="../extra.css" rel="stylesheet">
@@ -30,7 +29,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">renv</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">1.1.4</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">1.1.5</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -117,7 +116,8 @@ renv.</p>
 <p>By default, renv projects use the “default” profile, which implies
 that library and lockfile paths are set in the typical way. To activate
 a particular profile, use:</p>
-<pre><code><span><span class="fu">renv</span><span class="fu">::</span><span class="fu"><a href="../reference/activate.html">activate</a></span><span class="op">(</span>profile <span class="op">=</span> <span class="st">"dev"</span><span class="op">)</span></span></code></pre>
+<div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu">renv</span><span class="fu">::</span><span class="fu"><a href="../reference/activate.html">activate</a></span><span class="op">(</span>profile <span class="op">=</span> <span class="st">"dev"</span><span class="op">)</span></span></code></pre></div>
 <p>This creates a profile called <code>"dev"</code>, and sets it as the
 default for the project, so that newly-launched R sessions will operate
 using the <code>"dev"</code> profile. After setting this and
@@ -127,16 +127,18 @@ the project root.</p>
 <p>Alternatively, if you want to activate a particular profile for an R
 session without setting it as the default for new R sessions, you can
 use:</p>
-<pre><code><span><span class="fu"><a href="https://rdrr.io/r/base/Sys.setenv.html" class="external-link">Sys.setenv</a></span><span class="op">(</span>RENV_PROFILE <span class="op">=</span> <span class="st">"dev"</span><span class="op">)</span></span></code></pre>
+<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/Sys.setenv.html" class="external-link">Sys.setenv</a></span><span class="op">(</span>RENV_PROFILE <span class="op">=</span> <span class="st">"dev"</span><span class="op">)</span></span></code></pre></div>
 <p>and renv will automatically use that profile as appropriate when
 computing library and lockfile paths. Similarly, from the command line,
 you might enforce the use of a particular profile in an renv project
 with:</p>
-<pre><code>export RENV_PROFILE=dev</code></pre>
+<div class="sourceCode" id="cb3"><pre class="sourceCode sh"><code class="sourceCode bash"><span id="cb3-1"><a href="#cb3-1" tabindex="-1"></a><span class="bu">export</span> <span class="va">RENV_PROFILE</span><span class="op">=</span>dev</span></code></pre></div>
 <p>With that set, renv would default to using the <code>"dev"</code>
 profile for any newly-launched R sessions within renv projects.</p>
 <p>To activate the “default” profile used by a project, use:</p>
-<pre><code><span><span class="fu">renv</span><span class="fu">::</span><span class="fu"><a href="../reference/activate.html">activate</a></span><span class="op">(</span>profile <span class="op">=</span> <span class="st">"default"</span><span class="op">)</span></span></code></pre>
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu">renv</span><span class="fu">::</span><span class="fu"><a href="../reference/activate.html">activate</a></span><span class="op">(</span>profile <span class="op">=</span> <span class="st">"default"</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="managing-profile-specific-dependencies">Managing profile-specific dependencies<a class="anchor" aria-label="anchor" href="#managing-profile-specific-dependencies"></a>
@@ -144,12 +146,12 @@ profile for any newly-launched R sessions within renv projects.</p>
 <p>Profile-specific package dependencies can be declared within the
 project’s top-level <code>DESCRIPTION</code> file. For example, to
 declare that the shiny profile depends on the <a href="https://shiny.posit.co/" class="external-link">shiny</a> and <a href="https://www.tidyverse.org/" class="external-link">tidyverse</a> packages:</p>
-<pre><code>Config/renv/profiles/shiny/dependencies: shiny, tidyverse</code></pre>
+<div class="sourceCode" id="cb5"><pre class="sourceCode sh"><code class="sourceCode bash"><span id="cb5-1"><a href="#cb5-1" tabindex="-1"></a><span class="ex">Config/renv/profiles/shiny/dependencies:</span> shiny, tidyverse</span></code></pre></div>
 <p>If you’d like to also declare that these packages should be installed
 from a custom remote (analogous to the <code>Remotes</code> field for
 the default profile), you can define those remotes with a separate
 field:</p>
-<pre><code>Config/renv/profiles/shiny/remotes: rstudio/shiny, tidyverse/tidyverse</code></pre>
+<div class="sourceCode" id="cb6"><pre class="sourceCode sh"><code class="sourceCode bash"><span id="cb6-1"><a href="#cb6-1" tabindex="-1"></a><span class="ex">Config/renv/profiles/shiny/remotes:</span> rstudio/shiny, tidyverse/tidyverse</span></code></pre></div>
 <p>These remotes will then be respected in calls to
 <code><a href="../reference/install.html">renv::install()</a></code>.</p>
 <p>The packages and remotes must be specified separately, as renv cannot
@@ -180,7 +182,7 @@ generated. See <code><a href="../reference/snapshot.html">?renv::snapshot</a></c
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.1.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.3.</p>
 </div>
 
   </div></footer><!-- Google Tag Manager (noscript) --><noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-KHBDBW7" height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
