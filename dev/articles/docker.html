@@ -141,13 +141,13 @@ created using that image as a base, allowing different independent
 applications to run using the same pre-defined machine state.</p>
 <p>First, you’ll need to get renv installed on your Docker image. For
 example, you could install the latest release of renv from CRAN:</p>
-<pre><code>RUN R -e "install.packages('renv', repos = c(CRAN = 'https://cloud.r-project.org'))"</code></pre>
+<div class="sourceCode" id="cb1"><pre class="sourceCode dockerfile"><code class="sourceCode dockerfile"><span id="cb1-1"><a href="#cb1-1" tabindex="-1"></a><span class="kw">RUN</span> <span class="ex">R</span> <span class="at">-e</span> <span class="st">"install.packages('renv', repos = c(CRAN = 'https://cloud.r-project.org'))"</span></span></code></pre></div>
 <p>Alternatively, if you need to use the development version of renv,
 you could use:</p>
-<pre><code>RUN R -e "install.packages('renv', repos = 'https://rstudio.r-universe.dev')"</code></pre>
+<div class="sourceCode" id="cb2"><pre class="sourceCode dockerfile"><code class="sourceCode dockerfile"><span id="cb2-1"><a href="#cb2-1" tabindex="-1"></a><span class="kw">RUN</span> <span class="ex">R</span> <span class="at">-e</span> <span class="st">"install.packages('renv', repos = 'https://rstudio.r-universe.dev')"</span></span></code></pre></div>
 <p>Next, we’ll copy <code>renv.lock</code> into the container:</p>
-<pre><code>WORKDIR /project
-COPY renv.lock renv.lock</code></pre>
+<div class="sourceCode" id="cb3"><pre class="sourceCode dockerfile"><code class="sourceCode dockerfile"><span id="cb3-1"><a href="#cb3-1" tabindex="-1"></a><span class="kw">WORKDIR</span> /project</span>
+<span id="cb3-2"><a href="#cb3-2" tabindex="-1"></a><span class="kw">COPY</span> renv.lock renv.lock</span></code></pre></div>
 <p>Now, we <code><a href="../reference/restore.html">renv::restore()</a></code> to install those packages. At
 this stage, you’ll need to decide which of R’s library paths you’d like
 to use for pacakge installation. (See <code><a href="https://rdrr.io/r/base/libPaths.html" class="external-link">?.libPaths</a></code> for more
@@ -157,7 +157,7 @@ information.) There are a couple of options available:</p>
 </h3>
 <p>This method is appropriate if you’d like these packages to be visible
 to all R processes launched using this image, and can be done via:</p>
-<pre><code>RUN R -e "renv::restore()"</code></pre>
+<div class="sourceCode" id="cb4"><pre class="sourceCode dockerfile"><code class="sourceCode dockerfile"><span id="cb4-1"><a href="#cb4-1" tabindex="-1"></a><span class="kw">RUN</span> <span class="ex">R</span> <span class="at">-e</span> <span class="st">"renv::restore()"</span></span></code></pre></div>
 <p>Note that this method may fail if R’s default library paths are not
 on a writable volume in the Docker image. If this is the case, consider
 one of the alternatives below.</p>
@@ -168,16 +168,16 @@ one of the alternatives below.</p>
 <p>If you want to use renv’s default project-local library path, you’ll
 need to initialize the project within the Docker container as an renv
 project. This can be done with:</p>
-<pre><code>RUN R -s -e "renv::init(bare = TRUE)"
-RUN R -s -e "renv::restore()"</code></pre>
+<div class="sourceCode" id="cb5"><pre class="sourceCode dockerfile"><code class="sourceCode dockerfile"><span id="cb5-1"><a href="#cb5-1" tabindex="-1"></a><span class="kw">RUN</span> <span class="ex">R</span> <span class="at">-s</span> <span class="at">-e</span> <span class="st">"renv::init(bare = TRUE)"</span></span>
+<span id="cb5-2"><a href="#cb5-2" tabindex="-1"></a><span class="kw">RUN</span> <span class="ex">R</span> <span class="at">-s</span> <span class="at">-e</span> <span class="st">"renv::restore()"</span></span></code></pre></div>
 <p>Or, alternatively, if you already have a project autoloader +
 settings available – e.g. because you’re creating a Docker image from an
 existing renv project – you could use:</p>
-<pre><code>RUN mkdir -p renv
-COPY .Rprofile .Rprofile
-COPY renv/activate.R renv/activate.R
-COPY renv/settings.json renv/settings.json
-RUN R -s -e "renv::restore()"</code></pre>
+<div class="sourceCode" id="cb6"><pre class="sourceCode dockerfile"><code class="sourceCode dockerfile"><span id="cb6-1"><a href="#cb6-1" tabindex="-1"></a><span class="kw">RUN</span> <span class="fu">mkdir</span> <span class="at">-p</span> renv</span>
+<span id="cb6-2"><a href="#cb6-2" tabindex="-1"></a><span class="kw">COPY</span> .Rprofile .Rprofile</span>
+<span id="cb6-3"><a href="#cb6-3" tabindex="-1"></a><span class="kw">COPY</span> renv/activate.R renv/activate.R</span>
+<span id="cb6-4"><a href="#cb6-4" tabindex="-1"></a><span class="kw">COPY</span> renv/settings.json renv/settings.json</span>
+<span id="cb6-5"><a href="#cb6-5" tabindex="-1"></a><span class="kw">RUN</span> <span class="ex">R</span> <span class="at">-s</span> <span class="at">-e</span> <span class="st">"renv::restore()"</span></span></code></pre></div>
 <p>Note that in this mode, the installed packages would only be visible
 to R sessions launched using <code>/project</code> as the working
 directory. This will be the default behavior as long as
@@ -191,9 +191,9 @@ mind.</p>
 approach is likely to use the <code>RENV_PATHS_LIBRARY</code>
 environment variable. This mimics the above approach, but customizes the
 library paths used by renv. For example:</p>
-<pre><code>ENV RENV_PATHS_LIBRARY=renv/library
-RUN R -s -e "renv::init(bare = TRUE)"
-RUN R -s -e "renv::restore()"</code></pre>
+<div class="sourceCode" id="cb7"><pre class="sourceCode dockerfile"><code class="sourceCode dockerfile"><span id="cb7-1"><a href="#cb7-1" tabindex="-1"></a><span class="kw">ENV</span> RENV_PATHS_LIBRARY=renv/library</span>
+<span id="cb7-2"><a href="#cb7-2" tabindex="-1"></a><span class="kw">RUN</span> <span class="ex">R</span> <span class="at">-s</span> <span class="at">-e</span> <span class="st">"renv::init(bare = TRUE)"</span></span>
+<span id="cb7-3"><a href="#cb7-3" tabindex="-1"></a><span class="kw">RUN</span> <span class="ex">R</span> <span class="at">-s</span> <span class="at">-e</span> <span class="st">"renv::restore()"</span></span></code></pre></div>
 <p>Alternatively, you could manage the library paths yourself via
 <code><a href="https://rdrr.io/r/base/libPaths.html" class="external-link">.libPaths()</a></code> – see <code><a href="https://rdrr.io/r/base/libPaths.html" class="external-link">?.libPaths</a></code> in R for more
 inforamtion.</p>
@@ -232,22 +232,22 @@ updated often across builds (e.g., code that needs to be debugged in the
 container).</p>
 <p>To implement a two stage build, the following code could be used as
 part of a Dockerfile.</p>
-<pre><code>FROM &lt;parent-image&gt; AS base
-
-# intialize the project; assuming renv infrastructure available
-WORKDIR /project
-RUN mkdir -p renv
-COPY renv.lock renv.lock
-COPY .Rprofile .Rprofile
-COPY renv/activate.R renv/activate.R
-COPY renv/settings.dcf renv/settings.dcf
-
-# change default location of cache to project folder
-RUN mkdir renv/.cache
-ENV RENV_PATHS_CACHE=renv/.cache
-
-# restore 
-RUN R -s -e "renv::restore()"</code></pre>
+<div class="sourceCode" id="cb8"><pre class="sourceCode dockerfile"><code class="sourceCode dockerfile"><span id="cb8-1"><a href="#cb8-1" tabindex="-1"></a><span class="kw">FROM</span> &lt;parent-image&gt; <span class="kw">AS</span> base</span>
+<span id="cb8-2"><a href="#cb8-2" tabindex="-1"></a></span>
+<span id="cb8-3"><a href="#cb8-3" tabindex="-1"></a><span class="co"># intialize the project; assuming renv infrastructure available</span></span>
+<span id="cb8-4"><a href="#cb8-4" tabindex="-1"></a><span class="kw">WORKDIR</span> /project</span>
+<span id="cb8-5"><a href="#cb8-5" tabindex="-1"></a><span class="kw">RUN</span> <span class="fu">mkdir</span> <span class="at">-p</span> renv</span>
+<span id="cb8-6"><a href="#cb8-6" tabindex="-1"></a><span class="kw">COPY</span> renv.lock renv.lock</span>
+<span id="cb8-7"><a href="#cb8-7" tabindex="-1"></a><span class="kw">COPY</span> .Rprofile .Rprofile</span>
+<span id="cb8-8"><a href="#cb8-8" tabindex="-1"></a><span class="kw">COPY</span> renv/activate.R renv/activate.R</span>
+<span id="cb8-9"><a href="#cb8-9" tabindex="-1"></a><span class="kw">COPY</span> renv/settings.dcf renv/settings.dcf</span>
+<span id="cb8-10"><a href="#cb8-10" tabindex="-1"></a></span>
+<span id="cb8-11"><a href="#cb8-11" tabindex="-1"></a><span class="co"># change default location of cache to project folder</span></span>
+<span id="cb8-12"><a href="#cb8-12" tabindex="-1"></a><span class="kw">RUN</span> <span class="fu">mkdir</span> renv/.cache</span>
+<span id="cb8-13"><a href="#cb8-13" tabindex="-1"></a><span class="kw">ENV</span> RENV_PATHS_CACHE=renv/.cache</span>
+<span id="cb8-14"><a href="#cb8-14" tabindex="-1"></a></span>
+<span id="cb8-15"><a href="#cb8-15" tabindex="-1"></a><span class="co"># restore </span></span>
+<span id="cb8-16"><a href="#cb8-16" tabindex="-1"></a><span class="kw">RUN</span> <span class="ex">R</span> <span class="at">-s</span> <span class="at">-e</span> <span class="st">"renv::restore()"</span></span></code></pre></div>
 <p>The above code uses
 <code>FROM &lt;parent-image&gt; AS &lt;name&gt;</code> to name the first
 stage of the build <code>base</code>. Here,
@@ -259,12 +259,12 @@ creates the <code>renv/.cache</code> directory that is to be used as the
 renv cache.</p>
 <p>The second stage of the build is defined by adding the following code
 to the same Dockerfile, below the previous code chunk.</p>
-<pre><code>FROM &lt;parent-image&gt;
-
-WORKDIR /project
-COPY --from=base /project .
-
-# add commands that need to be debugged below</code></pre>
+<div class="sourceCode" id="cb9"><pre class="sourceCode dockerfile"><code class="sourceCode dockerfile"><span id="cb9-1"><a href="#cb9-1" tabindex="-1"></a><span class="kw">FROM</span> &lt;parent-image&gt;</span>
+<span id="cb9-2"><a href="#cb9-2" tabindex="-1"></a></span>
+<span id="cb9-3"><a href="#cb9-3" tabindex="-1"></a><span class="kw">WORKDIR</span> /project</span>
+<span id="cb9-4"><a href="#cb9-4" tabindex="-1"></a><span class="kw">COPY</span> <span class="op">--from=base</span> /project .</span>
+<span id="cb9-5"><a href="#cb9-5" tabindex="-1"></a></span>
+<span id="cb9-6"><a href="#cb9-6" tabindex="-1"></a><span class="co"># add commands that need to be debugged below</span></span></code></pre></div>
 <p>Here, <code>&lt;parent-image&gt;</code> could be the same as the
 parent image of <code>base</code>, but does not have to be (see <a href="https://docs.docker.com/build/building/multi-stage/" class="external-link">documentation</a>
 for more details).</p>
@@ -333,18 +333,18 @@ container-specific location
 (<code>RENV_PATHS_CACHE_CONTAINER</code>).</p></li>
 </ol>
 <p>For example, if you had a container running a Shiny application:</p>
-<pre><code># the location of the renv cache on the host machine
-RENV_PATHS_CACHE_HOST=/opt/local/renv/cache
-
-# where the cache should be mounted in the container
-RENV_PATHS_CACHE_CONTAINER=/renv/cache
-
-# run the container with the host cache mounted in the container
-docker run --rm \
-    -e "RENV_PATHS_CACHE=${RENV_PATHS_CACHE_CONTAINER}" \
-    -v "${RENV_PATHS_CACHE_HOST}:${RENV_PATHS_CACHE_CONTAINER}" \
-    -p 14618:14618 \
-    R -s -e 'renv::restore(); shiny::runApp(host = "0.0.0.0", port = 14618)'</code></pre>
+<div class="sourceCode" id="cb10"><pre class="sourceCode dockerfile"><code class="sourceCode dockerfile"><span id="cb10-1"><a href="#cb10-1" tabindex="-1"></a><span class="co"># the location of the renv cache on the host machine</span></span>
+<span id="cb10-2"><a href="#cb10-2" tabindex="-1"></a>RENV_PATHS_CACHE_HOST=/opt/local/renv/cache</span>
+<span id="cb10-3"><a href="#cb10-3" tabindex="-1"></a></span>
+<span id="cb10-4"><a href="#cb10-4" tabindex="-1"></a><span class="co"># where the cache should be mounted in the container</span></span>
+<span id="cb10-5"><a href="#cb10-5" tabindex="-1"></a>RENV_PATHS_CACHE_CONTAINER=/renv/cache</span>
+<span id="cb10-6"><a href="#cb10-6" tabindex="-1"></a></span>
+<span id="cb10-7"><a href="#cb10-7" tabindex="-1"></a><span class="co"># run the container with the host cache mounted in the container</span></span>
+<span id="cb10-8"><a href="#cb10-8" tabindex="-1"></a>docker run --rm <span class="op">\</span></span>
+<span id="cb10-9"><a href="#cb10-9" tabindex="-1"></a>    -e <span class="st">"RENV_PATHS_CACHE=${RENV_PATHS_CACHE_CONTAINER}"</span> <span class="op">\</span></span>
+<span id="cb10-10"><a href="#cb10-10" tabindex="-1"></a>    -v <span class="st">"${RENV_PATHS_CACHE_HOST}:${RENV_PATHS_CACHE_CONTAINER}"</span> <span class="op">\</span></span>
+<span id="cb10-11"><a href="#cb10-11" tabindex="-1"></a>    -p 14618:14618 <span class="op">\</span></span>
+<span id="cb10-12"><a href="#cb10-12" tabindex="-1"></a>    R -s -e <span class="st">'renv::restore(); shiny::runApp(host = "0.0.0.0", port = 14618)'</span></span></code></pre></div>
 <p>Note that the invocation above assumes that the project has already
 been initialized either via calling <code><a href="../reference/init.html">renv::init()</a></code> or by
 copying the requisite <code>renv</code> project infrastructure. With
@@ -370,18 +370,18 @@ with their own independent package dependencies.</p>
 auto-loader (if present) will attempt to download and install renv into
 the project library if it’s not available. Depending on how your Docker
 container is configured, this could fail. For example:</p>
-<pre><code>Error installing renv:
-======================
-ERROR: unable to create '/usr/local/pipe/renv/library/master/R-4.0/x86_64-pc-linux-gnu/renv'
-Warning messages:
-1: In system2(r, args, stdout = TRUE, stderr = TRUE) :
-  running command ''/usr/lib/R/bin/R' --vanilla CMD INSTALL -l 'renv/library/master/R-4.0/x86_64-pc-linux-gnu' '/tmp/RtmpwM7ooh/renv_0.12.2.tar.gz' 2&gt;&amp;1' had status 1
-2: Failed to find an renv installation: the project will not be loaded.
-Use `renv::activate()` to re-initialize the project.</code></pre>
+<div class="sourceCode" id="cb11"><pre class="sourceCode sh"><code class="sourceCode bash"><span id="cb11-1"><a href="#cb11-1" tabindex="-1"></a><span class="ex">Error</span> installing renv:</span>
+<span id="cb11-2"><a href="#cb11-2" tabindex="-1"></a><span class="ex">======================</span></span>
+<span id="cb11-3"><a href="#cb11-3" tabindex="-1"></a><span class="ex">ERROR:</span> unable to create <span class="st">'/usr/local/pipe/renv/library/master/R-4.0/x86_64-pc-linux-gnu/renv'</span></span>
+<span id="cb11-4"><a href="#cb11-4" tabindex="-1"></a><span class="ex">Warning</span> messages:</span>
+<span id="cb11-5"><a href="#cb11-5" tabindex="-1"></a><span class="ex">1:</span> In system2<span class="er">(</span><span class="ex">r,</span> args, stdout = TRUE, stderr = TRUE<span class="kw">)</span> <span class="bu">:</span></span>
+<span id="cb11-6"><a href="#cb11-6" tabindex="-1"></a>  <span class="ex">running</span> command <span class="st">''</span>/usr/lib/R/bin/R<span class="st">' --vanilla CMD INSTALL -l '</span>renv/library/master/R-4.0/x86_64-pc-linux-gnu<span class="st">' '</span>/tmp/RtmpwM7ooh/renv_0.12.2.tar.gz<span class="st">' 2&gt;&amp;1'</span> had status 1</span>
+<span id="cb11-7"><a href="#cb11-7" tabindex="-1"></a><span class="ex">2:</span> Failed to find an renv installation: the project will not be loaded.</span>
+<span id="cb11-8"><a href="#cb11-8" tabindex="-1"></a><span class="ex">Use</span> <span class="kw">`</span><span class="fu">renv::activate()</span><span class="kw">`</span> to re-initialize the project.</span></code></pre></div>
 <p>Bootstrapping renv into the project library might be unnecessary for
 you. If that is the case, then you can avoid this behavior by launching
 R with the <code>--vanilla</code> flag set; for example:</p>
-<pre><code>R --vanilla -s -e 'renv::restore()'</code></pre>
+<div class="sourceCode" id="cb12"><pre class="sourceCode sh"><code class="sourceCode bash"><span id="cb12-1"><a href="#cb12-1" tabindex="-1"></a><span class="ex">R</span> <span class="at">--vanilla</span> <span class="at">-s</span> <span class="at">-e</span> <span class="st">'renv::restore()'</span></span></code></pre></div>
 </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside>

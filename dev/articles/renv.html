@@ -97,13 +97,6 @@ renv, like the user and project libraries, and key functions like
 <code><a href="../reference/restore.html">renv::restore()</a></code>. You’ll also learn about some of the
 infrastructure that makes renv tick, some problems that renv doesn’t
 help with, and how to uninstall it if you no longer want to use it.</p>
-<div class="figure" style="text-align: center">
-<img src="renv.png" alt="A diagram showing the most important verbs and nouns of renv. Projects start with init(), which creates a project library using packages from the system library. snapshot() updates the lockfile using the packages installed in the project library, where restore() installs packages into the project library using the metadata from the lockfile, and status() compares the lockfile to the project library. You install and update packages from CRAN and GitHub using install() and update(), but because you'll need to do this for multiple projects, renv uses cache to make this fast.
-" width="408"><p class="caption">
-The most important verbs and nouns of renv, which you’ll learn more
-about below.
-</p>
-</div>
 <p>We assume you’re already living a project-centric lifestyle and are
 familiar with a version control system, like Git and GitHub: we believe
 these are table stakes for reproducible data science. If you’re not
