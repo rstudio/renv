@@ -70,7 +70,7 @@ for more details.
 For package projects using renv, a library path outside of the project
 directory will be used instead. As an example, on macOS, this might look like:
 
-```{r}
+```r
 > .libPaths()
 [1] "/Users/kevin/Library/Caches/org.R-project.R/R/renv/library/example-552f6e80/R-4.3/aarch64-apple-darwin20"
 [2] "/Users/kevin/Library/Caches/org.R-project.R/R/renv/sandbox/R-4.3/aarch64-apple-darwin20/ac5c2659"
