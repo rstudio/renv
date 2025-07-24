@@ -367,6 +367,7 @@ test_that("retrieve handles local sources", {
   skip_on_cran()
 
   renv_tests_scope()
+  renv_scope_options(renv.config.cache.enabled = FALSE)
 
   record <- list(
     Package   = "bread",

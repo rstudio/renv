@@ -754,6 +754,7 @@ test_that("install(lock = TRUE) updates lockfile", {
 test_that("installation of package from local sources works", {
 
   project <- renv_tests_scope()
+  renv_scope_options(renv.config.cache.enabled = FALSE)
 
   # test the shim
   repopath <- renv_tests_repopath()
