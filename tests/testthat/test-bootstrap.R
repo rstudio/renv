@@ -123,28 +123,34 @@ test_that("bootstrapping functions standalone", {
 })
 
 test_that("bootstrapping gives informative output when succesful", {
-  env <- environment()
 
+  scope <- environment()
   local_mocked_bindings(
+
     renv_bootstrap_download_impl = function(url, destfile) {
       file.create(destfile)
-      defer(unlink(destfile), env)
+      defer(unlink(destfile), scope = scope)
       0L
     },
+
     renv_bootstrap_install_impl = function(cmd, args, ...) {
       structure("", status = 0L)
     },
+
     renv_bootstrap_download_cran_latest_find = function(version) {
       if (package_version(version) < "1.0.0") {
         list(type = "binary", repos = "https://cran.rstudio.com")
       }
     },
+
     load = function(...) invisible()
+
   )
 
   renv_scope_options(renv.bootstrap.quiet = FALSE)
   library <- renv_scope_tempfile()
 
+  renv_tests_scope()
   expect_snapshot({
     bootstrap(version = "0.9.0", library = library)
     bootstrap(version = "1.0.0", library = library)
@@ -153,6 +159,7 @@ test_that("bootstrapping gives informative output when succesful", {
 })
 
 test_that("bootstrapping gives informative output when download fails", {
+
   local_mocked_bindings(
     renv_bootstrap_download_impl = function(...) {
       stop("test failure")
@@ -163,18 +170,21 @@ test_that("bootstrapping gives informative output when download fails", {
       }
     }
   )
+
   renv_scope_options(renv.bootstrap.quiet = FALSE)
   library <- renv_scope_tempfile()
 
+  renv_tests_scope()
   expect_snapshot(error = TRUE, {
     bootstrap(version = "0.9.0", library = library)
     bootstrap(version = "1.0.0", library = library)
     bootstrap(version = "1.0.0.1", library = library)
   })
+
 })
 
-
 test_that("bootstrapping gives informative output when install fails", {
+
   local_mocked_bindings(
     renv_bootstrap_download_impl = function(url, destfile) {
       file.create(destfile)
@@ -184,10 +194,14 @@ test_that("bootstrapping gives informative output when install fails", {
       structure("test failure", status = 123L)
     }
   )
+
   renv_scope_options(renv.bootstrap.quiet = FALSE)
   library <- renv_scope_tempfile()
 
-  expect_snapshot(bootstrap(version = "1.0.0.1", library = library), error = TRUE)
+  renv_tests_scope()
+  expect_snapshot(error = TRUE, {
+    bootstrap(version = "1.0.0.1", library = library)
+  })
 
 })
 
