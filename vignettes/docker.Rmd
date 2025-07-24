@@ -7,10 +7,11 @@ vignette: >
   %\VignetteEncoding{UTF-8}
 ---
 
-```{r, include = FALSE}
+```{r, include=FALSE}
 knitr::opts_chunk$set(
   collapse = TRUE,
-  comment = "#>"
+  comment = "#>",
+  eval = FALSE
 )
 ```
 
@@ -47,19 +48,19 @@ With Docker, [Dockerfiles](https://docs.docker.com/engine/reference/builder/) ar
 
 First, you'll need to get renv installed on your Docker image. For example, you could install the latest release of renv from CRAN:
 
-```
+```dockerfile
 RUN R -e "install.packages('renv', repos = c(CRAN = 'https://cloud.r-project.org'))"
 ```
 
 Alternatively, if you need to use the development version of renv, you could use:
 
-```
+```dockerfile
 RUN R -e "install.packages('renv', repos = 'https://rstudio.r-universe.dev')"
 ```
 
 Next, we'll copy `renv.lock` into the container:
 
-```
+```dockerfile
 WORKDIR /project
 COPY renv.lock renv.lock
 ```
@@ -71,7 +72,7 @@ Now, we `renv::restore()` to install those packages. At this stage, you'll need 
 
 This method is appropriate if you'd like these packages to be visible to all R processes launched using this image, and can be done via:
 
-```
+```dockerfile
 RUN R -e "renv::restore()"
 ```
 
@@ -82,14 +83,14 @@ Note that this method may fail if R's default library paths are not on a writabl
 
 If you want to use renv's default project-local library path, you'll need to initialize the project within the Docker container as an renv project. This can be done with:
 
-```
+```dockerfile
 RUN R -s -e "renv::init(bare = TRUE)"
 RUN R -s -e "renv::restore()"
 ```
 
 Or, alternatively, if you already have a project autoloader + settings available -- e.g. because you're creating a Docker image from an existing renv project -- you could use:
 
-```
+```dockerfile
 RUN mkdir -p renv
 COPY .Rprofile .Rprofile
 COPY renv/activate.R renv/activate.R
@@ -104,7 +105,7 @@ Note that in this mode, the installed packages would only be visible to R sessio
 
 If you'd like to fully customize the library path used, the simplest approach is likely to use the `RENV_PATHS_LIBRARY` environment variable. This mimics the above approach, but customizes the library paths used by renv. For example:
 
-```
+```dockerfile
 ENV RENV_PATHS_LIBRARY=renv/library
 RUN R -s -e "renv::init(bare = TRUE)"
 RUN R -s -e "renv::restore()"
@@ -134,7 +135,7 @@ This approach can be leveraged to generate more efficient builds by dedicating a
 
 To implement a two stage build, the following code could be used as part of a Dockerfile.
 
-```
+```dockerfile
 FROM <parent-image> AS base
 
 # intialize the project; assuming renv infrastructure available
@@ -159,7 +160,7 @@ Subsequently, the code uses approach 2 (described above) to copy the auto-loader
 
 The second stage of the build is defined by adding the following code to the same Dockerfile, below the previous code chunk.
 
-```
+```dockerfile
 FROM <parent-image>
 
 WORKDIR /project
@@ -197,7 +198,7 @@ In sum, if we'd like to allow for runtime provisioning of R package dependencies
 
 For example, if you had a container running a Shiny application:
 
-```         
+```dockerfile
 # the location of the renv cache on the host machine
 RENV_PATHS_CACHE_HOST=/opt/local/renv/cache
 
@@ -221,7 +222,7 @@ The primary downside with this approach compared to the image-based approach is 
 
 When `R` is launched within a project folder, the renv auto-loader (if present) will attempt to download and install renv into the project library if it's not available. Depending on how your Docker container is configured, this could fail. For example:
 
-```         
+```sh
 Error installing renv:
 ======================
 ERROR: unable to create '/usr/local/pipe/renv/library/master/R-4.0/x86_64-pc-linux-gnu/renv'
@@ -234,7 +235,7 @@ Use `renv::activate()` to re-initialize the project.
 
 Bootstrapping renv into the project library might be unnecessary for you. If that is the case, then you can avoid this behavior by launching R with the `--vanilla` flag set; for example:
 
-```         
+```{sh}
 R --vanilla -s -e 'renv::restore()'
 ```
 

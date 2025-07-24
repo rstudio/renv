@@ -7,11 +7,11 @@ vignette: >
   %\VignetteEncoding{UTF-8}
 ---
 
-```{r setup, include=FALSE}
+```{r, include=FALSE}
 knitr::opts_chunk$set(
   collapse = TRUE,
-  comment  = "#>",
-  eval     = FALSE
+  comment = "#>",
+  eval = FALSE
 )
 ```
 
@@ -33,13 +33,13 @@ See the docs for more details.
 
 If you'd instead prefer to capture *all* packages installed into your project library (and eschew dependency discovery altogether), you can do so with:
 
-```{r eval=FALSE}
+```{r}
 renv::settings$snapshot.type("all")
 ```
 
 Packages can also be explicitly ignored through a project setting, e.g. with:
 
-```{r eval=FALSE}
+```{r}
 renv::settings$ignored.packages("<package>")
 ```
 
@@ -51,7 +51,7 @@ See the documentation in `?snapshot` for more details.
 
 If you'd like to explicitly declare which packages your project depends on, you can do so by telling renv to form "explicit" snapshots:
 
-```{r eval=FALSE}
+```{r}
 renv::settings$snapshot.type("explicit")
 ```
 
@@ -79,7 +79,7 @@ However, you may want some way of still ensuring these development dependencies 
 For cases like these, we recommend tracking these packages in a project DESCRIPTION file; typically, within the `Suggests:` field.
 Then, you can execute:
 
-```{r eval=FALSE}
+```{r}
 renv::install()
 ```
 

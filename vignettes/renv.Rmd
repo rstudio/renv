@@ -7,10 +7,11 @@ vignette: >
   %\VignetteEncoding{UTF-8}
 ---
 
-```{r setup, include = FALSE}
+```{r, include=FALSE}
 knitr::opts_chunk$set(
   collapse = TRUE,
-  comment  = "#>"
+  comment = "#>",
+  eval = FALSE
 )
 ```
 
@@ -133,7 +134,7 @@ You won't typically edit this file directly, but you'll see it changing in your 
 The lockfile is always called `renv.lock` and is a json file that records all the information needed to recreate your project in the future.
 Here's an example lockfile, with the markdown package installed from CRAN and the mime package installed from GitHub:
 
-``` json
+```json
 {
   "R": {
     "Version": "`r getRversion()`",
@@ -207,7 +208,7 @@ If you want to stop using renv for all your projects, you'll also want to remove
 
 [^6]: If you've customized any of renv's infrastructure paths as described in `?renv::paths`, then you'll need to find and remove those customized folders as well.
 
-```{r, eval = FALSE}
+```{r}
 root <- renv::paths$root()
 unlink(root, recursive = TRUE)
 ```

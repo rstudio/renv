@@ -7,10 +7,11 @@ vignette: >
   %\VignetteEncoding{UTF-8}
 ---
 
-```{r, include = FALSE}
+```{r, include=FALSE}
 knitr::opts_chunk$set(
   collapse = TRUE,
-  comment = "#>"
+  comment = "#>",
+  eval = FALSE
 )
 ```
 
@@ -95,7 +96,7 @@ See also the [example][github-actions-renv] on GitHub actions.
 The following template can be used as a base when using renv with
 [GitLab CI][gitlab-ci]:
 
-```
+```yaml
 variables:
   RENV_PATHS_ROOT: ${CI_PROJECT_DIR}/renv
 
@@ -108,8 +109,8 @@ before_script:
   - < ... other pre-deploy steps ... >
   - Rscript -e "if (!requireNamespace('renv', quietly = TRUE)) install.packages('renv')"
   - Rscript -e "renv::restore()"
-  
 ```
+
 
 [gitlab-ci]: https://about.gitlab.com/solutions/continuous-integration/
 [github-actions]: https://github.com/features/actions

@@ -7,7 +7,7 @@ vignette: >
   %\VignetteEncoding{UTF-8}
 ---
 
-```{r, include = FALSE}
+```{r, include=FALSE}
 knitr::opts_chunk$set(
   collapse = TRUE,
   comment = "#>",
@@ -22,7 +22,7 @@ Often, R packages will have other R packages as dependencies. For this, one must
 declare their R package dependencies within the package `DESCRIPTION` file. If
 you want to prepare your environment for package development, you can use:
 
-```
+```{r}
 renv::install()
 ```
 
@@ -33,7 +33,7 @@ If you're developing a package that you intend to release to CRAN, then you
 likely want to build and test your package against the latest versions of your
 dependencies as available on CRAN. For this, you should consider using:
 
-```
+```{r}
 renv::update()
 ```
 
@@ -54,7 +54,7 @@ worrying about clobbering any packages already installed in your system library.
 In these cases, you can declare your development dependencies using the
 `Remotes` field of the `DESCRIPTION` file; e.g.
 
-```
+```sh
 Remotes:
   r-lib/ggplot2
 ```
@@ -70,7 +70,7 @@ for more details.
 For package projects using renv, a library path outside of the project
 directory will be used instead. As an example, on macOS, this might look like:
 
-```
+```{r}
 > .libPaths()
 [1] "/Users/kevin/Library/Caches/org.R-project.R/R/renv/library/example-552f6e80/R-4.3/aarch64-apple-darwin20"
 [2] "/Users/kevin/Library/Caches/org.R-project.R/R/renv/sandbox/R-4.3/aarch64-apple-darwin20/ac5c2659"
@@ -87,14 +87,14 @@ If you want to customize the location where `renv` places project libraries in
 this scenario, you can use the `RENV_PATHS_LIBRARY_ROOT` environment variable.
 For example:
 
-```
+```sh
 RENV_PATHS_LIBRARY_ROOT = ~/.renv/library
 ```
 
 If you'd still prefer to keep your project library within the project directory,
 you can set:
 
-```
+```sh
 RENV_PATHS_LIBRARY = renv/library
 ```
 
@@ -123,7 +123,7 @@ for submission, you'll need to ensure your source package tarball does not
 include any `renv` infrastructure. `renv` makes this easy by automatically
 including
 
-```
+```sh
 ^renv$
 ^renv\.lock$
 ```

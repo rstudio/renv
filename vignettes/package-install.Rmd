@@ -7,15 +7,12 @@ vignette: >
   %\VignetteEncoding{UTF-8}
 ---
 
-```{r, include = FALSE}
+```{r, include=FALSE}
 knitr::opts_chunk$set(
   collapse = TRUE,
-  comment = "#>"
+  comment = "#>",
+  eval = FALSE
 )
-```
-
-```{r setup}
-library(renv)
 ```
 
 Package installation is an important part of renv.
@@ -73,7 +70,7 @@ For example, you might want to make both a user-local package cache, as well as 
 To do so, you can specify the paths to the cache separated with a `;` (or `:` on Unix if preferred).
 For example:
 
-```         
+```sh
 RENV_PATHS_CACHE=/path/to/local/cache;/path/to/global/cache
 ```
 
@@ -102,7 +99,7 @@ See the `?purge` documentation for caveats and things to be aware of when removi
 
 You can also force a package to be re-installed and re-cached with the following functions:
 
-```{r, eval = FALSE}
+```{r}
 # restore packages from the lockfile, bypassing the cache
 renv::restore(rebuild = TRUE)
 
@@ -134,7 +131,7 @@ Arguments and environment variables can be passed through to those scripts in a 
 In particular, the `R` options `configure.args` and `configure.vars` can be used to map package names to their appropriate configuration.
 For example:
 
-```{r, eval = FALSE}
+```{r}
 # installation of RNetCDF may require us to set include paths for netcdf
 configure.args = c(RNetCDF = "--with-netcdf-include=/usr/include/udunits2")
 options(configure.args = configure.args)
@@ -143,7 +140,7 @@ renv::install("RNetCDF")
 
 This could also be specified as, for example,
 
-```{r, eval = FALSE}
+```{r}
 options(
   configure.args.RNetCDF = "--with-netcdf-include=/usr/include/udunits2"
 )
@@ -154,7 +151,7 @@ renv::install("RNetCDF")
 
 Similarly, additional flags that should be passed to `R CMD INSTALL` can be set via the `install.opts` `R` option:
 
-```{r, eval = FALSE}
+```{r}
 # installation of R packages using the Windows Subsystem for Linux
 # may require the `--no-lock` flag to be set during install
 options(install.opts = "--no-lock")
@@ -193,7 +190,7 @@ You can also configure which `curl` executable is used by setting the `RENV_CURL
 If you've already configured R's downloader and would like to bypass renv's attempts to use `curl`, you can use the R option `renv.download.override`.
 For example, executing:
 
-``` r
+```{r}
 options(renv.download.override = utils::download.file)
 ```
 
@@ -203,7 +200,7 @@ Advanced users can also provide their own download function, provided its signat
 You can also instruct renv to use a different download method by setting the `RENV_DOWNLOAD_METHOD` environment variable.
 For example:
 
-```         
+```{r}
 # use Windows' internal download machinery
 Sys.setenv(RENV_DOWNLOAD_METHOD = "wininet")
 
@@ -214,19 +211,19 @@ Sys.setenv(RENV_DOWNLOAD_METHOD = "libcurl")
 If you find that downloads work outside of renv projects, but not within renv projects, you may need to tell renv to use the same download file method that R has been configured to use.
 You can check which download method R is currently configured to use with:
 
-```{r eval=FALSE}
+```{r}
 getOption("download.file.method")
 ```
 
 And the downloader currently used by renv can be queried with:
 
-```{r eval=FALSE}
+```{r}
 renv:::renv_download_method()
 ```
 
 You can force renv to use the same download method as R by setting:
 
-```{r eval=FALSE}
+```{r}
 Sys.setenv(RENV_DOWNLOAD_METHOD = getOption("download.file.method"))
 ```
 
@@ -251,7 +248,7 @@ See the curl documentation on [proxies](https://ec.haxx.se/usingcurl/proxies/) a
 
 As an [example](https://github.com/rstudio/renv/issues/146), the following `_curlrc` works when using authentication with NTLM and SSPI on Windows:
 
-```         
+```sh
 --proxy "your.proxy.dns:port"
 --proxy-ntlm
 --proxy-user ":"
@@ -260,7 +257,7 @@ As an [example](https://github.com/rstudio/renv/issues/146), the following `_cur
 
 The [curl](https://cran.r-project.org/package=curl) R package also has a helper:
 
-```         
+```{r}
 curl::ie_get_proxy_for_url()
 ```
 
@@ -286,7 +283,7 @@ If you require custom authentication for different packages (for example, your p
 `renv.auth` can either be a a named list associating package names with environment variables, or a function accepting a package name + record, and returning a list of environment variables.
 For example:
 
-``` r
+```{r}
 # define a function providing authentication
 options(renv.auth = function(package, record) {
   if (package == "MyPackage")
@@ -314,7 +311,7 @@ Authentication may be required when resolving a package from a remote specificat
 If the package name cannot be inferred directly from the remote, it can be supplied with a prefix of the form `<package>=`.
 For example, the igraph package on GitHub at <https://github.com/igraph/rigraph> could be installed with:
 
-```         
+```{r}
 renv::install("igraph=igraph/rigraph")
 ```
 
@@ -323,7 +320,7 @@ renv::install("igraph=igraph/rigraph")
 
 Authentication with Azure DevOps may require credentials to be set in a slightly different way. In particular, you can use:
 
-```
+```sh
 GITHUB_USER = <username>
 GITHUB_PASS = <password>
 ```
@@ -340,7 +337,7 @@ Rather than username + password, some remote Git repositories might require Pers
 
 To help facilitate this, you can set:
 
-```
+```sh
 GIT_USER = <pat>
 GIT_PASS = x-oauth-basic
 ```
@@ -356,7 +353,7 @@ It should be a function that accepts a URL, and returns a named character vector
 For example, suppose you have a package repository hosted at `https://my/repository`, and the credentials required to access that repository are stored in the `AUTH_HEADER` environment variable.
 You could define `renv.download.headers` like so:
 
-``` r
+```{r}
 options(renv.download.headers = function(url) {
   if (grepl("^https://my/repository", url))
     return(c(Authorization = Sys.getenv("AUTH_HEADER")))
@@ -369,6 +366,7 @@ With the above, renv will set the `Authorization` header whenever it attempts to
 
 If having problems with downloads, you can get more debugging information (including raw requests and responses) by setting:
 
-```R
+```{r}
 options(renv.download.trace = TRUE) 
 ```
+
