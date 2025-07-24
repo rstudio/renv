@@ -1,5 +1,5 @@
 
-# renv (development version)
+# renv 1.1.5
 
 * Fixed an issue where `renv::dependencies()` could fail for chunks which
   had a `label` which was not a length-one character vector. (#2144)
