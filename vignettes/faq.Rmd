@@ -119,4 +119,4 @@ Learn more in `vignette("package-install")`.
 
 In addition, note that renv places shims on the R search path that re-routes calls from `install.packages()` to `renv::install()`.
 If you need to bypass these shims, you can use `utils::install.packages(<...>)`; that is, with the call to `install.packages()` explicitly qualified with the package `utils::`.
-See `?renv::load` more details.
+See `?renv::load` for more details.
