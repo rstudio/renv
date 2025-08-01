@@ -447,6 +447,12 @@ renv_restore_normalize_impl <- function(record) {
     }
   }
 
+  # apply override if set
+  override <- config$repos.override()
+  if (length(override)) {
+    record[["Repository"]] <- NULL
+  }
+
   # return potentially mutated record
   record
 
