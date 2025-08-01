@@ -160,11 +160,11 @@ restore <- function(project = NULL,
   diff <- renv_vector_diff(diff, if (!clean) "remove")
 
   # only remove packages from the project library
-  is_package <- map_lgl(names(diff), function(package) {
+  ispkg <- map_lgl(names(diff), function(package) {
     path <- find.package(package, lib.loc = libpaths, quiet = TRUE)
     identical(dirname(path), library)
   })
-  diff <- diff[!(diff == "remove" & !is_package)]
+  diff <- diff[!(diff == "remove" & !ispkg)]
 
   # don't take any actions with ignored packages
   ignored <- renv_project_ignored_packages(project = project)
@@ -179,6 +179,11 @@ restore <- function(project = NULL,
     writef("- The %s is already synchronized with the lockfile.", name)
     return(renv_restore_successful(diff, prompt, project))
   }
+
+  # transform binary repository URLs into source repository URLs
+  current  <- renv_restore_normalize(current)
+  lockfile <- renv_restore_normalize(lockfile)
+
 
   # TODO: should we avoid double-prompting here?
   # we prompt once here for the preflight check, and then again below based
@@ -421,5 +426,25 @@ renv_restore_successful <- function(records, prompt, project) {
 
   # return restored records
   invisible(records)
+
+}
+
+renv_restore_normalize <- function(lockfile) {
+  records <- renv_lockfile_records(lockfile)
+  renv_lockfile_records(lockfile) <- map(records, renv_restore_normalize_impl)
+  lockfile
+}
+
+renv_restore_normalize_impl <- function(record) {
+
+  # transform binary repository URLs into source URLs
+  repository <- record[["Repository"]] %||% ""
+  if (nzchar(repository)) {
+    repository <- renv_ppm_normalize(repository)
+    record[["Repository"]] <- repository
+  }
+
+  # return potentially mutated record
+  record
 
 }
