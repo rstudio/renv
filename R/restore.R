@@ -438,10 +438,13 @@ renv_restore_normalize <- function(lockfile) {
 renv_restore_normalize_impl <- function(record) {
 
   # transform binary repository URLs into source URLs
-  repository <- record[["Repository"]] %||% ""
-  if (nzchar(repository)) {
-    repository <- renv_ppm_normalize(repository)
-    record[["Repository"]] <- repository
+  if (config$ppm.enabled()) {
+    repository <- record[["Repository"]] %||% ""
+    if (nzchar(repository)) {
+      srcurl <- renv_ppm_normalize(repository)
+      binurl <- renv_ppm_transform(srcurl)
+      record[["Repository"]] <- binurl
+    }
   }
 
   # return potentially mutated record
