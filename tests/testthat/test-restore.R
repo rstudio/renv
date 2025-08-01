@@ -344,3 +344,25 @@ test_that("we can restore a package installed with a custom repository", {
   expect_true(renv_package_installed("bread"))
 
 })
+
+test_that("the Repository field in a lockfile can be overridden", {
+
+  skip_on_cran()
+  skip_on_windows()
+
+  # initialize project
+  project <- renv_tests_scope("bread")
+  init()
+
+  # simulate bread having an external / unexpected repository url
+  lockfile <- renv_lockfile_read("renv.lock")
+  lockfile$Packages$bread$Repository <- path.expand("~")
+  renv_lockfile_write(lockfile, "renv.lock")
+
+  # try to force a specific repository URL via override
+  renv_scope_options(renv.config.repos.override = getOption("repos"))
+  remove("bread")
+  restore(packages = "bread", rebuild = TRUE)
+  expect_true(renv_package_installed("bread"))
+
+})
