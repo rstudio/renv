@@ -1,5 +1,12 @@
+
 # renv (development version)
 
+* `renv::restore()` now ignores the `Repository` field on lockfile entries
+  when the `repos.override` configuration option is set. (#2127)
+
+* `renv::restore()` now transforms binary repository URLs appropriately,
+  for installed packages which were recorded as installed from an
+  alternate binary repository URL. (#2127)
 
 # renv 1.1.5
 
