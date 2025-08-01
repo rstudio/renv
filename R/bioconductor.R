@@ -160,11 +160,19 @@ renv_bioconductor_repos <- function(project = NULL, version = NULL) {
   # read Bioconductor version (normally set during restore)
   version <- version %||% renv_bioconductor_version(project = project)
 
+  # get current repositories
+  repos <- getOption("repos")
+
   # read Bioconductor repositories (prefer BiocInstaller for older R)
-  if (identical(renv_bioconductor_manager(), "BiocManager"))
+  biocrepos <- if (identical(renv_bioconductor_manager(), "BiocManager"))
     renv_bioconductor_repos_biocmanager(version)
   else
     renv_bioconductor_repos_biocinstaller(version)
+
+  # overlay new repos on old repos (this helps preserve ordering)
+  # https://github.com/rstudio/renv/issues/2128
+  repos[names(biocrepos)] <- biocrepos
+  repos
 
 }
 

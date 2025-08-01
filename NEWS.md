@@ -1,6 +1,12 @@
 
 # renv (development version)
 
+* `renv` now prefers appending, rather than prepending, Bioconductor
+  repositories to the current set of repositories when installing
+  packages. This implies that if you're using a repository that also
+  provides Bioconductor packages, this repository will be preferred
+  as opposed to the "default" Bioconductor repositories. (#2128)
+  
 * `renv::restore()` now ignores the `Repository` field on lockfile entries
   when the `repos.override` configuration option is set. (#2127)
 
