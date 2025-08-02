@@ -355,7 +355,7 @@ renv_bootstrap_download_cran_archive <- function(version) {
 
 }
 
-renv_bootstrap_download_cache <- function(version, sha) {
+renv_bootstrap_download_cache <- function(version, md5) {
 
   # infer path to renv cache
   cache <- Sys.getenv("RENV_PATHS_CACHE", unset = "")
@@ -368,30 +368,20 @@ renv_bootstrap_download_cache <- function(version, sha) {
   }
 
   # start completing path to cache
-  pkgpath <- file.path(
+  path <- file.path(
     cache,
     renv_bootstrap_cache_version(),
     renv_bootstrap_platform_prefix(),
     "renv",
-    version
+    version,
+    md5,
+    "renv"
   )
 
-  if (!file.exists(pkgpath))
-    return()
-
-  if (is.null(sha)) {
-    hashes <- list.files(pkgpath, full.names = TRUE)
-    if (length(hashes) == 0L)
-      return()
-    sha <- hashes[[1L]]
+  if (file.exists(path)) {
+    catf("- Using renv %s from global package cache", version)
+    invisible(path)
   }
-
-  path <- file.path(pkgpath, sha, pkgpath)
-  if (!file.exists(path))
-    return()
-
-  catf("- Using renv %s from cache", version)
-  invisible(path)
 
 }
 

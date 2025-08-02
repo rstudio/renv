@@ -515,7 +515,7 @@ local({
   
   }
   
-  renv_bootstrap_download_cache <- function(version, sha) {
+  renv_bootstrap_download_cache <- function(version, md5) {
   
     # infer path to renv cache
     cache <- Sys.getenv("RENV_PATHS_CACHE", unset = "")
@@ -533,21 +533,12 @@ local({
       renv_bootstrap_cache_version(),
       renv_bootstrap_platform_prefix(),
       "renv",
-      version
+      version,
+      md5,
+      "renv"
     )
   
     if (!file.exists(pkgpath))
-      return()
-  
-    if (is.null(sha)) {
-      hashes <- list.files(pkgpath, full.names = TRUE)
-      if (length(hashes) == 0L)
-        return()
-      sha <- hashes[[1L]]
-    }
-  
-    path <- file.path(pkgpath, sha, pkgpath)
-    if (!file.exists(path))
       return()
   
     catf("- Using renv %s from cache", version)
