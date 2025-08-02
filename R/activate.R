@@ -128,18 +128,18 @@ renv_activate_version_activate <- function(project) {
   line <- grep("version <-", contents, fixed = TRUE, value = TRUE)[[1L]]
   version <- parse(text = line)[[1L]][[3L]]
 
-  # check for sha as well
-  line <- grep("attr(version, \"sha\")", contents, fixed = TRUE, value = TRUE)
-  if (length(line)) {
-    sha <- parse(text = line)[[1L]][[3L]]
-    attr(version, "sha") <- sha
-  }
-
   # check for md5 as well
   line <- grep("attr(version, \"md5\")", contents, fixed = TRUE, value = TRUE)
   if (length(line)) {
     md5 <- parse(text = line)[[1L]][[3L]]
     attr(version, "md5") <- md5
+  }
+
+  # check for sha as well
+  line <- grep("attr(version, \"sha\")", contents, fixed = TRUE, value = TRUE)
+  if (length(line)) {
+    sha <- parse(text = line)[[1L]][[3L]]
+    attr(version, "sha") <- sha
   }
 
   version

@@ -114,8 +114,8 @@ renv_infrastructure_write_activate <- function(project = NULL,
     text = template,
     replacements = list(
       version = stringify(as.character(version)),
-      sha = stringify(sha),
-      md5 = stringify(md5)
+      md5 = stringify(md5),
+      sha = stringify(sha)
     ),
     format = "..%s.."
   )
