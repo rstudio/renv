@@ -1,6 +1,9 @@
 
 # renv (development version)
 
+* `renv` now supports bootstrapping itself from the global package
+  cache. (#1799)
+  
 * `renv` now prefers appending, rather than prepending, Bioconductor
   repositories to the current set of repositories when installing
   packages. This implies that if you're using a repository that also
