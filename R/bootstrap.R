@@ -161,6 +161,7 @@ renv_bootstrap_download <- function(version) {
 
     # attempting to bootstrap a development version of renv
     c(
+      function() renv_bootstrap_download_cache(version, sha),
       function() renv_bootstrap_download_tarball(sha),
       function() renv_bootstrap_download_github(sha)
     )
@@ -169,6 +170,7 @@ renv_bootstrap_download <- function(version) {
 
     # attempting to bootstrap a release version of renv
     c(
+      function() renv_bootstrap_download_cache(version, sha),
       function() renv_bootstrap_download_tarball(version),
       function() renv_bootstrap_download_cran_latest(version),
       function() renv_bootstrap_download_cran_archive(version)
@@ -349,6 +351,46 @@ renv_bootstrap_download_cran_archive <- function(version) {
   }
 
   return(FALSE)
+
+}
+
+renv_bootstrap_download_cache <- function(version, sha) {
+
+  # infer path to renv cache
+  cache <- Sys.getenv("RENV_PATHS_CACHE", unset = "")
+  if (!nzchar(cache)) {
+    tools <- asNamespace("tools")
+    if (is.function(tools$R_user_dir)) {
+      root <- tools$R_user_dir("renv", "cache")
+      cache <- file.path(root, "cache")
+    }
+  }
+
+  # start completing path to cache
+  pkgpath <- file.path(
+    cache,
+    renv_bootstrap_cache_version(),
+    renv_bootstrap_platform_prefix(),
+    "renv",
+    version
+  )
+
+  if (!file.exists(pkgpath))
+    return()
+
+  if (is.null(sha)) {
+    hashes <- list.files(pkgpath, full.names = TRUE)
+    if (length(hashes) == 0L)
+      return()
+    sha <- hashes[[1L]]
+  }
+
+  path <- file.path(pkgpath, sha, pkgpath)
+  if (!file.exists(path))
+    return()
+
+  catf("- Using renv %s from cache", version)
+  invisible(path)
 
 }
 
@@ -1020,4 +1062,16 @@ renv_bootstrap_run <- function(project, libpath, version) {
 
   warning(paste(msg, collapse = "\n"), call. = FALSE)
 
+}
+
+renv_bootstrap_cache_version <- function() {
+  # NOTE: users should normally not override the cache version;
+  # this is provided just to make testing easier
+  Sys.getenv("RENV_CACHE_VERSION", unset = "v5")
+}
+
+renv_bootstrap_cache_version_previous <- function() {
+  version <- renv_bootstrap_cache_version()
+  number <- as.integer(substring(version, 2L))
+  paste("v", number - 1L, sep = "")
 }
