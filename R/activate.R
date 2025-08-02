@@ -135,6 +135,13 @@ renv_activate_version_activate <- function(project) {
     attr(version, "sha") <- sha
   }
 
+  # check for md5 as well
+  line <- grep("attr(version, \"md5\")", contents, fixed = TRUE, value = TRUE)
+  if (length(line)) {
+    md5 <- parse(text = line)[[1L]][[3L]]
+    attr(version, "md5") <- md5
+  }
+
   version
 
 }
@@ -184,10 +191,10 @@ renv_activate_prompt <- function(action, library, prompt, project) {
 }
 
 renv_activate_prompt_impl <- function(action, project = NULL) {
-  
+
   fmt <- "It looks like you've called renv::%s() in a project that hasn't been activated yet."
   title <- c(sprintf(fmt, action), "How would you like to proceed?")
-  
+
   choices <- c(
     activate = "Activate the project and use the project library.",
     continue = "Do not activate the project and use the current library paths.",
@@ -200,5 +207,5 @@ renv_activate_prompt_impl <- function(action, project = NULL) {
     continue = FALSE,
     cancel = cancel()
   )
-  
+
 }
