@@ -491,14 +491,14 @@ renv_install_package_cache <- function(record, cache, linker) {
     return(TRUE)
 
   library <- renv_libpaths_active()
-  target <- file.path(library, record$Package)
+  target <- file.path(library, record[["Package"]])
 
   # back up the previous installation if needed
   callback <- renv_file_backup(target)
   defer(callback())
 
   # report successful link to user
-  renv_install_step_start("Installing", record$Package, verbose = FALSE)
+  renv_install_step_start("Installing", record, verbose = FALSE)
 
   before <- Sys.time()
   linker(cache, target)
@@ -574,7 +574,7 @@ renv_install_package_impl_prebuild <- function(record, path, quiet) {
   }
 
   verbose <- config$install.verbose()
-  renv_install_step_start("Building", record$Package, verbose = verbose)
+  renv_install_step_start("Building", record, verbose = verbose)
 
   before <- Sys.time()
   package <- record$Package
@@ -615,7 +615,7 @@ renv_install_package_impl <- function(record, quiet = TRUE) {
 
   # report start of installation to user
   verbose <- config$install.verbose()
-  renv_install_step_start("Installing", record$Package, verbose = verbose)
+  renv_install_step_start("Installing", record, verbose = verbose)
 
   # run user-defined hooks before, after install
   options <- renv_install_package_options(package)
@@ -877,12 +877,13 @@ renv_install_report <- function(records, library) {
   )
 }
 
-renv_install_step_start <- function(action, package, verbose = FALSE) {
+renv_install_step_start <- function(action, record, verbose = FALSE) {
 
+  pkgver <- paste(record[["Package"]], record[["Version"]])
   if (verbose)
-    return(writef("- %s %s ...", action, package))
+    return(writef("- %s %s ...", action, pkgver))
 
-  message <- sprintf("- %s %s ... ", action, package)
+  message <- sprintf("- %s %s ... ", action, pkgver)
   printf(format(message, width = the$install_step_width))
 
 }

@@ -167,7 +167,7 @@
       These packages will be installed into "<tempdir>/<renv-library>".
       
       # Installing packages ---
-      - Installing egg ...                            OK [built from source and cached in XXs]
+      - Installing egg 1.0.0 ...                      OK [built from source and cached in XXs]
       Successfully installed 1 package in XXXX seconds.
       The following package(s) will be updated in the lockfile:
       
