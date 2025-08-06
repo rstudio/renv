@@ -159,7 +159,9 @@ See <strong>Repositories</strong> for more details.</p></dd>
 Setting this may be appropriate if renv is unable to determine that your
 project depends on a package normally available from Bioconductor. Set this
 to <code>TRUE</code> to use the default version of Bioconductor recommended by the
-BiocManager package.</p></dd>
+<code>BiocManager</code> package. When <code>NULL</code> (the default), the value is inferred
+from the <code>bioconductor.init</code> configuration option – see <a href="config.html">config</a> for more
+details.</p></dd>
 
 
 <dt id="arg-load">load<a class="anchor" aria-label="anchor" href="#arg-load"></a></dt>
