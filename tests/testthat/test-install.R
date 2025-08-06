@@ -94,7 +94,9 @@ test_that("install forces update of dependencies as needed", {
 
 test_that("packages can be installed from sources", {
 
-  renv_tests_scope()
+  renv_scope_options(renv.config.cache.enabled = FALSE)
+
+  project <- renv_tests_scope()
   init()
 
   # get path to package sources in local repos

@@ -640,6 +640,7 @@ test_that("a package's hash can be re-generated from lockfile", {
 test_that("lockfiles are stable (v1)", {
 
   renv_scope_options(renv.lockfile.version = 1L)
+  renv_scope_envvars(RENV_PATHS_ROOT = tempfile())
 
   project <- renv_tests_scope("breakfast")
   init()
@@ -651,6 +652,7 @@ test_that("lockfiles are stable (v1)", {
 test_that("lockfiles are stable (v2)", {
 
   renv_scope_options(renv.lockfile.version = 2L)
+  renv_scope_envvars(RENV_PATHS_ROOT = tempfile())
 
   project <- renv_tests_scope("breakfast")
   init()
