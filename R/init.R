@@ -55,7 +55,9 @@ the$init_running <- FALSE
 #'   Setting this may be appropriate if renv is unable to determine that your
 #'   project depends on a package normally available from Bioconductor. Set this
 #'   to `TRUE` to use the default version of Bioconductor recommended by the
-#'   BiocManager package.
+#'   `BiocManager` package. When `NULL` (the default), the value is inferred
+#'   from the `bioconductor.init` configuration option -- see [config] for more
+#'   details.
 #'
 #' @param load Boolean; should the project be loaded after it is initialized?
 #'
@@ -299,9 +301,12 @@ renv_init_bioconductor <- function(bioconductor, project) {
     lockpath <- renv_paths_lockfile(project = project)
     if (file.exists(lockpath)) {
       lockfile <- renv_lockfile_read(lockpath)
-      bioconductor <- !is.null(lockfile$Bioconductor)
+      bioconductor <- !is.null(lockfile[["Bioconductor"]])
     }
   }
+
+  # allow override via option when null
+  bioconductor <- bioconductor %||% config$bioconductor.init()
 
   # resolve bioconductor argument
   case(

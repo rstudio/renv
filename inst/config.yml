@@ -24,6 +24,15 @@
     Automatically snapshot changes to the project library when the project
     dependencies change?
 
+- name: "bioconductor.init"
+  type: "*"
+  default: ~
+  description: >
+    The default value to be used for the `bioconductor` parameter in calls
+    to `renv::init()`. This can be used if you'd like to automatically enable
+    or disable Bioconductor by default for newly-initialized `renv` projects.
+    See the documentation in `?renv::init` for more details.
+
 - name: "bitbucket.host"
   type: "character[1]"
   default: "api.bitbucket.org/2.0"

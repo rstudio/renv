@@ -47,7 +47,9 @@ See \strong{Repositories} for more details.}
 Setting this may be appropriate if renv is unable to determine that your
 project depends on a package normally available from Bioconductor. Set this
 to \code{TRUE} to use the default version of Bioconductor recommended by the
-BiocManager package.}
+\code{BiocManager} package. When \code{NULL} (the default), the value is inferred
+from the \code{bioconductor.init} configuration option -- see \link{config} for more
+details.}
 
 \item{load}{Boolean; should the project be loaded after it is initialized?}
 

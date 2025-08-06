@@ -620,7 +620,7 @@ renv_load_bioconductor <- function(project, bioconductor) {
     return()
 
   # if we don't have a valid Bioconductor version, bail
-  version <- bioconductor$Version
+  version <- bioconductor[["Version"]]
   if (is.null(version))
     return()
 

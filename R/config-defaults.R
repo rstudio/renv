@@ -33,6 +33,15 @@ config <- list(
     )
   },
 
+  bioconductor.init = function(..., default = NULL) {
+    renv_config_get(
+      name    = "bioconductor.init",
+      type    = "*",
+      default = default,
+      args    = list(...)
+    )
+  },
+
   bitbucket.host = function(..., default = "api.bitbucket.org/2.0") {
     renv_config_get(
       name    = "bitbucket.host",

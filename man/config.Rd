@@ -54,6 +54,8 @@ Defaults to \code{TRUE}.}
 Defaults to \code{TRUE}.}
 \subsection{renv.config.auto.snapshot}{Automatically snapshot changes to the project library when the project dependencies change?
 Defaults to \code{FALSE}.}
+\subsection{renv.config.bioconductor.init}{The default value to be used for the \code{bioconductor} parameter in calls to \code{renv::init()}. This can be used if you'd like to automatically enable or disable Bioconductor by default for newly-initialized \code{renv} projects. See the documentation in \code{?renv::init} for more details.
+Defaults to \code{NULL}.}
 \subsection{renv.config.bitbucket.host}{The default Bitbucket host to be used during package retrieval.
 Defaults to \code{"api.bitbucket.org/2.0"}.}
 \subsection{renv.config.copy.method}{The method to use when attempting to copy directories. See \strong{Copy Methods} for more information.

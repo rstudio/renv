@@ -1,6 +1,10 @@
 
 # renv (development version)
 
+* The `renv` configuration option `bioconductor.init` can now be used to
+  control the default argument passed for the `bioconductor` parameter in
+  calls to `renv::init()`. (#2128)
+
 * `renv` now supports bootstrapping itself from the global package
   cache. (#1799)
   
