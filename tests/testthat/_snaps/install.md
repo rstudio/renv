@@ -22,10 +22,10 @@
       install()
     Output
       # Downloading packages ---
-      - Downloading breakfast from CRAN ...           OK [XXXX bytes in XXs]
-      - Downloading oatmeal from CRAN ...             OK [XXXX bytes in XXs]
-      - Downloading toast from CRAN ...               OK [XXXX bytes in XXs]
-      - Downloading bread from CRAN ...               OK [XXXX bytes in XXs]
+      - Downloading breakfast 1.0.0 from CRAN ...     OK [XXXX bytes in XXs]
+      - Downloading oatmeal 1.0.0 from CRAN ...       OK [XXXX bytes in XXs]
+      - Downloading toast 1.0.0 from CRAN ...         OK [XXXX bytes in XXs]
+      - Downloading bread 1.0.0 from CRAN ...         OK [XXXX bytes in XXs]
       Successfully downloaded 4 packages in XXXX seconds.
       
       The following package(s) will be installed:

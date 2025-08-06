@@ -1,6 +1,9 @@
 
 # renv (development version)
 
+* `renv` now prints the version numbers of the packages it downloads during
+  install and restore. (#1925)
+
 * The `renv` configuration option `bioconductor.init` can now be used to
   control the default argument passed for the `bioconductor` parameter in
   calls to `renv::init()`. (#2128)

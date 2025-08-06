@@ -1110,13 +1110,20 @@ renv_retrieve_package <- function(record, url, path) {
 
 renv_retrieve_package_preamble <- function(record, url) {
 
-  message <- sprintf(
-    "- Downloading %s from %s ... ",
-    record$Package,
-    record$Repository %||% record$Source
-  )
+  package <- record[["Package"]]
+  version <- record[["Version"]]
 
-  format(message, width = the$install_step_width)
+  source <- record[["Repository"]] %||% record[["Source"]]
+  if (identical(source, "Repository"))
+    source <- record[["RemoteReposName"]]
+
+  parts <- c(package, version, if (length(source)) c("from", source))
+  body <- paste(parts, collapse = " ")
+
+  fmt <- "- Downloading %s ... "
+  msg <- sprintf(fmt, body)
+
+  format(msg, width = the$install_step_width)
 
 }
 

@@ -159,7 +159,7 @@
       Selection: 2
       
       # Downloading packages ---
-      - Downloading egg from CRAN ...                 OK [XXXX bytes in XXs]
+      - Downloading egg 1.0.0 from CRAN ...           OK [XXXX bytes in XXs]
       Successfully downloaded 1 package in XXXX seconds.
       
       The following package(s) will be installed:
