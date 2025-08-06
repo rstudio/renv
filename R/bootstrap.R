@@ -56,6 +56,16 @@ bootstrap <- function(version, library) {
   section <- header(sprintf("Bootstrapping renv %s", friendly))
   catf(section)
 
+  # try to install renv from cache
+  md5 <- attr(version, "md5", exact = TRUE)
+  if (length(md5)) {
+    pkgpath <- renv_bootstrap_find(version)
+    if (length(pkgpath) && file.exists(pkgpath)) {
+      file.copy(pkgpath, library, recursive = TRUE)
+      return(invisible())
+    }
+  }
+
   # attempt to download renv
   catf("- Downloading renv ... ", appendLF = FALSE)
   withCallingHandlers(
@@ -81,7 +91,6 @@ bootstrap <- function(version, library) {
 
   # add empty line to break up bootstrapping from normal output
   catf("")
-
   return(invisible())
 }
 
@@ -349,6 +358,45 @@ renv_bootstrap_download_cran_archive <- function(version) {
   }
 
   return(FALSE)
+
+}
+
+renv_bootstrap_find <- function(version) {
+
+  path <- renv_bootstrap_find_cache(version)
+  if (length(path) && file.exists(path)) {
+    catf("- Using renv %s from global package cache", version)
+    return(path)
+  }
+
+}
+
+renv_bootstrap_find_cache <- function(version) {
+
+  md5 <- attr(version, "md5", exact = TRUE)
+  if (is.null(md5))
+    return()
+
+  # infer path to renv cache
+  cache <- Sys.getenv("RENV_PATHS_CACHE", unset = "")
+  if (!nzchar(cache)) {
+    tools <- asNamespace("tools")
+    if (is.function(tools$R_user_dir)) {
+      root <- tools$R_user_dir("renv", "cache")
+      cache <- file.path(root, "cache")
+    }
+  }
+
+  # start completing path to cache
+  file.path(
+    cache,
+    renv_bootstrap_cache_version(),
+    renv_bootstrap_platform_prefix(),
+    "renv",
+    version,
+    md5,
+    "renv"
+  )
 
 }
 
@@ -1020,4 +1068,16 @@ renv_bootstrap_run <- function(project, libpath, version) {
 
   warning(paste(msg, collapse = "\n"), call. = FALSE)
 
+}
+
+renv_bootstrap_cache_version <- function() {
+  # NOTE: users should normally not override the cache version;
+  # this is provided just to make testing easier
+  Sys.getenv("RENV_CACHE_VERSION", unset = "v5")
+}
+
+renv_bootstrap_cache_version_previous <- function() {
+  version <- renv_bootstrap_cache_version()
+  number <- as.integer(substring(version, 2L))
+  paste("v", number - 1L, sep = "")
 }

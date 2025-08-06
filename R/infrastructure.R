@@ -100,6 +100,7 @@ renv_infrastructure_write_activate <- function(project = NULL,
 {
   project <- renv_project_resolve(project)
   version <- version %||% renv_activate_version(project)
+  md5 <- attr(version, "md5", exact = TRUE)
   sha <- attr(version, "sha", exact = TRUE)
 
   source <- system.file("resources/activate.R", package = "renv")
@@ -113,6 +114,7 @@ renv_infrastructure_write_activate <- function(project = NULL,
     text = template,
     replacements = list(
       version = stringify(as.character(version)),
+      md5 = stringify(md5),
       sha = stringify(sha)
     ),
     format = "..%s.."
