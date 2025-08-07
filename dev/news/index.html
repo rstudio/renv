@@ -53,7 +53,8 @@
 
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="development version" id="renv-development-version">renv (development version)<a class="anchor" aria-label="anchor" href="#renv-development-version"></a></h2>
-<ul><li><p><code>renv</code> now prints the version numbers of the packages it downloads during install and restore. (<a href="https://github.com/rstudio/renv/issues/1925" class="external-link">#1925</a>)</p></li>
+<ul><li><p>Fixed an issue where the package manager URL was computed incorrectly with RHEL 10.</p></li>
+<li><p><code>renv</code> now prints the version numbers of the packages it downloads during install and restore. (<a href="https://github.com/rstudio/renv/issues/1925" class="external-link">#1925</a>)</p></li>
 <li><p>The <code>renv</code> configuration option <code>bioconductor.init</code> can now be used to control the default argument passed for the <code>bioconductor</code> parameter in calls to <code><a href="../reference/init.html">renv::init()</a></code>. (<a href="https://github.com/rstudio/renv/issues/2128" class="external-link">#2128</a>)</p></li>
 <li><p><code>renv</code> now supports bootstrapping itself from the global package cache. (<a href="https://github.com/rstudio/renv/issues/1799" class="external-link">#1799</a>)</p></li>
 <li><p><code>renv</code> now prefers appending, rather than prepending, Bioconductor repositories to the current set of repositories when installing packages. This implies that if you’re using a repository that also provides Bioconductor packages, this repository will be preferred as opposed to the “default” Bioconductor repositories. (<a href="https://github.com/rstudio/renv/issues/2128" class="external-link">#2128</a>)</p></li>
