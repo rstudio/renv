@@ -310,6 +310,10 @@ renv_sysreqs_aliases_deb <- function(pkgs) {
 
 renv_sysreqs_aliases_rpm <- function(pkgs) {
 
+  # return early if no packages provided
+  if (empty(pkgs))
+    return(character())
+
   # for each package, check if there's another package that 'provides' it
   fmt <- "rpm --query --whatprovides %s --queryformat '%%{Name}\n'"
   args <- paste(renv_shell_quote(pkgs), collapse = " ")
