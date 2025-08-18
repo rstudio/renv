@@ -93,3 +93,19 @@
       
       See `?renv::status` for advice on resolving these issues.
 
+# status() version check can be disabled
+
+    Code
+      . <- renv::status()
+    Output
+      The lockfile was generated with R 1.0.0, but you're using R <r-version>.
+      
+      See `?renv::status` for advice on resolving these issues.
+
+---
+
+    Code
+      . <- renv::status()
+    Output
+      No issues found -- the project is in a consistent state.
+

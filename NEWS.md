@@ -1,6 +1,9 @@
 
 # renv (development version)
 
+* The version check in `renv::status()` can now be disabled by setting
+  `options(renv.status.check_version = FALSE)`. (#2167)
+
 * Fixed an issue where the package manager URL was computed incorrectly
   with RHEL 10.
 

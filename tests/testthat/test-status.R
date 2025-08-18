@@ -1,3 +1,4 @@
+
 test_that("reports if status not possible", {
 
   renv_tests_scope()
@@ -84,5 +85,23 @@ test_that("status() notifies user if packages are missing and inconsistent", {
   install("bread@0.1.0")
 
   expect_snapshot(. <- status())
+
+})
+
+test_that("status() version check can be disabled", {
+
+  project <- renv_tests_scope("bread")
+  init()
+
+  # write an incompatible R version into the lockfile
+  lockfile <- renv_lockfile_read(file = "renv.lock")
+  lockfile$R$Version <- "1.0.0"
+  renv_lockfile_write(lockfile, file = "renv.lock")
+
+  renv_scope_options(renv.status.check_version = TRUE)
+  expect_snapshot(. <- renv::status())
+
+  renv_scope_options(renv.status.check_version = FALSE)
+  expect_snapshot(. <- renv::status())
 
 })
