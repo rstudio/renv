@@ -1,6 +1,9 @@
 
 # renv (development version)
 
+* `renv` now also supports `RENV_LOCKFILE_VERSION = 1` as an alternate
+  way to request the older, compact lockfiles. (#2175)
+
 * The version check in `renv::status()` can now be disabled by setting
   `options(renv.status.check_version = FALSE)`. (#2167)
 

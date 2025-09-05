@@ -723,7 +723,10 @@ renv_snapshot_description <- function(path = NULL, package = NULL) {
 
 renv_snapshot_description_impl <- function(dcf, path = NULL) {
 
-  version <- getOption("renv.lockfile.version", default = 2L)
+  version <-
+    getOption("renv.lockfile.version") %||%
+    Sys.getenv("RENV_LOCKFILE_VERSION", unset = 2L)
+
   if (version == 1L)
     renv_snapshot_description_impl_v1(dcf, path)
   else if (version == 2L)
