@@ -53,7 +53,8 @@
 
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="development version" id="renv-development-version">renv (development version)<a class="anchor" aria-label="anchor" href="#renv-development-version"></a></h2>
-<ul><li><p>The version check in <code><a href="../reference/status.html">renv::status()</a></code> can now be disabled by setting <code>options(renv.status.check_version = FALSE)</code>. (<a href="https://github.com/rstudio/renv/issues/2167" class="external-link">#2167</a>)</p></li>
+<ul><li><p><code>renv</code> now also supports <code>RENV_LOCKFILE_VERSION = 1</code> as an alternate way to request the older, compact lockfiles. (<a href="https://github.com/rstudio/renv/issues/2175" class="external-link">#2175</a>)</p></li>
+<li><p>The version check in <code><a href="../reference/status.html">renv::status()</a></code> can now be disabled by setting <code>options(renv.status.check_version = FALSE)</code>. (<a href="https://github.com/rstudio/renv/issues/2167" class="external-link">#2167</a>)</p></li>
 <li><p>Fixed an issue where the package manager URL was computed incorrectly with RHEL 10.</p></li>
 <li><p><code>renv</code> now prints the version numbers of the packages it downloads during install and restore. (<a href="https://github.com/rstudio/renv/issues/1925" class="external-link">#1925</a>)</p></li>
 <li><p>The <code>renv</code> configuration option <code>bioconductor.init</code> can now be used to control the default argument passed for the <code>bioconductor</code> parameter in calls to <code><a href="../reference/init.html">renv::init()</a></code>. (<a href="https://github.com/rstudio/renv/issues/2128" class="external-link">#2128</a>)</p></li>
