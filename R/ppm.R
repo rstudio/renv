@@ -1,4 +1,34 @@
 
+renv_ppm_parse <- function(url) {
+
+  pattern <- paste0(
+    "^",                                 # start of url
+    "(?<root>",                          # start of root of url
+      "(?<scheme>[^:]+)://",             # scheme
+      "(?<authority>[^/]+)",             # authority
+    ")/",                                # end of root of url
+    "(?<repos>[^/]+)/",                  # repository name
+    "(?:",                               # begin optional binary parts
+      "(?<binary>__[^_]+__)/",           # binary prefix
+      "(?<platform>[^/]+)/",             # platform for binaries
+    ")?",                                # end optional binary parts
+    "(?<snapshot>[^/]+)",                # snapshot
+    "$"
+  )
+
+  matches <- gregexpr(pattern, url, perl = TRUE)[[1]]
+  starts <- attr(matches, "capture.start")
+  ends <- starts + attr(matches, "capture.length") - 1
+  strings <- substring(url, starts, ends)
+  names(strings) <- attr(matches, "capture.names")
+
+  if (length(strings) == 0L || !any(nzchar(strings)))
+    return(NULL)
+
+  as.list(c(url = url, strings))
+
+}
+
 renv_ppm_normalize <- function(url) {
   sub("/__[^_]+__/[^/]+/", "/", url)
 }

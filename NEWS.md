@@ -1,6 +1,11 @@
 
 # renv (development version)
 
+* `renv` gains the function `renv::vulns()`, which can be used to query
+  vulnerability information from a Posit Package Manager instance.
+  This information can be queried either for a specific set of packages,
+  or for all packages defined in a lockfile.
+
 * `renv` now also supports `RENV_LOCKFILE_VERSION = 1` as an alternate
   way to request the older, compact lockfiles. (#2175)
 

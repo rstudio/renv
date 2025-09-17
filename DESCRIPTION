@@ -17,11 +17,12 @@ License: MIT + file LICENSE
 URL: https://rstudio.github.io/renv/, https://github.com/rstudio/renv
 BugReports: https://github.com/rstudio/renv/issues
 Imports: utils
-Suggests: BiocManager, cli, compiler, covr, cpp11, devtools, generics, gitcreds,
-    jsonlite, jsonvalidate, knitr, miniUI, modules, packrat, pak, R6, remotes,
-    reticulate, rmarkdown, rstudioapi, shiny, testthat, uuid, waldo, yaml, webfakes
+Suggests: BiocManager, cli, compiler, covr, cpp11, curl, devtools, generics,
+    gitcreds, jsonlite, jsonvalidate, knitr, miniUI, modules, packrat, pak, R6,
+    remotes, reticulate, rmarkdown, rstudioapi, shiny, testthat, uuid, waldo,
+    yaml, webfakes
 Encoding: UTF-8
-RoxygenNote: 7.3.2
+RoxygenNote: 7.3.3
 Roxygen: list(markdown = TRUE)
 VignetteBuilder: knitr
 Config/Needs/website: tidyverse/tidytemplate
