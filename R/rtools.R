@@ -7,6 +7,7 @@ renv_rtools_list <- function() {
 
     renv_rtools_registry(),
 
+    Sys.getenv("RTOOLS45_HOME", unset = file.path(drive, "rtools45")),
     Sys.getenv("RTOOLS44_HOME", unset = file.path(drive, "rtools44")),
     Sys.getenv("RTOOLS43_HOME", unset = file.path(drive, "rtools43")),
     Sys.getenv("RTOOLS42_HOME", unset = file.path(drive, "rtools42")),
@@ -76,6 +77,7 @@ renv_rtools_compatible <- function(spec) {
     return(FALSE)
 
   ranges <- list(
+    "4.5" = c("4.5.0", "9.9.9"),
     "4.4" = c("4.4.0", "9.9.9"),
     "4.3" = c("4.3.0", "4.4.0"),
     "4.2" = c("4.2.0", "4.3.0"),
