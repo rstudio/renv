@@ -50,7 +50,7 @@ renv_project_clear <- function() {
 
 renv_project_resolve <- function(project = NULL, default = getwd()) {
   project <- project %||% renv_project_get(default = default)
-  renv_path_normalize(project)
+  if (is.null(project)) project else renv_path_normalize(project)
 }
 
 renv_project_initialized <- function(project) {

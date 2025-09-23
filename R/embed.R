@@ -1,3 +1,4 @@
+
 #' Capture and re-use dependencies within a `.R`, `.Rmd` or `.qmd`
 #'
 #' @description
@@ -98,30 +99,32 @@ renv_embed_path_impl <- function() {
   rstudio$.rs.api.documentPath()
 }
 
+renv_embed_create_lockfile <- function(path = NULL,
+                                       lockfile = NULL,
+                                       project = NULL)
+{
+  lockfile <- renv_embed_lockfile_resolve(path, lockfile, project)
+
+  # keep only matched records
+  renv_lockfile_records(lockfile) <-
+    renv_lockfile_records(lockfile) %>%
+    keep(c("renv", names(all)))
+
+  invisible(lockfile)
+}
+
 renv_embed_create <- function(path = NULL,
                               lockfile = NULL,
                               project = NULL)
 {
-  # generate lockfile
-  project <- renv_project_resolve(project)
-  lockfile <- renv_embed_lockfile_resolve(lockfile, project)
-
-  # figure out recursive package dependencies
-  deps <- renv_dependencies_impl(path)
-  packages <- sort(unique(deps$Package))
-  all <- renv_package_dependencies(packages)
-
-  # keep only matched records
-  lockfile$Packages <- keep(lockfile$Packages, c("renv", names(all)))
-
-  # write compact use statement
+  lockfile <- renv_embed_create_lockfile(path, lockfile, project)
   renv_lockfile_compact(lockfile)
 }
 
 renv_embed_r <- function(path, ..., lockfile = NULL, project = NULL) {
 
   # resolve project
-  project <- renv_project_resolve(project)
+  project <- renv_project_resolve(project, default = NULL)
 
   # read file contents
   contents <- readLines(path, warn = FALSE, encoding = "UTF-8")
@@ -169,8 +172,7 @@ renv_embed_create_rmd <- function(path = NULL,
                                   project = NULL)
 {
   # create lockfile
-  project  <- renv_project_resolve(project)
-  lockfile <- renv_embed_lockfile_resolve(lockfile, project)
+  lockfile <- renv_embed_create_lockfile(path, lockfile, project)
 
   # create embed
   embed <- renv_embed_create(
@@ -191,7 +193,7 @@ renv_embed_rmd <- function(path,
                            project = NULL)
 {
   # resolve project
-  project <- renv_project_resolve(project)
+  project <- renv_project_resolve(project, default = NULL)
 
   # read file contents
   contents <- readLines(path, warn = FALSE, encoding = "UTF-8")
@@ -247,7 +249,7 @@ renv_embed_rmd <- function(path,
 
 }
 
-renv_embed_lockfile_resolve <- function(lockfile, project) {
+renv_embed_lockfile_resolve <- function(path, lockfile, project) {
 
   # if lockfile is character, assume it's the path to a lockfile
   if (is.character(lockfile))
@@ -258,11 +260,33 @@ renv_embed_lockfile_resolve <- function(lockfile, project) {
     return(lockfile)
 
   # check for lockfile in project
-  path <- renv_lockfile_path(project)
-  if (file.exists(path))
-    return(renv_lockfile_read(path))
+  if (length(project)) {
+    path <- renv_lockfile_path(project)
+    if (file.exists(path))
+      return(renv_lockfile_read(path))
+  }
 
-  # no lockfile available; just snapshot
-  snapshot(project = project, lockfile = NULL)
+  # resolve project
+  project <- renv_project_resolve(project, default = NULL)
+
+  # figure out recursive package dependencies
+  deps <- dependencies(path, quiet = TRUE)
+  packages <- sort(unique(deps[["Package"]]))
+  all <- renv_package_dependencies(packages)
+
+  # notify user if some dependencies appear to be unavailable
+  ok <- nzchar(all)
+  missing <- names(all)[!ok]
+  if (length(missing)) {
+    missing <- sort(unique(missing))
+    stop("required packages are not installed: ", paste(missing, collapse = ", "))
+  }
+
+  # generate lockfile
+  snapshot(
+    lockfile = NULL,
+    packages = names(all),
+    project  = project
+  )
 
 }

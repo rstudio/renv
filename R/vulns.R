@@ -24,6 +24,7 @@
 #' @returns An \R list of vulnerability information. Only packages which
 #'   have known vulnerabilities will be included in the resulting data object.
 #'
+#' @keywords internal
 #' @export
 vulns <- function(packages = NULL,
                   lockfile = NULL,

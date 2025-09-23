@@ -45,3 +45,4 @@ known vulnerabilities.
 \details{
 This function requires the \pkg{curl} package to be installed.
 }
+\keyword{internal}

@@ -1,6 +1,9 @@
 
 # renv (development version)
 
+* `renv::embed()` now errs if one or more of the package dependencies to
+  be included within a file are not available. (#2178)
+
 * `renv` gains the function `renv::vulns()`, which can be used to query
   vulnerability information from a Posit Package Manager instance.
   This information can be queried either for a specific set of packages,

@@ -277,8 +277,8 @@ renv_package_augment_metadata <- function(path, remotes) {
 # find recursive dependencies of a package. note that this routine
 # doesn't farm out to CRAN; it relies on the package and its dependencies
 # all being installed locally. returns a named vector mapping package names
-# to the path where they were discovered, or NA if those packages are not
-# installed
+# to the path where they were discovered, or an empty string if those packages
+# are not installed
 renv_package_dependencies <- function(packages,
                                       libpaths = NULL,
                                       fields = NULL,
