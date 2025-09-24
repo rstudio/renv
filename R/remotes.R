@@ -31,6 +31,7 @@ renv_remotes_resolve <- function(spec, latest = FALSE, infer = FALSE) {
   spec <- gsub("/+$", "", spec, perl = TRUE)
 
   # check if we should infer the package version
+  # from a locally-installed copy of the package
   infer <-
     infer &&
     grepl(renv_regexps_package_name(), spec) &&

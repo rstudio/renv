@@ -186,42 +186,49 @@ renv_cache_synchronize_impl <- function(cache, record, linkable, path) {
     renv_cache_copy(path, cache, overwrite = TRUE)
   }
 
-  if (renv_platform_unix()) {
-
-    # change the cache owner if set
-    user <- Sys.getenv("RENV_CACHE_USER", unset = NA)
-    if (!is.na(user)) {
-      parent <- dirname(dirname(dirname(cache)))
-      renv_system_exec(
-        command = "chown",
-        args    = c("-Rf", renv_shell_quote(user), renv_shell_path(parent)),
-        action  = "chowning cached package",
-        quiet   = TRUE,
-        success = NULL
-      )
-    }
-
-    # change file modes after copy if set
-    mode <- Sys.getenv("RENV_CACHE_MODE", unset = NA)
-    if (!is.na(mode)) {
-      parent <- dirname(dirname(dirname(cache)))
-      renv_system_exec(
-        command = "chmod",
-        args    = c("-Rf", renv_shell_quote(mode), renv_shell_path(parent)),
-        action  = "chmoding cached package",
-        quiet   = TRUE,
-        success = NULL
-      )
-    }
-
-    # finally, allow for an arbitrary callback if set
-    callback <- getOption("renv.cache.callback")
-    if (is.function(callback))
-      callback(cache)
-
-  }
+  # invoke cache callbacks
+  renv_cache_callbacks(cache)
 
   TRUE
+
+}
+
+renv_cache_callbacks <- function(cache) {
+
+  # only done on unix platforms
+  if (!renv_platform_unix())
+    return(FALSE)
+
+  # change the cache owner if set
+  user <- Sys.getenv("RENV_CACHE_USER", unset = NA)
+  if (!is.na(user)) {
+    parent <- dirname(dirname(dirname(cache)))
+    renv_system_exec(
+      command = "chown",
+      args    = c("-Rf", renv_shell_quote(user), renv_shell_path(parent)),
+      action  = "chowning cached package",
+      quiet   = TRUE,
+      success = NULL
+    )
+  }
+
+  # change file modes after copy if set
+  mode <- Sys.getenv("RENV_CACHE_MODE", unset = NA)
+  if (!is.na(mode)) {
+    parent <- dirname(dirname(dirname(cache)))
+    renv_system_exec(
+      command = "chmod",
+      args    = c("-Rf", renv_shell_quote(mode), renv_shell_path(parent)),
+      action  = "chmoding cached package",
+      quiet   = TRUE,
+      success = NULL
+    )
+  }
+
+  # finally, allow for an arbitrary callback if set
+  callback <- getOption("renv.cache.callback")
+  if (is.function(callback))
+    callback(cache)
 
 }
 

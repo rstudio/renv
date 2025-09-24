@@ -277,6 +277,9 @@ renv_hydrate_link_package <- function(package, location, library) {
     renv_file_copy(location, cache)
   }
 
+  # invoke cache callbacks
+  renv_cache_callbacks(cache)
+
   # link package back from cache to library
   target <- file.path(library, package)
   ensure_parent_directory(target)

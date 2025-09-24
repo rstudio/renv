@@ -1,8 +1,9 @@
 
 renv_tests_scope <- function(packages = character(),
-                             project = NULL,
+                             project  = NULL,
                              isolated = FALSE,
-                             scope = parent.frame())
+                             libpaths = FALSE,
+                             scope    = parent.frame())
 {
   # use private repositories in this scope
   renv_tests_scope_repos(scope = scope)
@@ -43,7 +44,7 @@ renv_tests_scope <- function(packages = character(),
   # use temporary library
   library <- renv_scope_tempfile("renv-library-", scope = scope)
   ensure_directory(library)
-  renv_scope_libpaths(library, scope = scope)
+  renv_scope_libpaths(c(library, if (libpaths) .libPaths()), scope = scope)
 
   # return path to project directory
   invisible(renv_path_normalize(project))

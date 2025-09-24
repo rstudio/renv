@@ -1,6 +1,10 @@
 
 # renv (development version)
 
+* Fixed an issue where cache callbacks (e.g. those run by setting
+  `RENV_CACHE_USER` and `RENV_CACHE_MODE`, or via the `renv.cache.callbacks`
+  option) were not run after `renv::hydrate()`. (#2179)
+
 * `renv::embed()` now errs if one or more of the package dependencies to
   be included within a file are not available. (#2178)
 
@@ -40,6 +44,7 @@
 * `renv::restore()` now transforms binary repository URLs appropriately,
   for installed packages which were recorded as installed from an
   alternate binary repository URL. (#2127)
+
 
 # renv 1.1.5
 

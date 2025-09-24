@@ -17,12 +17,12 @@
 #' )
 #' ```
 #'
-#' Then, when you next run your R script or render your `.Rmd` or `.qmd`, `use()` will:
+#' When you next run your R script or render your `.Rmd` or `.qmd`, `use()` will:
 #'
-#' 1. Create a temporary library path.
+#' 1. Create a temporary library path,
 #'
 #' 1. Install the requested packages and their recursive dependencies into that
-#'    library.
+#'    library,
 #'
 #' 1. Activate the library, so it's used for the rest of the script.
 #'
@@ -54,7 +54,8 @@
 #' @param lockfile
 #'   The path to an renv lockfile. When `NULL` (the default), the project
 #'   lockfile will be read (if any); otherwise, a new lockfile will be generated
-#'   from the current library paths.
+#'   from the current library paths. Use `lockfile = FALSE` to force `renv`
+#'   to ignore the project lockfile, if any.
 #'
 #' @export
 embed <- function(path = NULL,
@@ -103,7 +104,21 @@ renv_embed_create_lockfile <- function(path = NULL,
                                        lockfile = NULL,
                                        project = NULL)
 {
-  lockfile <- renv_embed_lockfile_resolve(path, lockfile, project)
+  # figure out the package dependencies for this script
+  deps <- dependencies(path, quiet = TRUE)
+  packages <- sort(unique(deps[["Package"]]))
+  all <- renv_package_dependencies(packages)
+
+  # notify user if some dependencies appear to be unavailable
+  ok <- nzchar(all)
+  missing <- names(all)[!ok]
+  if (length(missing)) {
+    missing <- sort(unique(missing))
+    stop("required packages are not installed: ", paste(missing, collapse = ", "))
+  }
+
+  # create a lockfile
+  lockfile <- renv_embed_lockfile_resolve(path, names(all), lockfile, project)
 
   # keep only matched records
   renv_lockfile_records(lockfile) <-
@@ -249,43 +264,37 @@ renv_embed_rmd <- function(path,
 
 }
 
-renv_embed_lockfile_resolve <- function(path, lockfile, project) {
+renv_embed_lockfile_resolve <- function(path, packages, lockfile, project) {
 
-  # if lockfile is character, assume it's the path to a lockfile
-  if (is.character(lockfile))
-    return(renv_lockfile_read(lockfile))
+  # handle lockfile argument
+  if (!identical(lockfile, FALSE)) {
 
-  # if lockfile is not NULL, assume lockfile object
-  if (!is.null(lockfile))
-    return(lockfile)
+    # if lockfile is character, assume it's the path to a lockfile
+    if (is.character(lockfile))
+      return(renv_lockfile_read(lockfile))
 
-  # check for lockfile in project
-  if (length(project)) {
-    path <- renv_lockfile_path(project)
-    if (file.exists(path))
-      return(renv_lockfile_read(path))
+    # if lockfile is not NULL, assume lockfile object
+    if (is.list(lockfile))
+      return(lockfile)
+
+    # check for lockfile in project
+    if (length(project)) {
+      path <- renv_lockfile_path(project)
+      if (file.exists(path))
+        return(renv_lockfile_read(path))
+    }
+
   }
 
-  # resolve project
+  # no lockfile was provided; we need to infer package versions based
+  # on the packages that are currently installed, or what's available
+  # in the user's package repositories
   project <- renv_project_resolve(project, default = NULL)
-
-  # figure out recursive package dependencies
-  deps <- dependencies(path, quiet = TRUE)
-  packages <- sort(unique(deps[["Package"]]))
-  all <- renv_package_dependencies(packages)
-
-  # notify user if some dependencies appear to be unavailable
-  ok <- nzchar(all)
-  missing <- names(all)[!ok]
-  if (length(missing)) {
-    missing <- sort(unique(missing))
-    stop("required packages are not installed: ", paste(missing, collapse = ", "))
-  }
 
   # generate lockfile
   snapshot(
     lockfile = NULL,
-    packages = names(all),
+    packages = packages,
     project  = project
   )
 

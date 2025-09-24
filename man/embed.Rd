@@ -70,11 +70,11 @@ generates and inserts a call to \code{use()} that looks something like this:
 )
 }\if{html}{\out{</div>}}
 
-Then, when you next run your R script or render your \code{.Rmd} or \code{.qmd}, \code{use()} will:
+When you next run your R script or render your \code{.Rmd} or \code{.qmd}, \code{use()} will:
 \enumerate{
-\item Create a temporary library path.
+\item Create a temporary library path,
 \item Install the requested packages and their recursive dependencies into that
-library.
+library,
 \item Activate the library, so it's used for the rest of the script.
 }
 \subsection{Manual usage}{

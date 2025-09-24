@@ -12,7 +12,9 @@ test_that("renv::embed() works with .R files", {
 
 test_that("renv::embed() works with .Rmd files", {
 
-  project <- renv_tests_scope("breakfast")
+  skip_if_not_installed("rmarkdown")
+
+  project <- renv_tests_scope("breakfast", libpaths = TRUE)
   install("breakfast")
 
   contents <- heredoc('
@@ -31,7 +33,10 @@ test_that("renv::embed() works with .Rmd files", {
     warning = function(cnd) invokeRestart("muffleWarning")
   )
 
-  expect_snapshot(writeLines(readLines("test-embed.Rmd")))
+  contents <- readLines("test-embed.Rmd")
+  expect_true(any(grepl("bread@1.0.0", contents)))
+  expect_true(any(grepl("oatmeal@1.0.0", contents)))
+  expect_true(any(grepl("toast@1.0.0", contents)))
 
 })
 
@@ -42,4 +47,14 @@ test_that("missing packages are reported", {
   writeLines("library(breakfast)", con = "test-embed.R")
   expect_error(embed("test-embed.R"))
 
+})
+
+test_that("embed(lockfile = FALSE) ignores the lockfile", {
+
+  project <- renv_tests_scope("bread")
+  init()
+
+  install("breakfast")
+  writeLines("library(breakfast)", con = "test-embed.R")
+  embed("test-embed.R", lockfile = FALSE)
 })
