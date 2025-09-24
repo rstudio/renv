@@ -2,7 +2,7 @@
 # renv (development version)
 
 * Fixed an issue where cache callbacks (e.g. those run by setting
-  `RENV_CACHE_USER` and `RENV_CACHE_MODE`, or via the `renv.cache.callbacks`
+  `RENV_CACHE_USER` and `RENV_CACHE_MODE`, or via the `renv.cache.callback`
   option) were not run after `renv::hydrate()`. (#2179)
 
 * `renv::embed()` now errs if one or more of the package dependencies to
