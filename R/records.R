@@ -102,7 +102,7 @@ renv_record_format_remote <- function(record,
   pkgref <- record$RemotePkgRef
   if (!is.null(pkgref))
     return(pkgref)
-  
+
   # extract some of the commonly used fields up-front
   source <- renv_record_source(record, normalize = TRUE)
   package <- record[["Package"]]
@@ -158,7 +158,7 @@ renv_record_format_remote <- function(record,
 
   # include subdir if available -- note that renv and pak use slightly
   # different syntax for declaring a subdir
-  if (!is.null(subdir)) {
+  if (!is.null(subdir) && nzchar(subdir)) {
     sep <- if (pak) "/" else ":"
     remote <- paste(remote, subdir, sep = sep)
   }
