@@ -876,11 +876,11 @@ renv_remotes_resolve_gitlab <- function(remote) {
   host   <- remote$host %||% config$gitlab.host()
   user   <- remote$user
   repo   <- remote$repo
-  subdir <- remote$subdir %||% ""
+  subdir <- remote$subdir
 
   ref <- remote$ref %||% renv_remotes_resolve_gitlab_ref(host, user, repo)
 
-  parts <- c(if (nzchar(subdir)) subdir, "DESCRIPTION")
+  parts <- c(subdir, "DESCRIPTION")
   descpath <- URLencode(paste(parts, collapse = "/"), reserved = TRUE)
 
   # scope authentication

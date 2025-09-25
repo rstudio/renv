@@ -161,3 +161,27 @@ test_that("we format github remotes appropriately", {
   expect_equal(remote, "kevinushey/skeleton/subdir@e4aafb92b86ba7eba3b7036d9d96fdfb6c32761a")
 
 })
+
+test_that("remote hosts are included when formatting", {
+
+  record <- list(
+    Package        = "skeleton",
+    Version        = "1.1.0",
+    RemoteType     = "github",
+    RemoteHost     = "github.example.com",
+    RemoteUsername = "kevinushey",
+    RemoteRepo     = "skeleton",
+    RemoteRef      = "main",
+    RemoteSha      = "e4aafb92b86ba7eba3b7036d9d96fdfb6c32761a"
+  )
+
+  remote <- renv_record_format_remote(record, compact = FALSE)
+  expect_equal(remote, "github@github.example.com::kevinushey/skeleton@e4aafb92b86ba7eba3b7036d9d96fdfb6c32761a")
+
+  remote <- renv_record_format_remote(record, compact = TRUE)
+  expect_equal(remote, "github@github.example.com::kevinushey/skeleton")
+
+  remote <- renv_record_format_remote(record, pak = TRUE)
+  expect_equal(remote, "github@github.example.com::kevinushey/skeleton@e4aafb92b86ba7eba3b7036d9d96fdfb6c32761a")
+
+})

@@ -138,53 +138,74 @@ renv_record_format_remote <- function(record,
   }
 
   # handle other remotes; assumed to be a github-like remote
+  host   <- record[["RemoteHost"]]
   user   <- record[["RemoteUsername"]]
   repo   <- record[["RemoteRepo"]]
   type   <- record[["RemoteType"]]
   ref    <- record[["RemoteRef"]]
   sha    <- record[["RemoteSha"]]
   subdir <- record[["RemoteSubdir"]]
+  subdirsep <- if (pak) "/" else ":"
 
-  # generate the remote base
-  remote <- paste(user, repo, sep = "/")
+  # skip type and host if they're defaults
+  if (identical(type, "github")) {
+    if (is.null(host) || identical(host, "api.github.com")) {
+      type <- NULL
+      host <- NULL
+    }
+  }
 
-  # include type prefix if we're not github
-  if (!identical(type %||% "github", "github"))
-    remote <- paste(type, remote, sep = "::")
+  # omit gitlab host as well for default host
+  if (identical(type, "gitlab")) {
+    if (identical(host, "gitlab.com")) {
+      host <- NULL
+    }
+  }
 
-  # include package name if it differs from the repo name
+  # skip 'boring' refs for compact display
+  if (compact) {
+    if (length(ref) && ref %in% c("HEAD", "main", "master")) {
+      ref <- NULL
+      sha <- NULL
+    }
+  }
+
+  # start building the remote specification
+  stk <- stack(mode = "character")
+
   if (!identical(package, repo))
-    remote <- paste(package, remote, sep = "=")
+    stk$push(package, "=")
 
-  # include subdir if available -- note that renv and pak use slightly
-  # different syntax for declaring a subdir
-  if (!is.null(subdir) && nzchar(subdir)) {
-    sep <- if (pak) "/" else ":"
-    remote <- paste(remote, subdir, sep = sep)
+  if (!is.null(type)) {
+    stk$push(type)
+    if (!is.null(host) && nzchar(host))
+      stk$push("@", host)
+    stk$push("::")
   }
 
-  # prefer using 'sha' for pak remotes
-  if (versioned && pak) {
-    remote <- paste(remote, sha %||% ref %||% "HEAD", sep = "@")
-    return(remote)
+  stk$push(user, "/", repo)
+
+  if (!is.null(subdir) && nzchar(subdir))
+    stk$push(subdirsep, subdir)
+
+  if (versioned) {
+
+    if (pak) {
+      stk$push("@", sha %||% ref %||% "HEAD")
+    } else if (length(sha)) {
+      stk$push("@", if (compact) substring(sha, 1L, 8L) else sha)
+    } else if (length(ref)) {
+      stk$push("@", ref)
+    }
+
+  } else {
+
+    if (length(ref))
+      stk$push("@", ref)
+
   }
 
-  # prefer using 'ref' for compact display
-  if (compact && length(ref)) {
-    ref <- if (ref %in% c("HEAD", "main", "master")) NULL else ref
-    remote <- paste(c(remote, ref), collapse = "@")
-    return(remote)
-  }
-
-  # use sha if available
-  if (versioned && length(sha)) {
-    sha <- if (compact) substring(sha, 1L, 8L) else sha
-    remote <- paste(c(remote, sha), collapse = "@")
-    return(remote)
-  }
-
-  # fall back to using ref
-  remote <- paste(c(remote, ref), collapse = "@")
+  remote <- paste(stk$data(), collapse = "")
   return(remote)
 }
 
