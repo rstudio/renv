@@ -669,3 +669,9 @@ test_that("base::use() dependencies are handled", {
   result <- dependencies(path, quiet = TRUE)
   expect_contains(result$Package, c("A", "B", "C", "D"))
 })
+
+test_that("data() dependencies are handled", {
+  path <- renv_tests_path("resources/data.R")
+  result <- dependencies(path, quiet = TRUE)
+  expect_contains(result$Package, "A")
+})
