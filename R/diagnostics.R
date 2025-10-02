@@ -30,6 +30,7 @@ diagnostics <- function(project = NULL) {
     renv_diagnostics_status,
     renv_diagnostics_packages,
     renv_diagnostics_sysreqs,
+    renv_diagnostics_r,
     renv_diagnostics_abi,
     renv_diagnostics_profile,
     renv_diagnostics_settings,
@@ -146,6 +147,37 @@ renv_diagnostics_packages <- function(project) {
 
 }
 
+renv_diagnostics_r <- function(project) {
+
+  makeconf <- file.path(R.home("etc"), "Makeconf")
+  if (file.exists(makeconf)) {
+    writef(header(makeconf))
+    writeLines(readLines(makeconf))
+    writeLines("")
+  }
+
+  tools <- renv_namespace_load("tools")
+  keys <- c("makevars_user", "makevars_site")
+  for (key in keys) {
+    if (is.function(tools[[key]])) {
+      paths <- tools[[key]]()
+      for (path in paths) {
+        if (file.exists(path)) {
+          writef(header(path))
+          writeLines(readLines(path))
+          writeLines("")
+        }
+      }
+    }
+  }
+
+  if (getRversion() >= "3.6.0") {
+    writef(header("R CMD config --all"))
+    system2(R(), c("CMD", "config", "--all"))
+  }
+
+}
+
 renv_diagnostics_sysreqs <- function(project) {
 
   if (!renv_platform_linux())
@@ -223,6 +255,9 @@ renv_diagnostics_packages_dependencies <- function(project) {
 
 renv_diagnostics_abi <- function(project) {
 
+  if (!renv_platform_linux())
+    return()
+
   writef(header("ABI"))
   tryCatch(
     renv_abi_check(),
@@ -288,6 +323,7 @@ renv_diagnostics_envvars <- function(project) {
   envvars <- convert(as.list(Sys.getenv()), "character")
 
   useful <- c(
+    "CC", "CXX", "CPPFLAGS", "CFLAGS", "CXXFLAGS", "LDFLAGS",
     "R_LIBS_USER", "R_LIBS_SITE", "R_LIBS",
     "HOME", "LANG", "MAKE",
     grep("_proxy", names(envvars), ignore.case = TRUE, value = TRUE),
