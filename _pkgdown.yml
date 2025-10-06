@@ -6,7 +6,7 @@ development:
 
 reference:
 
-- title: Basic workflows
+- title: Core Workflow
   desc: >
     These functions are the bread and butter of renv usage, and make up
     the bulk of day-to-day renv usage.
@@ -15,7 +15,6 @@ reference:
   - status
   - snapshot
   - restore
-  - use
 
 - title: Package Management
   contents:
@@ -23,21 +22,23 @@ reference:
   - update
   - remove
 
+- title: Configuration
+  contents:
+  - config
+  - settings
+
 - title: Project Management
   contents:
-  - dependencies
-  - project
   - activate
-  - migrate
+  - dependencies
   - load
-  - upgrade
+  - migrate
   - paths
-  - settings
-  - config
+  - project
+  - upgrade
 
 - title: Library Management
   contents:
-  - refresh
   - rebuild
   - repair
   - clean
@@ -68,8 +69,10 @@ reference:
   - checkout
   - consent
   - diagnostics
+  - refresh
   - run
   - sysreqs
+  - use
 
 - title: internal
   contents:
