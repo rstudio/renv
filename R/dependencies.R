@@ -717,7 +717,7 @@ renv_dependencies_discover_plumber_server <- function(path) {
 
   # check if engine field exists and has a value
   engine <- contents$engine
-  if (is.null(engine) || !nzchar(engine))
+  if (!pstring(engine) || !nzchar(engine))
     return(renv_dependencies_list_empty())
 
   # return the engine as a dependency
