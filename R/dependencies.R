@@ -311,6 +311,8 @@ renv_dependencies_callback <- function(path) {
     "_bookdown.yml" = function(path) renv_dependencies_discover_bookdown(path),
     "_pkgdown.yml"  = function(path) renv_dependencies_discover_pkgdown(path),
     "_quarto.yml"   = function(path) renv_dependencies_discover_quarto(path),
+    "_server.yml"   = function(path) renv_dependencies_discover_plumber_server(path),
+    "_server.yaml"  = function(path) renv_dependencies_discover_plumber_server(path),
     "renv.lock"     = function(path) renv_dependencies_discover_renv_lock(path),
     "rsconnect"     = function(path) renv_dependencies_discover_rsconnect(path)
   )
@@ -701,6 +703,25 @@ renv_dependencies_discover_quarto <- function(path) {
   #
   # https://github.com/rstudio/renv/issues/995
   renv_dependencies_list_empty()
+}
+
+renv_dependencies_discover_plumber_server <- function(path) {
+  # require yaml package for parsing YAML
+  if (!renv_dependencies_require("yaml", basename(path)))
+    return(renv_dependencies_list_empty())
+
+  # read and parse yaml file
+  contents <- catch(yaml::read_yaml(path))
+  if (inherits(contents, "error"))
+    return(renv_dependencies_error(path, error = contents))
+
+  # check if engine field exists and has a value
+  engine <- contents$engine
+  if (!pstring(engine) || !nzchar(engine))
+    return(renv_dependencies_list_empty())
+
+  # return the engine as a dependency
+  renv_dependencies_list(path, engine)
 }
 
 renv_dependencies_discover_rsconnect <- function(path) {

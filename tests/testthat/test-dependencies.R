@@ -336,6 +336,11 @@ test_that("we parse package references from arbitrary yaml fields", {
   expect_true("rticles" %in% deps$Package)
 })
 
+test_that("we infer dependencies from plumber _server.yml engine field", {
+  deps <- dependencies("resources/_server.yml")
+  expect_true("plumber2" %in% deps$Package)
+})
+
 test_that("dependencies in parameterized documents are discovered", {
   deps <- dependencies(test_path("resources/params.Rmd"))
   expect_true(all(c("shiny", "A") %in% deps$Package))
