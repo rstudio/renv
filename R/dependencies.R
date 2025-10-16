@@ -707,7 +707,7 @@ renv_dependencies_discover_quarto <- function(path) {
 
 renv_dependencies_discover_plumber_server <- function(path) {
   # require yaml package for parsing YAML
-  if (!renv_dependencies_require("yaml", "Server"))
+  if (!renv_dependencies_require("yaml", basename(path)))
     return(renv_dependencies_list_empty())
 
   # read and parse yaml file
