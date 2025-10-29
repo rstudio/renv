@@ -11,6 +11,8 @@
 #define INT_PTR INTEGER
 #define LGL_PTR LOGICAL
 
+#define kQueueSize 16384
+
 enum {
   _NILSXP = NILSXP,
   _INTSXP = INTSXP,
@@ -307,8 +309,7 @@ static SEXP recurse(SEXP object,
     UNPROTECT(1);
   }
 
-  const int size = 16384;
-  SEXP queue[size];
+  SEXP queue[kQueueSize];
   queue[0] = object;
 
   int index = 0;
@@ -317,7 +318,7 @@ static SEXP recurse(SEXP object,
   while (index != slot)
   {
     object = queue[index++];
-    index = index % size;
+    index = index % kQueueSize;
 
     if (object != R_MissingArg)
     {
@@ -342,7 +343,7 @@ static SEXP recurse(SEXP object,
       for (R_xlen_t i = 0, n = Rf_xlength(object); i < n; i++)
       {
         queue[slot++] = VECTOR_ELT(object, i);
-        slot = slot % size;
+        slot = slot % kQueueSize;
       }
       break;
     }
@@ -353,7 +354,7 @@ static SEXP recurse(SEXP object,
       while (object != R_NilValue)
       {
         queue[slot++] = CAR(object);
-        slot = slot % size;
+        slot = slot % kQueueSize;
         object = CDR(object);
       }
       break;

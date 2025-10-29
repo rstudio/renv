@@ -6,7 +6,7 @@ renv_ext_enabled <- function() {
     return(FALSE)
 
   # disable if we're embedded
-  if (renv_metadata_embedded())
+  if (!identical(.packageName, "renv"))
     return(FALSE)
 
   # otherwise, check envvar
