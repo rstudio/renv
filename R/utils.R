@@ -593,8 +593,14 @@ topfun <- function() {
 }
 
 warnify <- function(cnd) {
+
+  # re-signal condition as warning
   class(cnd) <- c("warning", "condition")
   warning(cnd)
+
+  # return the condition invisibly
+  invisible(cnd)
+
 }
 
 # note: also handles stringy values like 'True'
