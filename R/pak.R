@@ -1,6 +1,6 @@
 
 # the minimum-required version of 'pak' for renv integration
-the$pak_minver <- numeric_version("0.7.0")
+the$pak_minver <- numeric_version("0.9.0")
 
 renv_pak_init <- function(stream = NULL, force = FALSE) {
 
