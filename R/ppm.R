@@ -191,9 +191,11 @@ renv_ppm_platform_impl <- function(file = "/etc/os-release") {
 
     id <- properties$ID %||% ""
 
-    if ("UBUNTU_CODENAME" %in% names(properties))
+    # handle distros based on Ubuntu
+    if ("UBUNTU_CODENAME" %in% names(properties)) {
       id <- "ubuntu"
       properties$VERSION_CODENAME <- properties$UBUNTU_CODENAME
+    }
 
     case(
       identical(id, "ubuntu")    ~ renv_ppm_platform_ubuntu(properties),
