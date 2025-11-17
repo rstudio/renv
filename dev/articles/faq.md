@@ -1,0 +1,173 @@
+# Frequently asked questions
+
+## Why isn’t my package being snapshotted into the lockfile?
+
+For a package to be recorded in the lockfile, it must be both:
+
+1.  Installed your project library, *and*
+
+2.  Used by the project, as determined by
+    [`renv::dependencies()`](https://rstudio.github.io/renv/dev/reference/dependencies.md).
+
+This ensures that only the packages you truly require for your project
+will enter the lockfile; development dependencies (e.g. `devtools`)
+normally should not.
+
+So if you find a package is not entering the lockfile, check the output
+of
+[`renv::dependencies()`](https://rstudio.github.io/renv/dev/reference/dependencies.md).
+If an expected package is not listed, it’s likely because
+[`dependencies()`](https://rstudio.github.io/renv/dev/reference/dependencies.md)
+uses static analysis and does not understand all of the different ways
+in which a package might be used in a project. See the docs for more
+details.
+
+### Capturing all dependencies
+
+If you’d instead prefer to capture *all* packages installed into your
+project library (and eschew dependency discovery altogether), you can do
+so with:
+
+``` r
+renv::settings$snapshot.type("all")
+```
+
+Packages can also be explicitly ignored through a project setting,
+e.g. with:
+
+``` r
+renv::settings$ignored.packages("<package>")
+```
+
+You might also want to double-check the set of ignored packages
+(`renv::settings$ignored.packages()`) and confirm that you aren’t
+unintentionally ignoring a package you actually require.
+
+See the documentation in
+[`?snapshot`](https://rstudio.github.io/renv/dev/reference/snapshot.md)
+for more details.
+
+### Capturing explicit dependencies
+
+If you’d like to explicitly declare which packages your project depends
+on, you can do so by telling renv to form “explicit” snapshots:
+
+``` r
+renv::settings$snapshot.type("explicit")
+```
+
+In this mode, renv will only include packages which are explicitly
+listed in the project’s `DESCRIPTION` file as dependencies.
+
+## How do I update the lockfile?
+
+The most important thing to remember is that
+[`renv::snapshot()`](https://rstudio.github.io/renv/dev/reference/snapshot.md)
+captures the state of your project at the point in time when
+[`renv::snapshot()`](https://rstudio.github.io/renv/dev/reference/snapshot.md)
+was called. In that sense, the “right” way to update the lockfile is to:
+
+1.  Load the renv project,
+2.  Make the changes you want; e.g. install packages; call
+    `options(repos = <...>)`; …
+3.  Call
+    [`renv::snapshot()`](https://rstudio.github.io/renv/dev/reference/snapshot.md)
+    to update the lockfile.
+
+That said, you are also free to modify the `renv.lock` lockfile by hand
+if necessary; e.g. if you want to manually add / change repositories,
+change the version of a package used, and so on. The `renv.lock`
+lockfile is a [JSON](https://www.json.org/json-en.html) file. A [JSON
+schema](https://json-schema.org/) is provided in the [renv
+repository](https://github.com/rstudio/renv/tree/main/inst/schema).
+
+The main downside to editing a package record in the lockfile directly
+is that you won’t be able to provide a `Hash` for that package, and so
+renv won’t be able to use its global package cache when installing that
+package.
+
+## How should I handle development dependencies?
+
+This is related to the above question: by design, `renv.lock` normally
+only captures build-time or deploy-time dependencies; it may not capture
+the packages that you use in iterative workflows (e.g. `devtools`).
+However, you may want some way of still ensuring these development
+dependencies get installed when trying to restore a project library.
+
+For cases like these, we recommend tracking these packages in a project
+DESCRIPTION file; typically, within the `Suggests:` field. Then, you can
+execute:
+
+``` r
+renv::install()
+```
+
+to request that renv install the packages as described in the
+DESCRIPTION file. In addition, the `Remotes:` fields will be parsed and
+used, to ensure packages are installed from their declared remote source
+as appropriate.
+
+## I’m returning to an older renv project. What do I do?
+
+Suppose you were using renv to manage an older project’s dependencies.
+You have an older lockfile, capturing the dependencies in use when you
+were last working with that project. You now need to resume work on this
+project – what do you do?
+
+The answer depends on how exactly you want to use the project. Do you
+want to treat it as a “time capsule”, with dependencies frozen in time?
+Or are the dependencies in this project fluid, and you are primarily
+using renv just for isolation of project dependencies?
+
+For time capsules, use
+[`renv::restore()`](https://rstudio.github.io/renv/dev/reference/restore.md)
+to reinstall the exact packages as declared in the project lockfile
+`renv.lock`. You may also need to find and install the older version of
+R used previously with that project, unless your intention is to upgrade
+R.
+
+For projects with fluid dependencies, call
+[`renv::update()`](https://rstudio.github.io/renv/dev/reference/update.md)
+to get the latest versions of the dependencies. Once you’ve verified
+that the code still works (or made the changes needed to get it
+working), call
+[`renv::snapshot()`](https://rstudio.github.io/renv/dev/reference/snapshot.md)
+to record the latest versions.
+
+You can also take a more managed approach, that’s somewhat in between
+the two extremes:
+
+1.  Use
+    [`renv::restore()`](https://rstudio.github.io/renv/dev/reference/restore.md)
+    to restore the project state as defined in the lockfile.
+
+2.  Install and update packages deliberately with
+    [`renv::install()`](https://rstudio.github.io/renv/dev/reference/install.md)
+    and friends.
+
+3.  Verify your code works, then call
+    [`renv::snapshot()`](https://rstudio.github.io/renv/dev/reference/snapshot.md)
+    to update the new lockfile.
+
+## Why are package downloads failing?
+
+Some issues ultimately boil down to a lack of connectivity between your
+machine and the R package repositories and remote sources you are trying
+to use. If you are working in a corporate environment, it may be worth
+confirming whether you have a corporate proxy in place inhibiting
+internet access, or whether R and renv need to be configured in a way
+compatible with your working environment. This is often true on Windows
+machines in enterprise environments, where the default “wininet”
+download method may work more reliably than others. Learn more in
+[`vignette("package-install")`](https://rstudio.github.io/renv/dev/articles/package-install.md).
+
+In addition, note that renv places shims on the R search path that
+re-routes calls from
+[`install.packages()`](https://rdrr.io/r/utils/install.packages.html) to
+[`renv::install()`](https://rstudio.github.io/renv/dev/reference/install.md).
+If you need to bypass these shims, you can use
+`utils::install.packages(<...>)`; that is, with the call to
+[`install.packages()`](https://rdrr.io/r/utils/install.packages.html)
+explicitly qualified with the package `utils::`. See
+[`?renv::load`](https://rstudio.github.io/renv/dev/reference/load.md)
+for more details.

@@ -1,0 +1,116 @@
+# Using renv with continuous integration
+
+When building, deploying, or testing an renv-using project with
+continuous integration (CI) systems (e.g. [GitHub
+Actions](https://github.com/features/actions), [GitLab
+CI](https://about.gitlab.com/solutions/continuous-integration/), and
+others) you need some way to tell the CI system to use renv to restore
+the same packages that you’re using locally.
+
+The general idea is:
+
+1.  Call
+    [`renv::snapshot()`](https://rstudio.github.io/renv/dev/reference/snapshot.md)
+    on your local machine to generate `renv.lock`.
+
+2.  Call
+    [`renv::restore()`](https://rstudio.github.io/renv/dev/reference/restore.md)
+    on your CI service to restore the project library from `renv.lock`.
+
+3.  Cache the project library and global renv cache on the CI service.
+
+Note that this workflow is not generally a good fit for CRAN packages,
+because CRAN itself runs `R CMD check` using the latest version of all
+dependencies.
+
+## GitHub actions
+
+Here, we describe two common approaches for integrating renv with a
+[GitHub Actions](https://github.com/features/actions) workflow:
+
+- Use the `r-lib/setup-renv` action.
+- Use GitHub’s built-in cache action together with existing renv
+  functionality;
+
+### Using r-lib/actions/setup-renv
+
+The r-lib organization offers some actions for R users, and among them a
+[`setup-renv`](https://github.com/r-lib/actions/tree/v2-branch/setup-renv)
+action is provided for projects using renv. To use this action, you can
+add the following steps to your workflow:
+
+``` yaml
+steps:
+- uses: actions/checkout@v5
+- uses: r-lib/actions/setup-r@v2
+- uses: r-lib/actions/setup-renv@v2
+```
+
+Using these steps will automatically perform the following actions:
+
+- renv will be installed, via `install.packages("renv")`,
+- renv will be configured to use the GitHub cache,
+- If provided via a `with: profile:` key, that renv profile will be
+  activated,
+- The project will be restored via
+  [`renv::restore()`](https://rstudio.github.io/renv/dev/reference/restore.md).
+
+After this, any steps using R will use the active renv project by
+default.
+
+### Using the GitHub Actions Cache with renv
+
+When using renv in your own custom GitHub action workflow, there are two
+main requirements:
+
+1.  Cache any packages installed by renv across runs,
+2.  Use
+    [`renv::restore()`](https://rstudio.github.io/renv/dev/reference/restore.md)
+    to restore packages using this cache to speed up installation
+
+As an example, these steps might look like:
+
+``` yaml
+env:
+  RENV_PATHS_ROOT: ~/.cache/R/renv
+
+steps:
+
+- name: Cache packages
+  uses: actions/cache@v4
+  with:
+    path: ${{ env.RENV_PATHS_ROOT }}
+    key: ${{ runner.os }}-renv-${{ hashFiles('**/renv.lock') }}
+    restore-keys: |
+      ${{ runner.os }}-renv-
+
+- name: Restore packages
+  shell: Rscript {0}
+  run: |
+    if (!requireNamespace("renv", quietly = TRUE)) install.packages("renv")
+    renv::restore()
+```
+
+See also the
+[example](https://github.com/actions/cache/blob/main/examples.md#r---renv)
+on GitHub actions.
+
+## GitLab CI
+
+The following template can be used as a base when using renv with
+[GitLab CI](https://about.gitlab.com/solutions/continuous-integration/):
+
+``` yaml
+variables:
+  RENV_PATHS_ROOT: ${CI_PROJECT_DIR}/renv
+
+cache:
+  key: ${CI_PROJECT_NAME}
+  paths:
+    - ${RENV_PATHS_ROOT}
+
+before_script:
+  - < ... other pre-deploy steps ... >
+  - Rscript -e "if (!requireNamespace('renv', quietly = TRUE)) install.packages('renv')"
+  - Rscript -e "renv::restore()"
+```

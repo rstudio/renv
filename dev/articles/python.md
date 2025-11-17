@@ -1,0 +1,58 @@
+# Using Python with renv
+
+If you’re using renv with an R project that also depends on some Python
+packages (say, through the
+[reticulate](https://rstudio.github.io/reticulate/) package), then you
+may find renv’s Python integration useful.
+
+## Activating Python integration
+
+Python integration can be activated on a project-by-project basis. Use
+[`renv::use_python()`](https://rstudio.github.io/renv/dev/reference/use_python.md)
+to tell renv to create and use a project-local Python environment with
+your project. If the reticulate package is installed and active, then
+renv will use the same version of Python that reticulate normally would
+when generating the virtual environment. Alternatively, you can set the
+`RETICULATE_PYTHON` environment variable to instruct renv to use a
+different version of Python.
+
+If you’d rather tell renv to use an existing Python virtual environment,
+you can do so by passing the path of that virtual environment instead –
+use `renv::use_python(python = "/path/to/python")` and renv will record
+and use that Python interpreter with your project. This can also be used
+with pre-existing virtual environments and Conda environments.
+
+## Understanding Python integration
+
+Once Python integration is active, renv will attempt to manage the state
+of your Python virtual environment when
+[`snapshot()`](https://rstudio.github.io/renv/dev/reference/snapshot.md)
+/ [`restore()`](https://rstudio.github.io/renv/dev/reference/restore.md)
+is called. With this, projects that use renv and Python can ensure that
+Python dependencies are tracked in addition to R package dependencies.
+Note that future restores will require both `renv.lock` (for R package
+dependencies) and `requirements.txt` (for Python package dependencies).
+
+### Virtual environments
+
+When using virtual environments, the following extensions are provided:
+
+- [`renv::snapshot()`](https://rstudio.github.io/renv/dev/reference/snapshot.md)
+  calls `pip freeze > requirements.txt` to save the set of installed
+  Python packages;
+
+- [`renv::restore()`](https://rstudio.github.io/renv/dev/reference/restore.md)
+  calls `pip install -r requirements.txt` to install the
+  previously-recorded set of Python packages.
+
+### Conda environments
+
+When using Conda environments, the following extensions are provided:
+
+- [`renv::snapshot()`](https://rstudio.github.io/renv/dev/reference/snapshot.md)
+  calls `conda env export > environment.yml` to save the set of
+  installed Python packages;
+
+- [`renv::restore()`](https://rstudio.github.io/renv/dev/reference/restore.md)
+  calls `conda env [create/update] --file environment.yml` to install
+  the previously-recorded set of Python packages.

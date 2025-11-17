@@ -1,0 +1,244 @@
+# renv
+
+## Overview
+
+The renv package[¹](#fn1) helps you create **r**eproducible
+**env**ironments for your R projects. Use renv to make your R projects
+more isolated, portable and reproducible.
+
+- **Isolated**: Installing a new or updated package for one project
+  won’t break your other projects, and vice versa. That’s because renv
+  gives each project its own private library.
+- **Portable**: Easily transport your projects from one computer to
+  another, even across different platforms. renv makes it easy to
+  install the packages your project depends on.
+- **Reproducible**: renv records the exact package versions you depend
+  on, and ensures those exact versions are the ones that get installed
+  wherever you go.
+
+## Installation
+
+Install the latest version of renv from CRAN with:
+
+``` r
+install.packages("renv")
+```
+
+Alternatively, install the development version from
+[r-universe](https://rstudio.r-universe.dev/renv) with:
+
+``` r
+install.packages("renv", repos = "https://rstudio.r-universe.dev")
+```
+
+## Workflow
+
+![A diagram showing the most important verbs and nouns of renv. Projects
+start with init(), which creates a project library using packages from
+the system library. snapshot() updates the lockfile using the packages
+installed in the project library, where restore() installs packages into
+the project library using the metadata from the lockfile, and status()
+compares the lockfile to the project library. You install and update
+packages from CRAN and GitHub using install() and update(), but because
+you'll need to do this for multiple projects, renv uses cache to make
+this fast.](articles/renv.png)
+
+Use
+[`renv::init()`](https://rstudio.github.io/renv/dev/reference/init.md)
+to initialize renv in a new or existing project. This will set up a
+**project library**, containing all the packages you’re currently using.
+The packages (and all the metadata needed to reinstall them) are
+recorded into a **lockfile**, `renv.lock`, and a `.Rprofile` ensures
+that the library is used every time you open that project.
+
+As you continue to work on your project, you will install and upgrade
+packages, either using
+[`install.packages()`](https://rdrr.io/r/utils/install.packages.html)
+and [`update.packages()`](https://rdrr.io/r/utils/update.packages.html)
+or
+[`renv::install()`](https://rstudio.github.io/renv/dev/reference/install.md)
+and
+[`renv::update()`](https://rstudio.github.io/renv/dev/reference/update.md).
+After you’ve confirmed your code works as expected, use
+[`renv::snapshot()`](https://rstudio.github.io/renv/dev/reference/snapshot.md)
+to record the packages and their sources in the lockfile.
+
+Later, if you need to share your code with someone else or run your code
+on new machine, your collaborator (or you) can call
+[`renv::restore()`](https://rstudio.github.io/renv/dev/reference/restore.md)
+to reinstall the specific package versions recorded in the lockfile.
+
+## Learning more
+
+If this is your first time using renv, we strongly recommend starting
+with the [Introduction to
+renv](https://rstudio.github.io/renv/articles/renv.html) vignette: this
+will help you understand the most important verbs and nouns of renv.
+
+If you have a question about renv, please first check the
+[FAQ](https://rstudio.github.io/renv/articles/faq.html) to see whether
+your question has already been addressed. If it hasn’t, please feel free
+to ask on the [Posit Forum](https://forum.posit.co).
+
+If you believe you’ve found a bug in renv, please file a bug (and, if
+possible, a [reproducible example](https://reprex.tidyverse.org)) at
+<https://github.com/rstudio/renv/issues>.
+
+------------------------------------------------------------------------
+
+1.  Pronounced “R” “env”
+
+# Package index
+
+## Core Workflow
+
+These functions are the bread and butter of renv usage, and make up the
+bulk of day-to-day renv usage.
+
+- [`init()`](https://rstudio.github.io/renv/dev/reference/init.md) : Use
+  renv in a project
+- [`status()`](https://rstudio.github.io/renv/dev/reference/status.md) :
+  Report inconsistencies between lockfile, library, and dependencies
+- [`snapshot()`](https://rstudio.github.io/renv/dev/reference/snapshot.md)
+  : Record current state of the project library in the lockfile
+- [`restore()`](https://rstudio.github.io/renv/dev/reference/restore.md)
+  : Restore project library from a lockfile
+
+## Package Management
+
+- [`install()`](https://rstudio.github.io/renv/dev/reference/install.md)
+  : Install packages
+- [`update()`](https://rstudio.github.io/renv/dev/reference/update.md) :
+  Update packages
+- [`remove()`](https://rstudio.github.io/renv/dev/reference/remove.md) :
+  Remove packages
+
+## Configuration
+
+- [`config`](https://rstudio.github.io/renv/dev/reference/config.md) :
+  User-level settings
+- [`settings`](https://rstudio.github.io/renv/dev/reference/settings.md)
+  : Project settings
+
+## Project Management
+
+- [`activate()`](https://rstudio.github.io/renv/dev/reference/activate.md)
+  [`deactivate()`](https://rstudio.github.io/renv/dev/reference/activate.md)
+  : Activate or deactivate a project
+- [`dependencies()`](https://rstudio.github.io/renv/dev/reference/dependencies.md)
+  : Find R package dependencies in a project
+- [`load()`](https://rstudio.github.io/renv/dev/reference/load.md) :
+  Load a project
+- [`migrate()`](https://rstudio.github.io/renv/dev/reference/migrate.md)
+  : Migrate a project from packrat to renv
+- [`paths`](https://rstudio.github.io/renv/dev/reference/paths.md) :
+  Path for storing global state
+- [`project()`](https://rstudio.github.io/renv/dev/reference/project.md)
+  : Retrieve the active project
+- [`upgrade()`](https://rstudio.github.io/renv/dev/reference/upgrade.md)
+  : Upgrade renv
+
+## Library Management
+
+- [`rebuild()`](https://rstudio.github.io/renv/dev/reference/rebuild.md)
+  : Rebuild the packages in your project library
+- [`repair()`](https://rstudio.github.io/renv/dev/reference/repair.md) :
+  Repair a project
+- [`clean()`](https://rstudio.github.io/renv/dev/reference/clean.md) :
+  Clean a project
+
+## Lockfile Management
+
+- [`lockfile_create()`](https://rstudio.github.io/renv/dev/reference/lockfiles.md)
+  [`lockfile_read()`](https://rstudio.github.io/renv/dev/reference/lockfiles.md)
+  [`lockfile_write()`](https://rstudio.github.io/renv/dev/reference/lockfiles.md)
+  [`lockfile_modify()`](https://rstudio.github.io/renv/dev/reference/lockfiles.md)
+  : Lockfiles
+- [`lockfile_validate()`](https://rstudio.github.io/renv/dev/reference/lockfile_validate.md)
+  : Validate an renv lockfile against a schema
+- [`record()`](https://rstudio.github.io/renv/dev/reference/record.md) :
+  Update package records in a lockfile
+- [`remote()`](https://rstudio.github.io/renv/dev/reference/remote.md) :
+  Resolve a Remote
+- [`modify()`](https://rstudio.github.io/renv/dev/reference/modify.md) :
+  Modify a Lockfile
+- [`history()`](https://rstudio.github.io/renv/dev/reference/history.md)
+  [`revert()`](https://rstudio.github.io/renv/dev/reference/history.md)
+  : View and revert to a historical lockfile
+- [`scaffold()`](https://rstudio.github.io/renv/dev/reference/scaffold.md)
+  : Generate project infrastructure
+
+## Package Cache
+
+- [`isolate()`](https://rstudio.github.io/renv/dev/reference/isolate.md)
+  : Isolate a project
+- [`rehash()`](https://rstudio.github.io/renv/dev/reference/rehash.md) :
+  Re-hash packages in the renv cache
+- [`purge()`](https://rstudio.github.io/renv/dev/reference/purge.md) :
+  Purge packages from the cache
+
+## Python Integration
+
+- [`use_python()`](https://rstudio.github.io/renv/dev/reference/use_python.md)
+  : Use python
+
+## Miscellaneous
+
+- [`autoload()`](https://rstudio.github.io/renv/dev/reference/autoload.md)
+  : Auto-load the active project
+
+- [`checkout()`](https://rstudio.github.io/renv/dev/reference/checkout.md)
+  : Checkout a repository
+
+- [`consent()`](https://rstudio.github.io/renv/dev/reference/consent.md)
+  : Consent to usage of renv
+
+- [`diagnostics()`](https://rstudio.github.io/renv/dev/reference/diagnostics.md)
+  : Print a diagnostics report
+
+- [`refresh()`](https://rstudio.github.io/renv/dev/reference/refresh.md)
+  : Refresh the local cache of available packages
+
+- [`run()`](https://rstudio.github.io/renv/dev/reference/run.md) : Run a
+  script
+
+- [`sysreqs()`](https://rstudio.github.io/renv/dev/reference/sysreqs.md)
+  : R System Requirements
+
+- [`embed()`](https://rstudio.github.io/renv/dev/reference/embed.md)
+  [`use()`](https://rstudio.github.io/renv/dev/reference/embed.md) :
+
+  Capture and re-use dependencies within a `.R`, `.Rmd` or `.qmd`
+
+# Articles
+
+### renv basics
+
+- [Introduction to
+  renv](https://rstudio.github.io/renv/dev/articles/renv.md):
+- [Package
+  sources](https://rstudio.github.io/renv/dev/articles/package-sources.md):
+- [Installing
+  packages](https://rstudio.github.io/renv/dev/articles/package-install.md):
+- [Using Python with
+  renv](https://rstudio.github.io/renv/dev/articles/python.md):
+- [Frequently asked
+  questions](https://rstudio.github.io/renv/dev/articles/faq.md):
+- [packrat vs.
+  renv](https://rstudio.github.io/renv/dev/articles/packrat.md):
+
+### Deploy Applications with renv
+
+- [Using renv with continuous
+  integration](https://rstudio.github.io/renv/dev/articles/ci.md):
+- [Using renv with
+  Docker](https://rstudio.github.io/renv/dev/articles/docker.md):
+- [Using renv with Posit
+  Connect](https://rstudio.github.io/renv/dev/articles/rsconnect.md):
+
+### Advanced Usages of renv
+
+- [Package
+  development](https://rstudio.github.io/renv/dev/articles/packages.md):
+- [Project
+  profiles](https://rstudio.github.io/renv/dev/articles/profiles.md):
