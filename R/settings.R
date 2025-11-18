@@ -399,6 +399,13 @@ renv_settings_impl <- function(name, default, scalar, validate, coerce, update) 
 #' The type of snapshot to perform by default. See [snapshot] for more
 #' details.
 #'
+#' ## `snapshot.dev`
+#'
+#' Whether to include development dependencies by default when calling
+#' `renv::snapshot()` or `renv::status()`. When `TRUE`, development
+#' dependencies (e.g., packages listed in `Suggests` or development tools
+#' like `devtools`) will be included. Defaults to `FALSE`.
+#'
 #' ## `use.cache`
 #'
 #' Enable the renv package cache with this project. When active, renv will
@@ -535,6 +542,15 @@ settings <- list(
     scalar   = TRUE,
     validate = c("all", "custom", "implicit", "explicit", "packrat", "simple"),
     coerce   = as.character,
+    update   = NULL
+  ),
+
+  snapshot.dev = renv_settings_impl(
+    name     = "snapshot.dev",
+    default  = FALSE,
+    scalar   = TRUE,
+    validate = is.logical,
+    coerce   = as.logical,
     update   = NULL
   ),
 

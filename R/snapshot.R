@@ -127,7 +127,7 @@ snapshot <- function(project  = NULL,
                      library  = NULL,
                      lockfile = paths$lockfile(project = project),
                      type     = settings$snapshot.type(project = project),
-                     dev      = FALSE,
+                     dev      = NULL,
                      repos    = getOption("repos"),
                      packages = NULL,
                      exclude  = NULL,
@@ -145,6 +145,10 @@ snapshot <- function(project  = NULL,
   project <- renv_project_resolve(project)
   renv_project_lock(project = project)
   renv_scope_verbose_if(prompt)
+
+  # use setting as default if dev not explicitly provided
+  if (is.null(dev))
+    dev <- settings$snapshot.dev(project = project)
 
   repos <- renv_repos_validate(repos)
   renv_scope_options(repos = repos)
