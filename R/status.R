@@ -121,7 +121,7 @@ status <- function(project = NULL,
                    lockfile = NULL,
                    sources = TRUE,
                    cache = FALSE,
-                   dev = FALSE)
+                   dev = NULL)
 {
   renv_scope_error_handler()
   renv_dots_check(...)
@@ -134,6 +134,10 @@ status <- function(project = NULL,
 
   project <- renv_project_resolve(project)
   renv_project_lock(project = project)
+
+  # use setting as default if dev not explicitly provided
+  if (is.null(dev))
+    dev <- settings$snapshot.dev(project = project)
 
   # check to see if we've initialized this project
   if (!renv_status_check_initialized(project, library, lockfile)) {

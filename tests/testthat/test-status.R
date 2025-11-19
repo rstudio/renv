@@ -105,3 +105,33 @@ test_that("status() version check can be disabled", {
   expect_snapshot(. <- renv::status())
 
 })
+
+test_that("status() uses settings$snapshot.dev() as default for dev parameter", {
+
+  renv_tests_scope()
+  init()
+
+  # Create a project that would have dev dependencies
+  writeLines("PackageUseDevtools: Yes", con = "project.Rproj")
+
+  project <- getwd()
+
+  # Verify default setting is FALSE
+  expect_false(settings$snapshot.dev())
+
+  # Test that the setting can be set and retrieved
+  settings$snapshot.dev(TRUE)
+  expect_true(settings$snapshot.dev())
+
+  settings$snapshot.dev(FALSE)
+  expect_false(settings$snapshot.dev())
+
+  # Test that dependencies discovered with dev=FALSE don't include devtools
+  deps1 <- renv_snapshot_dependencies(project, dev = FALSE)
+  expect_false("devtools" %in% deps1)
+
+  # Test that dependencies discovered with dev=TRUE do include devtools
+  deps2 <- renv_snapshot_dependencies(project, dev = TRUE)
+  expect_true("devtools" %in% deps2)
+
+})

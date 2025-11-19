@@ -709,3 +709,33 @@ test_that("package records with erroneous CRAN RemoteRepos are handled", {
   expect_equal(record$Repository, "https://packagemanager.posit.co/cran/2025-03-03")
 
 })
+
+test_that("snapshot.dev setting works and snapshot() uses it as default", {
+
+  renv_tests_scope()
+  init()
+
+  # Create a project that would have dev dependencies
+  writeLines("PackageUseDevtools: Yes", con = "project.Rproj")
+
+  project <- getwd()
+
+  # Verify default setting is FALSE
+  expect_false(settings$snapshot.dev())
+
+    # Test that the setting can be set and retrieved
+  settings$snapshot.dev(TRUE)
+  expect_true(settings$snapshot.dev())
+
+  settings$snapshot.dev(FALSE)
+  expect_false(settings$snapshot.dev())
+
+  # Test that dependencies discovered with dev=FALSE don't include devtools
+  deps1 <- renv_snapshot_dependencies(project, dev = FALSE)
+  expect_false("devtools" %in% deps1)
+
+  # Test that dependencies discovered with dev=TRUE do include devtools
+  deps2 <- renv_snapshot_dependencies(project, dev = TRUE)
+  expect_true("devtools" %in% deps2)
+
+})
