@@ -92,6 +92,14 @@ The type of snapshot to perform by default. See \link{snapshot} for more
 details.
 }
 
+\subsection{\code{snapshot.dev}}{
+
+Whether to include development dependencies by default when calling
+\code{renv::snapshot()} or \code{renv::status()}. When \code{TRUE}, development
+dependencies (e.g., packages listed in \code{Suggests} or development tools
+like \code{devtools}) will be included. Defaults to \code{FALSE}.
+}
+
 \subsection{\code{use.cache}}{
 
 Enable the renv package cache with this project. When active, renv will

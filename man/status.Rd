@@ -11,7 +11,7 @@ status(
   lockfile = NULL,
   sources = TRUE,
   cache = FALSE,
-  dev = FALSE
+  dev = NULL
 )
 }
 \arguments{
