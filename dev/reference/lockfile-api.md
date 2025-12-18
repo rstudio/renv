@@ -1,9 +1,8 @@
 # Programmatically Create and Modify a Lockfile
 
-This function provides an API for creating and modifying `renv`
-lockfiles. This can be useful when you'd like to programmatically
-generate or modify a lockfile – for example, because you want to update
-or change a package record in an existing lockfile.
+**NOTE: `lockfile()` is now internal, please use the
+[lockfiles](https://rstudio.github.io/renv/dev/reference/lockfiles.md)
+API.**
 
 ## Usage
 
@@ -24,6 +23,13 @@ lockfile(file = NULL, project = NULL)
   The project directory. If `NULL`, then the active project will be
   used. If no project is currently active, then the current working
   directory is used instead.
+
+## Details
+
+This function provides an API for creating and modifying `renv`
+lockfiles. This can be useful when you'd like to programmatically
+generate or modify a lockfile – for example, because you want to update
+or change a package record in an existing lockfile.
 
 ## See also
 
