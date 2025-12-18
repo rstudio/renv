@@ -2,6 +2,12 @@
 
 ## renv (development version)
 
+- Fixed an issue where
+  [`renv::sysreqs()`](https://rstudio.github.io/renv/dev/reference/sysreqs.md)
+  could fail on operating systems which don’t declare a VERSION_ID in
+  `/etc/os-release`.
+  ([\#2197](https://github.com/rstudio/renv/issues/2197))
+
 - [`renv::dependencies()`](https://rstudio.github.io/renv/dev/reference/dependencies.md)
   now detects packages used in e.g.
   `data(<dataset>, package = <package>)`.
