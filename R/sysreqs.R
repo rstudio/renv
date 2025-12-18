@@ -245,10 +245,12 @@ renv_sysreqs_satisfies <- function(constraint) {
 
   if (constraint$os == the$os) {
     if (constraint$distribution == the$distro) {
-      versions <- constraint$versions %||% the$platform$VERSION_ID
-      for (version in versions) {
-        if (startsWith(the$platform$VERSION_ID, version)) {
-          return(TRUE)
+      if (!is.null(the$platform$VERSION_ID)) {
+        versions <- constraint$versions %||% the$platform$VERSION_ID
+        for (version in versions) {
+          if (startsWith(the$platform$VERSION_ID, version)) {
+            return(TRUE)
+          }
         }
       }
     }

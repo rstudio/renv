@@ -1,6 +1,9 @@
 
 # renv (development version)
 
+* Fixed an issue where `renv::sysreqs()` could fail on operating systems
+  which don't declare a VERSION_ID in `/etc/os-release`. (#2197)
+
 * `renv::dependencies()` now detects packages used in e.g.
   `data(<dataset>, package = <package>)`. (#2181)
 
