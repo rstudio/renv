@@ -17,6 +17,10 @@ be used. If no project is currently active, then the current working
 directory is used instead.}
 }
 \description{
+\strong{NOTE: \code{lockfile()} is now internal, please use the \link{lockfiles}
+API.}
+}
+\details{
 This function provides an API for creating and modifying \code{renv} lockfiles.
 This can be useful when you'd like to programmatically generate or modify
 a lockfile -- for example, because you want to update or change a package
