@@ -82,6 +82,16 @@ The type of snapshot to perform by default. See
 [snapshot](https://rstudio.github.io/renv/dev/reference/snapshot.md) for
 more details.
 
+### `snapshot.dev`
+
+Whether to include development dependencies by default when calling
+[`renv::snapshot()`](https://rstudio.github.io/renv/dev/reference/snapshot.md)
+or
+[`renv::status()`](https://rstudio.github.io/renv/dev/reference/status.md).
+When `TRUE`, development dependencies (e.g., packages listed in
+`Suggests` or development tools like `devtools`) will be included.
+Defaults to `FALSE`.
+
 ### `use.cache`
 
 Enable the renv package cache with this project. When active, renv will

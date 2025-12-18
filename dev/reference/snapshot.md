@@ -28,7 +28,7 @@ snapshot(
   library = NULL,
   lockfile = paths$lockfile(project = project),
   type = settings$snapshot.type(project = project),
-  dev = FALSE,
+  dev = NULL,
   repos = getOption("repos"),
   packages = NULL,
   exclude = NULL,

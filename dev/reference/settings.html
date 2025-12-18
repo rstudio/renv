@@ -95,6 +95,16 @@ details.
 
 
 
+snapshot.dev
+
+
+Whether to include development dependencies by default when calling
+renv::snapshot() or renv::status(). When TRUE, development
+dependencies (e.g., packages listed in Suggests or development tools
+like devtools) will be included. Defaults to FALSE.
+
+
+
 use.cache
 
 
@@ -232,6 +242,16 @@ snapshot.type
 
 The type of snapshot to perform by default. See snapshot for more
 details.
+
+
+
+snapshot.dev
+
+
+Whether to include development dependencies by default when calling
+renv::snapshot() or renv::status(). When TRUE, development
+dependencies (e.g., packages listed in Suggests or development tools
+like devtools) will be included. Defaults to FALSE.
 
 
 
@@ -423,6 +443,16 @@ does not match what is encoded in the lockfile.</p>
 
 <p>The type of snapshot to perform by default. See <a href="snapshot.html">snapshot</a> for more
 details.</p>
+</div>
+
+<div class="section">
+<h3 id="snapshot-dev"><code>snapshot.dev</code><a class="anchor" aria-label="anchor" href="#snapshot-dev"></a></h3>
+
+
+<p>Whether to include development dependencies by default when calling
+<code><a href="snapshot.html">renv::snapshot()</a></code> or <code><a href="status.html">renv::status()</a></code>. When <code>TRUE</code>, development
+dependencies (e.g., packages listed in <code>Suggests</code> or development tools
+like <code>devtools</code>) will be included. Defaults to <code>FALSE</code>.</p>
 </div>
 
 <div class="section">
