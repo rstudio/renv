@@ -284,3 +284,60 @@ test_that("bootstrap version validation handles 'standard' remote types", {
   )
 
 })
+
+# repos override tests ----------------------------------------------------
+
+test_that("repos override supports unnamed repo", {
+  renv_tests_scope()
+  url <- "https://p3m.dev/cran/latest"
+  renv_scope_envvars(RENV_CONFIG_REPOS_OVERRIDE = url)
+  repos <- renv_bootstrap_repos()
+  expect_true(url %in% repos)
+})
+
+test_that("repos override can use 1 named repository", {
+  renv_tests_scope()
+  override <- "CRAN=https://p3m.dev/cran/latest"
+  renv_scope_envvars(RENV_CONFIG_REPOS_OVERRIDE = override)
+  repos <- renv_bootstrap_repos()
+  expect_equal(repos["CRAN"], c(CRAN = "https://p3m.dev/cran/latest"))
+})
+
+test_that("repos override can use 2+ named repositories", {
+  renv_tests_scope()
+  override <- "CRAN=https://p3m.dev/cran/latest;R_UNIV=https://posit-dev.r-universe.dev"
+  renv_scope_envvars(RENV_CONFIG_REPOS_OVERRIDE = override)
+  repos <- renv_bootstrap_repos()
+  expect_equal(repos["CRAN"], c(CRAN = "https://p3m.dev/cran/latest"))
+  expect_equal(repos["R_UNIV"], c(R_UNIV = "https://posit-dev.r-universe.dev"))
+  expect_equal(length(repos), 2L)
+})
+
+test_that("repos override can handle `=` in repo urls", {
+  renv_tests_scope()
+  override <- "R_UNIV=https://posit-dev.r-universe.dev/?example=query"
+  renv_scope_envvars(RENV_CONFIG_REPOS_OVERRIDE = override)
+  repos <- renv_bootstrap_repos()
+  expect_equal(repos["R_UNIV"], c(R_UNIV = "https://posit-dev.r-universe.dev/?example=query"))
+})
+
+test_that("repos override handle paths", {
+  renv_tests_scope()
+  override <- "CRAN=https://p3m.dev/cran/__linux__/noble/latest"
+  renv_scope_envvars(RENV_CONFIG_REPOS_OVERRIDE = override)
+  repos <- renv_bootstrap_repos()
+  expect_equal(repos["CRAN"], c(CRAN = "https://p3m.dev/cran/__linux__/noble/latest"))
+})
+
+test_that("repos override maintains RSPM fallback", {
+  renv_tests_scope()
+  rspm_url <- "https://packagemanager.posit.co/all/latest"
+  renv_scope_envvars(
+    RENV_CONFIG_REPOS_OVERRIDE = rspm_url,
+    RSPM = rspm_url
+  )
+  repos <- renv_bootstrap_repos()
+  expect_true("RSPM" %in% names(repos))
+  expect_true("CRAN" %in% names(repos))
+  expect_equal(repos["RSPM"], c(RSPM = rspm_url))
+})

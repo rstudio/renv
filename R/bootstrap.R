@@ -107,10 +107,25 @@ renv_bootstrap_repos <- function() {
   repos <- Sys.getenv("RENV_CONFIG_REPOS_OVERRIDE", unset = NA)
   if (!is.na(repos)) {
 
-    # check for RSPM; if set, use a fallback repository for renv
-    rspm <- Sys.getenv("RSPM", unset = NA)
-    if (identical(rspm, repos))
-      repos <- c(RSPM = rspm, CRAN = cran)
+    # check for an `=` which is indicative of a named repo assignment
+    if (grepl("=", repos, fixed = TRUE)) {
+
+      # split on `;` which indicates multiple repo assignments
+      repos_raw <- strsplit(repos, ";", fixed = TRUE)[[1]]
+      repos_parts <- regmatches(repos_raw, regexpr("=", repos_raw), invert = TRUE)
+
+      repos <- sapply(repos_parts, function(parts) {
+        setNames(parts[2], parts[1])
+      })
+
+    } else {
+
+      # check for RSPM; if set, use a fallback repository for renv
+      rspm <- Sys.getenv("RSPM", unset = NA)
+      if (identical(rspm, repos))
+        repos <- c(RSPM = rspm, CRAN = cran)
+
+    }
 
     return(repos)
 
