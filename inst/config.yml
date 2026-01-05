@@ -268,7 +268,7 @@
     the usage of some set of repositories over what is defined in `renv.lock` or otherwise
     set by the R session.
 
-    Can be specified as a single repository URL (e.g., "https://cloud.r-project.org"),
+    This can be specified as a single repository URL (e.g., "https://cloud.r-project.org"),
     or as multiple named repositories separated by semicolons using the format
     NAME=URL (e.g., "CRAN=https://p3m.dev/cran/latest;R_UNIV=https://posit-dev.r-universe.dev").
 
