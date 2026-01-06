@@ -1,6 +1,10 @@
 
 # renv (development version)
 
+* A new setting, `snapshot.dev`, has been added to control whether development
+  dependencies are included by default when calling `renv::snapshot()` or
+  `renv::status()`. This setting defaults to `FALSE`. (#2190)
+
 * `RENV_CONFIG_REPOS_OVERRIDE` now supports multiple named repositories using
   the syntax `NAME1=URL1;NAME2=URL2`. Single repository URLs continue to be
   supported.
