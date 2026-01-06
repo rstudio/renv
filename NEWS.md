@@ -1,6 +1,10 @@
 
 # renv (development version)
 
+* `RENV_CONFIG_REPOS_OVERRIDE` now supports multiple named repositories using
+  the syntax `NAME1=URL1;NAME2=URL2`. Single repository URLs continue to be
+  supported.
+
 * Fixed an issue where `renv::sysreqs()` could fail on operating systems
   which don't declare a VERSION_ID in `/etc/os-release`. (#2197)
 
