@@ -407,3 +407,42 @@ test_that("renv_ppm_transform() uses source URLs when appropriate", {
   expect_equal(unname(renv_ppm_transform(srcurl)), binurl)
 
 })
+
+test_that("renv_ppm_is_manylinux detects manylinux URLs", {
+  skip_on_cran()
+
+  expect_true(renv_ppm_is_manylinux("https://p3m.dev/cran/__linux__/manylinux_2_28/latest"))
+  expect_true(renv_ppm_is_manylinux("https://packagemanager.posit.co/cran/__linux__/manylinux_2_28/2024-01-01"))
+  expect_false(renv_ppm_is_manylinux("https://p3m.dev/cran/__linux__/jammy/latest"))
+  expect_false(renv_ppm_is_manylinux("https://p3m.dev/cran/latest"))
+})
+
+test_that("manylinux URLs are preserved by renv_ppm_transform", {
+  skip_on_cran()
+  skip_on_os("windows")
+
+  renv_scope_envvars(
+    RENV_PPM_OS = "__linux__",
+    RENV_PPM_PLATFORM = "jammy"
+  )
+
+  manylinux_url <- "https://p3m.dev/cran/__linux__/manylinux_2_28/latest"
+  expect_equal(unname(renv_ppm_transform(manylinux_url)), manylinux_url)
+})
+
+test_that("manylinux URLs are normalized when installing source packages", {
+  skip_on_cran()
+  skip_on_os("windows")
+
+  renv_scope_envvars(
+    RENV_PPM_OS = "__linux__",
+    RENV_PPM_PLATFORM = "jammy"
+  )
+
+  # When installing source packages, manylinux URLs should be normalized
+  renv_scope_binding(the, "install_pkg_type", "source")
+
+  manylinux_url <- "https://p3m.dev/cran/__linux__/manylinux_2_28/latest"
+  source_url <- "https://p3m.dev/cran/latest"
+  expect_equal(unname(renv_ppm_transform(manylinux_url)), source_url)
+})

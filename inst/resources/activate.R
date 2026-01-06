@@ -266,14 +266,22 @@ local({
     # check for repos override
     repos <- Sys.getenv("RENV_CONFIG_REPOS_OVERRIDE", unset = NA)
     if (!is.na(repos)) {
-  
-      # check for RSPM; if set, use a fallback repository for renv
-      rspm <- Sys.getenv("RSPM", unset = NA)
-      if (identical(rspm, repos))
-        repos <- c(RSPM = rspm, CRAN = cran)
-  
-      return(repos)
-  
+
+      # split on ';' if present
+      parts <- strsplit(repos, ";", fixed = TRUE)[[1L]]
+
+      # split into named repositories if present
+      idx <- regexpr("=", parts, fixed = TRUE)
+      keys <- substring(parts, 1L, idx - 1L)
+      vals <- substring(parts, idx + 1L)
+      names(vals) <- keys
+
+      # if we have a single unnamed repository, call it CRAN
+      if (length(vals) == 1L && identical(keys, ""))
+        names(vals) <- "CRAN"
+
+      return(vals)
+
     }
   
     # check for lockfile repositories

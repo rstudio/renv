@@ -79,6 +79,9 @@ renv_lockfile_api <- function(lockfile = NULL) {
 
 #' Programmatically Create and Modify a Lockfile
 #'
+#' **NOTE: `lockfile()` is now internal, please use the \link{lockfiles} 
+#' API.**
+#' 
 #' This function provides an API for creating and modifying `renv` lockfiles.
 #' This can be useful when you'd like to programmatically generate or modify
 #' a lockfile -- for example, because you want to update or change a package
