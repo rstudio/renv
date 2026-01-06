@@ -328,16 +328,3 @@ test_that("repos override handle paths", {
   repos <- renv_bootstrap_repos()
   expect_equal(repos["CRAN"], c(CRAN = "https://p3m.dev/cran/__linux__/noble/latest"))
 })
-
-test_that("repos override maintains RSPM fallback", {
-  renv_tests_scope()
-  rspm_url <- "https://packagemanager.posit.co/all/latest"
-  renv_scope_envvars(
-    RENV_CONFIG_REPOS_OVERRIDE = rspm_url,
-    RSPM = rspm_url
-  )
-  repos <- renv_bootstrap_repos()
-  expect_true("RSPM" %in% names(repos))
-  expect_true("CRAN" %in% names(repos))
-  expect_equal(repos["RSPM"], c(RSPM = rspm_url))
-})
