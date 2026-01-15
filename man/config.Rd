@@ -110,6 +110,7 @@ Defaults to \code{TRUE}.}
 \subsection{renv.config.ppm.url}{The default PPM URL to be used for new renv projects. Defaults to the CRAN mirror maintained by Posit at \url{https://packagemanager.posit.co/}. This option can be changed if you'd like renv to use an alternate package manager instance.
 Defaults to \code{"https://packagemanager.posit.co/cran/latest"}.}
 \subsection{renv.config.repos.override}{Override the R package repositories used during \code{\link[=restore]{restore()}}? Primarily useful for deployment / continuous integration, where you might want to enforce the usage of some set of repositories over what is defined in \code{renv.lock} or otherwise set by the R session.
+This can be specified as a single repository URL (e.g., "https://cloud.r-project.org"), or as multiple named repositories separated by semicolons using the format NAME=URL (e.g., "CRAN=https://p3m.dev/cran/latest;R_UNIV=https://posit-dev.r-universe.dev").
 Defaults to \code{NULL}.}
 \subsection{renv.config.rspm.enabled}{DEPRECATED: Please use \code{renv.config.ppm.enabled} instead.
 Defaults to \code{TRUE}.}

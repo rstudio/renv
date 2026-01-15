@@ -112,4 +112,4 @@ be used when the lockfile is generated. See `?renv::snapshot` for more details.
 
 
 [shiny]: https://shiny.posit.co/
-[tidyverse]: https://www.tidyverse.org/
+[tidyverse]: https://tidyverse.org/

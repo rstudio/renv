@@ -80,7 +80,7 @@ that lockfile without removing any prior package records.}
 validation checks have failed?}
 
 \item{reprex}{Boolean; generate output appropriate for embedding the lockfile
-as part of a \href{https://www.tidyverse.org/help/#reprex}{reprex}?}
+as part of a \href{https://tidyverse.org/help/#reprex}{reprex}?}
 }
 \value{
 The generated lockfile, as an \R object (invisibly). Note that

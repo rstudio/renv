@@ -110,7 +110,7 @@
 #'   validation checks have failed?
 #'
 #' @param reprex Boolean; generate output appropriate for embedding the lockfile
-#'   as part of a [reprex](https://www.tidyverse.org/help/#reprex)?
+#'   as part of a [reprex](https://tidyverse.org/help/#reprex)?
 #'
 #' @return The generated lockfile, as an \R object (invisibly). Note that
 #'   this function is normally called for its side effects.
