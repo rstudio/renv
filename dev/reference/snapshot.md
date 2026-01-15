@@ -131,7 +131,7 @@ snapshot(
 - reprex:
 
   Boolean; generate output appropriate for embedding the lockfile as
-  part of a [reprex](https://www.tidyverse.org/help/#reprex)?
+  part of a [reprex](https://tidyverse.org/help/#reprex)?
 
 ## Value
 

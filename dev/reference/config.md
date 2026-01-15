@@ -298,8 +298,12 @@ Override the R package repositories used during
 [`restore()`](https://rstudio.github.io/renv/dev/reference/restore.md)?
 Primarily useful for deployment / continuous integration, where you
 might want to enforce the usage of some set of repositories over what is
-defined in `renv.lock` or otherwise set by the R session. Defaults to
-`NULL`.
+defined in `renv.lock` or otherwise set by the R session. This can be
+specified as a single repository URL (e.g.,
+"https://cloud.r-project.org"), or as multiple named repositories
+separated by semicolons using the format NAME=URL (e.g.,
+"CRAN=https://p3m.dev/cran/latest;R_UNIV=https://posit-dev.r-universe.dev").
+Defaults to `NULL`.
 
 ### renv.config.rspm.enabled
 

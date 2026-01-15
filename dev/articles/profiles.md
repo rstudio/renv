@@ -63,7 +63,7 @@ renv::activate(profile = "default")
 Profile-specific package dependencies can be declared within the
 project’s top-level `DESCRIPTION` file. For example, to declare that the
 shiny profile depends on the [shiny](https://shiny.posit.co/) and
-[tidyverse](https://www.tidyverse.org/) packages:
+[tidyverse](https://tidyverse.org/) packages:
 
 ``` sh
 Config/renv/profiles/shiny/dependencies: shiny, tidyverse

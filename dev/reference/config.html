@@ -245,6 +245,7 @@ Defaults to <code>"https://packagemanager.posit.co/cran/latest"</code>.</p>
 <div class="section">
 <h3 id="renv-config-repos-override">renv.config.repos.override<a class="anchor" aria-label="anchor" href="#renv-config-repos-override"></a></h3>
 <p>Override the R package repositories used during <code><a href="restore.html">restore()</a></code>? Primarily useful for deployment / continuous integration, where you might want to enforce the usage of some set of repositories over what is defined in <code>renv.lock</code> or otherwise set by the R session.
+This can be specified as a single repository URL (e.g., "https://cloud.r-project.org"), or as multiple named repositories separated by semicolons using the format NAME=URL (e.g., "CRAN=https://p3m.dev/cran/latest;R_UNIV=https://posit-dev.r-universe.dev").
 Defaults to <code>NULL</code>.</p>
 </div>
 <div class="section">
