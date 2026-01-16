@@ -2,6 +2,10 @@
 
 ## renv (development version)
 
+- Fixed an issue where `renv` would incorrectly warn about the version
+  of `renv` being used on project load.
+  ([\#2207](https://github.com/rstudio/renv/issues/2207))
+
 ## renv 1.1.6
 
 CRAN release: 2026-01-16
