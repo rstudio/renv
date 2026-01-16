@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">renv</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">1.1.5</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">1.1.6</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -51,6 +51,25 @@
       <small>Source: <a href="https://github.com/rstudio/renv/blob/main/NEWS.md" class="external-link"><code>NEWS.md</code></a></small>
     </div>
 
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="1.1.6" id="renv-116">renv 1.1.6<a class="anchor" aria-label="anchor" href="#renv-116"></a></h2><p class="text-muted">CRAN release: 2026-01-16</p>
+<ul><li><p>A new setting, <code>snapshot.dev</code>, has been added to control whether development dependencies are included by default when calling <code><a href="../reference/snapshot.html">renv::snapshot()</a></code> or <code><a href="../reference/status.html">renv::status()</a></code>. This setting defaults to <code>FALSE</code>. (<a href="https://github.com/rstudio/renv/issues/2190" class="external-link">#2190</a>)</p></li>
+<li><p><code>RENV_CONFIG_REPOS_OVERRIDE</code> now supports multiple named repositories using the syntax <code>NAME1=URL1;NAME2=URL2</code>. Single repository URLs continue to be supported.</p></li>
+<li><p>Fixed an issue where <code><a href="../reference/sysreqs.html">renv::sysreqs()</a></code> could fail on operating systems which don’t declare a VERSION_ID in <code>/etc/os-release</code>. (<a href="https://github.com/rstudio/renv/issues/2197" class="external-link">#2197</a>)</p></li>
+<li><p><code><a href="../reference/dependencies.html">renv::dependencies()</a></code> now detects packages used in e.g. <code>data(&lt;dataset&gt;, package = &lt;package&gt;)</code>. (<a href="https://github.com/rstudio/renv/issues/2181" class="external-link">#2181</a>)</p></li>
+<li><p>Fixed an issue where cache callbacks (e.g. those run by setting <code>RENV_CACHE_USER</code> and <code>RENV_CACHE_MODE</code>, or via the <code>renv.cache.callback</code> option) were not run after <code><a href="../reference/hydrate.html">renv::hydrate()</a></code>. (<a href="https://github.com/rstudio/renv/issues/2179" class="external-link">#2179</a>)</p></li>
+<li><p><code><a href="../reference/embed.html">renv::embed()</a></code> now errs if one or more of the package dependencies to be included within a file are not available. (<a href="https://github.com/rstudio/renv/issues/2178" class="external-link">#2178</a>)</p></li>
+<li><p><code>renv</code> gains the function <code><a href="../reference/vulns.html">renv::vulns()</a></code>, which can be used to query vulnerability information from a Posit Package Manager instance. This information can be queried either for a specific set of packages, or for all packages defined in a lockfile.</p></li>
+<li><p><code>renv</code> now also supports <code>RENV_LOCKFILE_VERSION = 1</code> as an alternate way to request the older, compact lockfiles. (<a href="https://github.com/rstudio/renv/issues/2175" class="external-link">#2175</a>)</p></li>
+<li><p>The version check in <code><a href="../reference/status.html">renv::status()</a></code> can now be disabled by setting <code>options(renv.status.check_version = FALSE)</code>. (<a href="https://github.com/rstudio/renv/issues/2167" class="external-link">#2167</a>)</p></li>
+<li><p>Fixed an issue where the package manager URL was computed incorrectly with RHEL 10.</p></li>
+<li><p><code>renv</code> now prints the version numbers of the packages it downloads during install and restore. (<a href="https://github.com/rstudio/renv/issues/1925" class="external-link">#1925</a>)</p></li>
+<li><p>The <code>renv</code> configuration option <code>bioconductor.init</code> can now be used to control the default argument passed for the <code>bioconductor</code> parameter in calls to <code><a href="../reference/init.html">renv::init()</a></code>. (<a href="https://github.com/rstudio/renv/issues/2128" class="external-link">#2128</a>)</p></li>
+<li><p><code>renv</code> now supports bootstrapping itself from the global package cache. (<a href="https://github.com/rstudio/renv/issues/1799" class="external-link">#1799</a>)</p></li>
+<li><p><code>renv</code> now prefers appending, rather than prepending, Bioconductor repositories to the current set of repositories when installing packages. This implies that if you’re using a repository that also provides Bioconductor packages, this repository will be preferred as opposed to the “default” Bioconductor repositories. (<a href="https://github.com/rstudio/renv/issues/2128" class="external-link">#2128</a>)</p></li>
+<li><p><code><a href="../reference/restore.html">renv::restore()</a></code> now ignores the <code>Repository</code> field on lockfile entries when the <code>repos.override</code> configuration option is set. (<a href="https://github.com/rstudio/renv/issues/2127" class="external-link">#2127</a>)</p></li>
+<li><p><code><a href="../reference/restore.html">renv::restore()</a></code> now transforms binary repository URLs appropriately, for installed packages which were recorded as installed from an alternate binary repository URL. (<a href="https://github.com/rstudio/renv/issues/2127" class="external-link">#2127</a>)</p></li>
+</ul></div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="1.1.5" id="renv-115">renv 1.1.5<a class="anchor" aria-label="anchor" href="#renv-115"></a></h2><p class="text-muted">CRAN release: 2025-07-24</p>
 <ul><li><p>Fixed an issue where <code><a href="../reference/dependencies.html">renv::dependencies()</a></code> could fail for chunks which had a <code>label</code> which was not a length-one character vector. (<a href="https://github.com/rstudio/renv/issues/2144" class="external-link">#2144</a>)</p></li>
@@ -549,7 +568,7 @@
 <li><p>renv now always attempts to bootstrap itself from the R Project’s Cloud package repository, as a fallback in case no other repository is available. (<a href="https://github.com/rstudio/renv/issues/613" class="external-link">#613</a>)</p></li>
 <li><p><code>renv::rebuild(&lt;package&gt;)</code> now uses the latest-available version of the requested package(s) if those packages are not currently installed.</p></li>
 <li><p>Fixed an issue where <code>renv::restore(library = "/path/to/lib")</code> would fail to restore packages, if those packages were already installed on the active library paths (as reported by <code><a href="https://rdrr.io/r/base/libPaths.html" class="external-link">.libPaths()</a></code>). (<a href="https://github.com/rstudio/renv/issues/612" class="external-link">#612</a>)</p></li>
-<li><p><code><a href="../reference/snapshot.html">renv::snapshot()</a></code> gains the <code>reprex</code> argument. Set this to <code>TRUE</code> if you’d like to embed an renv lockfile as part of a reproducible example, as generated by the <a href="https://www.tidyverse.org/help/#reprex-pkg" class="external-link"><code>reprex</code></a> package.</p></li>
+<li><p><code><a href="../reference/snapshot.html">renv::snapshot()</a></code> gains the <code>reprex</code> argument. Set this to <code>TRUE</code> if you’d like to embed an renv lockfile as part of a reproducible example, as generated by the <a href="https://tidyverse.org/help/#reprex-pkg" class="external-link"><code>reprex</code></a> package.</p></li>
 <li><p><code><a href="../reference/status.html">renv::status()</a></code> now reports packages that are referenced in a project’s scripts, but are neither installed in the project library nor recorded in the lockfile. (<a href="https://github.com/rstudio/renv/issues/588" class="external-link">#588</a>)</p></li>
 <li><p>Fixed an issue where package installation could fail if the <code>configure.vars</code> option was set to be a named character, rather than a named list. (<a href="https://github.com/rstudio/renv/issues/609" class="external-link">#609</a>)</p></li>
 </ul></div>
@@ -594,7 +613,7 @@
 <h2 class="pkg-version" data-toc-text="0.12.1" id="renv-0121">renv 0.12.1<a class="anchor" aria-label="anchor" href="#renv-0121"></a></h2><p class="text-muted">CRAN release: 2020-11-02</p>
 <ul><li><p>renv now ensures all of its dependencies are loaded eagerly when running tests, to avoid issues with missing + lazily-loaded packages.</p></li>
 <li><p><code><a href="../reference/snapshot.html">renv::snapshot()</a></code> now accepts library paths specified with a relative path. (<a href="https://github.com/rstudio/renv/issues/562" class="external-link">#562</a>)</p></li>
-<li><p><code><a href="../reference/snapshot.html">renv::snapshot()</a></code> no longer excludes the project itself, for <code>R</code> package projects that use <a href="https://engineering-shiny.org/" class="external-link">golem</a>. (<a href="https://github.com/rstudio/renv/issues/538" class="external-link">#538</a>)</p></li>
+<li><p><code><a href="../reference/snapshot.html">renv::snapshot()</a></code> no longer excludes the project itself, for <code>R</code> package projects that use <code>golem</code>. (<a href="https://github.com/rstudio/renv/issues/538" class="external-link">#538</a>)</p></li>
 <li><p>The renv configuration option <code>cache.symlinks</code> can now be used to control whether renv used symlinks into the cache, as opposed to full package copies. Please see <code><a href="../reference/config.html">?renv::config</a></code> for more details. (<a href="https://github.com/rstudio/renv/issues/556" class="external-link">#556</a>)</p></li>
 <li><p><code><a href="../reference/snapshot.html">renv::snapshot()</a></code> gains the <code>packages</code> argument, to be used when creating a lockfile that captures a specific set of packages and their dependencies. renv will use the currently-installed versions of those packages when determining the package records to be written to the lockfile. (<a href="https://github.com/rstudio/renv/issues/554" class="external-link">#554</a>)</p></li>
 <li><p><code><a href="../reference/dependencies.html">renv::dependencies()</a></code> now accepts an R function as the first argument, for finding the packages used by a particular function. Currently, package usages must be prefixed with <code>::</code> to be detected. (<a href="https://github.com/rstudio/renv/issues/554" class="external-link">#554</a>)</p></li>
@@ -761,7 +780,7 @@
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.3.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
 </div>
 
   </div></footer><!-- Google Tag Manager (noscript) --><noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-KHBDBW7" height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>

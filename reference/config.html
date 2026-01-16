@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">renv</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">1.1.5</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">1.1.6</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -105,6 +105,11 @@ Defaults to <code>TRUE</code>.</p>
 <h3 id="renv-config-auto-snapshot">renv.config.auto.snapshot<a class="anchor" aria-label="anchor" href="#renv-config-auto-snapshot"></a></h3>
 <p>Automatically snapshot changes to the project library when the project dependencies change?
 Defaults to <code>FALSE</code>.</p>
+</div>
+<div class="section">
+<h3 id="renv-config-bioconductor-init">renv.config.bioconductor.init<a class="anchor" aria-label="anchor" href="#renv-config-bioconductor-init"></a></h3>
+<p>The default value to be used for the <code>bioconductor</code> parameter in calls to <code><a href="init.html">renv::init()</a></code>. This can be used if you'd like to automatically enable or disable Bioconductor by default for newly-initialized <code>renv</code> projects. See the documentation in <code><a href="init.html">?renv::init</a></code> for more details.
+Defaults to <code>NULL</code>.</p>
 </div>
 <div class="section">
 <h3 id="renv-config-bitbucket-host">renv.config.bitbucket.host<a class="anchor" aria-label="anchor" href="#renv-config-bitbucket-host"></a></h3>
@@ -240,6 +245,7 @@ Defaults to <code>"https://packagemanager.posit.co/cran/latest"</code>.</p>
 <div class="section">
 <h3 id="renv-config-repos-override">renv.config.repos.override<a class="anchor" aria-label="anchor" href="#renv-config-repos-override"></a></h3>
 <p>Override the R package repositories used during <code><a href="restore.html">restore()</a></code>? Primarily useful for deployment / continuous integration, where you might want to enforce the usage of some set of repositories over what is defined in <code>renv.lock</code> or otherwise set by the R session.
+This can be specified as a single repository URL (e.g., "https://cloud.r-project.org"), or as multiple named repositories separated by semicolons using the format NAME=URL (e.g., "CRAN=https://p3m.dev/cran/latest;R_UNIV=https://posit-dev.r-universe.dev").
 Defaults to <code>NULL</code>.</p>
 </div>
 <div class="section">
@@ -363,7 +369,7 @@ various settings available in <a href="settings.html">settings</a> can be used.<
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.3.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
 </div>
 
   </div></footer><!-- Google Tag Manager (noscript) --><noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-KHBDBW7" height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
