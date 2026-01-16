@@ -1,5 +1,5 @@
 
-# renv (development version)
+# renv 1.1.6
 
 * A new setting, `snapshot.dev`, has been added to control whether development
   dependencies are included by default when calling `renv::snapshot()` or
