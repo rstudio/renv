@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">renv</a>
 
-    <small class="nav-text text-danger me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="In-development version">1.1.5.9000</small>
+    <small class="nav-text text-danger me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="In-development version">1.1.6.9000</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -53,6 +53,9 @@
 
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="development version" id="renv-development-version">renv (development version)<a class="anchor" aria-label="anchor" href="#renv-development-version"></a></h2>
+</div>
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="1.1.6" id="renv-116">renv 1.1.6<a class="anchor" aria-label="anchor" href="#renv-116"></a></h2><p class="text-muted">CRAN release: 2026-01-16</p>
 <ul><li><p>A new setting, <code>snapshot.dev</code>, has been added to control whether development dependencies are included by default when calling <code><a href="../reference/snapshot.html">renv::snapshot()</a></code> or <code><a href="../reference/status.html">renv::status()</a></code>. This setting defaults to <code>FALSE</code>. (<a href="https://github.com/rstudio/renv/issues/2190" class="external-link">#2190</a>)</p></li>
 <li><p><code>RENV_CONFIG_REPOS_OVERRIDE</code> now supports multiple named repositories using the syntax <code>NAME1=URL1;NAME2=URL2</code>. Single repository URLs continue to be supported.</p></li>
 <li><p>Fixed an issue where <code><a href="../reference/sysreqs.html">renv::sysreqs()</a></code> could fail on operating systems which don’t declare a VERSION_ID in <code>/etc/os-release</code>. (<a href="https://github.com/rstudio/renv/issues/2197" class="external-link">#2197</a>)</p></li>

@@ -2,6 +2,10 @@
 
 ## renv (development version)
 
+## renv 1.1.6
+
+CRAN release: 2026-01-16
+
 - A new setting, `snapshot.dev`, has been added to control whether
   development dependencies are included by default when calling
   [`renv::snapshot()`](https://rstudio.github.io/renv/dev/reference/snapshot.md)
