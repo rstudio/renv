@@ -547,6 +547,8 @@ local({
   
     # infer path to renv cache
     cache <- Sys.getenv("RENV_PATHS_CACHE", unset = "")
+    root <- Sys.getenv("RENV_PATHS_ROOT", unset = "")
+    if (!nzchar(cache) && nzchar(root)) cache <- file.path(root, "cache")
     if (!nzchar(cache)) {
       tools <- asNamespace("tools")
       if (is.function(tools$R_user_dir)) {
