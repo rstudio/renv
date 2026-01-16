@@ -882,7 +882,7 @@ renv_bootstrap_validate_version_dev <- function(version, description) {
 
 renv_bootstrap_validate_version_release <- function(version, description) {
   expected <- description[["Version"]]
-  is.character(expected) && identical(expected, version)
+  is.character(expected) && identical(c(expected), c(version))
 }
 
 renv_bootstrap_hash_text <- function(text) {
