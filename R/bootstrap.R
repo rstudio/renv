@@ -388,6 +388,12 @@ renv_bootstrap_find_cache <- function(version) {
   # infer path to renv cache
   cache <- Sys.getenv("RENV_PATHS_CACHE", unset = "")
   if (!nzchar(cache)) {
+    root <- Sys.getenv("RENV_PATHS_ROOT", unset = NA)
+    if (!is.na(root))
+      cache <- file.path(root, "cache")
+  }
+
+  if (!nzchar(cache)) {
     tools <- asNamespace("tools")
     if (is.function(tools$R_user_dir)) {
       root <- tools$R_user_dir("renv", "cache")
