@@ -806,3 +806,26 @@ test_that("irrelevant R version requirements don't prevent package installation"
   expect_error(install("today"))
 
 })
+
+
+test_that("install() respects RENV_CONFIG_REPOS_OVERRIDE with multiple named repositories", {
+
+  skip_on_cran()
+  project <- renv_tests_scope()
+  init()
+
+  renv_scope_envvars(
+    RENV_CONFIG_REPOS_OVERRIDE = "CRAN=https://cran.r-project.org/;RSPM=https://p3m.dev/cran/latest"
+  )
+
+  override <- config$repos.override()
+  expect_type(override, "character")
+  expect_equal(names(override), c("CRAN", "RSPM"))
+  expect_equal(unname(override[["CRAN"]]), "https://cran.r-project.org/")
+  expect_equal(unname(override[["RSPM"]]), "https://p3m.dev/cran/latest")
+
+  # install a package and verify it uses the override
+  install("bread", rebuild = TRUE)
+  expect_true(renv_package_installed("bread"))
+
+})

@@ -138,6 +138,10 @@ renv_config_decode_envvar <- function(envname, envval) {
     return(decoded)
   }
 
+  if (envname == "RENV_CONFIG_REPOS_OVERRIDE") {
+    return(renv_bootstrap_repos())
+  }
+
   strsplit(envval, "\\s*,\\s*", perl = TRUE)[[1L]]
 
 }
