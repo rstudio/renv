@@ -1442,7 +1442,8 @@ renv_dependencies_discover_r_import <- function(node, envir) {
   if (inherits(matched, "error"))
     return(FALSE)
 
-  # the '.from' argument is the package name, either a character vector of length one or a symbol
+  # the '.from' argument is the package name
+  # either a character vector of length one or a symbol
   from <- matched$.from
   if (is.symbol(from)) {
     co <- node[[".character_only"]]
@@ -1455,9 +1456,11 @@ renv_dependencies_discover_r_import <- function(node, envir) {
     return(FALSE)
 
   # '.from' can also be an R script; if it appears to be a path, then ignore it
+  # this is unfortunately problematic for some packages like 'treesitter.r'
+  #
   # https://github.com/rstudio/renv/issues/1743
-  if (grepl("\\.[rR]$", from, perl = TRUE) &&
-      grepl("[/\\]", from))
+  # https://github.com/rstudio/renv/issues/2212
+  if (grepl("\\.[rR]$", from, perl = TRUE))
     return(FALSE)
 
   envir[[from]] <- TRUE
