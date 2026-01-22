@@ -203,3 +203,29 @@ test_that(".renvignore supports profile-specific entries", {
   expect_equal(deps$Package, "extra")
 
 })
+
+# https://github.com/rstudio/renv/issues/2203
+test_that(".renvignore is read when project root is filesystem root", {
+
+  renv_tests_scope()
+
+  writeLines(c("ignored/"), con = ".renvignore")
+
+  dir.create("ignored")
+  writeLines("library(shouldbeignored)", con = "ignored/script.R")
+
+  dir.create("included")
+  writeLines("library(shouldbeincluded)", con = "included/script.R")
+
+  # Verify the pattern is read when path equals root (simulating "/" scenario)
+  root <- getwd()
+  patterns <- renv_renvignore_pattern(root, root)
+
+  expect_true(length(patterns$exclude) > 0)
+
+  # Verify dependencies works correctly
+  deps <- dependencies(quiet = TRUE)
+  expect_true("shouldbeincluded" %in% deps$Package)
+  expect_false("shouldbeignored" %in% deps$Package)
+
+})

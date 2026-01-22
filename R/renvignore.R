@@ -16,7 +16,7 @@ renv_renvignore_pattern <- function(path = getwd(), root = path) {
 
   # read ignore files
   parent <- path
-  while (parent != dirname(parent)) {
+  repeat {
 
     # attempt to read either .renvignore or .gitignore
     for (file in c(".renvignore", ".gitignore")) {
@@ -31,7 +31,7 @@ renv_renvignore_pattern <- function(path = getwd(), root = path) {
     }
 
     # stop once we've hit the project root
-    if (parent == root)
+    if (parent == root || dirname(parent) == parent)
       break
 
     parent <- dirname(parent)

@@ -1,6 +1,9 @@
 
 # renv (development version)
 
+* Fixed an issue where `.renvignore` files were not read when the project root
+  was the filesystem root `/`. (#2203)
+
 * Fixed an issue where `renv` would incorrectly warn about the version of
   `renv` being used on project load. (#2207)
 
