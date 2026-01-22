@@ -10,6 +10,15 @@
   of `renv` being used on project load.
   ([\#2207](https://github.com/rstudio/renv/issues/2207))
 
+- Fixed an issue where `RENV_CONFIG_REPOS_OVERRIDE` with multiple named
+  repositories (e.g., `NAME1=URL1;NAME2=URL2`) was not properly decoded
+  by the configuration system, causing functions like
+  [`renv::install()`](https://rstudio.github.io/renv/dev/reference/install.md)
+  and
+  [`renv::restore()`](https://rstudio.github.io/renv/dev/reference/restore.md)
+  to not use the specified repositories.
+  ([\#2209](https://github.com/rstudio/renv/issues/2209))
+
 ## renv 1.1.6
 
 CRAN release: 2026-01-16
