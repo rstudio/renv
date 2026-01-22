@@ -2,6 +2,10 @@
 
 ## renv (development version)
 
+- Fixed an issue where `.renvignore` files were not read when the
+  project root was the filesystem root `/`.
+  ([\#2203](https://github.com/rstudio/renv/issues/2203))
+
 - Fixed an issue where `renv` would incorrectly warn about the version
   of `renv` being used on project load.
   ([\#2207](https://github.com/rstudio/renv/issues/2207))
