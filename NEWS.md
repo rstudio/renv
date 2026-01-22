@@ -7,6 +7,11 @@
 * Fixed an issue where `renv` would incorrectly warn about the version of
   `renv` being used on project load. (#2207)
 
+* Fixed an issue where `RENV_CONFIG_REPOS_OVERRIDE` with multiple named
+  repositories (e.g., `NAME1=URL1;NAME2=URL2`) was not properly decoded by
+  the configuration system, causing functions like `renv::install()` and
+  `renv::restore()` to not use the specified repositories. (#2209)
+
 
 # renv 1.1.6
 

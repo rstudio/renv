@@ -138,6 +138,12 @@ renv_config_decode_envvar <- function(envname, envval) {
     return(decoded)
   }
 
+  # handle repos override with KEY=VAL;KEY2=VAL2 format
+  if (identical(envname, "RENV_CONFIG_REPOS_OVERRIDE")) {
+    decoded <- renv_config_decode_keyval(envval)
+    return(decoded)
+  }
+
   strsplit(envval, "\\s*,\\s*", perl = TRUE)[[1L]]
 
 }
@@ -159,6 +165,25 @@ renv_config_decode_libpaths <- function(envval) {
   starts <- c(1L, indices + 1L)
   ends <- c(indices - 1L, nchar(envval))
   substring(envval, starts, ends)
+
+}
+
+renv_config_decode_keyval <- function(envval) {
+
+  # split on ';' if present
+  parts <- strsplit(envval, ";", fixed = TRUE)[[1L]]
+
+  # split into named repositories if present
+  idx <- regexpr("=", parts, fixed = TRUE)
+  keys <- substring(parts, 1L, idx - 1L)
+  vals <- substring(parts, idx + 1L)
+  names(vals) <- keys
+
+  # if we have a single unnamed repository, call it CRAN
+  if (length(vals) == 1L && identical(keys, ""))
+    names(vals) <- "CRAN"
+
+  vals
 
 }
 

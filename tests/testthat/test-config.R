@@ -148,3 +148,33 @@ test_that("RENV_CONFIG_EXTERNAL_LIBRARIES is decoded appropriately", {
   )
 
 })
+
+test_that("RENV_CONFIG_REPOS_OVERRIDE is decoded appropriately", {
+
+  envname <- "RENV_CONFIG_REPOS_OVERRIDE"
+
+  # single unnamed repository becomes CRAN
+  expect_equal(
+    renv_config_decode_envvar(envname, "https://cloud.r-project.org"),
+    c(CRAN = "https://cloud.r-project.org")
+  )
+
+  # single named repository
+  expect_equal(
+    renv_config_decode_envvar(envname, "CRAN=https://cloud.r-project.org"),
+    c(CRAN = "https://cloud.r-project.org")
+  )
+
+  # multiple named repositories
+  expect_equal(
+    renv_config_decode_envvar(envname, "CRAN=https://cran.r-project.org;RSPM=https://packagemanager.posit.co"),
+    c(CRAN = "https://cran.r-project.org", RSPM = "https://packagemanager.posit.co")
+  )
+
+  # multiple repositories with different names
+  expect_equal(
+    renv_config_decode_envvar(envname, "Repo1=https://repo1.com;Repo2=https://repo2.com;Repo3=https://repo3.com"),
+    c(Repo1 = "https://repo1.com", Repo2 = "https://repo2.com", Repo3 = "https://repo3.com")
+  )
+
+})
