@@ -169,6 +169,16 @@ local({
     if (quiet)
       return(invisible())
   
+    # also check for config environment variables that should suppress messages
+    # https://github.com/rstudio/renv/issues/2214
+    enabled <- Sys.getenv("RENV_CONFIG_STARTUP_QUIET", unset = NA)
+    if (!is.na(enabled) && tolower(enabled) %in% c("true", "1"))
+      return(invisible())
+  
+    enabled <- Sys.getenv("RENV_CONFIG_SYNCHRONIZED_CHECK", unset = NA)
+    if (!is.na(enabled) && tolower(enabled) %in% c("false", "0"))
+      return(invisible())
+  
     msg <- sprintf(fmt, ...)
     cat(msg, file = stdout(), sep = if (appendLF) "\n" else "")
   

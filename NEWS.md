@@ -7,6 +7,10 @@
 * Fixed an issue where `renv` would incorrectly warn about the version of
   `renv` being used on project load. (#2207)
 
+* The renv version mismatch warning is now suppressed during bootstrap when
+  `RENV_CONFIG_STARTUP_QUIET=TRUE` or `RENV_CONFIG_SYNCHRONIZED_CHECK=FALSE`
+  is set. (#2214)
+
 * Fixed an issue where `RENV_CONFIG_REPOS_OVERRIDE` with multiple named
   repositories (e.g., `NAME1=URL1;NAME2=URL2`) was not properly decoded by
   the configuration system, causing functions like `renv::install()` and

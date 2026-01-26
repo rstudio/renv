@@ -285,6 +285,36 @@ test_that("bootstrap version validation handles 'standard' remote types", {
 
 })
 
+test_that("version validation warnings are suppressed by RENV_CONFIG_STARTUP_QUIET", {
+
+  # https://github.com/rstudio/renv/issues/2214
+  renv_scope_options(renv.bootstrap.quiet = FALSE)
+  renv_scope_envvars(RENV_CONFIG_STARTUP_QUIET = "TRUE")
+
+  expect_silent(
+    renv_bootstrap_validate_version(
+      version = "1.2.3",
+      description = list(Version = "2.3.4")
+    )
+  )
+
+})
+
+test_that("version validation warnings are suppressed by RENV_CONFIG_SYNCHRONIZED_CHECK=FALSE", {
+
+  # https://github.com/rstudio/renv/issues/2214
+  renv_scope_options(renv.bootstrap.quiet = FALSE)
+  renv_scope_envvars(RENV_CONFIG_SYNCHRONIZED_CHECK = "FALSE")
+
+  expect_silent(
+    renv_bootstrap_validate_version(
+      version = "1.2.3",
+      description = list(Version = "2.3.4")
+    )
+  )
+
+})
+
 # repos override tests ----------------------------------------------------
 
 test_that("repos override supports unnamed repo", {
