@@ -6,6 +6,7 @@
 
 ^.*\.backup$
 \.clang-format$
+\.claude$
 \.covrignore$
 \.renvignore$
 \.vscode
