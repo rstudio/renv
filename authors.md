@@ -17,12 +17,12 @@ Source:
 [`DESCRIPTION`](https://github.com/rstudio/renv/blob/main/DESCRIPTION)
 
 Ushey K, Wickham H (2026). *renv: Project Environments*. R package
-version 1.1.6, <https://rstudio.github.io/renv/>.
+version 1.1.7, <https://rstudio.github.io/renv/>.
 
     @Manual{,
       title = {renv: Project Environments},
       author = {Kevin Ushey and Hadley Wickham},
       year = {2026},
-      note = {R package version 1.1.6},
+      note = {R package version 1.1.7},
       url = {https://rstudio.github.io/renv/},
     }
