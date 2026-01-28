@@ -1,5 +1,5 @@
 
-# renv (development version)
+# renv 1.1.7
 
 * Fixed an issue where `.renvignore` files were not read when the project root
   was the filesystem root `/`. (#2203)

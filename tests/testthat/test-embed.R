@@ -12,6 +12,7 @@ test_that("renv::embed() works with .R files", {
 
 test_that("renv::embed() works with .Rmd files", {
 
+  skip_on_cran()
   skip_if_not_installed("rmarkdown")
 
   project <- renv_tests_scope("breakfast", libpaths = TRUE)
