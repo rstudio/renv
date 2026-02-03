@@ -60,6 +60,15 @@ config <- list(
     )
   },
 
+  crandb.enabled = function(..., default = FALSE) {
+    renv_config_get(
+      name    = "crandb.enabled",
+      type    = "logical[1]",
+      default = default,
+      args    = list(...)
+    )
+  },
+
   connect.timeout = function(..., default = 20L) {
     renv_config_get(
       name    = "connect.timeout",
