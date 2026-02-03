@@ -1,6 +1,13 @@
 
 # renv (under development)
 
+* renv gains the configuration option `renv.config.crandb.enabled`. When
+  enabled, renv will query the [crandb](https://github.com/r-hub/crandb)
+  service to find the newest version of a package compatible with the current
+  version of R. This can be useful when using an older version of R, where
+  the latest version of a package on CRAN requires a newer R version.
+  (#1735)
+
 # renv 1.1.7
 
 * Fixed an issue where `.renvignore` files were not read when the project root
