@@ -317,7 +317,7 @@ renv_init_bioconductor <- function(bioconductor, project) {
 
   # resolve symbolic version names like "devel" or "release"
   # to their numeric equivalents for the lockfile
-  if (version %in% c("devel", "release", "future"))
+  if (length(version) && version %in% c("devel", "release", "future"))
     version <- format(renv_remotes_resolve_bioc_version(version))
 
   version
