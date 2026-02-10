@@ -335,6 +335,9 @@ renv_restore_recover <- function(package, action, project, recovered) {
   if (identical(choice, "cancel"))
     stop(error)
 
+  if (identical(choice, "skip"))
+    return()
+
   remote <- if (identical(choice, "latest")) {
     package
   } else if (identical(choice, "version")) {
