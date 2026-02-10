@@ -1,6 +1,16 @@
 
 # renv (under development)
 
+* `renv::restore()` now prompts for per-package recovery when a package fails
+  to install in interactive sessions. Users can choose to install the latest
+  available version, skip the package, or cancel the restore. This is
+  especially useful after upgrading R, when older package versions may no
+  longer compile. (#1893)
+
+* `renv::restore()` gains a `continue` parameter. When `TRUE`, packages that
+  fail to install are skipped, and a summary of all failures is reported after
+  the restore completes. This is intended for non-interactive use. (#1893)
+
 * renv gains the configuration option `renv.config.crandb.enabled`. When
   enabled, renv will query the [crandb](https://github.com/r-hub/crandb)
   service to find the newest version of a package compatible with the current
