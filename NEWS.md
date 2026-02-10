@@ -1,6 +1,11 @@
 
 # renv (under development)
 
+* `renv::init(bioconductor = "devel")` now resolves symbolic Bioconductor
+  version names (e.g. `"devel"`, `"release"`) to their numeric equivalents
+  before writing to the lockfile. Previously, the literal string `"devel"`
+  was written, causing `renv::restore()` to fail. (#2170)
+
 * renv gains the configuration option `renv.config.crandb.enabled`. When
   enabled, renv will query the [crandb](https://github.com/r-hub/crandb)
   service to find the newest version of a package compatible with the current
