@@ -381,8 +381,8 @@ test_that("restore prompts for recovery on failure when prompt = TRUE", {
   # remove bread so restore will attempt to install it
   remove("bread")
 
-  # menu choice 2 = "Skip this package"
-  renv_scope_options(renv.menu.choice = 2L)
+  # menu choice 3 = "Skip this package"
+  renv_scope_options(renv.menu.choice = 3L)
   restore(prompt = TRUE)
   expect_false(renv_package_installed("bread"))
 
@@ -407,6 +407,29 @@ test_that("restore recovery can install latest version", {
 
 })
 
+test_that("restore recovery can install a user-specified version", {
+
+  skip_on_cran()
+  renv_tests_scope("bread")
+  init()
+
+  lockfile <- renv_lockfile_read("renv.lock")
+  lockfile$Packages$bread$Version <- "99.0.0"
+  renv_lockfile_write(lockfile, file = "renv.lock")
+
+  remove("bread")
+
+  # menu choice 2 = "Specify a version or remote to install"
+  renv_scope_options(renv.menu.choice = 2L)
+
+  # mock readline to provide "bread@0.1.0"
+  local_mocked_bindings(renv_restore_recover_readline = function(...) "bread@0.1.0")
+  restore(prompt = TRUE)
+  expect_true(renv_package_installed("bread"))
+  expect_equal(renv_package_version("bread"), "0.1.0")
+
+})
+
 test_that("restore recovery can cancel the restore", {
 
   skip_on_cran()
@@ -419,8 +442,8 @@ test_that("restore recovery can cancel the restore", {
 
   remove("bread")
 
-  # menu choice 3 = "Cancel the restore"
-  renv_scope_options(renv.menu.choice = 3L)
+  # menu choice 4 = "Cancel the restore"
+  renv_scope_options(renv.menu.choice = 4L)
   expect_error(restore(prompt = TRUE))
 
 })
