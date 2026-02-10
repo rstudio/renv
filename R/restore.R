@@ -332,6 +332,9 @@ renv_restore_recover <- function(package, action, project, recovered) {
     default = 3L
   )
 
+  if (identical(choice, "cancel"))
+    stop(error)
+
   remote <- if (identical(choice, "latest")) {
     package
   } else if (identical(choice, "version")) {
@@ -345,8 +348,6 @@ renv_restore_recover <- function(package, action, project, recovered) {
     } else {
       recovered$push(package)
     }
-  } else if (identical(choice, "cancel")) {
-    stop(error)
   }
 
 }
