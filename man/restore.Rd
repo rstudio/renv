@@ -14,6 +14,7 @@ restore(
   rebuild = FALSE,
   repos = NULL,
   clean = FALSE,
+  continue = FALSE,
   transactional = NULL,
   prompt = interactive()
 )
@@ -59,6 +60,14 @@ an alternate way override.}
 \item{clean}{Boolean; remove packages not recorded in the lockfile from
 the target library? Use \code{clean = TRUE} if you'd like the library state
 to exactly reflect the lockfile contents after \code{restore()}.}
+
+\item{continue}{Boolean; should installation continue if a package fails to
+install? When \code{TRUE}, packages that fail to retrieve or install will be
+skipped, and a summary of all failures will be reported after the restore
+completes. This can be useful when restoring a lockfile after upgrading \R,
+since some older package versions may no longer be installable. Note that
+in interactive sessions (\code{prompt = TRUE}), failures instead trigger a
+per-package recovery menu regardless of this setting.}
 
 \item{transactional}{Whether or not to use a 'transactional' restore.
 See \strong{Transactional Restore} for more details. When \code{NULL} (the default),
