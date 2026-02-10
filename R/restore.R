@@ -48,6 +48,14 @@ the$restore_state <- NULL
 #'  as the recursive dependency of another package, your request will be
 #'  ignored.
 #'
+#' @param continue Boolean; should installation continue if a package fails to
+#'   install? When `TRUE`, packages that fail to retrieve or install will be
+#'   skipped, and a summary of all failures will be reported after the restore
+#'   completes. This can be useful when restoring a lockfile after upgrading \R,
+#'   since some older package versions may no longer be installable. Note that
+#'   in interactive sessions (`prompt = TRUE`), failures instead trigger a
+#'   per-package recovery menu regardless of this setting.
+#'
 #' @return A named list of package records which were installed by renv.
 #'
 #' @family reproducibility
@@ -64,6 +72,7 @@ restore <- function(project = NULL,
                     rebuild       = FALSE,
                     repos         = NULL,
                     clean         = FALSE,
+                    continue      = FALSE,
                     transactional = NULL,
                     prompt        = interactive())
 {
@@ -197,20 +206,40 @@ restore <- function(project = NULL,
   }
 
   # perform the restore
-  records <- renv_restore_run_actions(project, diff, current, lockfile, rebuild)
+  records <- renv_restore_run_actions(project, diff, current, lockfile, rebuild, continue, prompt)
   renv_restore_successful(records, prompt, project)
 }
 
-renv_restore_run_actions <- function(project, actions, current, lockfile, rebuild) {
+renv_restore_run_actions <- function(project, actions, current, lockfile, rebuild, continue, prompt) {
 
   packages <- names(actions)
+
+  # choose a handler based on prompt / continue settings:
+  # - prompt: per-package interactive recovery (menu)
+  # - continue: accumulate errors, report at end
+  # - neither: error propagates immediately (default)
+  recovered <- stack()
+  errors <- stack()
+
+  handler <- if (prompt) {
+    function(package, action) {
+      renv_restore_recover(package, action, project, recovered)
+    }
+  } else if (continue) {
+    function(package, action) {
+      error <- catch(action)
+      if (inherits(error, "error"))
+        errors$push(list(package = package, error = error))
+    }
+  }
 
   renv_scope_restore(
     project  = project,
     library  = renv_libpaths_active(),
     records  = renv_lockfile_records(lockfile),
     packages = packages,
-    rebuild  = rebuild
+    rebuild  = rebuild,
+    handler  = handler
   )
 
   # first, handle package removals
@@ -226,6 +255,13 @@ renv_restore_run_actions <- function(project, actions, current, lockfile, rebuil
   # perform the install
   records <- renv_retrieve_impl(packages)
   renv_install_impl(records)
+
+  # report any errors or recoveries accumulated during restore
+  if (prompt) {
+    renv_restore_recover_report(recovered$data())
+  } else {
+    renv_restore_report_errors(errors$data())
+  }
 
   # detect dependency tree repair
   diff <- renv_lockfile_diff_packages(renv_lockfile_records(lockfile), records)
@@ -243,6 +279,84 @@ renv_restore_run_actions <- function(project, actions, current, lockfile, rebuil
 
   # return status
   invisible(records)
+
+}
+
+renv_restore_report_errors <- function(errors) {
+
+  if (empty(errors))
+    return(invisible())
+
+  # build text describing each failure
+  packages <- map_chr(errors, `[[`, "package")
+  text <- map_chr(errors, function(item) {
+    message <- conditionMessage(item$error)
+    short <- trunc(paste(message, collapse = ";"), 60L)
+    sprintf("[%s]: %s", item$package, short)
+  })
+
+  # format the package list for use in renv::install() suggestion
+  pkglist <- paste(shQuote(packages), collapse = ", ")
+
+  renv_scope_options(renv.verbose = TRUE)
+  bulletin(
+    "The following package(s) failed to restore:",
+    text,
+    c(
+      "You may want to try installing the latest versions of these packages with:",
+      sprintf("  renv::install(c(%s))", pkglist),
+      "Then call `renv::snapshot()` to record them in the lockfile."
+    )
+  )
+
+  invisible(errors)
+
+}
+
+renv_restore_recover <- function(package, action, project, recovered) {
+
+  error <- catch(action)
+  if (!inherits(error, "error"))
+    return()
+
+  choices <- c(
+    install = "Install the latest version",
+    skip    = "Skip this package",
+    cancel  = "Cancel the restore"
+  )
+
+  choice <- menu(
+    choices = choices,
+    title   = sprintf("Failed to restore package '%s'. How would you like to proceed?", package),
+    default = 2L
+  )
+
+  if (identical(choice, "install")) {
+    status <- catch(install(package, project = project, prompt = FALSE))
+    if (inherits(status, "error")) {
+      warning(sprintf("Failed to install latest version of '%s'; skipping", package))
+    } else {
+      recovered$push(package)
+    }
+  } else if (identical(choice, "cancel")) {
+    stop(error)
+  }
+
+}
+
+renv_restore_recover_report <- function(recovered) {
+
+  if (empty(recovered))
+    return(invisible())
+
+  renv_scope_options(renv.verbose = TRUE)
+  bulletin(
+    "The following package(s) were installed at a different version than the lockfile:",
+    recovered,
+    "Call `renv::snapshot()` to update the lockfile."
+  )
+
+  invisible(recovered)
 
 }
 

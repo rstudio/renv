@@ -366,3 +366,61 @@ test_that("the Repository field in a lockfile can be overridden", {
   expect_true(renv_package_installed("bread"))
 
 })
+
+test_that("restore prompts for recovery on failure when prompt = TRUE", {
+
+  skip_on_cran()
+  renv_tests_scope("bread")
+  init()
+
+  # overwrite lockfile to request a non-existent version of bread
+  lockfile <- renv_lockfile_read("renv.lock")
+  lockfile$Packages$bread$Version <- "99.0.0"
+  renv_lockfile_write(lockfile, file = "renv.lock")
+
+  # remove bread so restore will attempt to install it
+  remove("bread")
+
+  # menu choice 2 = "Skip this package"
+  renv_scope_options(renv.menu.choice = 2L)
+  restore(prompt = TRUE)
+  expect_false(renv_package_installed("bread"))
+
+})
+
+test_that("restore recovery can install latest version", {
+
+  skip_on_cran()
+  renv_tests_scope("bread")
+  init()
+
+  lockfile <- renv_lockfile_read("renv.lock")
+  lockfile$Packages$bread$Version <- "99.0.0"
+  renv_lockfile_write(lockfile, file = "renv.lock")
+
+  remove("bread")
+
+  # menu choice 1 = "Install the latest version"
+  renv_scope_options(renv.menu.choice = 1L)
+  restore(prompt = TRUE)
+  expect_true(renv_package_installed("bread"))
+
+})
+
+test_that("restore recovery can cancel the restore", {
+
+  skip_on_cran()
+  renv_tests_scope("bread")
+  init()
+
+  lockfile <- renv_lockfile_read("renv.lock")
+  lockfile$Packages$bread$Version <- "99.0.0"
+  renv_lockfile_write(lockfile, file = "renv.lock")
+
+  remove("bread")
+
+  # menu choice 3 = "Cancel the restore"
+  renv_scope_options(renv.menu.choice = 3L)
+  expect_error(restore(prompt = TRUE))
+
+})
