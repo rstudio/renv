@@ -261,6 +261,10 @@ renv_file_link <- function(source, target, overwrite = FALSE) {
     if (identical(status, TRUE))
       return(TRUE)
 
+    # file.symlink() may leave behind a broken symlink on filesystems
+    # that don't support symlinks (e.g. CIFS / SMB network mounts)
+    unlink(target)
+
   }
 
   # all else fails, just perform a copy
