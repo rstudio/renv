@@ -309,11 +309,24 @@ renv_init_bioconductor <- function(bioconductor, project) {
   bioconductor <- bioconductor %||% config$bioconductor.init()
 
   # resolve bioconductor argument
-  case(
+  version <- case(
     is.character(bioconductor)     ~ bioconductor,
     identical(bioconductor, TRUE)  ~ renv_bioconductor_version(project, refresh = TRUE),
     identical(bioconductor, FALSE) ~ NULL
   )
+
+  # resolve symbolic version names like "devel" or "release"
+  # to their numeric equivalents for the lockfile
+  if (is.character(version)) {
+    valid <- tryCatch(
+      { package_version(version); TRUE },
+      error = function(e) FALSE
+    )
+    if (!valid)
+      version <- format(renv_remotes_resolve_bioc_version(version))
+  }
+
+  version
 
 }
 
