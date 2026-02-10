@@ -326,31 +326,39 @@ renv_restore_recover <- function(package, action, project, recovered) {
     cancel  = "Cancel the restore"
   )
 
-  choice <- menu(
-    choices = choices,
-    title   = sprintf("Failed to restore package '%s'. How would you like to proceed?", package),
-    default = 3L
-  )
+  repeat {
 
-  if (identical(choice, "cancel"))
-    stop(error)
+    choice <- menu(
+      choices = choices,
+      title   = sprintf("Failed to restore package '%s'. How would you like to proceed?", package),
+      default = 3L
+    )
 
-  if (identical(choice, "skip"))
-    return()
+    remote <- NULL
+    if (identical(choice, "latest")) {
+      remote <- package
+    } else if (identical(choice, "version")) {
+      remote <- renv_restore_recover_readline(package)
+    } else if (identical(choice, "skip")) {
+      return()
+    } else if (identical(choice, "cancel")) {
+      stop(error)
+    }
 
-  remote <- if (identical(choice, "latest")) {
-    package
-  } else if (identical(choice, "version")) {
-    renv_restore_recover_readline(package)
-  }
+    if (is.null(remote) || !nzchar(remote)) {
+      writef("No version or remote provided; please try again.")
+      next
+    }
 
-  if (!is.null(remote)) {
     status <- catch(install(remote, project = project, prompt = FALSE))
     if (inherits(status, "error")) {
       warning(sprintf("Failed to install '%s'; skipping", remote))
     } else {
       recovered$push(package)
     }
+
+    break
+
   }
 
 }
