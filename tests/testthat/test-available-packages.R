@@ -238,6 +238,26 @@ test_that("crandb returns newest compatible version", {
   expect_no_error(numeric_version(result$Version))
 })
 
+test_that("when crandb is enabled, repos entry is preferred when versions match (tagged record)", {
+  skip_on_cran()
+  skip_if_offline()
+
+  # Use real CRAN so both repos and crandb can return the same package version
+  renv_scope_options(
+    repos = c(CRAN = "https://cloud.r-project.org"),
+    renv.config.crandb.enabled = TRUE,
+    pkgType = "source"
+  )
+
+  # For a package live on CRAN, both repos and crandb return the same version.
+  # We must get the repos (tagged) entry so retrieval uses the current URL,
+  # not the archive (#1735).
+  record <- renv_available_packages_latest("RColorBrewer", type = "source")
+  expect_true(renv_record_tagged(record), info = "record should be from repos (tagged), not crandb (untagged)")
+  expect_equal(record$Package, "RColorBrewer")
+  expect_true(nzchar(record$Version))
+})
+
 test_that("version requirement parsing works correctly", {
 
   # Test various requirement formats
