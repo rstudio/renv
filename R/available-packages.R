@@ -614,9 +614,10 @@ renv_available_packages_latest_crandb <- function(package,
   if (length(compatible) == 0L)
     return(NULL)
 
-  # sort and take the newest compatible version
-  sorted <- sort(numeric_version(compatible), decreasing = TRUE)
-  newest <- as.character(sorted[[1L]])
+  # sort by version and take the newest; keep original version string (e.g. "1.6-5")
+  # so archive tarball names match CRAN (Matrix_1.6-5.tar.gz not Matrix_1.6.5.tar.gz)
+  ord <- order(numeric_version(compatible), decreasing = TRUE)
+  newest <- compatible[ord[[1L]]]
 
   # use first repository name if available
   repos <- repos %||% getOption("repos")
