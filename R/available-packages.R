@@ -442,8 +442,12 @@ renv_available_packages_latest <- function(package,
   if (identical(lhsv, rhsv)) {
     if (identical(attr(lhs, "type", exact = TRUE), "binary"))
       return(lhs)
-    else
-      return(rhs)
+    # when rhs is from crandb it has no URL; prefer lhs to avoid archive
+    # fallback which fails for packages still live on CRAN (#1735)
+    # renv_record_tagged is true if the record has a url and type. Crandb does not have URL.
+    if (!renv_record_tagged(rhs))
+      return(lhs)
+    return(rhs)
   }
 
   # otherwise, return the regular repository entry
