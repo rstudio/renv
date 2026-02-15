@@ -1,22 +1,51 @@
 
-renv_graph_create <- function(remotes) {
-  graph <- renv_graph_init(remotes)
+renv_graph_create <- function(remotes, records = NULL) {
+  graph <- renv_graph_init(remotes, records = records)
   renv_graph_sort(graph)
 }
 
-renv_graph_init <- function(remotes) {
+renv_graph_init <- function(remotes, records = NULL) {
 
   # create an environment to track resolved descriptions (avoids cycles/dupes)
   envir <- new.env(parent = emptyenv())
 
-  # use BFS so that top-level remotes are resolved before transitive
-  # dependencies; this ensures that explicit user requests (e.g. a
-  # GitHub remote) take priority over implicit repository lookups
-  queue <- as.list(remotes)
+  # when the user passes dependencies = TRUE/FALSE, install() sets
+  # the$install_dependency_fields; apply extended fields (e.g. Suggests)
+  # only to the top-level remotes, not to transitive dependencies.
+  # when NULL, read from project settings so that e.g. Suggests is
+  # respected when configured in settings$package.dependency.fields
+  fields <- the$install_dependency_fields %||% {
+    project <- renv_project_resolve()
+    renv_description_dependency_fields(NULL, project = project)
+  }
+
+  # phase 1: resolve top-level remotes with extended dependency fields;
+  # BFS ensures explicit user requests take priority over implicit lookups
+  queue <- list()
+  for (remote in remotes) {
+    deps <- renv_graph_resolve(remote, envir, records = records, fields = fields)
+    queue[[length(queue) + 1L]] <- as.list(deps)
+  }
+
+  # if any resolved description indicates Bioconductor is needed (via Source
+  # or biocViews), activate Bioconductor repos for the rest of resolution
+  resolved <- as.list(envir)
+  bioc <- any(vapply(resolved, function(desc) {
+    source <- renv_record_source(desc, normalize = TRUE)
+    biocviews <- desc[["biocViews"]] %||% ""
+    identical(source, "bioconductor") || nzchar(biocviews)
+  }, logical(1L)))
+
+  if (bioc) {
+    project <- renv_restore_state(key = "project") %||% renv_project_resolve()
+    renv_scope_bioconductor(project = project)
+  }
+
+  # phase 2: resolve transitive dependencies with default fields
   while (length(queue) > 0L) {
     remote <- queue[[1L]]
     queue <- queue[-1L]
-    deps <- renv_graph_resolve(remote, envir)
+    deps <- renv_graph_resolve(remote, envir, records = records)
     queue <- c(queue, as.list(deps))
   }
 
@@ -24,10 +53,17 @@ renv_graph_init <- function(remotes) {
 
 }
 
-renv_graph_resolve <- function(remote, envir) {
+renv_graph_resolve <- function(remote, envir, records = NULL, fields = NULL) {
 
-  # resolve the record
-  record <- renv_remotes_resolve(remote)
+  # resolve the record; use pre-resolved record if available
+  record <- if (is.character(remote) && !is.null(records[[remote]]))
+    records[[remote]]
+  else
+    renv_remotes_resolve(remote)
+
+  # resolve lazy records (functions that produce the actual record)
+  if (is.function(record))
+    record <- record()
 
   # skip if already resolved; because we use BFS, top-level remotes
   # are always resolved before transitive dependencies, so the first
@@ -39,12 +75,15 @@ renv_graph_resolve <- function(remote, envir) {
   # reserve the slot to prevent re-processing via dependency cycles
   assign(package, NULL, envir = envir)
 
-  # fetch DESCRIPTION-level metadata for this record
+  # fetch DESCRIPTION-level metadata for this record;
+  # renv_graph_description_repository includes cellar via
+  # renv_available_packages_latest(cellar = TRUE)
   desc <- catch(renv_graph_description(record))
   if (inherits(desc, "error")) {
     fmt <- "failed to retrieve DESCRIPTION for package '%s': %s"
     warningf(fmt, package, conditionMessage(desc))
     desc <- list()
+    attr(desc, "resolution_failed") <- TRUE
   }
 
   # merge record fields (Source, Remote* fields) into description
@@ -52,11 +91,22 @@ renv_graph_resolve <- function(remote, envir) {
     if (is.null(desc[[field]]))
       desc[[field]] <- record[[field]]
 
+  # supplement with installed DESCRIPTION for non-standard dependency fields
+  # (e.g. Config/Needs/protein); PACKAGES metadata only has standard fields
+  if (!is.null(fields)) {
+    installed <- catch(renv_description_read(package = package))
+    if (!inherits(installed, "error")) {
+      for (field in fields)
+        if (is.null(desc[[field]]) && !is.null(installed[[field]]))
+          desc[[field]] <- installed[[field]]
+    }
+  }
+
   # store the resolved description
   assign(package, desc, envir = envir)
 
   # return dependencies for the caller to enqueue
-  renv_graph_deps(desc)
+  renv_graph_deps(desc, fields = fields)
 
 }
 
@@ -65,13 +115,15 @@ renv_graph_description <- function(record) {
   source <- renv_record_source(record, normalize = TRUE)
 
   case(
-    source == "repository"  ~ renv_graph_description_repository(record),
-    source == "bioconductor"~ renv_graph_description_repository(record),
-    source == "github"      ~ renv_graph_description_github(record),
-    source == "gitlab"      ~ renv_graph_description_gitlab(record),
-    source == "bitbucket"   ~ renv_graph_description_bitbucket(record),
-    source == "git"         ~ renv_graph_description_github(record),
-    TRUE                    ~ renv_graph_description_repository(record)
+    source == "repository"   ~ renv_graph_description_repository(record),
+    source == "bioconductor" ~ renv_graph_description_bioconductor(record),
+    source == "github"       ~ renv_graph_description_github(record),
+    source == "gitlab"       ~ renv_graph_description_gitlab(record),
+    source == "bitbucket"    ~ renv_graph_description_bitbucket(record),
+    source == "git"          ~ renv_graph_description_github(record),
+    source == "local"        ~ renv_graph_description_local(record),
+    source == "url"          ~ as.list(record),
+    TRUE                     ~ renv_graph_description_repository(record)
   )
 
 }
@@ -81,18 +133,65 @@ renv_graph_description_repository <- function(record) {
   package <- record$Package
   version <- record$Version
 
-  # try to get the entry from available packages
+  # try available packages entry (returns full fields including Imports, Depends);
+  # we need these fields for dependency graph resolution
   entry <- catch(renv_available_packages_entry(package, filter = version))
   if (!inherits(entry, "error"))
     return(as.list(entry))
 
-  # otherwise, fall back to crandb
-  entry <- catch(renv_graph_description_crandb(package, version))
-  if (!inherits(entry, "error"))
-    return(as.list(entry))
+  # try cellar via renv_available_packages_latest (includes cellar = TRUE);
+  # cellar packages won't be found by renv_available_packages_entry.
+  # NOTE: renv_available_packages_latest only returns limited fields
+  # (Package, Version, etc.) — no Depends/Imports/LinkingTo
+  latest <- catch(renv_available_packages_latest(package))
+  if (!inherits(latest, "error")) {
+    if (is.null(version) || identical(latest$Version, version))
+      return(as.list(latest))
+  }
 
-  # both lookups failed; signal an error so the caller can warn
+  # if the package exists in configured repos at a different version, use
+  # the full-field entry with overridden version; renv_available_packages_entry
+  # without filter returns complete dependency fields unlike latest
+  if (!is.null(version) && !inherits(latest, "error")) {
+    full <- catch(renv_available_packages_entry(package))
+    if (!inherits(full, "error")) {
+      desc <- as.list(full)
+      desc$Version <- version
+      return(desc)
+    }
+  }
+
+  # fall back to crandb for archived versions not in any configured repo
+  if (!is.null(version)) {
+    crandb <- catch(renv_graph_description_crandb(package, version))
+    if (!inherits(crandb, "error"))
+      return(as.list(crandb))
+  }
+
+  # if we found any entry at all (e.g. version filter excluded it),
+  # use the latest available description
+  if (!inherits(latest, "error"))
+    return(as.list(latest))
+
+  # all lookups failed; signal an error so the caller can warn
   stopf("package '%s' is not available", package)
+
+}
+
+renv_graph_description_bioconductor <- function(record) {
+
+  # activate Bioconductor repositories in this context
+  version <- record[["git_branch"]]
+  if (!is.null(version)) {
+    parts <- strsplit(version, "_", fixed = TRUE)[[1L]]
+    ok <- length(parts) == 3L && tolower(parts[[1L]]) == "release"
+    if (!ok) version <- NULL else version <- paste(parts[2:3], collapse = ".")
+  }
+
+  project <- renv_restore_state(key = "project") %||% renv_project_resolve()
+  renv_scope_bioconductor(project = project, version = version)
+
+  renv_graph_description_repository(record)
 
 }
 
@@ -197,6 +296,37 @@ renv_graph_description_bitbucket <- function(record) {
 
 }
 
+renv_graph_description_local <- function(record) {
+
+  # try reading DESCRIPTION from the local path
+  path <- record$Path %||% record$RemoteUrl
+  if (is.null(path) || !file.exists(path))
+    return(as.list(record))
+
+  # if it's an archive, read DESCRIPTION from within
+  info <- renv_file_info(path)
+  if (identical(info$isdir, FALSE)) {
+    descpaths <- renv_archive_find(path, "(?:^|/)DESCRIPTION$")
+    if (length(descpaths)) {
+      descpath <- descpaths[nchar(descpaths) == min(nchar(descpaths))][1L]
+      contents <- renv_archive_read(path, descpath)
+      desc <- renv_dcf_read(text = contents)
+      return(as.list(desc))
+    }
+    return(as.list(record))
+  }
+
+  # it's a directory; read DESCRIPTION directly
+  descpath <- file.path(path, "DESCRIPTION")
+  if (file.exists(descpath)) {
+    desc <- renv_description_read(descpath)
+    return(as.list(desc))
+  }
+
+  as.list(record)
+
+}
+
 renv_graph_deps <- function(desc, fields = NULL) {
 
   fields <- fields %||% c("Depends", "Imports", "LinkingTo")
@@ -211,7 +341,9 @@ renv_graph_deps <- function(desc, fields = NULL) {
       deps <- c(deps, parsed$Package)
   }
 
-  unique(deps)
+  # exclude base packages (R, utils, methods, etc.)
+  deps <- setdiff(unique(deps), renv_packages_base())
+  deps
 
 }
 
@@ -346,11 +478,12 @@ renv_graph_urls <- function(descriptions) {
     entry <- tryCatch(
       switch(source,
         repository   = renv_graph_url_repository(desc),
-        bioconductor = renv_graph_url_repository(desc),
+        bioconductor = renv_graph_url_bioconductor(desc),
         github       = renv_graph_url_github(desc),
         gitlab       = renv_graph_url_gitlab(desc),
         url          = renv_graph_url_url(desc),
         local        = renv_graph_url_local(desc),
+        cellar       = renv_graph_url_cellar(desc),
         NULL
       ),
       error = function(e) NULL
@@ -361,6 +494,14 @@ renv_graph_urls <- function(descriptions) {
   }
 
   result
+
+}
+
+renv_graph_url_bioconductor <- function(desc) {
+
+  project <- renv_restore_state(key = "project") %||% renv_project_resolve()
+  renv_scope_bioconductor(project = project)
+  renv_graph_url_repository(desc)
 
 }
 
@@ -403,10 +544,19 @@ renv_graph_url_repository <- function(desc) {
   )
 
   if (!is.null(root)) {
+    repourl <- attr(record, "url", exact = TRUE)
+    reponame <- attr(record, "name", exact = TRUE)
     name <- renv_retrieve_repos_archive_name(as.list(desc), "source")
     url <- file.path(root, name)
     destfile <- renv_retrieve_path(as.list(desc), type = "source")
-    return(list(url = url, destfile = destfile, type = "repository"))
+    return(list(
+      url      = url,
+      destfile = destfile,
+      type     = "repository",
+      pkgtype  = "source",
+      repourl  = repourl,
+      reponame = reponame
+    ))
   }
 
   # couldn't resolve; fall back to sequential retrieval
@@ -418,12 +568,22 @@ renv_graph_url_repository_record <- function(desc, record) {
 
   type <- attr(record, "type", exact = TRUE) %||% "source"
   repo <- attr(record, "url", exact = TRUE)
+  reponame <- attr(record, "name", exact = TRUE)
   name <- renv_retrieve_repos_archive_name(record, type)
 
   url <- file.path(repo, name)
   destfile <- renv_retrieve_path(as.list(desc), type = type)
 
-  list(url = url, destfile = destfile, type = "repository")
+  # carry repository metadata so install can tag the record
+  # for renv_package_augment (RemoteRepos, RemoteReposName)
+  list(
+    url      = url,
+    destfile = destfile,
+    type     = "repository",
+    pkgtype  = type,
+    repourl  = repo,
+    reponame = reponame
+  )
 
 }
 
@@ -512,6 +672,31 @@ renv_graph_url_local <- function(desc) {
   }
 
   NULL
+
+}
+
+renv_graph_url_cellar <- function(desc) {
+
+  # cellar records from renv_available_packages_latest carry the
+  # file URI in their "url" attribute (set by renv_record_tag)
+  url <- attr(desc, "url", exact = TRUE)
+  type <- attr(desc, "type", exact = TRUE) %||% "source"
+
+  if (is.null(url))
+    return(NULL)
+
+  # the url points to the cellar directory; construct the tarball name
+  name <- renv_retrieve_repos_archive_name(as.list(desc), type)
+  href <- file.path(url, name)
+
+  destfile <- renv_retrieve_path(as.list(desc), type = type)
+
+  list(
+    url       = href,
+    destfile  = destfile,
+    type      = "cellar",
+    cellarurl = url
+  )
 
 }
 
@@ -674,18 +859,8 @@ renv_graph_install <- function(descriptions, jobs = 1L) {
 
   for (wave in waves) {
 
-    # skip packages whose dependencies failed; also skip packages
-    # that depend on anything in 'failed' to avoid wasted downloads
+    # remove packages that already failed in previous waves
     wave <- setdiff(wave, failed)
-    skipped <- character()
-    wave <- filter(wave, function(pkg) {
-      deps <- renv_graph_deps(descriptions[[pkg]])
-      deps <- intersect(deps, names(descriptions))
-      ok <- !any(deps %in% failed)
-      if (!ok) skipped <<- c(skipped, pkg)
-      ok
-    })
-    failed <- c(failed, skipped)
 
     if (length(wave) == 0L)
       next
@@ -712,7 +887,8 @@ renv_graph_install <- function(descriptions, jobs = 1L) {
       desc <- descriptions[[pkg]]
       cacheable <-
         renv_cache_config_enabled(project = project) &&
-        renv_record_cacheable(desc)
+        renv_record_cacheable(desc) &&
+        !renv_restore_rebuild_required(desc)
 
       if (cacheable) {
         path <- renv_cache_find(desc)
@@ -797,6 +973,15 @@ renv_graph_install <- function(descriptions, jobs = 1L) {
       desc <- descriptions[[package]]
       record <- as.list(desc)
       record$Path <- info$destfile
+
+      # tag repository records so renv_package_augment can write
+      # RemoteRepos / RemoteReposName into the installed DESCRIPTION
+      if (!is.null(info$repourl))
+        record <- renv_record_tag(record, info$pkgtype, info$repourl, info$reponame)
+
+      # tag cellar records with their file URI
+      if (!is.null(info$cellarurl))
+        record <- renv_record_tag(record, info$type, info$cellarurl, "__renv_cellar__")
 
       msg <- sprintf("- Downloading %s %s ... ", record$Package, record$Version)
       printf(format(msg, width = the$install_step_width))
