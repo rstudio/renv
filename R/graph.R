@@ -368,27 +368,59 @@ renv_graph_url_repository <- function(desc) {
   package <- desc$Package
   version <- desc$Version
 
-  entry <- renv_available_packages_entry(
+  # use renv_available_packages_latest to select the best record;
+  # this handles binary vs source selection (including P3M),
+  # NeedsCompilation checks, and toolchain availability
+  record <- catch(renv_available_packages_latest(package))
+  if (inherits(record, "error"))
+    return(NULL)
+
+  # if the latest version matches, use it directly
+  if (is.null(version) || identical(record$Version, version))
+    return(renv_graph_url_repository_record(desc, record))
+
+  # the latest version doesn't match; try a version-filtered lookup
+  # using the same type that was selected for the latest
+  type <- attr(record, "type", exact = TRUE) %||% "source"
+  entry <- catch(renv_available_packages_entry(
     package = package,
-    type    = "source",
+    type    = type,
     filter  = version,
     prefer  = desc[["Repository"]]
+  ))
+
+  if (!inherits(entry, "error")) {
+    tagged <- renv_available_packages_record(entry, type)
+    return(renv_graph_url_repository_record(desc, tagged))
+  }
+
+  # the requested version is not in current available packages;
+  # try the CRAN-style archive (source only)
+  root <- renv_retrieve_repos_archive_root(
+    attr(record, "url", exact = TRUE),
+    as.list(desc)
   )
 
-  # build URL from the repository entry
-  repo <- entry$Repository
-  path <- entry$Path
-  if (length(path) && !is.na(path))
-    repo <- file.path(repo, path)
+  if (!is.null(root)) {
+    name <- renv_retrieve_repos_archive_name(as.list(desc), "source")
+    url <- file.path(root, name)
+    destfile <- renv_retrieve_path(as.list(desc), type = "source")
+    return(list(url = url, destfile = destfile, type = "repository"))
+  }
 
-  file <- entry$File
-  name <- if (length(file) && !is.na(file))
-    file
-  else
-    paste0(package, "_", version, ".tar.gz")
+  # couldn't resolve; fall back to sequential retrieval
+  NULL
+
+}
+
+renv_graph_url_repository_record <- function(desc, record) {
+
+  type <- attr(record, "type", exact = TRUE) %||% "source"
+  repo <- attr(record, "url", exact = TRUE)
+  name <- renv_retrieve_repos_archive_name(record, type)
 
   url <- file.path(repo, name)
-  destfile <- renv_retrieve_path(as.list(desc))
+  destfile <- renv_retrieve_path(as.list(desc), type = type)
 
   list(url = url, destfile = destfile, type = "repository")
 
