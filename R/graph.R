@@ -1,70 +1,50 @@
 
-renv_graph_create <- function(remotes, records = NULL, fields = NULL) {
-  descriptions <- renv_graph_init(remotes, records = records, fields = fields)
-  renv_graph_sort(descriptions)
+renv_graph_create <- function(remotes) {
+  graph <- renv_graph_init(remotes)
+  renv_graph_sort(graph)
 }
 
-renv_graph_enrich <- function(records) {
-
-  for (package in names(records)) {
-    record <- records[[package]]
-
-    # skip if we already have dependency fields
-    if (!is.null(record$Depends) || !is.null(record$Imports) || !is.null(record$LinkingTo))
-      next
-
-    desc <- catch(renv_graph_description(record))
-    if (inherits(desc, "error"))
-      next
-
-    for (field in c("Depends", "Imports", "LinkingTo"))
-      record[[field]] <- desc[[field]]
-
-    records[[package]] <- record
-  }
-
-  records
-
-}
-
-renv_graph_init <- function(remotes, records = NULL, fields = NULL) {
+renv_graph_init <- function(remotes) {
 
   # create an environment to track resolved descriptions (avoids cycles/dupes)
-  descriptions <- new.env(parent = emptyenv())
+  envir <- new.env(parent = emptyenv())
 
-  # resolve each remote
-  for (remote in remotes)
-    renv_graph_resolve(remote, descriptions, records = records, fields = fields)
+  # use BFS so that top-level remotes are resolved before transitive
+  # dependencies; this ensures that explicit user requests (e.g. a
+  # GitHub remote) take priority over implicit repository lookups
+  queue <- as.list(remotes)
+  while (length(queue) > 0L) {
+    remote <- queue[[1L]]
+    queue <- queue[-1L]
+    deps <- renv_graph_resolve(remote, envir)
+    queue <- c(queue, as.list(deps))
+  }
 
-  as.list(descriptions)
+  as.list(envir)
 
 }
 
-renv_graph_resolve <- function(remote, descriptions, records = NULL, fields = NULL) {
+renv_graph_resolve <- function(remote, envir) {
 
-  # if we have a pre-resolved record for this package name, use it
-  if (!is.null(records) && is.character(remote) && remote %in% names(records)) {
-    record <- records[[remote]]
-    # resolve lazy (function) records
-    if (is.function(record))
-      record <- record()
-  } else {
-    record <- renv_remotes_resolve(remote)
-  }
+  # resolve the record
+  record <- renv_remotes_resolve(remote)
 
-  package <- record$Package
+  # skip if already resolved; because we use BFS, top-level remotes
+  # are always resolved before transitive dependencies, so the first
+  # resolution for a given package name wins
+  package <- record[["Package"]]
+  if (exists(package, envir = envir, inherits = FALSE))
+    return(character())
 
-  # skip if already resolved
-  if (exists(package, envir = descriptions, inherits = FALSE))
-    return()
-
-  # reserve the slot to prevent infinite recursion on cycles
-  assign(package, NULL, envir = descriptions)
+  # reserve the slot to prevent re-processing via dependency cycles
+  assign(package, NULL, envir = envir)
 
   # fetch DESCRIPTION-level metadata for this record
   desc <- catch(renv_graph_description(record))
-  if (inherits(desc, "error"))
+  if (inherits(desc, "error")) {
+    warningf("failed to retrieve DESCRIPTION for package '%s': %s", package, conditionMessage(desc))
     desc <- list()
+  }
 
   # merge record fields (Source, Remote* fields) into description
   for (field in names(record))
@@ -72,27 +52,23 @@ renv_graph_resolve <- function(remote, descriptions, records = NULL, fields = NU
       desc[[field]] <- record[[field]]
 
   # store the resolved description
-  assign(package, desc, envir = descriptions)
+  assign(package, desc, envir = envir)
 
-  # extract dependencies and recurse; transitive deps always use
-  # strong deps only (fields = NULL), matching the old behavior where
-  # only explicitly-requested packages used expanded dependency fields
-  deps <- renv_graph_deps(desc, fields = fields)
-  for (dep in deps)
-    renv_graph_resolve(dep, descriptions, records = records)
+  # return dependencies for the caller to enqueue
+  renv_graph_deps(desc)
 
 }
 
 renv_graph_description <- function(record) {
 
-  source <- record$Source %||% "Repository"
+  source <- renv_record_source(record, normalize = TRUE)
 
   case(
-    source == "Repository"  ~ renv_graph_description_repository(record),
-    source == "Bioconductor"~ renv_graph_description_repository(record),
-    source == "GitHub"      ~ renv_graph_description_github(record),
-    source == "GitLab"      ~ renv_graph_description_gitlab(record),
-    source == "Bitbucket"   ~ renv_graph_description_bitbucket(record),
+    source == "repository"  ~ renv_graph_description_repository(record),
+    source == "bioconductor"~ renv_graph_description_repository(record),
+    source == "github"      ~ renv_graph_description_github(record),
+    source == "gitlab"      ~ renv_graph_description_gitlab(record),
+    source == "bitbucket"   ~ renv_graph_description_bitbucket(record),
     source == "git"         ~ renv_graph_description_github(record),
     TRUE                    ~ renv_graph_description_repository(record)
   )
@@ -106,24 +82,16 @@ renv_graph_description_repository <- function(record) {
 
   # try to get the entry from available packages
   entry <- catch(renv_available_packages_entry(package, filter = version))
-  if (!inherits(entry, "error")) {
-    desc <- as.list(entry)
-    # available.packages returns the contribution URL in Repository
-    # (e.g. "file:///repo/src/contrib"); remove it so downstream code
-    # doesn't double-append the contrib path
-    desc$Repository <- NULL
-    return(desc)
-  }
+  if (!inherits(entry, "error"))
+    return(as.list(entry))
 
-  # if a specific version was requested, fall back to crandb
-  if (!is.null(version) && nzchar(version)) {
-    desc <- catch(renv_graph_description_crandb(package, version))
-    if (!inherits(desc, "error"))
-      return(desc)
-  }
+  # otherwise, fall back to crandb
+  entry <- catch(renv_graph_description_crandb(package, version))
+  if (!inherits(entry, "error"))
+    return(as.list(entry))
 
-  # as a last resort, return the record as-is
-  record
+  # both lookups failed; signal an error so the caller can warn
+  stopf("package '%s' is not available", package)
 
 }
 
@@ -136,12 +104,13 @@ renv_graph_description_crandb <- function(package, version) {
 
   # convert to DESCRIPTION-like list
   desc <- list(
-    Package = json$Package %||% package,
-    Version = json$Version %||% version
+    Package = json[["Package"]] %||% package,
+    Version = json[["Version"]] %||% version
   )
 
   # convert structured dependency fields to DESCRIPTION-format strings
-  for (field in c("Depends", "Imports", "LinkingTo", "Suggests", "Enhances")) {
+  fields <- c("Depends", "Imports", "LinkingTo", "Suggests", "Enhances")
+  for (field in fields) {
     value <- json[[field]]
     if (!is.null(value))
       desc[[field]] <- renv_graph_description_crandb_convert(value)
@@ -151,17 +120,14 @@ renv_graph_description_crandb <- function(package, version) {
 
 }
 
-renv_graph_description_crandb_convert <- function(deps) {
+renv_graph_description_crandb_convert <- function(value) {
 
-  # crandb returns deps as a named list, e.g. list(R = ">= 3.4", cli = "*")
-  parts <- enumerate(deps, function(name, version) {
-    if (identical(version, "*"))
-      name
-    else
-      sprintf("%s (%s)", name, version)
-  }, FUN.VALUE = character(1))
+  parts <- enum_chr(value, function(name, version) {
+    sprintf("%s (%s)", name, version)
+  })
 
-  paste(parts, collapse = ", ")
+  fixed <- gsub(" (*)", "", parts, fixed = TRUE)
+  paste(fixed, collapse = ", ")
 
 }
 
@@ -233,7 +199,6 @@ renv_graph_description_bitbucket <- function(record) {
 renv_graph_deps <- function(desc, fields = NULL) {
 
   fields <- fields %||% c("Depends", "Imports", "LinkingTo")
-  base <- renv_packages_base()
 
   deps <- character()
   for (field in fields) {
@@ -245,7 +210,7 @@ renv_graph_deps <- function(desc, fields = NULL) {
       deps <- c(deps, parsed$Package)
   }
 
-  setdiff(unique(deps), base)
+  unique(deps)
 
 }
 
@@ -366,16 +331,16 @@ renv_graph_waves <- function(descriptions) {
 
 }
 
-renv_graph_download <- function(descriptions) {
+renv_graph_download <- function(records) {
 
-  packages <- names(descriptions)
+  packages <- names(records)
 
   # set up restore state; recursive = FALSE because we already
   # resolved the full dependency graph up front
   renv_scope_restore(
     project   = renv_project_resolve(),
     library   = renv_libpaths_active(),
-    records   = descriptions,
+    records   = records,
     packages  = packages,
     recursive = FALSE
   )
@@ -383,21 +348,20 @@ renv_graph_download <- function(descriptions) {
   # prepare retrieve environment (repos, PPM, user agent)
   # this setup is normally done inside renv_retrieve_impl;
   # we replicate it here so forked processes inherit these options
-  options(repos = renv_repos_normalize())
-
-  if (renv_ppm_enabled()) {
-    repos <- getOption("repos")
-    renv_scope_options(repos = renv_ppm_transform(repos))
-  }
+  repos <- renv_repos_normalize()
+  if (renv_ppm_enabled())
+    repos <- renv_ppm_transform(repos)
 
   agent <- renv_http_useragent()
-  if (!grepl("renv", agent)) {
-    renv <- sprintf("renv (%s)", renv_metadata_version())
-    agent <- paste(renv, agent, sep = "; ")
-  }
-  renv_scope_options(HTTPUserAgent = agent)
+  if (!grepl("renv", agent))
+    agent <- paste(sprintf("renv (%s)", renv_metadata_version()), agent, sep = "; ")
 
-  # download packages in parallel
+  renv_scope_options(repos = repos, HTTPUserAgent = agent)
+
+  # TODO: with R (>= 4.5), download.file() can already support parallel
+  # downloads when using the libcurl method. could we also support parallel
+  # downloads using renv's curl download tooling, without forking?
+
   # on Unix, mclapply forks — each child inherits restore state,
   # downloads to the shared filesystem, and returns the record
   # with $Path from its fork-local state. on Windows, falls back
@@ -435,30 +399,24 @@ renv_graph_install <- function(descriptions, jobs = 1L) {
   library <- renv_libpaths_active()
 
   # set up restore state if not already provided by the caller
-  if (is.null(the$restore_state)) {
-    renv_scope_restore(
-      project   = project,
-      library   = library,
-      records   = descriptions,
-      packages  = packages,
-      recursive = FALSE
-    )
-  }
+  state <- the$restore_state %||% renv_scope_restore(
+    project   = project,
+    library   = library,
+    records   = descriptions,
+    packages  = packages,
+    recursive = FALSE
+  )
 
   # prepare retrieve environment (repos, PPM, user agent)
-  options(repos = renv_repos_normalize())
-
-  if (renv_ppm_enabled()) {
-    repos <- getOption("repos")
-    renv_scope_options(repos = renv_ppm_transform(repos))
-  }
+  repos <- renv_repos_normalize()
+  if (renv_ppm_enabled())
+    repos <- renv_ppm_transform(repos)
 
   agent <- renv_http_useragent()
-  if (!grepl("renv", agent)) {
-    renv <- sprintf("renv (%s)", renv_metadata_version())
-    agent <- paste(renv, agent, sep = "; ")
-  }
-  renv_scope_options(HTTPUserAgent = agent)
+  if (!grepl("renv", agent))
+    agent <- paste(sprintf("renv (%s)", renv_metadata_version()), agent, sep = "; ")
+
+  renv_scope_options(repos = repos, HTTPUserAgent = agent)
 
   # prepare install environment (inherited by subprocesses)
   rlibs <- paste(renv_libpaths_all(), collapse = .Platform$path.sep)
@@ -512,13 +470,13 @@ renv_graph_install <- function(descriptions, jobs = 1L) {
     # that depend on anything in 'failed' to avoid wasted downloads
     wave <- setdiff(wave, failed)
     skipped <- character()
-    wave <- Filter(function(pkg) {
+    wave <- filter(wave, function(pkg) {
       deps <- renv_graph_deps(descriptions[[pkg]])
       deps <- intersect(deps, names(descriptions))
       ok <- !any(deps %in% failed)
       if (!ok) skipped <<- c(skipped, pkg)
       ok
-    }, wave)
+    })
     failed <- c(failed, skipped)
 
     if (length(wave) == 0L)
@@ -541,6 +499,8 @@ renv_graph_install <- function(descriptions, jobs = 1L) {
 
     # download all packages in this wave (parallel);
     # suppress retrieve output since we report results ourselves
+    #
+    # TODO: can we download in parallel without using renv_parallel_exec?
     dl_results <- renv_parallel_exec(wave, function(package) {
       before <- Sys.time()
       renv_scope_options(renv.download.headers = NULL)
