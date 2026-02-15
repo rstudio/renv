@@ -1,446 +1,944 @@
 
-#' Generate a Package Dependency Graph
-#'
-#' Generate a package dependency graph.
-#'
-#' @inheritParams renv-params
-#'
-#' @param root The top-most package dependencies of interest in the dependency graph.
-#'
-#' @param leaf The bottom-most package dependencies of interest in the dependency graph.
-#'
-#' @param suggests Should suggested packages be included within
-#'   the dependency graph?
-#'
-#' @param enhances Should enhanced packages be included within
-#'   the dependency graph?
-#'
-#' @param resolver An \R function accepting a package name, and returning the
-#'   contents of its `DESCRIPTION` file (as an \R `data.frame` or `list`).
-#'   When `NULL` (the default), an internal resolver is used.
-#'
-#' @param renderer Which package should be used to render the resulting graph?
-#'
-#' @param attributes An \R list of graphViz attributes, mapping node names to
-#'   attribute key-value pairs. For example, to ask graphViz to prefer orienting
-#'   the graph from left to right, you can use `list(graph = c(rankdir = "LR"))`.
-#'
-#' @examples
-#'
-#' \dontrun{
-#' # graph the relationship between devtools and rlang
-#' graph(root = "devtools", leaf = "rlang")
-#'
-#' # figure out why a project depends on 'askpass'
-#' graph(leaf = "askpass")
-#' }
-#'
-#' @keywords internal
-graph <- function(root = NULL,
-                  leaf = NULL,
-                  ...,
-                  suggests   = FALSE,
-                  enhances   = FALSE,
-                  resolver   = NULL,
-                  renderer   = c("DiagrammeR", "visNetwork"),
-                  attributes = list(),
-                  project    = NULL)
-{
-  renv_scope_error_handler()
-  project <- renv_project_resolve(project)
-
-  # figure out packages to try and read
-  root <- root %||% renv_graph_roots(project)
-
-  # resolve fields
-  fields <- c(
-    "Depends", "Imports", "LinkingTo",
-    if (suggests) "Suggests",
-    if (enhances) "Enhances"
-  )
-
-  # resolve renderer
-  renderer <- renv_graph_renderer(renderer)
-
-  # find dependencies
-  envir <- new.env(parent = emptyenv())
-  revdeps <- new.env(parent = emptyenv())
-  for (package in root)
-    renv_graph_build(package, fields, resolver, envir, revdeps)
-
-  # prune the tree
-  tree <- renv_graph_prune(root, leaf, envir, revdeps)
-
-  # compute the graph
-  graph <- enumerate(tree, function(package, dependencies) {
-
-    enumerate(dependencies, function(field, packages) {
-      attrs <- renv_graphviz_attrs(field, renderer)
-      renv_graphviz_edge(package, packages, attrs)
-    })
-
-  })
-
-  # figure out which packages remain part of the graph after pruning
-  ok <- map_lgl(graph, function(items) {
-    any(map_int(items, length) > 0)
-  })
-
-  remaining <- intersect(root, names(graph)[ok])
-  if (empty(remaining)) {
-    fmt <- "- Could not find any relationship between the requested packages."
-    writef(fmt)
-    return(invisible(NULL))
-  }
-
-  defaults <- renv_graphviz_defaults(renderer)
-  attributes <- overlay(defaults, attributes)
-
-  # render attributes
-  attrtext <- renv_graphviz_render(attributes, TRUE)
-
-  # fill package names which are top-level dependencies
-  topattrs <- renv_graphviz_render(
-    map(named(remaining), function(name) {
-      list(
-        style     = "filled",
-        fillcolor = "#b3cde3"
-      )
-    }),
-    asis = FALSE
-  )
-
-  botattrs <- renv_graphviz_render(
-    map(named(leaf), function(name) {
-      list(
-        style     = "filled",
-        fillcolor = "#ccebc5"
-      )
-    }),
-    asis = FALSE
-  )
-
-  # collapse into text
-  parts <- c(
-    'digraph {', '',
-    attrtext, '',
-    topattrs, '',
-    botattrs, '',
-    unlist(graph), '',
-    '}'
-  )
-
-  diagram <- paste(parts, collapse = "\n")
-
-  renderer <- case(
-
-    identical(renderer, "DiagrammeR") ~ function(dot) {
-      DiagrammeR <- renv_namespace_load("DiagrammeR")
-      DiagrammeR$grViz(diagram = dot)
-    },
-
-    identical(renderer, "visNetwork") ~ function(dot) {
-
-      visNetwork <- renv_namespace_load("visNetwork")
-      graph <- visNetwork$visNetwork(dot = dot)
-
-      graph$x$options$edges$font$background <- "white"
-
-      # TODO: allow hierarchical layout via option?
-      # graph$x$options$layout = list(
-      #   hierarchical = list(
-      #     blockShifting   = TRUE,
-      #     levelSeparation = 50,
-      #     nodeSpacing     = 1,
-      #     shakeTowards    = "roots",
-      #     sortMethod      = "directed"
-      #   )
-      # )
-
-      graph
-
-    },
-
-    is.function(renderer) ~ renderer,
-
-    ~ stop("unrecognized renderer")
-
-  )
-
-  renderer(diagram)
+renv_graph_create <- function(remotes, records = NULL, fields = NULL) {
+  descriptions <- renv_graph_init(remotes, records = records, fields = fields)
+  renv_graph_sort(descriptions)
 }
 
-renv_graph_build <- function(package, fields, resolver, envir, revdeps) {
+renv_graph_enrich <- function(records) {
 
-  # check if we've already scanned this package
-  if (exists(package, envir = envir))
+  for (package in names(records)) {
+    record <- records[[package]]
+
+    # skip if we already have dependency fields
+    if (!is.null(record$Depends) || !is.null(record$Imports) || !is.null(record$LinkingTo))
+      next
+
+    desc <- catch(renv_graph_description(record))
+    if (inherits(desc, "error"))
+      next
+
+    for (field in c("Depends", "Imports", "LinkingTo"))
+      record[[field]] <- desc[[field]]
+
+    records[[package]] <- record
+  }
+
+  records
+
+}
+
+renv_graph_init <- function(remotes, records = NULL, fields = NULL) {
+
+  # create an environment to track resolved descriptions (avoids cycles/dupes)
+  descriptions <- new.env(parent = emptyenv())
+
+  # resolve each remote
+  for (remote in remotes)
+    renv_graph_resolve(remote, descriptions, records = records, fields = fields)
+
+  as.list(descriptions)
+
+}
+
+renv_graph_resolve <- function(remote, descriptions, records = NULL, fields = NULL) {
+
+  # if we have a pre-resolved record for this package name, use it
+  if (!is.null(records) && is.character(remote) && remote %in% names(records)) {
+    record <- records[[remote]]
+    # resolve lazy (function) records
+    if (is.function(record))
+      record <- record()
+  } else {
+    record <- renv_remotes_resolve(remote)
+  }
+
+  package <- record$Package
+
+  # skip if already resolved
+  if (exists(package, envir = descriptions, inherits = FALSE))
     return()
 
-  # read package dependencies
-  deps <- renv_graph_dependencies(package, fields, resolver)
+  # reserve the slot to prevent infinite recursion on cycles
+  assign(package, NULL, envir = descriptions)
 
-  # add dependencies to graph
-  assign(package, deps, envir = envir)
+  # fetch DESCRIPTION-level metadata for this record
+  desc <- catch(renv_graph_description(record))
+  if (inherits(desc, "error"))
+    desc <- list()
 
-  # recurse
-  children <- sort(unique(unlist(deps)))
-  for (child in children) {
-    assign(child, c(package, revdeps[[child]]), envir = revdeps)
-    renv_graph_build(child, fields, resolver, envir, revdeps)
-  }
+  # merge record fields (Source, Remote* fields) into description
+  for (field in names(record))
+    if (is.null(desc[[field]]))
+      desc[[field]] <- record[[field]]
 
-}
+  # store the resolved description
+  assign(package, desc, envir = descriptions)
 
-renv_graph_revdeps <- function(packages, revdeps) {
-
-  envir <- new.env(parent = emptyenv())
-  for (package in packages)
-    renv_graph_revdeps_impl(package, envir, revdeps)
-
-  ls(envir = envir)
-
-}
-
-renv_graph_revdeps_impl <- function(package, envir, revdeps) {
-
-  if (visited(package, envir))
-    return()
-
-  for (child in revdeps[[package]])
-    renv_graph_revdeps_impl(child, envir, revdeps)
+  # extract dependencies and recurse; transitive deps always use
+  # strong deps only (fields = NULL), matching the old behavior where
+  # only explicitly-requested packages used expanded dependency fields
+  deps <- renv_graph_deps(desc, fields = fields)
+  for (dep in deps)
+    renv_graph_resolve(dep, descriptions, records = records)
 
 }
 
-renv_graph_roots <- function(project) {
+renv_graph_description <- function(record) {
 
-  deps <- renv_dependencies_impl(project, errors = "ignored")
-  sort(unique(deps$Package))
-
-}
-
-renv_graph_dependencies <- function(package, fields, resolver) {
-
-  base <- installed_packages(priority = "base")
-
-  desc <- local({
-
-    # try using the resolver if supplied
-    if (!is.null(resolver)) {
-      desc <- catch(resolver(package))
-      if (inherits(desc, "error"))
-        warning(desc)
-      else if (!is.null(desc))
-        return(desc)
-    }
-
-    # check for (and prefer) a locally-installed package
-    path <- renv_package_find(package)
-    if (nzchar(path))
-      return(renv_description_read(path))
-
-    # otherwise, try and see if this is a known CRAN package
-    as.list(renv_available_packages_entry(package))
-
-  })
-
-  # parse the fields
-  values <- map(fields, function(field) {
-
-    item <- desc[[field]]
-    if (is.null(item))
-      return(NULL)
-
-    parsed <- renv_description_parse_field(item)
-    packages <- parsed$Package
-
-    setdiff(packages, c("R", base$Package))
-
-  })
-
-  names(values) <- fields
-  values
-
-}
-
-renv_graph_prune <- function(root, leaf, envir, revdeps) {
-
-  # grab all computed dependencies
-  all <- as.list(envir)
-
-  # if we don't have any leaves, then just return everything
-  if (empty(leaf))
-    return(all)
-
-  # otherwise, find recursive dependencies of the requested packages
-  rrd <- renv_graph_revdeps(leaf, revdeps)
-  map(all, function(children) {
-    map(children, intersect, rrd)
-  })
-
-}
-
-renv_graphviz_node <- function(nodes, asis, attrs) {
-
-  keys <- names(attrs)
-  vals <- renv_json_quote(attrs)
-  attrtext <- paste(keys, vals, sep = "=", collapse = ", ")
-
-  fmt <- if (asis) '%s [%s]' else '"%s" [%s]'
-  sprintf(fmt, nodes, attrtext)
-
-}
-
-renv_graphviz_edge <- function(lhs, rhs, attrs) {
-
-  if (empty(lhs) || empty(rhs))
-    return(character())
-
-  keys <- names(attrs)
-  vals <- renv_json_quote(attrs)
-  attrtext <- paste(keys, vals, sep = "=", collapse = ", ")
-
-  fmt <- '"%s" -> "%s" [%s]'
-  sprintf(fmt, lhs, rhs, attrtext)
-
-}
-
-renv_graphviz_attrs <- function(field, renderer) {
-
-  dil <- "#c0c0c0"
-
-  defaults <- list(
-
-    Depends = list(
-      color = dil,
-      style = "solid"
-    ),
-
-    Imports = list(
-      color = dil,
-      style = "solid"
-    ),
-
-    LinkingTo = list(
-      color = dil,
-      style = "dashed"
-    ),
-
-    Suggests = list(
-      color = "darkgreen",
-      style = "dashed"
-    ),
-
-    Enhances = list(
-      color = "darkblue",
-      style = "dashed"
-    )
-
-  )
-
-  attrs <- defaults[[field]]
-  if (identical(renderer, "visNetwork")) {
-
-    extra <- c(
-      font.align = "middle"
-    )
-
-    attrs <- c(attrs, extra)
-
-  }
-
-  attrs
-
-}
-
-renv_graphviz_defaults <- function(renderer) {
+  source <- record$Source %||% "Repository"
 
   case(
-    identical(renderer, "visNetwork") ~ renv_graphviz_defaults_visnetwork(),
-    identical(renderer, "DiagrammeR") ~ renv_graphviz_defaults_diagrammer(),
+    source == "Repository"  ~ renv_graph_description_repository(record),
+    source == "Bioconductor"~ renv_graph_description_repository(record),
+    source == "GitHub"      ~ renv_graph_description_github(record),
+    source == "GitLab"      ~ renv_graph_description_gitlab(record),
+    source == "Bitbucket"   ~ renv_graph_description_bitbucket(record),
+    source == "git"         ~ renv_graph_description_github(record),
+    TRUE                    ~ renv_graph_description_repository(record)
   )
 
 }
 
-renv_graphviz_defaults_visnetwork <- function() {
+renv_graph_description_repository <- function(record) {
 
-  list(
+  package <- record$Package
+  version <- record$Version
 
-    node = list(
-      style     = "filled",
-      shape     = "ellipse",
-      color     = "black",
-      fillcolor = "#e5d8bd",
-      fontname  = "Helvetica"
-    )
-
-  )
-
-}
-
-renv_graphviz_defaults_diagrammer <- function() {
-
-  list(
-
-    graph = list(
-      nodesep = 0.10
-    ),
-
-    node = list(
-      style     = "filled",
-      shape     = "ellipse",
-      fillcolor = "#e5d8bd",
-      fontname  = "Helvetica"
-    )
-
-  )
-
-}
-
-renv_graphviz_render <- function(attributes, asis) {
-
-  rendered <- enumerate(attributes, function(key, value) {
-
-    if (is.null(names(value))) {
-      lhs <- if (asis) key else renv_json_quote(key)
-      rhs <- renv_graphviz_render_value(value)
-      if (length(lhs) && length(rhs))
-        paste(lhs, rhs, sep = " = ")
-    } else {
-      keys <- names(value)
-      vals <- renv_graphviz_render_value(value)
-      fmt <- if (asis) '%s [%s]' else '"%s" [%s]'
-      sprintf(fmt, key, paste(keys, vals, sep = "=", collapse = ", "))
-    }
-
-  })
-
-  unlist(rendered, recursive = TRUE, use.names = FALSE)
-
-}
-
-renv_graphviz_render_value <- function(value) {
-  if (is.numeric(value))
-    format(value)
-  else if (is.logical(value))
-    tolower(as.character(value))
-  else
-    renv_json_quote(value)
-}
-
-renv_graph_renderer <- function(renderer) {
-
-  # allow functions as-is
-  if (is.function(renderer))
-    return(renderer)
-
-  # otherwise, match
-  renderer <- match.arg(renderer, choices = c("DiagrammeR", "visNetwork"))
-  if (!renv_package_installed(renderer)) {
-    fmt <- "package '%s' is required to render graphs but is not installed"
-    stopf(fmt, renderer)
+  # try to get the entry from available packages
+  entry <- catch(renv_available_packages_entry(package, filter = version))
+  if (!inherits(entry, "error")) {
+    desc <- as.list(entry)
+    # available.packages returns the contribution URL in Repository
+    # (e.g. "file:///repo/src/contrib"); remove it so downstream code
+    # doesn't double-append the contrib path
+    desc$Repository <- NULL
+    return(desc)
   }
 
-  renderer
+  # if a specific version was requested, fall back to crandb
+  if (!is.null(version) && nzchar(version)) {
+    desc <- catch(renv_graph_description_crandb(package, version))
+    if (!inherits(desc, "error"))
+      return(desc)
+  }
+
+  # as a last resort, return the record as-is
+  record
 
 }
 
+renv_graph_description_crandb <- function(package, version) {
+
+  url <- sprintf("https://crandb.r-pkg.org/%s/%s", package, version)
+  destfile <- renv_scope_tempfile("renv-crandb-")
+  download(url, destfile = destfile, quiet = TRUE)
+  json <- renv_json_read(file = destfile)
+
+  # convert to DESCRIPTION-like list
+  desc <- list(
+    Package = json$Package %||% package,
+    Version = json$Version %||% version
+  )
+
+  # convert structured dependency fields to DESCRIPTION-format strings
+  for (field in c("Depends", "Imports", "LinkingTo", "Suggests", "Enhances")) {
+    value <- json[[field]]
+    if (!is.null(value))
+      desc[[field]] <- renv_graph_description_crandb_convert(value)
+  }
+
+  desc
+
+}
+
+renv_graph_description_crandb_convert <- function(deps) {
+
+  # crandb returns deps as a named list, e.g. list(R = ">= 3.4", cli = "*")
+  parts <- enumerate(deps, function(name, version) {
+    if (identical(version, "*"))
+      name
+    else
+      sprintf("%s (%s)", name, version)
+  }, FUN.VALUE = character(1))
+
+  paste(parts, collapse = ", ")
+
+}
+
+renv_graph_description_github <- function(record) {
+
+  host   <- record$RemoteHost %||% config$github.host()
+  user   <- record$RemoteUsername
+  repo   <- record$RemoteRepo
+  subdir <- record$RemoteSubdir
+  sha    <- record$RemoteSha
+
+  origin <- fsub("api.github.com", "github.com", renv_retrieve_origin(host))
+  url <- paste(c(origin, user, repo), collapse = "/")
+
+  desc <- renv_remotes_resolve_github_description(url, host, user, repo, subdir, sha)
+  as.list(desc)
+
+}
+
+renv_graph_description_gitlab <- function(record) {
+
+  host   <- record$RemoteHost %||% config$gitlab.host()
+  user   <- record$RemoteUsername
+  repo   <- record$RemoteRepo
+  subdir <- record$RemoteSubdir
+  ref    <- record$RemoteRef
+
+  parts <- c(subdir, "DESCRIPTION")
+  descpath <- URLencode(paste(parts, collapse = "/"), reserved = TRUE)
+
+  # scope authentication
+  renv_scope_auth(repo)
+
+  # retrieve DESCRIPTION file
+  fmt <- "%s/api/v4/projects/%s/repository/files/%s/raw?ref=%s"
+  origin <- renv_retrieve_origin(host)
+  id <- URLencode(paste(user, repo, sep = "/"), reserved = TRUE)
+  url <- sprintf(fmt, origin, id, descpath, ref)
+
+  destfile <- renv_scope_tempfile("renv-description-")
+  download(url, destfile = destfile, type = "gitlab", quiet = TRUE)
+  desc <- renv_dcf_read(destfile)
+  as.list(desc)
+
+}
+
+renv_graph_description_bitbucket <- function(record) {
+
+  host   <- record$RemoteHost %||% config$bitbucket.host()
+  user   <- record$RemoteUsername
+  repo   <- record$RemoteRepo
+  ref    <- record$RemoteRef
+
+  # scope authentication
+  renv_scope_auth(repo)
+
+  # get DESCRIPTION file
+  fmt <- "%s/repositories/%s/%s/src/%s/DESCRIPTION"
+  origin <- renv_retrieve_origin(host)
+  url <- sprintf(fmt, origin, user, repo, ref)
+
+  destfile <- renv_scope_tempfile("renv-description-")
+  download(url, destfile = destfile, type = "bitbucket", quiet = TRUE)
+  desc <- renv_dcf_read(destfile)
+  as.list(desc)
+
+}
+
+renv_graph_deps <- function(desc, fields = NULL) {
+
+  fields <- fields %||% c("Depends", "Imports", "LinkingTo")
+  base <- renv_packages_base()
+
+  deps <- character()
+  for (field in fields) {
+    value <- desc[[field]]
+    if (is.null(value) || is.na(value))
+      next
+    parsed <- renv_description_parse_field(value)
+    if (!is.null(parsed))
+      deps <- c(deps, parsed$Package)
+  }
+
+  setdiff(unique(deps), base)
+
+}
+
+renv_graph_sort <- function(descriptions) {
+
+  packages <- names(descriptions)
+  n <- length(packages)
+  if (n == 0L)
+    return(descriptions)
+
+  # build adjacency: for each package, its deps that are within the set
+  adj <- lapply(descriptions, function(desc) {
+    deps <- renv_graph_deps(desc)
+    intersect(deps, packages)
+  })
+  names(adj) <- packages
+
+  # compute in-degree (number of deps within the set)
+  indegree <- integer(n)
+  names(indegree) <- packages
+  for (pkg in packages)
+    indegree[pkg] <- length(adj[[pkg]])
+
+  # build reverse adjacency: for each package, who depends on it
+  revadj <- vector("list", n)
+  names(revadj) <- packages
+  for (pkg in packages)
+    revadj[pkg] <- list(character())
+
+  for (pkg in packages)
+    for (dep in adj[[pkg]])
+      revadj[[dep]] <- c(revadj[[dep]], pkg)
+
+  # Kahn's algorithm
+  queue <- packages[indegree == 0L]
+  result <- character()
+
+  while (length(queue) > 0L) {
+    current <- queue[[1L]]
+    queue <- queue[-1L]
+    result <- c(result, current)
+
+    for (dependent in revadj[[current]]) {
+      indegree[[dependent]] <- indegree[[dependent]] - 1L
+      if (indegree[[dependent]] == 0L)
+        queue <- c(queue, dependent)
+    }
+  }
+
+  # handle cycles: append any remaining packages
+  remaining <- setdiff(packages, result)
+  if (length(remaining) > 0L) {
+    warningf("dependency cycle detected among: %s", paste(remaining, collapse = ", "))
+    result <- c(result, remaining)
+  }
+
+  descriptions[result]
+
+}
+
+renv_graph_waves <- function(descriptions) {
+
+  packages <- names(descriptions)
+  n <- length(packages)
+  if (n == 0L)
+    return(list())
+
+  # build adjacency: for each package, its deps within the install set
+  adj <- lapply(descriptions, function(desc) {
+    deps <- renv_graph_deps(desc)
+    intersect(deps, packages)
+  })
+  names(adj) <- packages
+
+  # compute in-degree
+  indegree <- integer(n)
+  names(indegree) <- packages
+  for (pkg in packages)
+    indegree[pkg] <- length(adj[[pkg]])
+
+  # build reverse adjacency
+  revadj <- vector("list", n)
+  names(revadj) <- packages
+  for (pkg in packages)
+    revadj[pkg] <- list(character())
+
+  for (pkg in packages)
+    for (dep in adj[[pkg]])
+      revadj[[dep]] <- c(revadj[[dep]], pkg)
+
+  # iterative peeling: each iteration collects all packages with in-degree 0
+  waves <- list()
+  remaining <- packages
+
+  while (length(remaining) > 0L) {
+
+    # find all packages with no unresolved dependencies
+    ready <- remaining[indegree[remaining] == 0L]
+
+    # handle cycles: if nothing is ready, dump remaining into final wave
+    if (length(ready) == 0L) {
+      warningf("dependency cycle detected among: %s", paste(remaining, collapse = ", "))
+      waves <- c(waves, list(remaining))
+      break
+    }
+
+    waves <- c(waves, list(ready))
+    remaining <- setdiff(remaining, ready)
+
+    # decrement in-degree for dependents
+    for (pkg in ready)
+      for (dependent in revadj[[pkg]])
+        indegree[[dependent]] <- indegree[[dependent]] - 1L
+
+  }
+
+  waves
+
+}
+
+renv_graph_download <- function(descriptions) {
+
+  packages <- names(descriptions)
+
+  # set up restore state; recursive = FALSE because we already
+  # resolved the full dependency graph up front
+  renv_scope_restore(
+    project   = renv_project_resolve(),
+    library   = renv_libpaths_active(),
+    records   = descriptions,
+    packages  = packages,
+    recursive = FALSE
+  )
+
+  # prepare retrieve environment (repos, PPM, user agent)
+  # this setup is normally done inside renv_retrieve_impl;
+  # we replicate it here so forked processes inherit these options
+  options(repos = renv_repos_normalize())
+
+  if (renv_ppm_enabled()) {
+    repos <- getOption("repos")
+    renv_scope_options(repos = renv_ppm_transform(repos))
+  }
+
+  agent <- renv_http_useragent()
+  if (!grepl("renv", agent)) {
+    renv <- sprintf("renv (%s)", renv_metadata_version())
+    agent <- paste(renv, agent, sep = "; ")
+  }
+  renv_scope_options(HTTPUserAgent = agent)
+
+  # download packages in parallel
+  # on Unix, mclapply forks — each child inherits restore state,
+  # downloads to the shared filesystem, and returns the record
+  # with $Path from its fork-local state. on Windows, falls back
+  # to sequential lapply
+  before <- Sys.time()
+
+  records <- renv_parallel_exec(packages, function(package) {
+    renv_retrieve_impl_one(package)
+    renv_restore_state()$install$data()[[package]]
+  })
+
+  after <- Sys.time()
+
+  names(records) <- packages
+  records <- Filter(Negate(is.null), records)
+
+  count <- length(records)
+  if (count) {
+    elapsed <- difftime(after, before, units = "secs")
+    writef("Successfully downloaded %s in %s.", nplural("package", count), renv_difftime_format(elapsed))
+    writef("")
+  }
+
+  records
+
+}
+
+renv_graph_install <- function(descriptions, jobs = 1L) {
+
+  packages <- names(descriptions)
+  if (length(packages) == 0L)
+    return(invisible(list()))
+
+  project <- renv_project_resolve()
+  library <- renv_libpaths_active()
+
+  # set up restore state if not already provided by the caller
+  if (is.null(the$restore_state)) {
+    renv_scope_restore(
+      project   = project,
+      library   = library,
+      records   = descriptions,
+      packages  = packages,
+      recursive = FALSE
+    )
+  }
+
+  # prepare retrieve environment (repos, PPM, user agent)
+  options(repos = renv_repos_normalize())
+
+  if (renv_ppm_enabled()) {
+    repos <- getOption("repos")
+    renv_scope_options(repos = renv_ppm_transform(repos))
+  }
+
+  agent <- renv_http_useragent()
+  if (!grepl("renv", agent)) {
+    renv <- sprintf("renv (%s)", renv_metadata_version())
+    agent <- paste(renv, agent, sep = "; ")
+  }
+  renv_scope_options(HTTPUserAgent = agent)
+
+  # prepare install environment (inherited by subprocesses)
+  rlibs <- paste(renv_libpaths_all(), collapse = .Platform$path.sep)
+  renv_scope_envvars(R_LIBS = rlibs, R_LIBS_USER = "NULL", R_LIBS_SITE = "NULL")
+  renv_scope_rtools()
+
+  tar <- Sys.getenv("R_INSTALL_TAR", unset = renv_tar_exe(default = "internal"))
+  renv_scope_envvars(R_INSTALL_TAR = tar)
+
+  if (renv_platform_macos())
+    renv_xcode_check()
+
+  renv_scope_install()
+
+  # set up staged install if configured
+  staged <- renv_config_install_staged()
+  installdir <- library
+
+  if (staged) {
+    templib <- renv_install_staged_library_path()
+    defer(unlink(templib, recursive = TRUE))
+    renv_scope_libpaths(c(templib, renv_libpaths_all()))
+    installdir <- templib
+  }
+
+  # determine cache settings
+  linkable <- renv_cache_linkable(project = project, library = library)
+  linker <- if (linkable) renv_file_link else renv_file_copy
+
+  # compute waves
+  waves <- renv_graph_waves(descriptions)
+
+  # staging directory for unpacked packages; scoped to this function
+  # so temp files from renv_package_unpack survive until install completes
+  staging <- renv_scope_tempfile("renv-graph-staging-")
+  ensure_directory(staging)
+
+  # track results, failures, and error messages
+  all_records <- list()
+  failed <- character()
+  errors <- stack()
+  verbose <- config$install.verbose()
+
+  writef(header("Installing packages"))
+
+  before <- Sys.time()
+
+  for (wave in waves) {
+
+    # skip packages whose dependencies failed; also skip packages
+    # that depend on anything in 'failed' to avoid wasted downloads
+    wave <- setdiff(wave, failed)
+    skipped <- character()
+    wave <- Filter(function(pkg) {
+      deps <- renv_graph_deps(descriptions[[pkg]])
+      deps <- intersect(deps, names(descriptions))
+      ok <- !any(deps %in% failed)
+      if (!ok) skipped <<- c(skipped, pkg)
+      ok
+    }, wave)
+    failed <- c(failed, skipped)
+
+    if (length(wave) == 0L)
+      next
+
+    # filter out packages that are already correctly installed;
+    # renv_restore_find returns a non-empty path when the installed
+    # version matches the record (and the package wasn't explicitly
+    # requested for reinstall via state$packages)
+    wave <- Filter(function(pkg) {
+      path <- renv_restore_find(pkg, descriptions[[pkg]])
+      !nzchar(path)
+    }, wave)
+
+    if (length(wave) == 0L)
+      next
+
+    # sort for deterministic output ordering
+    wave <- sort(wave)
+
+    # download all packages in this wave (parallel);
+    # suppress retrieve output since we report results ourselves
+    dl_results <- renv_parallel_exec(wave, function(package) {
+      before <- Sys.time()
+      renv_scope_options(renv.download.headers = NULL)
+      invisible(capture.output(renv_retrieve_impl_one(package)))
+      record <- renv_restore_state()$install$data()[[package]]
+      elapsed <- difftime(Sys.time(), before, units = "secs")
+      list(record = record, elapsed = elapsed)
+    })
+    names(dl_results) <- wave
+
+    # report per-package results and collect records
+    records <- list()
+    for (package in wave) {
+
+      result <- dl_results[[package]]
+
+      # mclapply returns try-error objects for failed children
+      ok <- !inherits(result, "try-error") &&
+            is.list(result) &&
+            !is.null(result$record)
+
+      if (!ok) {
+        writef("- Failed to download '%s'.", package)
+        errors$push(list(package = package, message = "failed to download"))
+        failed <- c(failed, package)
+        next
+      }
+
+      record <- result$record
+      msg <- sprintf("- Downloading %s %s ... ", record$Package, record$Version)
+      printf(format(msg, width = the$install_step_width))
+      renv_report_ok("downloaded", elapsed = result$elapsed, verbose = verbose)
+      records[[package]] <- record
+
+    }
+
+    # partition into cache hits, binaries, and source packages
+    source_queue <- list()
+
+    for (package in names(records)) {
+
+      record <- records[[package]]
+
+      # try cache first
+      cacheable <-
+        renv_cache_config_enabled(project = project) &&
+        renv_record_cacheable(record)
+
+      if (cacheable) {
+        path <- renv_cache_find(record)
+        if (renv_cache_package_validate(path)) {
+          renv_install_package_cache(record, path, linker)
+          all_records[[package]] <- record
+          next
+        }
+      }
+
+      # unpack archives and pre-build if needed; unpacked files are
+      # moved into 'staging' so they outlive the unpack function's frame
+      path <- catch(renv_graph_install_unpack(record, staging))
+      if (inherits(path, "error")) {
+        msg <- conditionMessage(path)
+        writef("- Failed to prepare '%s': %s", package, msg)
+        errors$push(list(package = package, message = msg))
+        failed <- c(failed, package)
+        next
+      }
+
+      # prepare the package for installation
+      prepared <- catch(renv_graph_install_prepare(record, path, installdir))
+      if (inherits(prepared, "error")) {
+        msg <- conditionMessage(prepared)
+        writef("- Failed to prepare '%s': %s", package, msg)
+        errors$push(list(package = package, message = msg))
+        failed <- c(failed, package)
+        next
+      }
+
+      if (identical(prepared$method, "copy")) {
+        # binary: install inline (fast copy)
+        renv_install_step_start("Installing", record, verbose = verbose)
+        copy_before <- Sys.time()
+        result <- catch(renv_graph_install_copy(prepared))
+        copy_after <- Sys.time()
+        if (inherits(result, "error")) {
+          msg <- conditionMessage(result)
+          writef("FAILED")
+          errors$push(list(package = package, message = msg))
+          failed <- c(failed, package)
+          next
+        }
+        copy_elapsed <- difftime(copy_after, copy_before, units = "auto")
+        renv_install_step_ok("installed binary", elapsed = copy_elapsed, verbose = verbose)
+        renv_graph_install_finalize(record, prepared, installdir, project, linkable)
+        all_records[[package]] <- record
+      } else {
+        # source: queue for concurrent install
+        source_queue[[package]] <- list(record = record, prepared = prepared)
+      }
+
+    }
+
+    # install source packages concurrently via pipe(), up to `jobs` at a time.
+    # we launch a batch of workers (all start concurrently as separate processes),
+    # then collect results sequentially (readLines blocks per connection, but
+    # all processes in the batch run in parallel)
+    if (length(source_queue) > 0L) {
+
+      source_names <- names(source_queue)
+      pos <- 1L
+
+      while (pos <= length(source_names)) {
+
+        # determine this batch
+        batch <- source_names[pos:min(pos + jobs - 1L, length(source_names))]
+        pos <- pos + length(batch)
+
+        # back up existing installations before launching installs
+        backups <- list()
+        for (pkg in batch) {
+          installpath <- file.path(installdir, pkg)
+          backups[[pkg]] <- renv_file_backup(installpath)
+          if (renv_file_broken(installpath))
+            renv_file_remove(installpath)
+        }
+
+        # launch all workers in this batch (processes start concurrently)
+        workers <- list()
+        for (pkg in batch)
+          workers[[pkg]] <- renv_graph_install_launch(source_queue[[pkg]]$prepared)
+
+        # collect results sequentially; print progress just before each
+        # blocking read so start/ok pairs stay on the same line
+        for (pkg in batch) {
+          entry <- source_queue[[pkg]]
+          renv_install_step_start("Installing", entry$record, verbose = verbose)
+
+          worker <- workers[[pkg]]
+          result <- renv_graph_install_collect(worker)
+
+          installpath <- file.path(installdir, pkg)
+          if (result$success && file.exists(installpath)) {
+            renv_install_step_ok("built from source", elapsed = result$elapsed, verbose = verbose)
+            renv_graph_install_finalize(entry$record, entry$prepared, installdir, project, linkable)
+            all_records[[pkg]] <- entry$record
+          } else {
+            # remove partial installation so backup can restore
+            installpath <- file.path(installdir, pkg)
+            unlink(installpath, recursive = TRUE)
+            writef("FAILED")
+            if (verbose) writeLines(result$output)
+            errors$push(list(package = pkg, message = "install failed", output = result$output))
+            failed <- c(failed, pkg)
+          }
+
+          # restore backup on failure, clean up on success
+          backups[[pkg]]()
+        }
+
+      }
+
+    }
+
+  }
+
+  after <- Sys.time()
+
+  # migrate staged packages into real library;
+  # if transactional and there were failures, skip migration entirely
+  # (the staging directory is cleaned up by defer, leaving the real
+  # library unchanged for a clean rollback)
+  transactional <- config$install.transactional()
+  if (staged && length(all_records) > 0L && !(transactional && length(failed) > 0L)) {
+    sources <- file.path(templib, names(all_records))
+    sources <- sources[file.exists(sources)]
+    targets <- file.path(library, basename(sources))
+    names(targets) <- sources
+    enumerate(targets, renv_file_move, overwrite = TRUE)
+
+    # clear filebacked cache entries
+    descpaths <- file.path(targets, "DESCRIPTION")
+    renv_filebacked_clear("renv_description_read", descpaths)
+    renv_filebacked_clear("renv_hash_description", descpaths)
+  }
+
+  n <- length(all_records)
+  if (n > 0L) {
+    elapsed <- difftime(after, before, units = "secs")
+    writef("Successfully installed %s in %s.", nplural("package", n), renv_difftime_format(elapsed))
+  }
+
+  # report errors
+  renv_graph_install_errors(errors$data(), failed, descriptions)
+
+  invisible(all_records)
+
+}
+
+renv_graph_install_errors <- function(errors, failed, descriptions) {
+
+  if (length(errors) == 0L && length(failed) == 0L)
+    return(invisible())
+
+  # build summary lines for packages that failed directly
+  messages <- map_chr(errors, function(item) {
+    sprintf("[%s]: %s", item$package, item$message)
+  })
+
+  # find packages skipped due to failed dependencies (not in errors themselves)
+  error_packages <- map_chr(errors, `[[`, "package")
+  skipped <- setdiff(failed, error_packages)
+  if (length(skipped) > 0L) {
+    skipped_messages <- map_chr(skipped, function(pkg) {
+      deps <- renv_graph_deps(descriptions[[pkg]])
+      deps_failed <- intersect(deps, failed)
+      sprintf("[%s]: dependency failed (%s)", pkg, paste(deps_failed, collapse = ", "))
+    })
+    messages <- c(messages, skipped_messages)
+  }
+
+  writef("")
+  bulletin(
+    "The following package(s) were not installed successfully:",
+    messages,
+    "You may need to manually download and install these packages."
+  )
+
+  # show full R CMD INSTALL output for failed source installs
+  for (item in errors) {
+    output <- item$output
+    if (is.null(output) || length(output) == 0L)
+      next
+    writef("Install output for '%s':", item$package)
+    writeLines(output)
+    writef("")
+  }
+
+  invisible()
+
+}
+
+renv_graph_install_unpack <- function(record, staging) {
+
+  package <- record$Package
+  path <- record$Path
+
+  # check if it's an archive
+  info <- renv_file_info(path)
+  isarchive <- identical(info$isdir, FALSE)
+
+  subdir <- record$RemoteSubdir %||% ""
+  if (isarchive) {
+    # renv_package_unpack creates a temp dir scoped to this function's
+    # caller (parent.frame()); move the result into the staging directory
+    # so it persists after this function returns
+    unpacked <- renv_package_unpack(package, path, subdir = subdir)
+    dest <- file.path(staging, package)
+    renv_file_move(unpacked, dest)
+    path <- dest
+  } else if (nzchar(subdir)) {
+    path <- paste(c(path, subdir), collapse = "/")
+  }
+
+  # check whether we should pre-build
+  path <- renv_install_package_impl_prebuild(record, path, quiet = TRUE)
+
+  # normalize
+  renv_path_normalize(path, mustWork = TRUE)
+
+}
+
+renv_graph_install_prepare <- function(record, path, library) {
+
+  package <- record$Package
+
+  # determine package type
+  isdir <- renv_file_type(path, symlinks = FALSE) == "directory"
+  isbin <- renv_package_type(path, quiet = TRUE) == "binary"
+  copyable <- isdir && isbin
+
+  if (copyable) {
+
+    list(
+      method  = "copy",
+      path    = path,
+      library = library,
+      package = package
+    )
+
+  } else {
+
+    # construct R CMD INSTALL command
+    args <- c(
+      "--vanilla",
+      "CMD", "INSTALL", "--preclean", "--no-multiarch", "--with-keep.source",
+      r_cmd_install_option(package, "configure.args", TRUE),
+      r_cmd_install_option(package, "configure.vars", TRUE),
+      r_cmd_install_option(package, c("install.opts", "INSTALL_opts"), FALSE),
+      "-l", renv_shell_path(library),
+      renv_shell_path(path)
+    )
+
+    cmd <- paste(renv_shell_path(R()), paste(args, collapse = " "))
+
+    list(
+      method  = "install",
+      cmd     = cmd,
+      path    = path,
+      library = library,
+      package = package
+    )
+
+  }
+
+}
+
+renv_graph_install_launch <- function(prepared) {
+
+  con <- pipe(paste(prepared$cmd, "2>&1"), open = "r")
+
+  list(
+    connection = con,
+    package    = prepared$package,
+    start      = Sys.time()
+  )
+
+}
+
+renv_graph_install_collect <- function(worker) {
+
+  con <- worker$connection
+
+  # readLines blocks until the process exits (EOF on pipe)
+  lines <- tryCatch(
+    readLines(con, warn = FALSE),
+    error = function(e) character()
+  )
+
+  # close() on a pipe connection returns the process exit status invisibly;
+  # R emits a warning on non-zero exit, which we suppress
+  status <- tryCatch(
+    suppressWarnings(close(con)),
+    error = function(e) 1L
+  )
+
+  exit_code <- status %||% 0L
+
+  elapsed <- difftime(Sys.time(), worker$start, units = "auto")
+
+  list(
+    success = identical(as.integer(exit_code), 0L),
+    output  = lines,
+    elapsed = elapsed
+  )
+
+}
+
+renv_graph_install_copy <- function(prepared) {
+
+  package <- prepared$package
+  library <- prepared$library
+  installpath <- file.path(library, package)
+
+  # back up existing installation
+  callback <- renv_file_backup(installpath)
+  defer(callback())
+
+  # remove broken symlinks
+  if (renv_file_broken(installpath))
+    renv_file_remove(installpath)
+
+  renv_file_copy(prepared$path, installpath, overwrite = TRUE)
+  invisible(installpath)
+
+}
+
+renv_graph_install_finalize <- function(record, prepared, library, project, linkable) {
+
+  package <- record$Package
+  installpath <- file.path(library, package)
+
+  # test binary loading
+  isbin <- renv_package_type(prepared$path, quiet = TRUE) == "binary"
+  if (isbin) {
+    tryCatch(
+      renv_install_test(package),
+      error = function(err) {
+        unlink(installpath, recursive = TRUE)
+        stop(err)
+      }
+    )
+  }
+
+  # augment package metadata
+  renv_package_augment(installpath, record)
+
+  # synchronize with cache
+  if (renv_cache_config_enabled(project = project))
+    renv_cache_synchronize(record, linkable = linkable)
+
+}
