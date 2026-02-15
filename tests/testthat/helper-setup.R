@@ -3,11 +3,6 @@
 # Here, "suite of tests" might also mean "a single test" interactively.
 renv_tests_setup <- function(scope = parent.frame()) {
 
-  # only run if interactive, or if testing
-  ok <- interactive() || testthat::is_testing()
-  if (!ok)
-    return()
-
   # make sure this only runs once
   if (!once())
     return()
