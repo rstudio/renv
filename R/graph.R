@@ -348,6 +348,8 @@ renv_graph_urls <- function(descriptions) {
         bioconductor = renv_graph_url_repository(desc),
         github       = renv_graph_url_github(desc),
         gitlab       = renv_graph_url_gitlab(desc),
+        url          = renv_graph_url_url(desc),
+        local        = renv_graph_url_local(desc),
         NULL
       ),
       error = function(e) NULL
@@ -429,6 +431,54 @@ renv_graph_url_gitlab <- function(desc) {
   destfile <- renv_retrieve_path(as.list(desc))
 
   list(url = url, destfile = destfile, type = "gitlab")
+
+}
+
+renv_graph_url_url <- function(desc) {
+
+  url <- desc$RemoteUrl
+  if (is.null(url)) {
+    # fall back to RemotePkgRef parsing (see renv_retrieve_url_resolve)
+    pkgref <- desc$RemotePkgRef
+    if (!is.null(pkgref)) {
+      remote <- renv_remotes_parse(pkgref)
+      if (identical(remote$type, "url"))
+        url <- remote$url
+    }
+  }
+
+  if (is.null(url))
+    return(NULL)
+
+  hash <- md5(url)
+  ext <- fileext(url, default = ".tar.gz")
+  destfile <- renv_paths_source("url", paste0(hash, ext))
+
+  list(url = url, destfile = destfile, type = "url")
+
+}
+
+renv_graph_url_local <- function(desc) {
+
+  # check Path and Source fields for a local file path
+  for (field in c("Path", "Source")) {
+    path <- desc[[field]]
+    if (is.null(path) || !nzchar(path))
+      next
+    if (!grepl("[/\\\\]|[.](?:zip|tgz|gz)$", path))
+      next
+    if (!file.exists(path))
+      next
+
+    path <- renv_path_normalize(path, mustWork = TRUE)
+    destfile <- renv_retrieve_path(as.list(desc))
+
+    # use a file URI so the parallel downloaders can handle it uniformly
+    url <- paste0("file://", path)
+    return(list(url = url, destfile = destfile, type = "local"))
+  }
+
+  NULL
 
 }
 
