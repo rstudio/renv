@@ -415,23 +415,24 @@ renv_download_parallel_method <- function() {
 
   method <- renv_download_method()
 
-  switch(method,
-
-    curl = {
-      version <- catch(renv_curl_version())
-      if (!inherits(version, "error") && version >= "7.66.0")
-        return("curl")
-    },
-
-    libcurl = {
-      if (getRversion() >= "4.5.0")
-        return("libcurl")
-    }
-
+  supported <- case(
+    method == "curl"    ~ renv_download_parallel_supported_curl(),
+    method == "libcurl" ~ renv_download_parallel_supported_libcurl()
   )
 
-  "sequential"
+  supported %||% "sequential"
 
+}
+
+renv_download_parallel_supported_curl <- function() {
+  version <- catch(renv_curl_version())
+  if (!inherits(version, "error") && version >= "7.66.0")
+    return("curl")
+}
+
+renv_download_parallel_supported_libcurl <- function() {
+  if (getRversion() >= "4.5.0")
+    return("libcurl")
 }
 
 renv_download_parallel_curl <- function(urls, destfiles, types) {
