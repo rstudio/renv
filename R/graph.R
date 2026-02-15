@@ -24,7 +24,7 @@ renv_graph_init <- function(remotes, records = NULL) {
   queue <- list()
   for (remote in remotes) {
     deps <- renv_graph_resolve(remote, envir, records = records, fields = fields)
-    queue[[length(queue) + 1L]] <- as.list(deps)
+    queue <- c(queue, as.list(deps))
   }
 
   # if any resolved description indicates Bioconductor is needed (via Source
@@ -80,10 +80,10 @@ renv_graph_resolve <- function(remote, envir, records = NULL, fields = NULL) {
   # renv_available_packages_latest(cellar = TRUE)
   desc <- catch(renv_graph_description(record))
   if (inherits(desc, "error")) {
-    fmt <- "failed to retrieve DESCRIPTION for package '%s': %s"
-    warningf(fmt, package, conditionMessage(desc))
+    reason <- conditionMessage(desc)
     desc <- list()
     attr(desc, "resolution_failed") <- TRUE
+    attr(desc, "resolution_error") <- reason
   }
 
   # merge record fields (Source, Remote* fields) into description
@@ -298,29 +298,13 @@ renv_graph_description_bitbucket <- function(record) {
 
 renv_graph_description_local <- function(record) {
 
-  # try reading DESCRIPTION from the local path
+  # try reading DESCRIPTION from the local path;
+  # renv_description_read handles directories, archives, and files
   path <- record$Path %||% record$RemoteUrl
-  if (is.null(path) || !file.exists(path))
-    return(as.list(record))
-
-  # if it's an archive, read DESCRIPTION from within
-  info <- renv_file_info(path)
-  if (identical(info$isdir, FALSE)) {
-    descpaths <- renv_archive_find(path, "(?:^|/)DESCRIPTION$")
-    if (length(descpaths)) {
-      descpath <- descpaths[nchar(descpaths) == min(nchar(descpaths))][1L]
-      contents <- renv_archive_read(path, descpath)
-      desc <- renv_dcf_read(text = contents)
+  if (!is.null(path) && file.exists(path)) {
+    desc <- catch(renv_description_read(path))
+    if (!inherits(desc, "error"))
       return(as.list(desc))
-    }
-    return(as.list(record))
-  }
-
-  # it's a directory; read DESCRIPTION directly
-  descpath <- file.path(path, "DESCRIPTION")
-  if (file.exists(descpath)) {
-    desc <- renv_description_read(descpath)
-    return(as.list(desc))
   }
 
   as.list(record)

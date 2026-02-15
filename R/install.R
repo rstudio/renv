@@ -265,8 +265,15 @@ install <- function(packages = NULL,
     !renv_package_installed(pkg, lib.loc = library)
   }, failed)
   if (length(failed)) {
-    fmt <- "failed to install %s"
-    stopf(fmt, paste(shQuote(failed), collapse = ", "))
+    reasons <- vapply(failed, function(pkg) {
+      attr(descriptions[[pkg]], "resolution_error") %||% ""
+    }, character(1L))
+    labels <- ifelse(
+      nzchar(reasons),
+      sprintf("%s (%s)", shQuote(failed), reasons),
+      shQuote(failed)
+    )
+    stopf("failed to install %s", paste(labels, collapse = ", "))
   }
 
   # check loaded packages and inform user if out-of-sync
