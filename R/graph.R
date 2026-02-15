@@ -331,6 +331,107 @@ renv_graph_waves <- function(descriptions) {
 
 }
 
+renv_graph_urls <- function(descriptions) {
+
+  result <- vector("list", length(descriptions))
+  names(result) <- names(descriptions)
+
+  for (i in seq_along(descriptions)) {
+
+    desc <- descriptions[[i]]
+    package <- desc$Package
+    source <- renv_record_source(desc, normalize = TRUE)
+
+    entry <- tryCatch(
+      switch(source,
+        repository   = renv_graph_url_repository(desc),
+        bioconductor = renv_graph_url_repository(desc),
+        github       = renv_graph_url_github(desc),
+        gitlab       = renv_graph_url_gitlab(desc),
+        NULL
+      ),
+      error = function(e) NULL
+    )
+
+    result[[package]] <- entry
+
+  }
+
+  result
+
+}
+
+renv_graph_url_repository <- function(desc) {
+
+  package <- desc$Package
+  version <- desc$Version
+
+  entry <- renv_available_packages_entry(
+    package = package,
+    type    = "source",
+    filter  = version,
+    prefer  = desc[["Repository"]]
+  )
+
+  # build URL from the repository entry
+  repo <- entry$Repository
+  path <- entry$Path
+  if (length(path) && !is.na(path))
+    repo <- file.path(repo, path)
+
+  file <- entry$File
+  name <- if (length(file) && !is.na(file))
+    file
+  else
+    paste0(package, "_", version, ".tar.gz")
+
+  url <- file.path(repo, name)
+  destfile <- renv_retrieve_path(as.list(desc))
+
+  list(url = url, destfile = destfile, type = "repository")
+
+}
+
+renv_graph_url_github <- function(desc) {
+
+  host   <- desc$RemoteHost %||% config$github.host()
+  origin <- renv_retrieve_origin(host)
+  user   <- desc$RemoteUsername
+  repo   <- desc$RemoteRepo
+  ref    <- desc$RemoteSha %||% desc$RemoteRef
+
+  if (is.null(ref) || is.null(user) || is.null(repo))
+    return(NULL)
+
+  url <- sprintf("%s/repos/%s/%s/tarball/%s", origin, user, repo, ref)
+  destfile <- renv_retrieve_path(as.list(desc))
+
+  list(url = url, destfile = destfile, type = "github")
+
+}
+
+renv_graph_url_gitlab <- function(desc) {
+
+  host   <- desc$RemoteHost %||% config$gitlab.host()
+  origin <- renv_retrieve_origin(host)
+  user   <- desc$RemoteUsername
+  repo   <- desc$RemoteRepo
+  sha    <- desc$RemoteSha %||% desc$RemoteRef
+
+  if (is.null(user) || is.null(repo))
+    return(NULL)
+
+  id <- URLencode(paste(user, repo, sep = "/"), reserved = TRUE)
+  url <- sprintf("%s/api/v4/projects/%s/repository/archive.tar.gz", origin, id)
+  if (!is.null(sha))
+    url <- paste(url, paste("sha", sha, sep = "="), sep = "?")
+
+  destfile <- renv_retrieve_path(as.list(desc))
+
+  list(url = url, destfile = destfile, type = "gitlab")
+
+}
+
 renv_graph_download <- function(records) {
 
   packages <- names(records)
@@ -358,20 +459,44 @@ renv_graph_download <- function(records) {
 
   renv_scope_options(repos = repos, HTTPUserAgent = agent)
 
-  # TODO: with R (>= 4.5), download.file() can already support parallel
-  # downloads when using the libcurl method. could we also support parallel
-  # downloads using renv's curl download tooling, without forking?
-
-  # on Unix, mclapply forks — each child inherits restore state,
-  # downloads to the shared filesystem, and returns the record
-  # with $Path from its fork-local state. on Windows, falls back
-  # to sequential lapply
   before <- Sys.time()
 
-  records <- renv_parallel_exec(packages, function(package) {
-    renv_retrieve_impl_one(package)
-    renv_restore_state()$install$data()[[package]]
-  })
+  # resolve download URLs for all packages
+  url_info <- renv_graph_urls(records)
+
+  # split into packages we can batch-download vs those needing sequential retrieval
+  downloadable <- Filter(Negate(is.null), url_info)
+  fallback_pkgs <- setdiff(packages, names(downloadable))
+
+  # batch download for packages with resolved URLs
+  if (length(downloadable)) {
+    urls      <- vapply(downloadable, `[[`, character(1L), "url")
+    destfiles <- vapply(downloadable, `[[`, character(1L), "destfile")
+    types     <- vapply(downloadable, `[[`, character(1L), "type")
+    ok <- renv_download_parallel(urls, destfiles, types)
+
+    # build records for successful downloads
+    for (pkg in names(downloadable)) {
+      if (isTRUE(ok[[pkg]])) {
+        record <- as.list(records[[pkg]])
+        record$Path <- downloadable[[pkg]]$destfile
+        records[[pkg]] <- record
+      } else {
+        # failed parallel download; try sequential fallback
+        fallback_pkgs <- c(fallback_pkgs, pkg)
+      }
+    }
+  }
+
+  # sequential fallback for packages that can't be batch-downloaded
+  for (pkg in fallback_pkgs) {
+    status <- catch({
+      renv_retrieve_impl_one(pkg)
+      renv_restore_state()$install$data()[[pkg]]
+    })
+    if (!inherits(status, "error") && !is.null(status))
+      records[[pkg]] <- status
+  }
 
   after <- Sys.time()
 
@@ -497,66 +622,113 @@ renv_graph_install <- function(descriptions, jobs = 1L) {
     # sort for deterministic output ordering
     wave <- sort(wave)
 
-    # download all packages in this wave (parallel);
-    # suppress retrieve output since we report results ourselves
-    #
-    # TODO: can we download in parallel without using renv_parallel_exec?
-    dl_results <- renv_parallel_exec(wave, function(package) {
-      before <- Sys.time()
-      renv_scope_options(renv.download.headers = NULL)
-      invisible(capture.output(renv_retrieve_impl_one(package)))
-      record <- renv_restore_state()$install$data()[[package]]
-      elapsed <- difftime(Sys.time(), before, units = "secs")
-      list(record = record, elapsed = elapsed)
-    })
-    names(dl_results) <- wave
+    # check cache first: packages with a valid cache entry can be
+    # installed directly, skipping the download entirely
+    cache_hits <- character()
+    for (pkg in wave) {
+      desc <- descriptions[[pkg]]
+      cacheable <-
+        renv_cache_config_enabled(project = project) &&
+        renv_record_cacheable(desc)
 
-    # report per-package results and collect records
+      if (cacheable) {
+        path <- renv_cache_find(desc)
+        if (renv_cache_package_validate(path)) {
+          renv_install_package_cache(desc, path, linker)
+          all_records[[pkg]] <- desc
+          cache_hits <- c(cache_hits, pkg)
+        }
+      }
+    }
+    wave <- setdiff(wave, cache_hits)
+
+    if (length(wave) == 0L)
+      next
+
+    # resolve download URLs for this wave
+    wave_descs <- descriptions[wave]
+    url_info <- renv_graph_urls(wave_descs)
+
+    downloadable <- Filter(Negate(is.null), url_info)
+    fallback_pkgs <- setdiff(wave, names(downloadable))
+
+    # batch download packages with resolved URLs
+    dl_before <- Sys.time()
+
+    if (length(downloadable)) {
+      urls      <- vapply(downloadable, `[[`, character(1L), "url")
+      destfiles <- vapply(downloadable, `[[`, character(1L), "destfile")
+      types     <- vapply(downloadable, `[[`, character(1L), "type")
+
+      # ensure parent directories exist
+      for (df in destfiles)
+        ensure_parent_directory(df)
+
+      dl_ok <- renv_download_parallel(urls, destfiles, types)
+
+      for (pkg in names(downloadable)) {
+        if (!isTRUE(dl_ok[[pkg]])) {
+          # move to sequential fallback
+          fallback_pkgs <- c(fallback_pkgs, pkg)
+        }
+      }
+    }
+
+    # sequential fallback for unsupported sources or failed parallel downloads
+    for (pkg in fallback_pkgs) {
+      status <- catch({
+        renv_scope_options(renv.download.headers = NULL)
+        invisible(capture.output(renv_retrieve_impl_one(pkg)))
+      })
+      if (inherits(status, "error")) {
+        # mark the destfile location so we can detect failure below
+        downloadable[[pkg]] <- NULL
+      } else {
+        # retrieve_impl_one stores the record with $Path
+        rec <- renv_restore_state()$install$data()[[pkg]]
+        if (!is.null(rec))
+          downloadable[[pkg]] <- list(
+            url      = "",
+            destfile = rec$Path,
+            type     = renv_record_source(rec, normalize = TRUE)
+          )
+      }
+    }
+
+    dl_after <- Sys.time()
+
+    # report per-package download results and collect records
     records <- list()
     for (package in wave) {
 
-      result <- dl_results[[package]]
+      info <- downloadable[[package]]
+      has_file <- !is.null(info) && file.exists(info$destfile)
 
-      # mclapply returns try-error objects for failed children
-      ok <- !inherits(result, "try-error") &&
-            is.list(result) &&
-            !is.null(result$record)
-
-      if (!ok) {
+      if (!has_file) {
         writef("- Failed to download '%s'.", package)
         errors$push(list(package = package, message = "failed to download"))
         failed <- c(failed, package)
         next
       }
 
-      record <- result$record
+      desc <- descriptions[[package]]
+      record <- as.list(desc)
+      record$Path <- info$destfile
+
       msg <- sprintf("- Downloading %s %s ... ", record$Package, record$Version)
       printf(format(msg, width = the$install_step_width))
-      renv_report_ok("downloaded", elapsed = result$elapsed, verbose = verbose)
+      elapsed <- difftime(dl_after, dl_before, units = "secs")
+      renv_report_ok("downloaded", elapsed = elapsed, verbose = verbose)
       records[[package]] <- record
 
     }
 
-    # partition into cache hits, binaries, and source packages
+    # partition into binaries and source packages
     source_queue <- list()
 
     for (package in names(records)) {
 
       record <- records[[package]]
-
-      # try cache first
-      cacheable <-
-        renv_cache_config_enabled(project = project) &&
-        renv_record_cacheable(record)
-
-      if (cacheable) {
-        path <- renv_cache_find(record)
-        if (renv_cache_package_validate(path)) {
-          renv_install_package_cache(record, path, linker)
-          all_records[[package]] <- record
-          next
-        }
-      }
 
       # unpack archives and pre-build if needed; unpacked files are
       # moved into 'staging' so they outlive the unpack function's frame

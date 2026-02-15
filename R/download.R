@@ -255,11 +255,7 @@ renv_download_default_agent_scope_impl <- function(headers, scope = parent.frame
 
 }
 
-renv_download_curl <- function(url, destfile, type, request, headers) {
-
-  renv_download_trace_begin(url, "curl")
-
-  configfile <- renv_scope_tempfile("renv-download-config-")
+renv_download_curl_config_text <- function(url, destfile, type, headers, request = "GET") {
 
   fields <- c(
     "user-agent" = renv_http_useragent(),
@@ -301,13 +297,23 @@ renv_download_curl <- function(url, destfile, type, request, headers) {
   dupes <- startsWith(text, "header =") & duplicated(text)
   text <- text[!dupes]
 
-  # add in stand-along flags
+  # add in stand-alone flags
   flags <- c("location", "fail", "silent", "show-error")
   if (request == "HEAD")
     flags <- c(flags, "head", "include")
 
   # put it all together
-  text <- c(flags, text)
+  c(flags, text)
+
+}
+
+renv_download_curl <- function(url, destfile, type, request, headers) {
+
+  renv_download_trace_begin(url, "curl")
+
+  configfile <- renv_scope_tempfile("renv-download-config-")
+
+  text <- renv_download_curl_config_text(url, destfile, type, headers, request)
 
   writeLines(text, con = configfile)
   renv_download_trace_request(text)
@@ -390,6 +396,191 @@ renv_download_curl_config <- function() {
   }
 
   NULL
+
+}
+
+renv_download_parallel <- function(urls, destfiles, types) {
+
+  method <- renv_download_parallel_method()
+
+  switch(method,
+    libcurl = renv_download_parallel_libcurl(urls, destfiles, types),
+    curl    = renv_download_parallel_curl(urls, destfiles, types),
+    renv_download_parallel_sequential(urls, destfiles, types)
+  )
+
+}
+
+renv_download_parallel_method <- function() {
+
+  method <- renv_download_method()
+
+  switch(method,
+
+    curl = {
+      version <- catch(renv_curl_version())
+      if (!inherits(version, "error") && version >= "7.66.0")
+        return("curl")
+    },
+
+    libcurl = {
+      if (getRversion() >= "4.5.0")
+        return("libcurl")
+    }
+
+  )
+
+  "sequential"
+
+}
+
+renv_download_parallel_curl <- function(urls, destfiles, types) {
+
+  n <- length(urls)
+  names <- names(urls) %||% urls
+
+  # ensure parent directories exist
+  for (destfile in destfiles)
+    ensure_parent_directory(destfile)
+
+  # build a multi-section config file; sections separated by "next"
+  sections <- vector("list", n)
+  for (i in seq_len(n)) {
+    section <- renv_download_curl_config_text(
+      url      = urls[[i]],
+      destfile = destfiles[[i]],
+      type     = types[[i]],
+      headers  = renv_download_custom_headers(urls[[i]])
+    )
+    sections[[i]] <- section
+  }
+
+  text <- character()
+  for (i in seq_len(n)) {
+    if (i > 1L)
+      text <- c(text, "next")
+    text <- c(text, sections[[i]])
+  }
+
+  configfile <- renv_scope_tempfile("renv-parallel-config-")
+  writeLines(text, con = configfile)
+
+  # build curl arguments
+  args <- stack()
+  args$push("--parallel")
+
+  # include download.file.extra if curl is the configured method
+  if (identical(getOption("download.file.method"), "curl")) {
+    extra <- getOption("download.file.extra")
+    if (length(extra))
+      args$push(extra)
+  }
+
+  # https://github.com/rstudio/renv/issues/1739
+  if (renv_platform_windows()) {
+    enabled <- Sys.getenv("R_LIBCURL_SSL_REVOKE_BEST_EFFORT", unset = "TRUE")
+    if (truthy(enabled))
+      args$push("--ssl-revoke-best-effort")
+  }
+
+  # add user config files
+  userconfig <- getOption("renv.curl.config", renv_download_curl_config())
+  for (entry in userconfig)
+    if (file.exists(entry))
+      args$push("--config", renv_shell_path(entry))
+
+  # add our config file
+  args$push("--config", renv_shell_path(configfile))
+
+  # run curl
+  curl <- renv_curl_exe()
+  output <- suppressWarnings(
+    system2(curl, args$data(), stdout = TRUE, stderr = TRUE)
+  )
+
+  renv_download_trace_result(output)
+
+  # determine success by checking which destfiles exist and are non-empty
+  ok <- file.exists(destfiles) & (file.size(destfiles) > 0L)
+  names(ok) <- names
+  ok
+
+}
+
+renv_download_parallel_libcurl <- function(urls, destfiles, types) {
+
+  n <- length(urls)
+  names <- names(urls) %||% urls
+
+  # ensure parent directories exist
+  for (destfile in destfiles)
+    ensure_parent_directory(destfile)
+
+  # group URLs by their auth headers so we can pass uniform headers
+  # to each download.file() call
+  auth_keys <- character(n)
+  auth_list <- vector("list", n)
+  for (i in seq_len(n)) {
+    auth <- renv_download_auth(urls[[i]], types[[i]])
+    custom <- renv_download_custom_headers(urls[[i]])
+    hdrs <- c(auth, custom)
+    auth_list[[i]] <- hdrs
+    auth_keys[[i]] <- paste(sort(paste(names(hdrs), hdrs, sep = "=")), collapse = "\n")
+  }
+
+  groups <- split(seq_len(n), auth_keys)
+
+  for (group in groups) {
+
+    group_urls <- urls[group]
+    group_dest <- destfiles[group]
+    hdrs <- auth_list[[group[[1L]]]]
+
+    # headers must be NULL rather than zero-length
+    if (length(hdrs) == 0L)
+      hdrs <- NULL
+
+    tryCatch(
+      download.file(
+        url      = group_urls,
+        destfile = group_dest,
+        method   = "libcurl",
+        headers  = hdrs,
+        quiet    = TRUE
+      ),
+      warning = function(w) invokeRestart("muffleWarning"),
+      error = function(e) NULL
+    )
+
+  }
+
+  # determine success by checking which destfiles exist
+  ok <- file.exists(destfiles) & (file.size(destfiles) > 0L)
+  names(ok) <- names
+  ok
+
+}
+
+renv_download_parallel_sequential <- function(urls, destfiles, types) {
+
+  n <- length(urls)
+  names <- names(urls) %||% urls
+
+  ok <- logical(n)
+  for (i in seq_len(n)) {
+    status <- catch(
+      download(
+        url      = urls[[i]],
+        destfile = destfiles[[i]],
+        type     = types[[i]],
+        quiet    = TRUE
+      )
+    )
+    ok[[i]] <- !inherits(status, "error") && file.exists(destfiles[[i]])
+  }
+
+  names(ok) <- names
+  ok
 
 }
 
