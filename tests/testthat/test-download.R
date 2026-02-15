@@ -175,6 +175,14 @@ test_that("download failures are reported if destfile not writable", {
 
 })
 
+test_that("renv_curl_version returns a valid numeric_version", {
+  skip_if_not(nzchar(Sys.which("curl")))
+
+  version <- renv_curl_version()
+  expect_s3_class(version, "numeric_version")
+  expect_true(version > "0.0.0")
+})
+
 test_that("renv_download_parallel_method respects renv_download_method", {
 
   # when download method is curl and version supports --parallel
