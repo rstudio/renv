@@ -62,11 +62,21 @@ renv_curl_validate_impl <- function(curl) {
 
 }
 
+the$curl_version <- new.env(parent = emptyenv())
+
 renv_curl_version <- function() {
 
   curl <- renv_curl_exe()
   if (!nzchar(curl))
     return(numeric_version("0.0.0"))
+
+  the$curl_version[[curl]] <- the$curl_version[[curl]] %||% {
+    renv_curl_version_impl(curl)
+  }
+
+}
+
+renv_curl_version_impl <- function(curl) {
 
   output <- suppressWarnings(
     tryCatch(
