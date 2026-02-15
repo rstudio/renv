@@ -42,7 +42,8 @@ renv_graph_resolve <- function(remote, envir) {
   # fetch DESCRIPTION-level metadata for this record
   desc <- catch(renv_graph_description(record))
   if (inherits(desc, "error")) {
-    warningf("failed to retrieve DESCRIPTION for package '%s': %s", package, conditionMessage(desc))
+    fmt <- "failed to retrieve DESCRIPTION for package '%s': %s"
+    warningf(fmt, package, conditionMessage(desc))
     desc <- list()
   }
 
