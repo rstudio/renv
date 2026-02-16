@@ -162,8 +162,9 @@
       - egg [1.0.0]
       These packages will be installed into "<tempdir>/<renv-library>".
       
-      # Installing packages ---
+      # Downloading packages ---
       - Downloading egg 1.0.0 ...                     OK
+      # Installing packages ---
       - Installing egg 1.0.0 ...                      OK [built from source in XXs]
       Successfully downloaded 1 package in XXXX seconds.
       Successfully installed 1 package in XXXX seconds.

@@ -1,3 +1,20 @@
+renv_size_format <- function(bytes) {
+
+  if (testing())
+    return("XX kB")
+
+  if (bytes < 1000)
+    return(paste(round(bytes), "B"))
+
+  if (bytes < 1000 * 1000)
+    return(sprintf("%.0f kB", bytes / 1000))
+
+  if (bytes < 1e9)
+    return(sprintf("%.1f MB", bytes / 1e6))
+
+  sprintf("%.1f GB", bytes / 1e9)
+
+}
 
 # download a file from 'url' to file 'destfile'. the 'type'
 # argument tells us the remote type, which is used to motivate
@@ -399,13 +416,21 @@ renv_download_curl_config <- function() {
 
 }
 
-renv_download_parallel <- function(urls, destfiles, types) {
+renv_download_parallel <- function(urls, destfiles, types, callback = NULL) {
 
   method <- renv_download_parallel_method()
 
+  # prefer curl when a callback is provided, since only the curl
+  # backend supports streaming per-transfer progress via --write-out
+  if (!is.null(callback) && method != "curl") {
+    supported <- renv_download_parallel_supported_curl()
+    if (!is.null(supported))
+      method <- supported
+  }
+
   switch(method,
     libcurl = renv_download_parallel_libcurl(urls, destfiles, types),
-    curl    = renv_download_parallel_curl(urls, destfiles, types),
+    curl    = renv_download_parallel_curl(urls, destfiles, types, callback = callback),
     renv_download_parallel_sequential(urls, destfiles, types)
   )
 
@@ -435,7 +460,7 @@ renv_download_parallel_supported_libcurl <- function() {
     return("libcurl")
 }
 
-renv_download_parallel_curl <- function(urls, destfiles, types) {
+renv_download_parallel_curl <- function(urls, destfiles, types, callback = NULL) {
 
   n <- length(urls)
   names <- names(urls) %||% urls
@@ -444,8 +469,25 @@ renv_download_parallel_curl <- function(urls, destfiles, types) {
   for (destfile in destfiles)
     ensure_parent_directory(destfile)
 
-  # build a multi-section config file; sections separated by "next"
-  sections <- vector("list", n)
+  # %{stderr} routes --write-out output to stderr, which is unbuffered by
+  # the C standard. without this, libc fully buffers stdout when connected
+  # to a pipe, so curl --parallel holds all --write-out output until exit.
+  # trailing sentinel ("renv-output-end") prevents strsplit dropping empty
+  # fields like errormsg on success.
+  fields <- c(
+    "renv-output-begin",
+    "%{filename_effective}",
+    "%{http_code}",
+    "%{size_download}",
+    "%{time_total}",
+    "%{exitcode}",
+    "%{errormsg}",
+    "renv-output-end"
+  )
+  writeout <- sprintf('write-out = "%%{stderr}%s\\n"', paste(fields, collapse = "\\t"))
+
+  # build per-URL curl config files (one per transfer)
+  configs <- vector("character", n)
   for (i in seq_len(n)) {
     section <- renv_download_curl_config_text(
       url      = urls[[i]],
@@ -453,53 +495,85 @@ renv_download_parallel_curl <- function(urls, destfiles, types) {
       type     = types[[i]],
       headers  = renv_download_custom_headers(urls[[i]])
     )
-    sections[[i]] <- section
+    configfile <- renv_scope_tempfile("renv-dl-config-")
+    writeLines(c(section, writeout), con = configfile)
+    configs[[i]] <- configfile
   }
 
-  text <- character()
-  for (i in seq_len(n)) {
-    if (i > 1L)
-      text <- c(text, "next")
-    text <- c(text, sections[[i]])
-  }
+  # per-URL arguments: these are reset by --next, so they must be
+  # repeated before each --config to apply to every transfer
+  perargs <- stack()
 
-  configfile <- renv_scope_tempfile("renv-parallel-config-")
-  writeLines(text, con = configfile)
-
-  # build curl arguments
-  args <- stack()
-  args$push("--parallel")
-
-  # include download.file.extra if curl is the configured method
   if (identical(getOption("download.file.method"), "curl")) {
     extra <- getOption("download.file.extra")
     if (length(extra))
-      args$push(extra)
+      perargs$push(extra)
   }
 
   # https://github.com/rstudio/renv/issues/1739
   if (renv_platform_windows()) {
     enabled <- Sys.getenv("R_LIBCURL_SSL_REVOKE_BEST_EFFORT", unset = "TRUE")
     if (truthy(enabled))
-      args$push("--ssl-revoke-best-effort")
+      perargs$push("--ssl-revoke-best-effort")
   }
 
-  # add user config files
   userconfig <- getOption("renv.curl.config", renv_download_curl_config())
   for (entry in userconfig)
     if (file.exists(entry))
-      args$push("--config", renv_shell_path(entry))
+      perargs$push("--config", renv_shell_path(entry))
 
-  # add our config file
-  args$push("--config", renv_shell_path(configfile))
-
-  # run curl
+  # single curl --parallel process: --parallel and --parallel-max are global
+  # (survive --next); per-URL options are repeated for each transfer
   curl <- renv_curl_exe()
-  output <- suppressWarnings(
-    system2(curl, args$data(), stdout = TRUE, stderr = TRUE)
+  maxjobs <- 16L
+
+  per <- paste(perargs$data(), collapse = " ")
+  segments <- character(n)
+  for (i in seq_len(n)) {
+    prefix <- if (i > 1L) "--next " else ""
+    cfg <- paste("--config", renv_shell_path(configs[[i]]))
+    segments[[i]] <- if (nzchar(per))
+      paste0(prefix, per, " ", cfg)
+    else
+      paste0(prefix, cfg)
+  }
+
+  # stderr→pipe (carries unbuffered --write-out), stdout→/dev/null
+  cmd <- sprintf(
+    "%s --parallel --parallel-max %d %s 2>&1 >%s",
+    renv_shell_path(curl), maxjobs,
+    paste(segments, collapse = " "),
+    nullfile()
   )
 
-  renv_download_trace_result(output)
+  con <- pipe(cmd, open = "r", encoding = "native.enc")
+  defer(close(con))
+
+  while (TRUE) {
+
+    # check for input
+    line <- readLines(con, n = 1L)
+    if (length(line) == 0L)
+      break
+
+    # check for beginner marker
+    if (!startsWith(line, "renv-output-begin\t"))
+      next
+
+    # invoke callback on our output
+    if (!is.null(callback)) {
+      parts <- strsplit(line, "\t", fixed = TRUE)[[1L]]
+      callback(
+        destfile = parts[[2L]],
+        code     = parts[[3L]],
+        size     = as.numeric(parts[[4L]]),
+        time     = as.numeric(parts[[5L]]),
+        exitcode = parts[[6L]],
+        error    = parts[[7L]]
+      )
+    }
+
+  }
 
   # determine success by checking which destfiles exist and are non-empty
   ok <- file.exists(destfiles) & (file.size(destfiles) > 0L)

@@ -7,8 +7,9 @@
       - bread [0.1.0]
       These packages will be installed into "<tempdir>/<renv-library>".
       
-      # Installing packages ---
+      # Downloading packages ---
       - Installing bread 0.1.0 ...                    OK [copied from cache in XXs]
+      # Installing packages ---
       Successfully installed 1 package in XXXX seconds.
       
       The following loaded package(s) have been updated:
@@ -28,11 +29,12 @@
       - toast     [1.0.0]
       These packages will be installed into "<tempdir>/<renv-library>".
       
-      # Installing packages ---
+      # Downloading packages ---
       - Downloading bread 1.0.0 ...                   OK
       - Downloading breakfast 1.0.0 ...               OK
       - Downloading oatmeal 1.0.0 ...                 OK
       - Downloading toast 1.0.0 ...                   OK
+      # Installing packages ---
       - Installing bread 1.0.0 ...                    OK [built from source in XXs]
       - Installing oatmeal 1.0.0 ...                  OK [built from source in XXs]
       - Installing toast 1.0.0 ...                    OK [built from source in XXs]
@@ -52,10 +54,11 @@
       - toast     [1.0.0]
       These packages will be installed into "<tempdir>/<renv-library>".
       
-      # Installing packages ---
+      # Downloading packages ---
       - Installing breakfast 1.0.0 ...                OK [copied from cache in XXs]
       - Installing toast 1.0.0 ...                    OK [copied from cache in XXs]
       - Installing oatmeal 1.0.0 ...                  OK [copied from cache in XXs]
       - Installing bread 1.0.0 ...                    OK [copied from cache in XXs]
+      # Installing packages ---
       Successfully installed 4 packages in XXXX seconds.
 

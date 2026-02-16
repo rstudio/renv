@@ -758,9 +758,9 @@ renv_graph_install <- function(descriptions) {
   verbose <- config$install.verbose()
   jobs <- config$install.jobs()
 
-  writef(header("Installing packages"))
-
   before <- Sys.time()
+
+  writef(header("Downloading packages"))
 
   # ── Phase 1: Download all packages up front ──────────────────────
 
@@ -806,6 +806,8 @@ renv_graph_install <- function(descriptions) {
 
     dlbefore <- Sys.time()
 
+    streamed <- character()
+
     if (length(downloadable)) {
       urls      <- vapply(downloadable, `[[`, character(1L), "url")
       destfiles <- vapply(downloadable, `[[`, character(1L), "destfile")
@@ -814,7 +816,30 @@ renv_graph_install <- function(descriptions) {
       for (df in destfiles)
         ensure_parent_directory(df)
 
-      ok <- renv_download_parallel(urls, destfiles, types)
+      # build destfile -> package lookup for the callback
+      lookup <- names(destfiles)
+      names(lookup) <- destfiles
+
+      # stream per-package progress as each download completes;
+      # disabled in testing mode to keep output order deterministic
+      callback <- if (!testing()) function(destfile, code, size, time, exitcode, error) {
+        pkg <- lookup[[destfile]]
+        if (is.null(pkg))
+          return()
+        desc <- descriptions[[pkg]]
+        msg <- sprintf("- Downloading %s %s ... ", desc$Package, desc$Version)
+        printf(format(msg, width = the$install_step_width))
+        if (exitcode == "0") {
+          elapsed <- as.difftime(time, units = "secs")
+          writef("OK [%s in %s]", renv_size_format(size), renv_difftime_format_short(elapsed))
+        } else {
+          writef("FAILED")
+        }
+        streamed <<- c(streamed, pkg)
+        flush(stdout())
+      }
+
+      ok <- renv_download_parallel(urls, destfiles, types, callback = callback)
 
       for (pkg in names(downloadable)) {
         if (!isTRUE(ok[[pkg]]))
@@ -843,14 +868,15 @@ renv_graph_install <- function(descriptions) {
 
     dlafter <- Sys.time()
 
-    # report per-package download results and build downloaded records
+    # build downloaded records and report any packages not already streamed
     for (package in sort(remaining)) {
 
       info <- downloadable[[package]]
       hasfile <- !is.null(info) && file.exists(info$destfile)
 
       if (!hasfile) {
-        writef("- Failed to download '%s'.", package)
+        if (!(package %in% streamed))
+          writef("- Failed to download '%s'.", package)
         errors$push(list(package = package, message = "failed to download"))
         failed <- c(failed, package)
         next
@@ -869,9 +895,13 @@ renv_graph_install <- function(descriptions) {
       if (!is.null(info$cellarurl))
         record <- renv_record_tag(record, info$type, info$cellarurl, "__renv_cellar__")
 
-      msg <- sprintf("- Downloading %s %s ... ", record$Package, record$Version)
-      printf(format(msg, width = the$install_step_width))
-      writef("OK")
+      # print progress for packages not already reported by the callback
+      if (!(package %in% streamed)) {
+        msg <- sprintf("- Downloading %s %s ... ", record$Package, record$Version)
+        printf(format(msg, width = the$install_step_width))
+        writef("OK")
+      }
+
       downloaded[[package]] <- record
 
     }
@@ -880,6 +910,8 @@ renv_graph_install <- function(descriptions) {
     count <- length(downloaded)
 
   }
+
+  writef(header("Installing packages"))
 
   # ── Phase 2: Unpack + classify all packages ───────────────────
   # Separating binaries from source up front lets us install all
