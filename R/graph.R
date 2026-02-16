@@ -1,12 +1,13 @@
 
-renv_graph_create <- function(remotes, records = NULL) {
-  graph <- renv_graph_init(remotes, records = records)
+renv_graph_create <- function(remotes, records = NULL, project = NULL) {
+  graph <- renv_graph_init(remotes, records = records, project = project)
   renv_graph_sort(graph)
 }
 
-renv_graph_init <- function(remotes, records = NULL) {
+renv_graph_init <- function(remotes, records = NULL, project = NULL) {
 
   # create an environment to track resolved descriptions (avoids cycles/dupes)
+  project <- project %||% renv_project_resolve()
   envir <- new.env(parent = emptyenv())
 
   # when the user passes dependencies = TRUE/FALSE, install() sets
@@ -15,8 +16,18 @@ renv_graph_init <- function(remotes, records = NULL) {
   # when NULL, read from project settings so that e.g. Suggests is
   # respected when configured in settings$package.dependency.fields
   fields <- the$install_dependency_fields %||% {
-    project <- renv_project_resolve()
     renv_description_dependency_fields(NULL, project = project)
+  }
+
+  # pre-seed with project-level Remotes; these act as fallback records
+  # so that packages specified via the project DESCRIPTION Remotes field
+  # are resolved from the correct source (e.g. GitHub) even when the
+  # caller doesn't explicitly include them in 'records'
+  if (!is.null(project) && config$install.remotes()) {
+    projrecords <- renv_project_remotes(project)
+    for (name in names(projrecords))
+      if (is.null(records[[name]]))
+        records[[name]] <- projrecords[[name]]
   }
 
   # phase 1: resolve top-level remotes with extended dependency fields;
@@ -54,7 +65,7 @@ renv_graph_init <- function(remotes, records = NULL) {
 
 }
 
-renv_graph_resolve <- function(remote, envir, records = NULL, fields = NULL) {
+renv_graph_resolve <- function(remote, envir, records = NULL, fields = NULL, override = FALSE) {
 
   # resolve the record; use pre-resolved record if available
   record <- if (is.character(remote) && !is.null(records[[remote]]))
@@ -68,10 +79,19 @@ renv_graph_resolve <- function(remote, envir, records = NULL, fields = NULL) {
 
   # skip if already resolved; because we use BFS, top-level remotes
   # are always resolved before transitive dependencies, so the first
-  # resolution for a given package name wins
-  package <- record[["Package"]]
-  if (exists(package, envir = envir, inherits = FALSE))
-    return(character())
+  # resolution for a given package name wins.
+  #
+  # when override is TRUE (called from Remotes processing), allow
+  # replacing default repository records with the Remotes-specified
+  # source -- e.g. a GitHub remote should win over a CRAN record
+  package <- record$Package
+  if (exists(package, envir = envir, inherits = FALSE)) {
+    if (!override)
+      return(character())
+    existing <- get(package, envir = envir, inherits = FALSE)
+    if (is.null(existing) || !identical(renv_record_source(existing, normalize = TRUE), "repository"))
+      return(character())
+  }
 
   # reserve the slot to prevent re-processing via dependency cycles
   assign(package, NULL, envir = envir)
@@ -107,7 +127,24 @@ renv_graph_resolve <- function(remote, envir, records = NULL, fields = NULL) {
   assign(package, desc, envir = envir)
 
   # return dependencies for the caller to enqueue
-  renv_graph_deps(desc, fields = fields)
+  deps <- renv_graph_deps(desc, fields = fields)
+
+  # resolve any Remotes declared by this package; this pre-populates envir
+  # with the correct (e.g. GitHub) resolution so that when the BFS later
+  # encounters the bare package name, it finds it already resolved.
+  # override = TRUE allows these to replace default repository records
+  # that may have already been resolved into envir
+  remotes <- desc[["Remotes"]]
+  if (length(remotes) && config$install.remotes()) {
+    specs <- strsplit(remotes, "\\s*,\\s*")[[1L]]
+    for (spec in specs) {
+      rdeps <- catch(renv_graph_resolve(spec, envir, records = records, override = TRUE))
+      if (!inherits(rdeps, "error"))
+        deps <- c(deps, rdeps)
+    }
+  }
+
+  deps
 
 }
 

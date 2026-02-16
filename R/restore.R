@@ -225,7 +225,7 @@ renv_restore_run_actions <- function(project, actions, current, lockfile, rebuil
 
   # resolve dependency graph using lockfile records as lookup table
   lockrecords <- renv_lockfile_records(lockfile)
-  descriptions <- renv_graph_init(packages, records = lockrecords)
+  descriptions <- renv_graph_init(packages, records = lockrecords, project = project)
 
   # download + install in parallel dependency waves
   records <- renv_graph_install(descriptions)

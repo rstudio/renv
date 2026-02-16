@@ -211,6 +211,7 @@ test_that("renv warns when installing an already-loaded package", {
 })
 
 test_that("install() writes out Github fields for backwards compatibility", {
+
   skip_if_no_github_auth()
   renv_tests_scope()
 
@@ -804,5 +805,24 @@ test_that("irrelevant R version requirements don't prevent package installation"
 
   # but installing that package should still fail
   expect_error(install("today"))
+
+})
+
+test_that("the remotes field in a package's DESCRIPTION is honoured", {
+
+  skip_on_cran()
+  skip_if_no_github_auth()
+
+  renv_tests_scope("halloween")
+  repopath <- renv_tests_repopath()
+  pkgpath <- file.path(repopath, "src/contrib/halloween_1.0.0.tar.gz")
+  install(pkgpath)
+
+  expect_true(renv_package_installed("halloween"))
+  expect_true(renv_package_installed("skeleton"))
+
+  skeleton <- renv_description_read(package = "skeleton")
+  expect_equal(skeleton$RemoteUsername, "kevinushey")
+  expect_equal(skeleton$RemoteRepo, "skeleton")
 
 })

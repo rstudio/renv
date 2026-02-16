@@ -61,19 +61,6 @@ test_that("attempts to initialize a project with a missing package is okay", {
 
 })
 
-test_that("the remotes field in a DESCRIPTION is honored", {
-  skip_on_cran()
-  skip_if_no_github_auth()
-
-  renv_tests_scope("halloween")
-  install("halloween")
-
-  ip <- installed_packages(lib.loc = renv_libpaths_active())
-  expect_true("halloween" %in% ip$Package)
-  expect_true("skeleton" %in% ip$Package)
-
-})
-
 test_that("init(bare = TRUE) initializes a project without packages", {
 
   renv_tests_scope("brunch")

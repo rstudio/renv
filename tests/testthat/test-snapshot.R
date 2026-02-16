@@ -334,8 +334,8 @@ test_that("snapshot(update = TRUE) preserves old records", {
 
   # try installing a package
   old <- renv_lockfile_read("renv.lock")
-  writeLines("library(halloween)", con = "halloween.R")
-  install("halloween")
+  writeLines("library(phone)", con = "phone.R")
+  install("phone")
   snapshot(update = TRUE)
   new <- renv_lockfile_read("renv.lock")
 

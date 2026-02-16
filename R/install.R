@@ -231,7 +231,7 @@ install <- function(packages = NULL,
 
   # build dependency graph; this resolves transitive dependencies
   # and fetches DESCRIPTION metadata without downloading tarballs
-  descriptions <- renv_graph_init(packages, records = records)
+  descriptions <- renv_graph_init(packages, records = records, project = project)
   if (empty(descriptions)) {
     writef("- There are no packages to install.")
     return(invisible(list()))
