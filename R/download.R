@@ -3,11 +3,11 @@ renv_size_format <- function(bytes) {
   if (testing())
     return("XX kB")
 
-  if (bytes < 1000)
+  if (bytes < 1e3)
     return(paste(round(bytes), "B"))
 
-  if (bytes < 1000 * 1000)
-    return(sprintf("%.0f kB", bytes / 1000))
+  if (bytes < 1e6)
+    return(sprintf("%.0f kB", bytes / 1e3))
 
   if (bytes < 1e9)
     return(sprintf("%.1f MB", bytes / 1e6))
@@ -486,63 +486,64 @@ renv_download_parallel_curl <- function(urls, destfiles, types, callback = NULL)
   )
   writeout <- sprintf('write-out = "%%{stderr}%s\\n"', paste(fields, collapse = "\\t"))
 
-  # build per-URL curl config files (one per transfer)
-  configs <- vector("character", n)
+  # per-URL config lines that must be repeated in each section (reset by next)
+  perlines <- character()
+
+  # https://github.com/rstudio/renv/issues/1739
+  if (renv_platform_windows()) {
+    enabled <- Sys.getenv("R_LIBCURL_SSL_REVOKE_BEST_EFFORT", unset = "TRUE")
+    if (truthy(enabled))
+      perlines <- c(perlines, "ssl-revoke-best-effort")
+  }
+
+  userconfig <- getOption("renv.curl.config", renv_download_curl_config())
+  for (entry in userconfig)
+    if (file.exists(entry))
+      perlines <- c(perlines, sprintf("config = %s", renv_json_quote(entry)))
+
+  # build a single combined config file with 'next' between URL sections;
+  # this avoids the command-line length limit on Windows (cmd.exe: 8191 chars)
+  alllines <- character()
   for (i in seq_len(n)) {
+    if (i > 1L)
+      alllines <- c(alllines, "next")
     section <- renv_download_curl_config_text(
       url      = urls[[i]],
       destfile = destfiles[[i]],
       type     = types[[i]],
       headers  = renv_download_custom_headers(urls[[i]])
     )
-    configfile <- renv_scope_tempfile("renv-dl-config-")
-    writeLines(c(section, writeout), con = configfile)
-    configs[[i]] <- configfile
+    alllines <- c(alllines, perlines, section, writeout)
   }
 
-  # per-URL arguments: these are reset by --next, so they must be
-  # repeated before each --config to apply to every transfer
-  perargs <- stack()
+  configfile <- renv_scope_tempfile("renv-dl-config-")
+  writeLines(alllines, con = configfile)
 
-  if (identical(getOption("download.file.method"), "curl")) {
-    extra <- getOption("download.file.extra")
-    if (length(extra))
-      perargs$push(extra)
-  }
-
-  # https://github.com/rstudio/renv/issues/1739
-  if (renv_platform_windows()) {
-    enabled <- Sys.getenv("R_LIBCURL_SSL_REVOKE_BEST_EFFORT", unset = "TRUE")
-    if (truthy(enabled))
-      perargs$push("--ssl-revoke-best-effort")
-  }
-
-  userconfig <- getOption("renv.curl.config", renv_download_curl_config())
-  for (entry in userconfig)
-    if (file.exists(entry))
-      perargs$push("--config", renv_shell_path(entry))
-
-  # single curl --parallel process: --parallel and --parallel-max are global
-  # (survive --next); per-URL options are repeated for each transfer
+  # --parallel and --parallel-max are global (survive 'next')
   curl <- renv_curl_exe()
   maxjobs <- 16L
 
-  per <- paste(perargs$data(), collapse = " ")
-  segments <- character(n)
-  for (i in seq_len(n)) {
-    prefix <- if (i > 1L) "--next " else ""
-    cfg <- paste("--config", renv_shell_path(configs[[i]]))
-    segments[[i]] <- if (nzchar(per))
-      paste0(prefix, per, " ", cfg)
-    else
-      paste0(prefix, cfg)
+  globalargs <- sprintf("--parallel --parallel-max %d", maxjobs)
+
+  # --parallel-immediate starts all connections at once instead of waiting
+  # for the first to establish; available since curl 7.68.0
+  version <- catch(renv_curl_version())
+  if (!inherits(version, "error") && version >= "7.68.0")
+    globalargs <- paste(globalargs, "--parallel-immediate")
+
+  # download.file.extra is raw command-line format, so it can't go in the
+  # config file; place it on the command line as a global option
+  if (identical(getOption("download.file.method"), "curl")) {
+    extra <- getOption("download.file.extra")
+    if (length(extra))
+      globalargs <- paste(globalargs, extra)
   }
 
   # stderr→pipe (carries unbuffered --write-out), stdout→/dev/null
   cmd <- sprintf(
-    "%s --parallel --parallel-max %d %s 2>&1 >%s",
-    renv_shell_path(curl), maxjobs,
-    paste(segments, collapse = " "),
+    "%s %s --config %s 2>&1 >%s",
+    renv_shell_path(curl), globalargs,
+    renv_shell_path(configfile),
     nullfile()
   )
 
