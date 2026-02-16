@@ -97,6 +97,8 @@ Defaults to \code{TRUE}.}
 Defaults to \code{TRUE}.}
 \subsection{renv.config.install.transactional}{Perform a transactional install of packages during install and restore? When enabled, renv will first install packages into a temporary library, and later copy or move those packages back into the project library only if all packages were successfully downloaded and installed. This can be useful if you'd like to avoid mutating your project library if installation of one or more packages fails.
 Defaults to \code{TRUE}.}
+\subsection{renv.config.install.jobs}{The number of packages to install concurrently during \code{install()} and \code{restore()}. Packages within the same dependency wave are installed in parallel using this many concurrent R CMD INSTALL processes. Set to \code{1L} for sequential installation (the default), or a higher value to speed up source package builds.
+Defaults to \code{4L}.}
 \subsection{renv.config.install.verbose}{Be verbose when installing R packages from sources? When \code{TRUE}, renv will stream any output generated during package build + installation to the console.
 Defaults to \code{FALSE}.}
 \subsection{renv.config.locking.enabled}{Use interprocess locks when invoking methods which might mutate the project library? Enable this to allow multiple processes to use the same renv project, while minimizing risks relating to concurrent access to the project library. Disable this if you encounter locking issues. Locks are stored as files within the project at \code{renv/lock}; if you need to manually remove a stale lock you can do so via \code{unlink("renv/lock", recursive = TRUE)}.

@@ -30,12 +30,12 @@
       
       # Installing packages ---
       - Downloading bread 1.0.0 ...                   OK
+      - Downloading breakfast 1.0.0 ...               OK
       - Downloading oatmeal 1.0.0 ...                 OK
+      - Downloading toast 1.0.0 ...                   OK
       - Installing bread 1.0.0 ...                    OK [built from source in XXs]
       - Installing oatmeal 1.0.0 ...                  OK [built from source in XXs]
-      - Downloading toast 1.0.0 ...                   OK
       - Installing toast 1.0.0 ...                    OK [built from source in XXs]
-      - Downloading breakfast 1.0.0 ...               OK
       - Installing breakfast 1.0.0 ...                OK [built from source in XXs]
       Successfully downloaded 4 packages in XXXX seconds.
       Successfully installed 4 packages in XXXX seconds.
@@ -53,9 +53,9 @@
       These packages will be installed into "<tempdir>/<renv-library>".
       
       # Installing packages ---
-      - Installing bread 1.0.0 ...                    OK [copied from cache in XXs]
-      - Installing oatmeal 1.0.0 ...                  OK [copied from cache in XXs]
-      - Installing toast 1.0.0 ...                    OK [copied from cache in XXs]
       - Installing breakfast 1.0.0 ...                OK [copied from cache in XXs]
+      - Installing toast 1.0.0 ...                    OK [copied from cache in XXs]
+      - Installing oatmeal 1.0.0 ...                  OK [copied from cache in XXs]
+      - Installing bread 1.0.0 ...                    OK [copied from cache in XXs]
       Successfully installed 4 packages in XXXX seconds.
 

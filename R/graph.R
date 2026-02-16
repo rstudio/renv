@@ -716,10 +716,10 @@ renv_graph_download <- function(records) {
   before <- Sys.time()
 
   # resolve download URLs for all packages
-  url_info <- renv_graph_urls(records)
+  urlinfo <- renv_graph_urls(records)
 
   # split into packages we can batch-download vs those needing sequential retrieval
-  downloadable <- Filter(Negate(is.null), url_info)
+  downloadable <- Filter(Negate(is.null), urlinfo)
   fallback_pkgs <- setdiff(packages, names(downloadable))
 
   # batch download for packages with resolved URLs
@@ -816,113 +816,91 @@ renv_graph_install <- function(descriptions) {
   linkable <- renv_cache_linkable(project = project, library = library)
   linker <- if (linkable) renv_file_link else renv_file_copy
 
-  # compute waves
-  waves <- renv_graph_waves(descriptions)
-
   # staging directory for unpacked packages; scoped to this function
   # so temp files from renv_package_unpack survive until install completes
   staging <- renv_scope_tempfile("renv-graph-staging-")
   ensure_directory(staging)
 
   # track results, failures, and error messages
-  all_records <- list()
+  all <- list()
   failed <- character()
   errors <- stack()
   verbose <- config$install.verbose()
-  dl_total_time <- 0
-  dl_total_count <- 0L
+  jobs <- config$install.jobs()
 
   writef(header("Installing packages"))
 
   before <- Sys.time()
 
-  for (wave in waves) {
+  # ── Phase 1: Download all packages up front ──────────────────────
 
-    # remove packages that already failed in previous waves
-    wave <- setdiff(wave, failed)
+  # filter out packages that are already correctly installed;
+  # safe to do up front since nothing has been installed yet
+  remaining <- Filter(function(pkg) {
+    path <- renv_restore_find(pkg, descriptions[[pkg]])
+    !nzchar(path)
+  }, packages)
 
-    if (length(wave) == 0L)
-      next
+  # check cache: packages with a valid cache entry can be installed
+  # directly (just a link/copy), skipping download entirely
+  cache_hits <- character()
+  for (pkg in remaining) {
+    desc <- descriptions[[pkg]]
+    cacheable <-
+      renv_cache_config_enabled(project = project) &&
+      renv_record_cacheable(desc) &&
+      !renv_restore_rebuild_required(desc)
 
-    # filter out packages that are already correctly installed;
-    # renv_restore_find returns a non-empty path when the installed
-    # version matches the record (and the package wasn't explicitly
-    # requested for reinstall via state$packages)
-    wave <- Filter(function(pkg) {
-      path <- renv_restore_find(pkg, descriptions[[pkg]])
-      !nzchar(path)
-    }, wave)
-
-    if (length(wave) == 0L)
-      next
-
-    # sort for deterministic output ordering
-    wave <- sort(wave)
-
-    # check cache first: packages with a valid cache entry can be
-    # installed directly, skipping the download entirely
-    cache_hits <- character()
-    for (pkg in wave) {
-      desc <- descriptions[[pkg]]
-      cacheable <-
-        renv_cache_config_enabled(project = project) &&
-        renv_record_cacheable(desc) &&
-        !renv_restore_rebuild_required(desc)
-
-      if (cacheable) {
-        path <- renv_cache_find(desc)
-        if (renv_cache_package_validate(path)) {
-          renv_install_package_cache(desc, path, linker)
-          all_records[[pkg]] <- desc
-          cache_hits <- c(cache_hits, pkg)
-        }
+    if (cacheable) {
+      path <- renv_cache_find(desc)
+      if (renv_cache_package_validate(path)) {
+        renv_install_package_cache(desc, path, linker)
+        all[[pkg]] <- desc
+        cache_hits <- c(cache_hits, pkg)
       }
     }
-    wave <- setdiff(wave, cache_hits)
+  }
+  remaining <- setdiff(remaining, cache_hits)
 
-    if (length(wave) == 0L)
-      next
+  # download all remaining packages in one parallel batch
+  dl_total_time <- 0
+  dl_total_count <- 0L
+  downloaded <- list()
 
-    # resolve download URLs for this wave
-    wave_descs <- descriptions[wave]
-    url_info <- renv_graph_urls(wave_descs)
+  if (length(remaining) > 0L) {
 
-    downloadable <- Filter(Negate(is.null), url_info)
-    fallback_pkgs <- setdiff(wave, names(downloadable))
+    urlinfo <- renv_graph_urls(descriptions[remaining])
 
-    # batch download packages with resolved URLs
-    dl_before <- Sys.time()
+    downloadable <- Filter(Negate(is.null), urlinfo)
+    fallbacks <- setdiff(remaining, names(downloadable))
+
+    before <- Sys.time()
 
     if (length(downloadable)) {
       urls      <- vapply(downloadable, `[[`, character(1L), "url")
       destfiles <- vapply(downloadable, `[[`, character(1L), "destfile")
       types     <- vapply(downloadable, `[[`, character(1L), "type")
 
-      # ensure parent directories exist
       for (df in destfiles)
         ensure_parent_directory(df)
 
       dl_ok <- renv_download_parallel(urls, destfiles, types)
 
       for (pkg in names(downloadable)) {
-        if (!isTRUE(dl_ok[[pkg]])) {
-          # move to sequential fallback
-          fallback_pkgs <- c(fallback_pkgs, pkg)
-        }
+        if (!isTRUE(dl_ok[[pkg]]))
+          fallbacks <- c(fallbacks, pkg)
       }
     }
 
     # sequential fallback for unsupported sources or failed parallel downloads
-    for (pkg in fallback_pkgs) {
+    for (pkg in fallbacks) {
       status <- catch({
         renv_scope_options(renv.download.headers = NULL)
         invisible(capture.output(renv_retrieve_impl_one(pkg)))
       })
       if (inherits(status, "error")) {
-        # mark the destfile location so we can detect failure below
         downloadable[[pkg]] <- NULL
       } else {
-        # retrieve_impl_one stores the record with $Path
         rec <- renv_restore_state()$install$data()[[pkg]]
         if (!is.null(rec))
           downloadable[[pkg]] <- list(
@@ -935,9 +913,8 @@ renv_graph_install <- function(descriptions) {
 
     dl_after <- Sys.time()
 
-    # report per-package download results and collect records
-    records <- list()
-    for (package in wave) {
+    # report per-package download results and build downloaded records
+    for (package in sort(remaining)) {
 
       info <- downloadable[[package]]
       has_file <- !is.null(info) && file.exists(info$destfile)
@@ -965,20 +942,39 @@ renv_graph_install <- function(descriptions) {
       msg <- sprintf("- Downloading %s %s ... ", record$Package, record$Version)
       printf(format(msg, width = the$install_step_width))
       writef("OK")
-      records[[package]] <- record
+      downloaded[[package]] <- record
 
     }
 
-    # accumulate download stats for final summary
-    dl_total_time <- dl_total_time + as.numeric(difftime(dl_after, dl_before, units = "secs"))
-    dl_total_count <- dl_total_count + length(records)
+    dl_total_time <- as.numeric(difftime(dl_after, before, units = "secs"))
+    dl_total_count <- length(downloaded)
+
+  }
+
+  # ── Phase 2: Install (wave-ordered, from local files) ────────────
+
+  # compute waves on packages that were successfully downloaded
+  waves <- renv_graph_waves(descriptions[setdiff(remaining, failed)])
+
+  for (wave in waves) {
+
+    # remove packages whose dependencies failed
+    wave <- setdiff(wave, failed)
+    if (length(wave) == 0L)
+      next
+
+    wave <- sort(wave)
 
     # partition into binaries and source packages
     source_queue <- list()
 
-    for (package in names(records)) {
+    for (package in wave) {
 
-      record <- records[[package]]
+      record <- downloaded[[package]]
+      if (is.null(record)) {
+        failed <- c(failed, package)
+        next
+      }
 
       # unpack archives and pre-build if needed; unpacked files are
       # moved into 'staging' so they outlive the unpack function's frame
@@ -1017,7 +1013,7 @@ renv_graph_install <- function(descriptions) {
         copy_elapsed <- difftime(copy_after, copy_before, units = "auto")
         renv_install_step_ok("installed binary", elapsed = copy_elapsed, verbose = verbose)
         renv_graph_install_finalize(record, prepared, installdir, project, linkable)
-        all_records[[package]] <- record
+        all[[package]] <- record
       } else {
         # source: queue for concurrent install
         source_queue[[package]] <- list(record = record, prepared = prepared)
@@ -1025,36 +1021,51 @@ renv_graph_install <- function(descriptions) {
 
     }
 
-    # install source packages sequentially via pipe()
-    for (pkg in names(source_queue)) {
+    # install source packages via pipe(), in batches of 'jobs' at a time
+    sourcepkgs <- names(source_queue)
 
-      entry <- source_queue[[pkg]]
+    while (length(sourcepkgs) > 0L) {
 
-      # back up existing installation
-      installpath <- file.path(installdir, pkg)
-      callback <- renv_file_backup(installpath)
-      if (renv_file_broken(installpath))
-        renv_file_remove(installpath)
+      batch <- head(sourcepkgs, jobs)
+      sourcepkgs <- tail(sourcepkgs, -length(batch))
 
-      # launch R CMD INSTALL
-      renv_install_step_start("Installing", entry$record, verbose = verbose)
-      worker <- renv_graph_install_launch(entry$prepared)
-      result <- renv_graph_install_collect(worker)
+      # back up existing installations and launch all workers
+      callbacks <- list()
+      workers <- list()
 
-      if (result$success && file.exists(installpath)) {
-        renv_install_step_ok("built from source", elapsed = result$elapsed, verbose = verbose)
-        renv_graph_install_finalize(entry$record, entry$prepared, installdir, project, linkable)
-        all_records[[pkg]] <- entry$record
-      } else {
-        unlink(installpath, recursive = TRUE)
-        writef("FAILED")
-        if (verbose) writeLines(result$output)
-        errors$push(list(package = pkg, message = "install failed", output = result$output))
-        failed <- c(failed, pkg)
+      for (pkg in batch) {
+        installpath <- file.path(installdir, pkg)
+        callbacks[[pkg]] <- renv_file_backup(installpath)
+        if (renv_file_broken(installpath))
+          renv_file_remove(installpath)
+        workers[[pkg]] <- renv_graph_install_launch(source_queue[[pkg]]$prepared)
       }
 
-      # restore backup on failure, clean up on success
-      callback()
+      # collect results; processes run concurrently, we block on each in order
+      for (pkg in batch) {
+
+        entry <- source_queue[[pkg]]
+        installpath <- file.path(installdir, pkg)
+        result <- renv_graph_install_collect(workers[[pkg]])
+
+        renv_install_step_start("Installing", entry$record, verbose = verbose)
+
+        if (result$success && file.exists(installpath)) {
+          renv_install_step_ok("built from source", elapsed = result$elapsed, verbose = verbose)
+          renv_graph_install_finalize(entry$record, entry$prepared, installdir, project, linkable)
+          all[[pkg]] <- entry$record
+        } else {
+          unlink(installpath, recursive = TRUE)
+          writef("FAILED")
+          if (verbose) writeLines(result$output)
+          errors$push(list(package = pkg, message = "install failed", output = result$output))
+          failed <- c(failed, pkg)
+        }
+
+        # restore backup on failure, clean up on success
+        callbacks[[pkg]]()
+
+      }
 
     }
 
@@ -1067,8 +1078,8 @@ renv_graph_install <- function(descriptions) {
   # (the staging directory is cleaned up by defer, leaving the real
   # library unchanged for a clean rollback)
   transactional <- config$install.transactional()
-  if (staged && length(all_records) > 0L && !(transactional && length(failed) > 0L)) {
-    sources <- file.path(templib, names(all_records))
+  if (staged && length(all) > 0L && !(transactional && length(failed) > 0L)) {
+    sources <- file.path(templib, names(all))
     sources <- sources[file.exists(sources)]
     targets <- file.path(library, basename(sources))
     names(targets) <- sources
@@ -1085,7 +1096,7 @@ renv_graph_install <- function(descriptions) {
     writef("Successfully downloaded %s in %s.", nplural("package", dl_total_count), renv_difftime_format(dl_elapsed))
   }
 
-  n <- length(all_records)
+  n <- length(all)
   if (n > 0L) {
     elapsed <- difftime(after, before, units = "secs")
     writef("Successfully installed %s in %s.", nplural("package", n), renv_difftime_format(elapsed))
@@ -1094,7 +1105,7 @@ renv_graph_install <- function(descriptions) {
   # report errors
   renv_graph_install_errors(errors$data(), failed, descriptions)
 
-  invisible(all_records)
+  invisible(all)
 
 }
 
