@@ -774,13 +774,16 @@ test_that("installation of package from local sources works", {
 })
 
 test_that("packages installed from r-universe preserve their remote metadata", {
+
   skip_on_cran()
   skip_on_ci()
 
   project <- renv_tests_scope(packages = "rlang")
-  install("rlang", repos = "https://r-lib.r-universe.dev")
-  record <- renv_snapshot_description(package = "rlang")
+  install("rlang", repos = "https://r-lib.r-universe.dev", rebuild = TRUE)
+  pkgpath <- find.package("rlang", lib.loc = .libPaths())
+  record <- renv_snapshot_description(pkgpath)
   expect_true(is.character(record[["RemoteSha"]]))
+
 })
 
 # https://github.com/rstudio/renv/issues/2071

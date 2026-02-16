@@ -162,15 +162,16 @@ renv_package_augment_standard <- function(path, record) {
     return(record)
 
   # skip if this isn't a repository remote
-  if (!identical(record$Source, "Repository"))
+  source <- renv_record_source(record, normalize = TRUE)
+  if (!identical(source, "repository"))
     return(record)
 
-  # skip if the DESCRIPTION file already has Remote fields
-  # (mainly relevant for r-universe)
+  # if the DESCRIPTION file already has Remote fields, then
+  # use that as the canonical record now (mainly for r-universe)
   descpath <- file.path(path, "DESCRIPTION")
   desc <- renv_description_read(descpath)
   if (any(grepl("^Remote", names(desc))))
-    return(record)
+    return(desc)
 
   # figure out base of repository URL
   pattern <- "/(?:bin|src)/"

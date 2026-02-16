@@ -239,9 +239,10 @@ renv_tests_setup_repos <- function(scope = parent.frame()) {
 
   # update PACKAGES metadata
   tools::write_PACKAGES(
-    dir = contrib,
-    subdirs = subdirs,
-    type = "source",
+    dir        = contrib,
+    subdirs    = subdirs,
+    type       = "source",
+    fields     = "Remotes",
     latestOnly = FALSE
   )
 
