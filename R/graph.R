@@ -843,7 +843,7 @@ renv_graph_install <- function(descriptions) {
 
   # check cache: packages with a valid cache entry can be installed
   # directly (just a link/copy), skipping download entirely
-  cache_hits <- character()
+  hits <- character()
   for (pkg in remaining) {
     desc <- descriptions[[pkg]]
     cacheable <-
@@ -856,15 +856,15 @@ renv_graph_install <- function(descriptions) {
       if (renv_cache_package_validate(path)) {
         renv_install_package_cache(desc, path, linker)
         all[[pkg]] <- desc
-        cache_hits <- c(cache_hits, pkg)
+        hits <- c(hits, pkg)
       }
     }
   }
-  remaining <- setdiff(remaining, cache_hits)
+  remaining <- setdiff(remaining, hits)
 
   # download all remaining packages in one parallel batch
-  dl_total_time <- 0
-  dl_total_count <- 0L
+  total <- 0
+  count <- 0L
   downloaded <- list()
 
   if (length(remaining) > 0L) {
@@ -874,7 +874,7 @@ renv_graph_install <- function(descriptions) {
     downloadable <- Filter(Negate(is.null), urlinfo)
     fallbacks <- setdiff(remaining, names(downloadable))
 
-    before <- Sys.time()
+    dlbefore <- Sys.time()
 
     if (length(downloadable)) {
       urls      <- vapply(downloadable, `[[`, character(1L), "url")
@@ -884,10 +884,10 @@ renv_graph_install <- function(descriptions) {
       for (df in destfiles)
         ensure_parent_directory(df)
 
-      dl_ok <- renv_download_parallel(urls, destfiles, types)
+      ok <- renv_download_parallel(urls, destfiles, types)
 
       for (pkg in names(downloadable)) {
-        if (!isTRUE(dl_ok[[pkg]]))
+        if (!isTRUE(ok[[pkg]]))
           fallbacks <- c(fallbacks, pkg)
       }
     }
@@ -911,15 +911,15 @@ renv_graph_install <- function(descriptions) {
       }
     }
 
-    dl_after <- Sys.time()
+    dlafter <- Sys.time()
 
     # report per-package download results and build downloaded records
     for (package in sort(remaining)) {
 
       info <- downloadable[[package]]
-      has_file <- !is.null(info) && file.exists(info$destfile)
+      hasfile <- !is.null(info) && file.exists(info$destfile)
 
-      if (!has_file) {
+      if (!hasfile) {
         writef("- Failed to download '%s'.", package)
         errors$push(list(package = package, message = "failed to download"))
         failed <- c(failed, package)
@@ -946,8 +946,8 @@ renv_graph_install <- function(descriptions) {
 
     }
 
-    dl_total_time <- as.numeric(difftime(dl_after, before, units = "secs"))
-    dl_total_count <- length(downloaded)
+    total <- as.numeric(difftime(dlafter, dlbefore, units = "secs"))
+    count <- length(downloaded)
 
   }
 
@@ -1091,9 +1091,9 @@ renv_graph_install <- function(descriptions) {
     renv_filebacked_clear("renv_hash_description", descpaths)
   }
 
-  if (dl_total_count > 0L) {
-    dl_elapsed <- as.difftime(dl_total_time, units = "secs")
-    writef("Successfully downloaded %s in %s.", nplural("package", dl_total_count), renv_difftime_format(dl_elapsed))
+  if (count > 0L) {
+    elapsed <- as.difftime(total, units = "secs")
+    writef("Successfully downloaded %s in %s.", nplural("package", count), renv_difftime_format(elapsed))
   }
 
   n <- length(all)
@@ -1120,15 +1120,15 @@ renv_graph_install_errors <- function(errors, failed, descriptions) {
   })
 
   # find packages skipped due to failed dependencies (not in errors themselves)
-  error_packages <- map_chr(errors, `[[`, "package")
-  skipped <- setdiff(failed, error_packages)
+  errpkgs <- map_chr(errors, `[[`, "package")
+  skipped <- setdiff(failed, errpkgs)
   if (length(skipped) > 0L) {
-    skipped_messages <- map_chr(skipped, function(pkg) {
+    skipmsgs <- map_chr(skipped, function(pkg) {
       deps <- renv_graph_deps(descriptions[[pkg]])
       deps_failed <- intersect(deps, failed)
       sprintf("[%s]: dependency failed (%s)", pkg, paste(deps_failed, collapse = ", "))
     })
-    messages <- c(messages, skipped_messages)
+    messages <- c(messages, skipmsgs)
   }
 
   writef("")
