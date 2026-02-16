@@ -42,9 +42,10 @@ renv_graph_init <- function(remotes, records = NULL) {
   }
 
   # phase 2: resolve transitive dependencies with default fields
-  while (length(queue) > 0L) {
-    remote <- queue[[1L]]
-    queue <- queue[-1L]
+  idx <- 1L
+  while (idx <= length(queue)) {
+    remote <- queue[[idx]]
+    idx <- idx + 1L
     deps <- renv_graph_resolve(remote, envir, records = records)
     queue <- c(queue, as.list(deps))
   }
@@ -331,14 +332,12 @@ renv_graph_deps <- function(desc, fields = NULL) {
 
 }
 
-renv_graph_sort <- function(descriptions) {
+renv_graph_adjacency <- function(descriptions) {
 
   packages <- names(descriptions)
   n <- length(packages)
-  if (n == 0L)
-    return(descriptions)
 
-  # build adjacency: for each package, its deps that are within the set
+  # build adjacency: for each package, its deps within the set
   adj <- lapply(descriptions, function(desc) {
     deps <- renv_graph_deps(desc)
     intersect(deps, packages)
@@ -361,8 +360,26 @@ renv_graph_sort <- function(descriptions) {
     for (dep in adj[[pkg]])
       revadj[[dep]] <- c(revadj[[dep]], pkg)
 
+  list(
+    packages = packages,
+    adj      = adj,
+    indegree = indegree,
+    revadj   = revadj
+  )
+
+}
+
+renv_graph_sort <- function(descriptions) {
+
+  packages <- names(descriptions)
+  if (length(packages) == 0L)
+    return(descriptions)
+
+  g <- renv_graph_adjacency(descriptions)
+  indegree <- g$indegree
+
   # Kahn's algorithm
-  queue <- packages[indegree == 0L]
+  queue <- g$packages[indegree == 0L]
   result <- character()
 
   while (length(queue) > 0L) {
@@ -370,7 +387,7 @@ renv_graph_sort <- function(descriptions) {
     queue <- queue[-1L]
     result <- c(result, current)
 
-    for (dependent in revadj[[current]]) {
+    for (dependent in g$revadj[[current]]) {
       indegree[[dependent]] <- indegree[[dependent]] - 1L
       if (indegree[[dependent]] == 0L)
         queue <- c(queue, dependent)
@@ -378,7 +395,7 @@ renv_graph_sort <- function(descriptions) {
   }
 
   # handle cycles: append any remaining packages
-  remaining <- setdiff(packages, result)
+  remaining <- setdiff(g$packages, result)
   if (length(remaining) > 0L) {
     warningf("dependency cycle detected among: %s", paste(remaining, collapse = ", "))
     result <- c(result, remaining)
@@ -391,36 +408,15 @@ renv_graph_sort <- function(descriptions) {
 renv_graph_waves <- function(descriptions) {
 
   packages <- names(descriptions)
-  n <- length(packages)
-  if (n == 0L)
+  if (length(packages) == 0L)
     return(list())
 
-  # build adjacency: for each package, its deps within the install set
-  adj <- lapply(descriptions, function(desc) {
-    deps <- renv_graph_deps(desc)
-    intersect(deps, packages)
-  })
-  names(adj) <- packages
-
-  # compute in-degree
-  indegree <- integer(n)
-  names(indegree) <- packages
-  for (pkg in packages)
-    indegree[pkg] <- length(adj[[pkg]])
-
-  # build reverse adjacency
-  revadj <- vector("list", n)
-  names(revadj) <- packages
-  for (pkg in packages)
-    revadj[pkg] <- list(character())
-
-  for (pkg in packages)
-    for (dep in adj[[pkg]])
-      revadj[[dep]] <- c(revadj[[dep]], pkg)
+  g <- renv_graph_adjacency(descriptions)
+  indegree <- g$indegree
 
   # iterative peeling: each iteration collects all packages with in-degree 0
   waves <- list()
-  remaining <- packages
+  remaining <- g$packages
 
   while (length(remaining) > 0L) {
 
@@ -439,7 +435,7 @@ renv_graph_waves <- function(descriptions) {
 
     # decrement in-degree for dependents
     for (pkg in ready)
-      for (dependent in revadj[[pkg]])
+      for (dependent in g$revadj[[pkg]])
         indegree[[dependent]] <- indegree[[dependent]] - 1L
 
   }
@@ -684,6 +680,23 @@ renv_graph_url_cellar <- function(desc) {
 
 }
 
+renv_graph_scope_retrieve <- function(scope = parent.frame()) {
+
+  # prepare retrieve environment (repos, PPM, user agent);
+  # this setup is normally done inside renv_retrieve_impl —
+  # we replicate it here so parallel / forked processes inherit these options
+  repos <- renv_repos_normalize()
+  if (renv_ppm_enabled())
+    repos <- renv_ppm_transform(repos)
+
+  agent <- renv_http_useragent()
+  if (!grepl("renv", agent))
+    agent <- paste(sprintf("renv (%s)", renv_metadata_version()), agent, sep = "; ")
+
+  renv_scope_options(repos = repos, HTTPUserAgent = agent, scope = scope)
+
+}
+
 renv_graph_download <- function(records) {
 
   packages <- names(records)
@@ -698,18 +711,7 @@ renv_graph_download <- function(records) {
     recursive = FALSE
   )
 
-  # prepare retrieve environment (repos, PPM, user agent)
-  # this setup is normally done inside renv_retrieve_impl;
-  # we replicate it here so forked processes inherit these options
-  repos <- renv_repos_normalize()
-  if (renv_ppm_enabled())
-    repos <- renv_ppm_transform(repos)
-
-  agent <- renv_http_useragent()
-  if (!grepl("renv", agent))
-    agent <- paste(sprintf("renv (%s)", renv_metadata_version()), agent, sep = "; ")
-
-  renv_scope_options(repos = repos, HTTPUserAgent = agent)
+  renv_graph_scope_retrieve()
 
   before <- Sys.time()
 
@@ -766,7 +768,7 @@ renv_graph_download <- function(records) {
 
 }
 
-renv_graph_install <- function(descriptions, jobs = 1L) {
+renv_graph_install <- function(descriptions) {
 
   packages <- names(descriptions)
   if (length(packages) == 0L)
@@ -784,16 +786,7 @@ renv_graph_install <- function(descriptions, jobs = 1L) {
     recursive = FALSE
   )
 
-  # prepare retrieve environment (repos, PPM, user agent)
-  repos <- renv_repos_normalize()
-  if (renv_ppm_enabled())
-    repos <- renv_ppm_transform(repos)
-
-  agent <- renv_http_useragent()
-  if (!grepl("renv", agent))
-    agent <- paste(sprintf("renv (%s)", renv_metadata_version()), agent, sep = "; ")
-
-  renv_scope_options(repos = repos, HTTPUserAgent = agent)
+  renv_graph_scope_retrieve()
 
   # prepare install environment (inherited by subprocesses)
   rlibs <- paste(renv_libpaths_all(), collapse = .Platform$path.sep)
@@ -836,6 +829,8 @@ renv_graph_install <- function(descriptions, jobs = 1L) {
   failed <- character()
   errors <- stack()
   verbose <- config$install.verbose()
+  dl_total_time <- 0
+  dl_total_count <- 0L
 
   writef(header("Installing packages"))
 
@@ -969,11 +964,14 @@ renv_graph_install <- function(descriptions, jobs = 1L) {
 
       msg <- sprintf("- Downloading %s %s ... ", record$Package, record$Version)
       printf(format(msg, width = the$install_step_width))
-      elapsed <- difftime(dl_after, dl_before, units = "secs")
-      renv_report_ok("downloaded", elapsed = elapsed, verbose = verbose)
+      writef("OK")
       records[[package]] <- record
 
     }
+
+    # accumulate download stats for final summary
+    dl_total_time <- dl_total_time + as.numeric(difftime(dl_after, dl_before, units = "secs"))
+    dl_total_count <- dl_total_count + length(records)
 
     # partition into binaries and source packages
     source_queue <- list()
@@ -1027,64 +1025,36 @@ renv_graph_install <- function(descriptions, jobs = 1L) {
 
     }
 
-    # install source packages concurrently via pipe(), up to `jobs` at a time.
-    # we launch a batch of workers (all start concurrently as separate processes),
-    # then collect results sequentially (readLines blocks per connection, but
-    # all processes in the batch run in parallel)
-    if (length(source_queue) > 0L) {
+    # install source packages sequentially via pipe()
+    for (pkg in names(source_queue)) {
 
-      source_names <- names(source_queue)
-      pos <- 1L
+      entry <- source_queue[[pkg]]
 
-      while (pos <= length(source_names)) {
+      # back up existing installation
+      installpath <- file.path(installdir, pkg)
+      callback <- renv_file_backup(installpath)
+      if (renv_file_broken(installpath))
+        renv_file_remove(installpath)
 
-        # determine this batch
-        batch <- source_names[pos:min(pos + jobs - 1L, length(source_names))]
-        pos <- pos + length(batch)
+      # launch R CMD INSTALL
+      renv_install_step_start("Installing", entry$record, verbose = verbose)
+      worker <- renv_graph_install_launch(entry$prepared)
+      result <- renv_graph_install_collect(worker)
 
-        # back up existing installations before launching installs
-        backups <- list()
-        for (pkg in batch) {
-          installpath <- file.path(installdir, pkg)
-          backups[[pkg]] <- renv_file_backup(installpath)
-          if (renv_file_broken(installpath))
-            renv_file_remove(installpath)
-        }
-
-        # launch all workers in this batch (processes start concurrently)
-        workers <- list()
-        for (pkg in batch)
-          workers[[pkg]] <- renv_graph_install_launch(source_queue[[pkg]]$prepared)
-
-        # collect results sequentially; print progress just before each
-        # blocking read so start/ok pairs stay on the same line
-        for (pkg in batch) {
-          entry <- source_queue[[pkg]]
-          renv_install_step_start("Installing", entry$record, verbose = verbose)
-
-          worker <- workers[[pkg]]
-          result <- renv_graph_install_collect(worker)
-
-          installpath <- file.path(installdir, pkg)
-          if (result$success && file.exists(installpath)) {
-            renv_install_step_ok("built from source", elapsed = result$elapsed, verbose = verbose)
-            renv_graph_install_finalize(entry$record, entry$prepared, installdir, project, linkable)
-            all_records[[pkg]] <- entry$record
-          } else {
-            # remove partial installation so backup can restore
-            installpath <- file.path(installdir, pkg)
-            unlink(installpath, recursive = TRUE)
-            writef("FAILED")
-            if (verbose) writeLines(result$output)
-            errors$push(list(package = pkg, message = "install failed", output = result$output))
-            failed <- c(failed, pkg)
-          }
-
-          # restore backup on failure, clean up on success
-          backups[[pkg]]()
-        }
-
+      if (result$success && file.exists(installpath)) {
+        renv_install_step_ok("built from source", elapsed = result$elapsed, verbose = verbose)
+        renv_graph_install_finalize(entry$record, entry$prepared, installdir, project, linkable)
+        all_records[[pkg]] <- entry$record
+      } else {
+        unlink(installpath, recursive = TRUE)
+        writef("FAILED")
+        if (verbose) writeLines(result$output)
+        errors$push(list(package = pkg, message = "install failed", output = result$output))
+        failed <- c(failed, pkg)
       }
+
+      # restore backup on failure, clean up on success
+      callback()
 
     }
 
@@ -1108,6 +1078,11 @@ renv_graph_install <- function(descriptions, jobs = 1L) {
     descpaths <- file.path(targets, "DESCRIPTION")
     renv_filebacked_clear("renv_description_read", descpaths)
     renv_filebacked_clear("renv_hash_description", descpaths)
+  }
+
+  if (dl_total_count > 0L) {
+    dl_elapsed <- as.difftime(dl_total_time, units = "secs")
+    writef("Successfully downloaded %s in %s.", nplural("package", dl_total_count), renv_difftime_format(dl_elapsed))
   }
 
   n <- length(all_records)

@@ -550,7 +550,9 @@ renv_download_parallel_libcurl <- function(urls, destfiles, types) {
         quiet    = TRUE
       ),
       warning = function(w) invokeRestart("muffleWarning"),
-      error = function(e) NULL
+      error = function(e) {
+        dlog("parallel", "libcurl download failed: %s", conditionMessage(e))
+      }
     )
 
   }

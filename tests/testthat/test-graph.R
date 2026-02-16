@@ -176,7 +176,7 @@ test_that("renv_graph_install installs packages end to end", {
   renv_tests_scope()
 
   descriptions <- renv_graph_init("breakfast")
-  records <- renv_graph_install(descriptions, jobs = 2L)
+  records <- renv_graph_install(descriptions)
 
   # all packages should be installed
   expect_true("breakfast" %in% names(records))
@@ -196,7 +196,7 @@ test_that("renv_graph_install installs a single leaf package", {
   renv_tests_scope()
 
   descriptions <- renv_graph_init("bread")
-  records <- renv_graph_install(descriptions, jobs = 1L)
+  records <- renv_graph_install(descriptions)
 
   expect_equal(names(records), "bread")
   expect_true(renv_package_installed("bread"))
