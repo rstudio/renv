@@ -1,10 +1,10 @@
 
-renv_graph_create <- function(remotes, records = NULL, project = NULL) {
-  graph <- renv_graph_init(remotes, records = records, project = project)
+renv_graph_create <- function(remotes, records = NULL, project = NULL, scope = parent.frame()) {
+  graph <- renv_graph_init(remotes, records = records, project = project, scope = scope)
   renv_graph_sort(graph)
 }
 
-renv_graph_init <- function(remotes, records = NULL, project = NULL) {
+renv_graph_init <- function(remotes, records = NULL, project = NULL, scope = parent.frame()) {
 
   # create an environment to track resolved descriptions (avoids cycles/dupes)
   project <- project %||% renv_project_resolve()
@@ -49,7 +49,7 @@ renv_graph_init <- function(remotes, records = NULL, project = NULL) {
 
   if (bioc) {
     project <- renv_restore_state(key = "project") %||% renv_project_resolve()
-    renv_scope_bioconductor(project = project)
+    renv_scope_bioconductor(project = project, scope = scope)
   }
 
   # phase 2: resolve transitive dependencies with default fields
@@ -77,6 +77,11 @@ renv_graph_resolve <- function(remote, envir, records = NULL, fields = NULL, ove
   if (is.function(record))
     record <- record()
 
+  # skip base packages (utils, methods, etc.) -- they can't be installed
+  package <- record$Package
+  if (package %in% renv_packages_base())
+    return(character())
+
   # skip if already resolved; because we use BFS, top-level remotes
   # are always resolved before transitive dependencies, so the first
   # resolution for a given package name wins.
@@ -84,7 +89,6 @@ renv_graph_resolve <- function(remote, envir, records = NULL, fields = NULL, ove
   # when override is TRUE (called from Remotes processing), allow
   # replacing default repository records with the Remotes-specified
   # source -- e.g. a GitHub remote should win over a CRAN record
-  package <- record$Package
   if (exists(package, envir = envir, inherits = FALSE)) {
     if (!override)
       return(character())
