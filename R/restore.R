@@ -223,12 +223,24 @@ renv_restore_run_actions <- function(project, actions, current, lockfile, rebuil
   installs <- actions[actions != "remove"]
   packages <- names(installs)
 
-  # perform the install
-  records <- renv_retrieve_impl(packages)
-  renv_install_impl(records)
+  # resolve dependency graph using lockfile records as lookup table
+  lockrecords <- renv_lockfile_records(lockfile)
+  descriptions <- renv_graph_init(packages, records = lockrecords)
+
+  # download + install in parallel dependency waves
+  records <- renv_graph_install(descriptions)
+
+  # error if any requested packages failed to install
+  failed <- setdiff(packages, names(records))
+  if (length(failed)) {
+    stopf(
+      "failed to install %s",
+      paste(shQuote(failed), collapse = ", ")
+    )
+  }
 
   # detect dependency tree repair
-  diff <- renv_lockfile_diff_packages(renv_lockfile_records(lockfile), records)
+  diff <- renv_lockfile_diff_packages(lockrecords, records)
   diff <- diff[diff != "remove"]
   if (!empty(diff)) {
     renv_pretty_print_records(

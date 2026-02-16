@@ -697,76 +697,6 @@ renv_graph_scope_retrieve <- function(scope = parent.frame()) {
 
 }
 
-renv_graph_download <- function(records) {
-
-  packages <- names(records)
-
-  # set up restore state; recursive = FALSE because we already
-  # resolved the full dependency graph up front
-  renv_scope_restore(
-    project   = renv_project_resolve(),
-    library   = renv_libpaths_active(),
-    records   = records,
-    packages  = packages,
-    recursive = FALSE
-  )
-
-  renv_graph_scope_retrieve()
-
-  before <- Sys.time()
-
-  # resolve download URLs for all packages
-  urlinfo <- renv_graph_urls(records)
-
-  # split into packages we can batch-download vs those needing sequential retrieval
-  downloadable <- Filter(Negate(is.null), urlinfo)
-  fallback_pkgs <- setdiff(packages, names(downloadable))
-
-  # batch download for packages with resolved URLs
-  if (length(downloadable)) {
-    urls      <- vapply(downloadable, `[[`, character(1L), "url")
-    destfiles <- vapply(downloadable, `[[`, character(1L), "destfile")
-    types     <- vapply(downloadable, `[[`, character(1L), "type")
-    ok <- renv_download_parallel(urls, destfiles, types)
-
-    # build records for successful downloads
-    for (pkg in names(downloadable)) {
-      if (isTRUE(ok[[pkg]])) {
-        record <- as.list(records[[pkg]])
-        record$Path <- downloadable[[pkg]]$destfile
-        records[[pkg]] <- record
-      } else {
-        # failed parallel download; try sequential fallback
-        fallback_pkgs <- c(fallback_pkgs, pkg)
-      }
-    }
-  }
-
-  # sequential fallback for packages that can't be batch-downloaded
-  for (pkg in fallback_pkgs) {
-    status <- catch({
-      renv_retrieve_impl_one(pkg)
-      renv_restore_state()$install$data()[[pkg]]
-    })
-    if (!inherits(status, "error") && !is.null(status))
-      records[[pkg]] <- status
-  }
-
-  after <- Sys.time()
-
-  names(records) <- packages
-  records <- Filter(Negate(is.null), records)
-
-  count <- length(records)
-  if (count) {
-    elapsed <- difftime(after, before, units = "secs")
-    writef("Successfully downloaded %s in %s.", nplural("package", count), renv_difftime_format(elapsed))
-    writef("")
-  }
-
-  records
-
-}
 
 renv_graph_install <- function(descriptions) {
 
@@ -951,78 +881,98 @@ renv_graph_install <- function(descriptions) {
 
   }
 
-  # ── Phase 2: Install (wave-ordered, from local files) ────────────
+  # ── Phase 2: Unpack + classify all packages ───────────────────
+  # Separating binaries from source up front lets us install all
+  # binaries before the wave loop (they're just file copies with no
+  # build-time dependency ordering).  This can collapse waves: a
+  # source package whose deps are all binary no longer needs to wait.
+  # To revert to wave-ordered binary installs, remove Phase 2a/2b
+  # and restore the binary branch inside the wave loop.
 
-  # compute waves on packages that were successfully downloaded
-  waves <- renv_graph_waves(descriptions[setdiff(remaining, failed)])
+  binaries <- list()
+  sources <- list()
+
+  for (package in sort(setdiff(remaining, failed))) {
+
+    record <- downloaded[[package]]
+    if (is.null(record)) {
+      failed <- c(failed, package)
+      next
+    }
+
+    # unpack archives and pre-build if needed; unpacked files are
+    # moved into 'staging' so they outlive the unpack function's frame
+    path <- catch(renv_graph_install_unpack(record, staging))
+    if (inherits(path, "error")) {
+      msg <- conditionMessage(path)
+      writef("- Failed to prepare '%s': %s", package, msg)
+      errors$push(list(package = package, message = msg))
+      failed <- c(failed, package)
+      next
+    }
+
+    # prepare the package for installation
+    prepared <- catch(renv_graph_install_prepare(record, path, installdir))
+    if (inherits(prepared, "error")) {
+      msg <- conditionMessage(prepared)
+      writef("- Failed to prepare '%s': %s", package, msg)
+      errors$push(list(package = package, message = msg))
+      failed <- c(failed, package)
+      next
+    }
+
+    entry <- list(record = record, prepared = prepared)
+    if (identical(prepared$method, "copy"))
+      binaries[[package]] <- entry
+    else
+      sources[[package]] <- entry
+
+  }
+
+  # ── Phase 2a: Install all binaries up front ─────────────────
+  # Binary installs are plain file copies with no build-time deps,
+  # so they don't need wave ordering.
+
+  for (package in names(binaries)) {
+
+    entry <- binaries[[package]]
+    renv_install_step_start("Installing", entry$record, verbose = verbose)
+    t0 <- Sys.time()
+    result <- catch(renv_graph_install_copy(entry$prepared))
+    t1 <- Sys.time()
+
+    if (inherits(result, "error")) {
+      msg <- conditionMessage(result)
+      writef("FAILED")
+      errors$push(list(package = package, message = msg))
+      failed <- c(failed, package)
+      next
+    }
+
+    renv_install_step_ok("installed binary", elapsed = difftime(t1, t0, units = "auto"), verbose = verbose)
+    renv_graph_install_finalize(entry$record, entry$prepared, installdir, project, linkable)
+    all[[package]] <- entry$record
+
+  }
+
+  # ── Phase 2b: Install source packages in wave order ─────────
+  # Waves are computed on source packages only; binary deps are
+  # already installed, so some waves may collapse.
+
+  sourcenames <- setdiff(names(sources), failed)
+  sourcedescs <- descriptions[intersect(sourcenames, names(descriptions))]
+  waves <- renv_graph_waves(sourcedescs)
 
   for (wave in waves) {
 
-    # remove packages whose dependencies failed
     wave <- setdiff(wave, failed)
     if (length(wave) == 0L)
       next
 
     wave <- sort(wave)
 
-    # partition into binaries and source packages
-    source_queue <- list()
-
-    for (package in wave) {
-
-      record <- downloaded[[package]]
-      if (is.null(record)) {
-        failed <- c(failed, package)
-        next
-      }
-
-      # unpack archives and pre-build if needed; unpacked files are
-      # moved into 'staging' so they outlive the unpack function's frame
-      path <- catch(renv_graph_install_unpack(record, staging))
-      if (inherits(path, "error")) {
-        msg <- conditionMessage(path)
-        writef("- Failed to prepare '%s': %s", package, msg)
-        errors$push(list(package = package, message = msg))
-        failed <- c(failed, package)
-        next
-      }
-
-      # prepare the package for installation
-      prepared <- catch(renv_graph_install_prepare(record, path, installdir))
-      if (inherits(prepared, "error")) {
-        msg <- conditionMessage(prepared)
-        writef("- Failed to prepare '%s': %s", package, msg)
-        errors$push(list(package = package, message = msg))
-        failed <- c(failed, package)
-        next
-      }
-
-      if (identical(prepared$method, "copy")) {
-        # binary: install inline (fast copy)
-        renv_install_step_start("Installing", record, verbose = verbose)
-        copy_before <- Sys.time()
-        result <- catch(renv_graph_install_copy(prepared))
-        copy_after <- Sys.time()
-        if (inherits(result, "error")) {
-          msg <- conditionMessage(result)
-          writef("FAILED")
-          errors$push(list(package = package, message = msg))
-          failed <- c(failed, package)
-          next
-        }
-        copy_elapsed <- difftime(copy_after, copy_before, units = "auto")
-        renv_install_step_ok("installed binary", elapsed = copy_elapsed, verbose = verbose)
-        renv_graph_install_finalize(record, prepared, installdir, project, linkable)
-        all[[package]] <- record
-      } else {
-        # source: queue for concurrent install
-        source_queue[[package]] <- list(record = record, prepared = prepared)
-      }
-
-    }
-
     # install source packages via pipe(), in batches of 'jobs' at a time
-    sourcepkgs <- names(source_queue)
+    sourcepkgs <- wave
 
     while (length(sourcepkgs) > 0L) {
 
@@ -1038,13 +988,13 @@ renv_graph_install <- function(descriptions) {
         callbacks[[pkg]] <- renv_file_backup(installpath)
         if (renv_file_broken(installpath))
           renv_file_remove(installpath)
-        workers[[pkg]] <- renv_graph_install_launch(source_queue[[pkg]]$prepared)
+        workers[[pkg]] <- renv_graph_install_launch(sources[[pkg]]$prepared)
       }
 
       # collect results; processes run concurrently, we block on each in order
       for (pkg in batch) {
 
-        entry <- source_queue[[pkg]]
+        entry <- sources[[pkg]]
         installpath <- file.path(installdir, pkg)
         result <- renv_graph_install_collect(workers[[pkg]])
 

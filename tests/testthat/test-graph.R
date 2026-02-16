@@ -53,40 +53,6 @@ test_that("renv_graph_sort handles packages with no dependencies", {
 
 })
 
-test_that("renv_graph_download retrieves packages", {
-
-  renv_tests_scope()
-
-  descriptions <- renv_graph_init("breakfast")
-  sorted <- renv_graph_sort(descriptions)
-  records <- renv_graph_download(sorted)
-
-  # all packages in the graph should be downloaded
-  expect_true("breakfast" %in% names(records))
-  expect_true("oatmeal" %in% names(records))
-  expect_true("toast" %in% names(records))
-  expect_true("bread" %in% names(records))
-
-  # each record should have a Path pointing to an existing file
-  for (nm in names(records)) {
-    expect_true(nzchar(records[[nm]]$Path), info = nm)
-    expect_true(file.exists(records[[nm]]$Path), info = nm)
-  }
-
-})
-
-test_that("renv_graph_download retrieves a single leaf package", {
-
-  renv_tests_scope()
-
-  descriptions <- renv_graph_init("bread")
-  records <- renv_graph_download(descriptions)
-
-  expect_equal(names(records), "bread")
-  expect_true(file.exists(records[["bread"]]$Path))
-
-})
-
 test_that("renv_graph_init handles multiple roots", {
 
   renv_tests_scope()
@@ -333,20 +299,5 @@ test_that("renv_graph_url_repository resolves from test repo", {
   expect_true(is.list(info))
   expect_true(grepl("bread", info$url))
   expect_equal(info$type, "repository")
-
-})
-
-test_that("renv_graph_download uses parallel path for test packages", {
-
-  renv_tests_scope()
-
-  descriptions <- renv_graph_init("breakfast")
-  sorted <- renv_graph_sort(descriptions)
-  records <- renv_graph_download(sorted)
-
-  for (nm in names(records)) {
-    expect_true(nzchar(records[[nm]]$Path), info = nm)
-    expect_true(file.exists(records[[nm]]$Path), info = nm)
-  }
 
 })
