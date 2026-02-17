@@ -154,23 +154,36 @@ renv_package_pkgtypes <- function() {
 
 renv_package_augment_standard <- function(path, record) {
 
-  # check whether we tagged a url + type for this package
+  # use the installed package's DESCRIPTION as the canonical base
+  descpath <- file.path(path, "DESCRIPTION")
+  desc <- renv_description_read(descpath)
+
+  # NOTE: we use '^Remote(?!s$)' to match remote metadata fields
+  # (RemoteType, RemoteRef, RemoteSha, etc.) but not the 'Remotes'
+  # field, which lists dependency remotes for the package
+  pattern <- "^Remote(?!s$)"
+
+  # if the DESCRIPTION already has Remote fields, use as-is (e.g. r-universe)
+  if (any(grepl(pattern, names(desc), perl = TRUE)))
+    return(desc)
+
+  # if the record already has Remote fields (e.g. from a GitHub resolve),
+  # overlay them onto the DESCRIPTION
+  existing <- record[grep(pattern, names(record), perl = TRUE)]
+  if (length(existing)) {
+    existing$RemoteType <- existing$RemoteType %||% renv_record_source(record)
+    return(overlay(desc, existing))
+  }
+
+  # check whether we tagged a url + type for building standard remotes
   url  <- attr(record, "url", exact = TRUE)
   type <- attr(record, "type", exact = TRUE)
   name <- attr(record, "name", exact = TRUE)
   if (is.null(url) || is.null(type))
-    return(record)
+    return(desc)
 
-  # skip if this isn't a repository remote
   source <- renv_record_source(record, normalize = TRUE)
   if (!identical(source, "repository"))
-    return(record)
-
-  # if the DESCRIPTION file already has Remote fields, then
-  # use that as the canonical record now (mainly for r-universe)
-  descpath <- file.path(path, "DESCRIPTION")
-  desc <- renv_description_read(descpath)
-  if (any(grepl("^Remote", names(desc))))
     return(desc)
 
   # figure out base of repository URL
@@ -184,19 +197,19 @@ renv_package_augment_standard <- function(path, record) {
   # build pak-compatible standard remote reference
   remotes <- list(
     RemoteType        = "standard",
-    RemoteRef         = record$Package,
-    RemotePkgRef      = record$Package,
+    RemoteRef         = desc$Package,
+    RemotePkgRef      = desc$Package,
     RemoteRepos       = repos,
     RemoteReposName   = name,
     RemotePkgPlatform = platform,
-    RemoteSha         = record$Version
+    RemoteSha         = desc$Version
   )
 
   # if the repository value and name are identical, then exclude the name
   if (identical(repos, name))
     remotes$RemoteReposName <- NULL
 
-  overlay(record, remotes)
+  overlay(desc, remotes)
 
 }
 
@@ -212,7 +225,7 @@ renv_package_augment <- function(installpath, record) {
 
   # for backwards compatibility with older versions of Packrat,
   # we write out 'Github*' fields as well
-  if (identical(record$Source, "GitHub")) {
+  if (identical(tolower(remotes$RemoteType), "github")) {
 
     map <- list(
       "GithubHost"     = "RemoteHost",
