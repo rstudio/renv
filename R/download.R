@@ -418,6 +418,10 @@ renv_download_curl_config <- function() {
 
 renv_download_parallel <- function(urls, destfiles, types, callback = NULL) {
 
+  # make sure we're using forward slashes uniformly
+  urls <- chartr("\\", "/", urls)
+  destfiles <- chartr("\\", "/", destfiles)
+
   method <- renv_download_parallel_method()
 
   # prefer curl when a callback is provided, since only the curl
