@@ -625,6 +625,7 @@ renv_download_parallel_libcurl <- function(urls, destfiles, types) {
         url      = group_urls,
         destfile = group_dest,
         method   = "libcurl",
+        mode     = "wb",
         headers  = hdrs,
         quiet    = TRUE
       ),

@@ -272,6 +272,7 @@ test_that("renv_download_parallel works with curl backend", {
 })
 
 test_that("renv_download_parallel works with libcurl backend", {
+
   skip_on_cran()
   skip_if_not_installed("webfakes")
   skip_if_not(getRversion() >= "4.5.0", "R >= 4.5.0 required for vectorized libcurl")
