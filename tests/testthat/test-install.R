@@ -513,7 +513,6 @@ test_that("install has user-friendly output", {
   renv_scope_envvars(RENV_PATHS_CACHE = renv_scope_tempfile("renv-tempcache-"))
 
   # sort "Installing" lines so snapshot is stable regardless of
-
   # completion order (socket-based collection is nondeterministic)
   transform <- function(x) {
     x <- strip_dirs(x)
