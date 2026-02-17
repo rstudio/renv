@@ -360,7 +360,7 @@ renv_graph_deps <- function(desc, fields = NULL) {
   deps <- character()
   for (field in fields) {
     value <- desc[[field]]
-    if (is.null(value) || is.na(value))
+    if (is.null(value) || !is.character(value) || is.na(value))
       next
     parsed <- renv_description_parse_field(value)
     if (!is.null(parsed))
