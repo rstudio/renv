@@ -163,17 +163,18 @@ renv_package_augment_standard <- function(path, record) {
   # field, which lists dependency remotes for the package
   pattern <- "^Remote(?!s$)"
 
-  # if the DESCRIPTION already has Remote fields, use as-is (e.g. r-universe)
-  if (any(grepl(pattern, names(desc), perl = TRUE)))
-    return(desc)
-
-  # if the record already has Remote fields (e.g. from a GitHub resolve),
-  # overlay them onto the DESCRIPTION
+  # if the record has Remote fields (e.g. from a GitHub resolve or repair),
+  # overlay them onto the DESCRIPTION -- these take precedence since the
+  # caller is explicitly providing updated remote metadata
   existing <- record[grep(pattern, names(record), perl = TRUE)]
   if (length(existing)) {
     existing$RemoteType <- existing$RemoteType %||% renv_record_source(record)
     return(overlay(desc, existing))
   }
+
+  # if the DESCRIPTION already has Remote fields, use as-is (e.g. r-universe)
+  if (any(grepl(pattern, names(desc), perl = TRUE)))
+    return(desc)
 
   # check whether we tagged a url + type for building standard remotes
   url  <- attr(record, "url", exact = TRUE)
