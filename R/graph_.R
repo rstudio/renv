@@ -90,11 +90,18 @@ renv_graph_resolve <- function(remote, envir, records = NULL, fields = NULL, ove
   # replacing default repository records with the Remotes-specified
   # source -- e.g. a GitHub remote should win over a CRAN record
   if (exists(package, envir = envir, inherits = FALSE)) {
+
     if (!override)
       return(character())
+
     existing <- get(package, envir = envir, inherits = FALSE)
-    if (is.null(existing) || !identical(renv_record_source(existing, normalize = TRUE), "repository"))
+    if (is.null(existing))
       return(character())
+
+    source <- renv_record_source(existing, normalize = TRUE)
+    if (!identical(source, "repository"))
+      return(character())
+
   }
 
   # reserve the slot to prevent re-processing via dependency cycles
