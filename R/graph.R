@@ -1264,18 +1264,18 @@ renv_graph_install_launch <- function(prepared) {
 
 renv_graph_install_collect <- function(worker) {
 
-  con <- worker$connection
+  conn <- worker$connection
 
   # readLines blocks until the process exits (EOF on pipe)
   lines <- tryCatch(
-    readLines(con, warn = FALSE),
+    readLines(conn, warn = FALSE),
     error = function(e) character()
   )
 
   # close() on a pipe connection returns the process exit status invisibly;
   # R emits a warning on non-zero exit, which we suppress
   status <- tryCatch(
-    suppressWarnings(close(con)),
+    suppressWarnings(close(conn)),
     error = function(e) 1L
   )
 

@@ -557,7 +557,7 @@ renv_download_parallel_curl <- function(urls, destfiles, types, callback = NULL)
   while (TRUE) {
 
     # check for input
-    line <- readLines(conn, n = 1L)
+    line <- readLines(conn, n = 1L, warn = FALSE)
     if (length(line) == 0L)
       break
 
