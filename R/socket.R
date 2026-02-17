@@ -24,9 +24,11 @@ renv_socket_server <- function(min = 49152, max = 65535) {
     port = port,
     pid = Sys.getpid()
   )
+
 }
 
 renv_socket_connect <- function(port, open, timeout = getOption("timeout")) {
+
   socketConnection(
     host = "127.0.0.1",
     port = port,
@@ -35,6 +37,7 @@ renv_socket_connect <- function(port, open, timeout = getOption("timeout")) {
     encoding = "native.enc",
     timeout = timeout
   )
+
 }
 
 renv_socket_accept <- function(socket, open, timeout = getOption("timeout")) {
@@ -53,4 +56,5 @@ renv_socket_accept <- function(socket, open, timeout = getOption("timeout")) {
     encoding = "native.enc",
     timeout = timeout
   )
+
 }
