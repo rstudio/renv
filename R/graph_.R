@@ -1,10 +1,10 @@
 
-renv_graph_create <- function(remotes, records = NULL, project = NULL, scope = parent.frame()) {
+renv_graph_create <- function(remotes, records = list(), project = NULL, scope = parent.frame()) {
   graph <- renv_graph_init(remotes, records = records, project = project, scope = scope)
   renv_graph_sort(graph)
 }
 
-renv_graph_init <- function(remotes, records = NULL, project = NULL, scope = parent.frame()) {
+renv_graph_init <- function(remotes, records = list(), project = NULL, scope = parent.frame()) {
 
   # create an environment to track resolved descriptions (avoids cycles/dupes)
   project <- project %||% renv_project_resolve()
