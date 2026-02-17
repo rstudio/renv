@@ -43,7 +43,7 @@ renv_remotes_resolve <- function(spec, latest = FALSE, infer = FALSE) {
   # check for archive URLs -- this is a bit hacky
   if (grepl("^(?:file|https?)://", spec)) {
     for (suffix in c(".zip", ".tar.gz", ".tgz", "/tarball"))
-      if (endswith(spec, suffix))
+      if (endsWith(spec, suffix))
         return(renv_remotes_resolve_url(spec, quiet = TRUE))
   }
 

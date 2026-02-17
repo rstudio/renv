@@ -61,8 +61,8 @@ renv_settings_read_impl <- function(path) {
 
   # read settings
   settings <- case(
-    endswith(path, ".dcf")  ~ renv_settings_read_impl_dcf(path),
-    endswith(path, ".json") ~ renv_settings_read_impl_json(path),
+    endsWith(path, ".dcf")  ~ renv_settings_read_impl_dcf(path),
+    endsWith(path, ".json") ~ renv_settings_read_impl_json(path),
     ~ stopf("don't know how to read settings file %s", renv_path_pretty(path))
   )
 

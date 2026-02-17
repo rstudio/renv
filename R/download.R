@@ -422,10 +422,9 @@ renv_download_parallel <- function(urls, destfiles, types, callback = NULL) {
   urls <- chartr("\\", "/", urls)
   destfiles <- chartr("\\", "/", destfiles)
 
-  method <- renv_download_parallel_method()
-
   # prefer curl when a callback is provided, since only the curl
   # backend supports streaming per-transfer progress via --write-out
+  method <- renv_download_parallel_method()
   if (!is.null(callback) && method != "curl") {
     supported <- renv_download_parallel_supported_curl()
     if (!is.null(supported))
@@ -479,6 +478,7 @@ renv_download_parallel_curl <- function(urls, destfiles, types, callback = NULL)
   # trailing sentinel ("renv-output-end") prevents strsplit dropping empty
   # fields like errormsg on success.
   fields <- c(
+    "%{stderr}",
     "renv-output-begin",
     "%{filename_effective}",
     "%{http_code}",
@@ -488,7 +488,7 @@ renv_download_parallel_curl <- function(urls, destfiles, types, callback = NULL)
     "%{errormsg}",
     "renv-output-end"
   )
-  writeout <- sprintf('write-out = "%%{stderr}%s\\n"', paste(fields, collapse = "\\t"))
+  writeout <- sprintf("write-out = \"%s\\n\"", paste(fields, collapse = "\\t"))
 
   # per-URL config lines that must be repeated in each section (reset by next)
   perlines <- character()
@@ -507,21 +507,25 @@ renv_download_parallel_curl <- function(urls, destfiles, types, callback = NULL)
 
   # build a single combined config file with 'next' between URL sections;
   # this avoids the command-line length limit on Windows (cmd.exe: 8191 chars)
-  alllines <- character()
+  all <- character()
   for (i in seq_len(n)) {
+
     if (i > 1L)
-      alllines <- c(alllines, "next")
+      all <- c(all, "next")
+
     section <- renv_download_curl_config_text(
       url      = urls[[i]],
       destfile = destfiles[[i]],
       type     = types[[i]],
       headers  = renv_download_custom_headers(urls[[i]])
     )
-    alllines <- c(alllines, perlines, section, writeout)
+
+    all <- c(all, perlines, section, writeout)
+
   }
 
   configfile <- renv_scope_tempfile("renv-dl-config-")
-  writeLines(alllines, con = configfile)
+  writeLines(all, con = configfile)
 
   # --parallel and --parallel-max are global (survive 'next')
   curl <- renv_curl_exe()

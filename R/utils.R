@@ -268,10 +268,6 @@ trunc <- function(text, n = 78) {
   text
 }
 
-endswith <- function(string, suffix) {
-  substring(string, nchar(string) - nchar(suffix) + 1) == suffix
-}
-
 # like tools::file_ext, but includes leading '.', and preserves
 # '.tar.gz', '.tar.bz' and so on
 fileext <- function(path, default = "") {

@@ -25,3 +25,12 @@ if (is.null(.BaseNamespaceEnv$startsWith)) {
 
 }
 
+if (is.null(.BaseNamespaceEnv$endsWith)) {
+
+  endsWith <- function(x, prefix) {
+    pattern <- sprintf("\\Q%s\\E$", prefix)
+    grepl(pattern, x, perl = TRUE)
+  }
+
+}
+
