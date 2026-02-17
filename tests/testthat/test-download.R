@@ -240,6 +240,7 @@ test_that("renv_download_curl_config_text generates valid config", {
 })
 
 test_that("renv_download_parallel works with curl backend", {
+
   skip_on_cran()
   skip_if_not_installed("webfakes")
   skip_if_not(nzchar(Sys.which("curl")))

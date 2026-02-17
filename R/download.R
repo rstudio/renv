@@ -543,7 +543,7 @@ renv_download_parallel_curl <- function(urls, destfiles, types, callback = NULL)
       globalargs <- paste(globalargs, extra)
   }
 
-  # stderr→pipe (carries unbuffered --write-out), stdout→/dev/null
+  # stderr -> pipe (carries unbuffered --write-out), stdout -> /dev/null
   cmd <- sprintf(
     "%s %s --config %s 2>&1 >%s",
     renv_shell_path(curl), globalargs,
@@ -551,13 +551,16 @@ renv_download_parallel_curl <- function(urls, destfiles, types, callback = NULL)
     nullfile()
   )
 
-  con <- pipe(cmd, open = "r", encoding = "native.enc")
-  defer(close(con))
+  if (renv_platform_windows())
+    cmd <- paste0("\"", cmd, "\"")
+
+  conn <- pipe(cmd, open = "r", encoding = "native.enc")
+  defer(close(conn))
 
   while (TRUE) {
 
     # check for input
-    line <- readLines(con, n = 1L)
+    line <- readLines(conn, n = 1L)
     if (length(line) == 0L)
       break
 
