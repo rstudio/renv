@@ -38,6 +38,14 @@ renv_socket_connect <- function(port, open, timeout = getOption("timeout")) {
 }
 
 renv_socket_accept <- function(socket, open, timeout = getOption("timeout")) {
+
+  # socketAccept() blocks indefinitely on many platforms regardless
+  # of the timeout parameter; poll with socketSelect() first to
+  # enforce the timeout reliably
+  ready <- socketSelect(list(socket), write = FALSE, timeout = timeout)
+  if (!ready)
+    stop("socket accept timed out")
+
   socketAccept(
     socket = socket,
     open = open,
