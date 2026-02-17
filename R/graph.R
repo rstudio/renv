@@ -1252,15 +1252,8 @@ renv_graph_install_prepare <- function(record, path, library) {
 
 renv_graph_install_launch <- function(prepared) {
 
-  # on Windows, pipe() invokes cmd.exe /c <command>; when the command
-  # starts with a quoted path, cmd.exe strips the first and last quote
-  # characters from the entire line, breaking inner quotes. wrapping the
-  # whole command in an extra pair of quotes prevents this.
   cmd <- paste(prepared$cmd, "2>&1")
-  if (renv_platform_windows())
-    cmd <- paste0('"', cmd, '"')
-
-  con <- pipe(cmd, open = "r")
+  con <- renv_pipe_create(cmd)
 
   list(
     connection = con,

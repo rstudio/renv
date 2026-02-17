@@ -551,10 +551,7 @@ renv_download_parallel_curl <- function(urls, destfiles, types, callback = NULL)
     nullfile()
   )
 
-  if (renv_platform_windows())
-    cmd <- paste0("\"", cmd, "\"")
-
-  conn <- pipe(cmd, open = "r", encoding = "native.enc")
+  conn <- renv_pipe_create(cmd)
   defer(close(conn))
 
   while (TRUE) {
