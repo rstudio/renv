@@ -1064,7 +1064,7 @@ renv_graph_install <- function(descriptions) {
       batch <- head(sourcepkgs, jobs)
       sourcepkgs <- tail(sourcepkgs, -length(batch))
 
-      # back up existing installations and launch all workers
+      # back up existing installations
       callbacks <- list()
       workers <- list()
 
@@ -1073,32 +1073,53 @@ renv_graph_install <- function(descriptions) {
         callbacks[[pkg]] <- renv_file_backup(installpath)
         if (renv_file_broken(installpath))
           renv_file_remove(installpath)
-        workers[[pkg]] <- renv_graph_install_launch(sources[[pkg]]$prepared)
       }
 
-      # collect results; processes run concurrently, we block on each in order
-      for (pkg in batch) {
-
+      # helper to process one completed package
+      handle <- function(pkg, result) {
         entry <- sources[[pkg]]
         installpath <- file.path(installdir, pkg)
-        result <- renv_graph_install_collect(workers[[pkg]])
 
         renv_install_step_start("Installing", entry$record, verbose = verbose)
 
         if (result$success && file.exists(installpath)) {
           renv_install_step_ok("built from source", elapsed = result$elapsed, verbose = verbose)
           renv_graph_install_finalize(entry$record, entry$prepared, installdir, project, linkable)
-          all[[pkg]] <- entry$record
+          all[[pkg]] <<- entry$record
         } else {
           unlink(installpath, recursive = TRUE)
           writef("FAILED")
           if (verbose) writeLines(result$output)
           errors$push(list(package = pkg, message = "install failed", output = result$output))
-          failed <- c(failed, pkg)
+          failed <<- c(failed, pkg)
         }
 
-        # restore backup on failure, clean up on success
         callbacks[[pkg]]()
+      }
+
+      if (getRversion() >= "4.0") {
+
+        # socket-based: collect results in completion order
+        server <- renv_socket_server()
+
+        for (pkg in batch)
+          workers[[pkg]] <- renv_graph_install_launch_socket(sources[[pkg]]$prepared, server$port)
+
+        tryCatch(
+          renv_graph_install_collect_all(server$socket, workers, handle),
+          finally = close(server$socket)
+        )
+
+      } else {
+
+        # sequential fallback (R < 4.0): pipe-based, launch-order collection
+        for (pkg in batch)
+          workers[[pkg]] <- renv_graph_install_launch(sources[[pkg]]$prepared)
+
+        for (pkg in batch) {
+          result <- renv_graph_install_collect(workers[[pkg]])
+          handle(pkg, result)
+        }
 
       }
 
@@ -1300,6 +1321,94 @@ renv_graph_install_collect <- function(worker) {
     output  = lines,
     elapsed = elapsed
   )
+
+}
+
+renv_graph_install_launch_socket <- function(prepared, port) {
+
+  command <- paste(prepared$command, "2>&1")
+  package <- prepared$package
+
+  # build a self-contained R script that runs the install command
+  # and reports the result back over a socket (base R only, no renv)
+  code <- expr({
+    output <- suppressWarnings(
+      system(!!command, intern = TRUE, ignore.stderr = FALSE)
+    )
+    exitcode <- attr(output, "status")
+    if (is.null(exitcode)) exitcode <- 0L
+    conn <- socketConnection(
+      host = "127.0.0.1", port = !!port,
+      open = "wb", blocking = TRUE, timeout = 60
+    )
+    serialize(list(package = !!package, exitcode = exitcode, output = output), conn)
+    close(conn)
+  })
+
+  script <- tempfile("renv-install-", fileext = ".R")
+  writeLines(deparse(code), con = script)
+
+  system2(
+    command = R(),
+    args    = c("--vanilla", "-s", "-f", renv_shell_path(script)),
+    stdout  = FALSE,
+    stderr  = FALSE,
+    wait    = FALSE
+  )
+
+  list(package = package, start = Sys.time())
+
+}
+
+renv_graph_install_collect_all <- function(socket, workers, callback) {
+
+  collected <- character()
+  n <- length(workers)
+
+  for (i in seq_len(n)) {
+
+    conn <- tryCatch(
+      renv_socket_accept(socket, open = "rb", timeout = 600),
+      error = function(e) NULL
+    )
+
+    if (is.null(conn))
+      break
+
+    data <- tryCatch(
+      unserialize(conn),
+      error = function(e) NULL
+    )
+    close(conn)
+
+    if (is.null(data))
+      next
+
+    pkg <- data$package
+    elapsed <- difftime(Sys.time(), workers[[pkg]]$start, units = "auto")
+
+    result <- list(
+      success = identical(as.integer(data$exitcode), 0L),
+      output  = data$output,
+      elapsed = elapsed
+    )
+
+    callback(pkg, result)
+    collected <- c(collected, pkg)
+
+  }
+
+  # handle workers that crashed before connecting back
+  uncollected <- setdiff(names(workers), collected)
+  for (pkg in uncollected) {
+    elapsed <- difftime(Sys.time(), workers[[pkg]]$start, units = "auto")
+    result <- list(
+      success = FALSE,
+      output  = "worker process failed to report results",
+      elapsed = elapsed
+    )
+    callback(pkg, result)
+  }
 
 }
 

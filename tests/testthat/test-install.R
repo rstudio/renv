@@ -512,11 +512,29 @@ test_that("install has user-friendly output", {
   renv_scope_libpaths()
   renv_scope_envvars(RENV_PATHS_CACHE = renv_scope_tempfile("renv-tempcache-"))
 
-  renv_tests_scope("breakfast")
-  expect_snapshot(install())
+  # sort "Installing" lines so snapshot is stable regardless of
+
+  # completion order (socket-based collection is nondeterministic)
+  transform <- function(x) {
+    x <- strip_dirs(x)
+    installing <- grepl("^\\s*- Installing .* \\.\\.\\.", x)
+    runs <- rle(installing)
+    pos <- 1L
+    for (i in seq_along(runs$lengths)) {
+      len <- runs$lengths[[i]]
+      idx <- seq(pos, length.out = len)
+      if (runs$values[[i]])
+        x[idx] <- sort(x[idx])
+      pos <- pos + len
+    }
+    x
+  }
 
   renv_tests_scope("breakfast")
-  expect_snapshot(install())
+  expect_snapshot(install(), transform = transform)
+
+  renv_tests_scope("breakfast")
+  expect_snapshot(install(), transform = transform)
 
 })
 
