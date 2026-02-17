@@ -169,7 +169,7 @@ renv_graph_description <- function(record) {
     source == "github"       ~ renv_graph_description_github(record),
     source == "gitlab"       ~ renv_graph_description_gitlab(record),
     source == "bitbucket"    ~ renv_graph_description_bitbucket(record),
-    source == "git"          ~ renv_graph_description_github(record),
+    source == "git"          ~ renv_graph_description_git(record),
     source == "local"        ~ renv_graph_description_local(record),
     source == "url"          ~ as.list(record),
     TRUE                     ~ renv_graph_description_repository(record)
@@ -278,6 +278,11 @@ renv_graph_description_crandb_convert <- function(value) {
   fixed <- gsub(" (*)", "", parts, fixed = TRUE)
   paste(fixed, collapse = ", ")
 
+}
+
+renv_graph_description_git <- function(record) {
+  desc <- renv_remotes_resolve_git_description(record)
+  as.list(desc)
 }
 
 renv_graph_description_github <- function(record) {
