@@ -1236,11 +1236,11 @@ renv_graph_install_prepare <- function(record, path, library) {
       renv_shell_path(path)
     )
 
-    cmd <- paste(renv_shell_path(R()), paste(args, collapse = " "))
+    command <- paste(renv_shell_path(R()), paste(args, collapse = " "))
 
     list(
       method  = "install",
-      cmd     = cmd,
+      command = command,
       path    = path,
       library = library,
       package = package
@@ -1252,11 +1252,10 @@ renv_graph_install_prepare <- function(record, path, library) {
 
 renv_graph_install_launch <- function(prepared) {
 
-  cmd <- paste(prepared$cmd, "2>&1")
-  con <- renv_pipe_create(cmd)
+  command <- paste(prepared$command, "2>&1")
 
   list(
-    connection = con,
+    connection = renv_pipe_create(command),
     package    = prepared$package,
     start      = Sys.time()
   )

@@ -544,14 +544,14 @@ renv_download_parallel_curl <- function(urls, destfiles, types, callback = NULL)
   }
 
   # stderr -> pipe (carries unbuffered --write-out), stdout -> /dev/null
-  cmd <- sprintf(
+  command <- sprintf(
     "%s %s --config %s 2>&1 >%s",
     renv_shell_path(curl), globalargs,
     renv_shell_path(configfile),
     nullfile()
   )
 
-  conn <- renv_pipe_create(cmd)
+  conn <- renv_pipe_create(command)
   defer(close(conn))
 
   while (TRUE) {
