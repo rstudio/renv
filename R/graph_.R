@@ -806,7 +806,7 @@ renv_graph_install <- function(descriptions) {
 
   # track results, failures, and error messages
   all <- list()
-  failed <- character()
+  failed <- stack("character")
   errors <- stack()
   verbose <- config$install.verbose()
   jobs <- config$install.jobs()
@@ -931,7 +931,7 @@ renv_graph_install <- function(descriptions) {
         if (!(package %in% streamed))
           writef("- Failed to download '%s'.", package)
         errors$push(list(package = package, message = "failed to download"))
-        failed <- c(failed, package)
+        failed$push(package)
         next
       }
 
@@ -977,11 +977,11 @@ renv_graph_install <- function(descriptions) {
   binaries <- list()
   sources <- list()
 
-  for (package in sort(setdiff(remaining, failed))) {
+  for (package in sort(setdiff(remaining, failed$data()))) {
 
     record <- downloaded[[package]]
     if (is.null(record)) {
-      failed <- c(failed, package)
+      failed$push(package)
       next
     }
 
@@ -992,7 +992,7 @@ renv_graph_install <- function(descriptions) {
       msg <- conditionMessage(path)
       writef("- Failed to prepare '%s': %s", package, msg)
       errors$push(list(package = package, message = msg))
-      failed <- c(failed, package)
+      failed$push(package)
       next
     }
 
@@ -1002,7 +1002,7 @@ renv_graph_install <- function(descriptions) {
       msg <- conditionMessage(prepared)
       writef("- Failed to prepare '%s': %s", package, msg)
       errors$push(list(package = package, message = msg))
-      failed <- c(failed, package)
+      failed$push(package)
       next
     }
 
@@ -1030,7 +1030,7 @@ renv_graph_install <- function(descriptions) {
       msg <- conditionMessage(result)
       writef("FAILED")
       errors$push(list(package = package, message = msg))
-      failed <- c(failed, package)
+      failed$push(package)
       next
     }
 
@@ -1040,79 +1040,128 @@ renv_graph_install <- function(descriptions) {
 
   }
 
-  # ── Phase 2b: Install source packages in wave order ─────────
-  # Waves are computed on source packages only; binary deps are
-  # already installed, so some waves may collapse.
+  # ── Phase 2b: Install source packages ─────────────────────
+  # Source packages require build-time dependency ordering.
+  # On R >= 4.0, a ready-queue event loop (live Kahn's algorithm)
+  # launches packages as soon as their dependencies complete,
+  # keeping all worker slots busy.  On older R, a wave+batch
+  # fallback uses pipe-based collection.
 
-  sourcenames <- setdiff(names(sources), failed)
+  sourcenames <- setdiff(names(sources), failed$data())
   sourcedescs <- descriptions[intersect(sourcenames, names(descriptions))]
-  waves <- renv_graph_waves(sourcedescs)
 
-  for (wave in waves) {
+  # shared closure for processing one completed package;
+  # callbacks accumulates per-package backup-restore functions
+  callbacks <- list()
 
-    wave <- setdiff(wave, failed)
-    if (length(wave) == 0L)
-      next
+  handle <- function(pkg, result) {
+    entry <- sources[[pkg]]
+    installpath <- file.path(installdir, pkg)
 
-    wave <- sort(wave)
+    renv_install_step_start("Installing", entry$record, verbose = verbose)
 
-    # install source packages via pipe(), in batches of 'jobs' at a time
-    sourcepkgs <- wave
+    if (result$success && file.exists(installpath)) {
+      renv_install_step_ok("built from source", elapsed = result$elapsed, verbose = verbose)
+      renv_graph_install_finalize(entry$record, entry$prepared, installdir, project, linkable)
+      all[[pkg]] <<- entry$record
+    } else {
+      unlink(installpath, recursive = TRUE)
+      writef("FAILED")
+      if (verbose) writeLines(result$output)
+      errors$push(list(package = pkg, message = "install failed", output = result$output))
+      failed$push(pkg)
+    }
 
-    while (length(sourcepkgs) > 0L) {
+    callbacks[[pkg]]()
+  }
 
-      batch <- head(sourcepkgs, jobs)
-      sourcepkgs <- tail(sourcepkgs, -length(batch))
+  if (getRversion() >= "4.0") {
 
-      # back up existing installations
-      callbacks <- list()
-      workers <- list()
+    # ready-queue event loop (live Kahn's algorithm)
+    graph <- renv_graph_adjacency(sourcedescs)
+    indegree <- graph$indegree
+    revadj <- graph$revadj
 
-      for (pkg in batch) {
-        installpath <- file.path(installdir, pkg)
-        callbacks[[pkg]] <- renv_file_backup(installpath)
-        if (renv_file_broken(installpath))
-          renv_file_remove(installpath)
+    ready <- sort(names(indegree)[indegree == 0L])
+
+    server <- renv_socket_server()
+    defer(close(server$socket))
+    active <- list()
+
+    repeat {
+
+      # fill worker slots from ready queue
+      while (length(active) < jobs && length(ready) > 0L) {
+        pkg <- ready[1L]
+        ready <- ready[-1L]
+
+        callbacks[[pkg]] <- renv_graph_install_backup(installdir, pkg)
+        active[[pkg]] <- renv_graph_install_launch_socket(
+          sources[[pkg]]$prepared, server$port
+        )
       }
 
-      # helper to process one completed package
-      handle <- function(pkg, result) {
-        entry <- sources[[pkg]]
-        installpath <- file.path(installdir, pkg)
+      if (length(active) == 0L)
+        break
 
-        renv_install_step_start("Installing", entry$record, verbose = verbose)
+      # accept one result (blocks until a worker reports back)
+      result <- renv_graph_install_accept(server$socket, active, timeout = 3600)
 
-        if (result$success && file.exists(installpath)) {
-          renv_install_step_ok("built from source", elapsed = result$elapsed, verbose = verbose)
-          renv_graph_install_finalize(entry$record, entry$prepared, installdir, project, linkable)
-          all[[pkg]] <<- entry$record
-        } else {
-          unlink(installpath, recursive = TRUE)
-          writef("FAILED")
-          if (verbose) writeLines(result$output)
-          errors$push(list(package = pkg, message = "install failed", output = result$output))
-          failed <<- c(failed, pkg)
+      if (is.null(result)) {
+        # timeout or error: mark all active workers as failed
+        for (pkg in names(active)) {
+          elapsed <- difftime(Sys.time(), active[[pkg]]$start, units = "auto")
+          handle(pkg, list(success = FALSE, output = "worker process timed out", elapsed = elapsed))
         }
-
-        callbacks[[pkg]]()
+        active <- list()
+        next
       }
 
-      if (getRversion() >= "4.0") {
+      pkg <- result$package
+      handle(pkg, result)
+      active[[pkg]] <- NULL
 
-        # socket-based: collect results in completion order
-        server <- renv_socket_server()
+      # on success, decrement dependents' indegree and enqueue newly ready
+      if (result$success) {
+        for (dependent in revadj[[pkg]]) {
+          indegree[[dependent]] <- indegree[[dependent]] - 1L
+          if (indegree[[dependent]] == 0L)
+            ready <- c(ready, dependent)
+        }
+      }
+      # on failure: dependents keep indegree > 0, never enqueued
+
+    }
+
+    # mark packages stuck due to failed dependencies
+    stuck <- names(indegree)[indegree > 0L]
+    stuck <- setdiff(stuck, failed$data())
+    for (pkg in stuck) failed$push(pkg)
+
+  } else {
+
+    # R < 4.0 fallback: wave-based, pipe-based collection
+    waves <- renv_graph_waves(sourcedescs)
+
+    for (wave in waves) {
+
+      wave <- setdiff(wave, failed$data())
+      if (length(wave) == 0L)
+        next
+
+      wave <- sort(wave)
+      sourcepkgs <- wave
+
+      while (length(sourcepkgs) > 0L) {
+
+        batch <- head(sourcepkgs, jobs)
+        sourcepkgs <- tail(sourcepkgs, -length(batch))
+
+        workers <- list()
 
         for (pkg in batch)
-          workers[[pkg]] <- renv_graph_install_launch_socket(sources[[pkg]]$prepared, server$port)
+          callbacks[[pkg]] <- renv_graph_install_backup(installdir, pkg)
 
-        tryCatch(
-          renv_graph_install_collect_all(server$socket, workers, handle),
-          finally = close(server$socket)
-        )
-
-      } else {
-
-        # sequential fallback (R < 4.0): pipe-based, launch-order collection
         for (pkg in batch)
           workers[[pkg]] <- renv_graph_install_launch(sources[[pkg]]$prepared)
 
@@ -1134,7 +1183,7 @@ renv_graph_install <- function(descriptions) {
   # (the staging directory is cleaned up by defer, leaving the real
   # library unchanged for a clean rollback)
   transactional <- config$install.transactional()
-  if (staged && length(all) > 0L && !(transactional && length(failed) > 0L)) {
+  if (staged && length(all) > 0L && !(transactional && !failed$empty())) {
     sources <- file.path(templib, names(all))
     sources <- sources[file.exists(sources)]
     targets <- file.path(library, basename(sources))
@@ -1159,7 +1208,7 @@ renv_graph_install <- function(descriptions) {
   }
 
   # report errors
-  renv_graph_install_errors(errors$data(), failed, descriptions)
+  renv_graph_install_errors(errors$data(), failed$data(), descriptions)
 
   invisible(all)
 
@@ -1360,6 +1409,42 @@ renv_graph_install_launch_socket <- function(prepared, port) {
 
 }
 
+renv_graph_install_accept <- function(socket, active, timeout = 3600) {
+
+  conn <- tryCatch(
+    renv_socket_accept(socket, open = "rb", timeout = timeout),
+    error = function(e) NULL
+  )
+
+  if (is.null(conn))
+    return(NULL)
+
+  data <- tryCatch(unserialize(conn), error = function(e) NULL)
+  close(conn)
+
+  if (is.null(data))
+    return(NULL)
+
+  pkg <- data$package
+  elapsed <- difftime(Sys.time(), active[[pkg]]$start, units = "auto")
+
+  list(
+    package = pkg,
+    success = identical(as.integer(data$exitcode), 0L),
+    output  = data$output,
+    elapsed = elapsed
+  )
+
+}
+
+renv_graph_install_backup <- function(installdir, pkg) {
+  installpath <- file.path(installdir, pkg)
+  callback <- renv_file_backup(installpath)
+  if (renv_file_broken(installpath))
+    renv_file_remove(installpath)
+  callback
+}
+
 renv_graph_install_collect_all <- function(socket, workers, callback, timeout = 3600) {
 
   collected <- character()
@@ -1367,34 +1452,13 @@ renv_graph_install_collect_all <- function(socket, workers, callback, timeout = 
 
   for (i in seq_len(n)) {
 
-    conn <- tryCatch(
-      renv_socket_accept(socket, open = "rb", timeout = timeout),
-      error = function(e) NULL
-    )
+    result <- renv_graph_install_accept(socket, workers, timeout)
 
-    if (is.null(conn))
+    if (is.null(result))
       break
 
-    data <- tryCatch(
-      unserialize(conn),
-      error = function(e) NULL
-    )
-    close(conn)
-
-    if (is.null(data))
-      next
-
-    pkg <- data$package
-    elapsed <- difftime(Sys.time(), workers[[pkg]]$start, units = "auto")
-
-    result <- list(
-      success = identical(as.integer(data$exitcode), 0L),
-      output  = data$output,
-      elapsed = elapsed
-    )
-
-    callback(pkg, result)
-    collected <- c(collected, pkg)
+    callback(result$package, result)
+    collected <- c(collected, result$package)
 
   }
 
