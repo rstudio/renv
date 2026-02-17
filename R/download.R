@@ -478,7 +478,6 @@ renv_download_parallel_curl <- function(urls, destfiles, types, callback = NULL)
   # trailing sentinel ("renv-output-end") prevents strsplit dropping empty
   # fields like errormsg on success.
   fields <- c(
-    "%{stderr}",
     "renv-output-begin",
     "%{filename_effective}",
     "%{http_code}",
@@ -488,7 +487,7 @@ renv_download_parallel_curl <- function(urls, destfiles, types, callback = NULL)
     "%{errormsg}",
     "renv-output-end"
   )
-  writeout <- sprintf("write-out = \"%s\\n\"", paste(fields, collapse = "\\t"))
+  writeout <- sprintf("write-out = \"%%{stderr}%s\\n\"", paste(fields, collapse = "\\t"))
 
   # per-URL config lines that must be repeated in each section (reset by next)
   perlines <- character()
