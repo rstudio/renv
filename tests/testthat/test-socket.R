@@ -1,4 +1,73 @@
 
+test_that("renv_socket_accept times out when no client connects", {
+
+  skip_on_cran()
+
+  server <- tryCatch(renv_socket_server(), error = skip)
+  defer(close(server$socket))
+
+  # a short timeout should produce an error, not block indefinitely
+  expect_error(
+    renv_socket_accept(server$socket, open = "rb", timeout = 1),
+    "timed out"
+  )
+
+})
+
+test_that("renv_graph_install_collect_all handles crashed workers", {
+
+  skip_on_cran()
+
+  server <- tryCatch(renv_socket_server(), error = skip)
+  defer(close(server$socket))
+
+  port <- server$port
+  now <- Sys.time()
+
+  # simulate 3 workers; only "pkgA" and "pkgB" will connect back
+  workers <- list(
+    pkgA = list(package = "pkgA", start = now),
+    pkgB = list(package = "pkgB", start = now),
+    pkgC = list(package = "pkgC", start = now)
+  )
+
+  # launch two child processes that report success
+  for (pkg in c("pkgA", "pkgB")) {
+    script <- renv_test_code({
+      conn <- socketConnection(
+        host = "127.0.0.1", port = port,
+        open = "wb", blocking = TRUE, timeout = 10
+      )
+      serialize(list(package = pkg, exitcode = 0L, output = "ok"), conn)
+      close(conn)
+    }, list(port = port, pkg = pkg))
+
+    system2(
+      command = R(),
+      args    = c("--vanilla", "-s", "-f", renv_shell_path(script)),
+      stdout  = FALSE,
+      stderr  = FALSE,
+      wait    = FALSE
+    )
+  }
+
+  # pkgC never connects -- collect_all should time out and mark it failed;
+  # use a short timeout so the test doesn't block for 10 minutes
+  results <- list()
+  renv_graph_install_collect_all(server$socket, workers, function(pkg, result) {
+    results[[pkg]] <<- result
+  }, timeout = 3)
+
+  # pkgA and pkgB should have succeeded
+  expect_true(results$pkgA$success)
+  expect_true(results$pkgB$success)
+
+  # pkgC should be marked as failed
+  expect_false(results$pkgC$success)
+  expect_equal(results$pkgC$output, "worker process failed to report results")
+
+})
+
 test_that("we can communicate with a large number of child processes", {
 
   skip_on_cran()

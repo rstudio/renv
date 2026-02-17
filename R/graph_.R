@@ -1360,7 +1360,7 @@ renv_graph_install_launch_socket <- function(prepared, port) {
 
 }
 
-renv_graph_install_collect_all <- function(socket, workers, callback) {
+renv_graph_install_collect_all <- function(socket, workers, callback, timeout = 600) {
 
   collected <- character()
   n <- length(workers)
@@ -1368,7 +1368,7 @@ renv_graph_install_collect_all <- function(socket, workers, callback) {
   for (i in seq_len(n)) {
 
     conn <- tryCatch(
-      renv_socket_accept(socket, open = "rb", timeout = 600),
+      renv_socket_accept(socket, open = "rb", timeout = timeout),
       error = function(e) NULL
     )
 
