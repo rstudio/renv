@@ -146,7 +146,7 @@ renv_graph_resolve <- function(remote, envir, records = NULL, fields = NULL, ove
   # override = TRUE allows these to replace default repository records
   # that may have already been resolved into envir
   if (config$install.remotes()) {
-    remotes <- paste(isnt(desc[["Remotes"]], NA), collapse = ", ")
+    remotes <- paste(exclude(desc[["Remotes"]], NA), collapse = ", ")
     specs <- strsplit(remotes, "\\s*,\\s*")[[1L]]
     for (spec in specs) {
       rdeps <- catch(renv_graph_resolve(spec, envir, records = records, override = TRUE))

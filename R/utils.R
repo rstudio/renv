@@ -614,6 +614,6 @@ wait <- function(predicate, ...) {
       break
 }
 
-isnt <- function(value, exclude) {
+exclude <- function(value, exclude) {
   value[match(value, exclude, 0L) == 0L]
 }
