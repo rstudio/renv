@@ -1178,7 +1178,7 @@ renv_graph_install_errors <- function(errors, failed, descriptions) {
     output <- item$output
     if (is.null(output) || length(output) == 0L)
       next
-    writef("Install output for '%s':", item$package)
+    writef(header(item$package))
     writeLines(output)
     writef("")
   }
