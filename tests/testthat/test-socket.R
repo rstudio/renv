@@ -14,7 +14,7 @@ test_that("renv_socket_accept times out when no client connects", {
 
 })
 
-test_that("renv_graph_install_collect_all handles crashed workers", {
+test_that("renv_graph_install_accept detects crashed workers via timeout", {
 
   skip_on_cran()
 
@@ -25,7 +25,7 @@ test_that("renv_graph_install_collect_all handles crashed workers", {
   now <- Sys.time()
 
   # simulate 3 workers; only "pkgA" and "pkgB" will connect back
-  workers <- list(
+  active <- list(
     pkgA = list(package = "pkgA", start = now),
     pkgB = list(package = "pkgB", start = now),
     pkgC = list(package = "pkgC", start = now)
@@ -51,12 +51,26 @@ test_that("renv_graph_install_collect_all handles crashed workers", {
     )
   }
 
-  # pkgC never connects -- collect_all should time out and mark it failed;
-  # use a short timeout so the test doesn't block for 10 minutes
+  # collect results using the same accept loop pattern as renv_graph_install;
+  # pkgC never connects, so accept will return NULL on timeout
   results <- list()
-  renv_graph_install_collect_all(server$socket, workers, function(pkg, result) {
-    results[[pkg]] <<- result
-  }, timeout = 3)
+  collected <- character()
+
+  for (i in seq_along(active)) {
+    result <- renv_graph_install_accept(server$socket, active, timeout = 3)
+    if (is.null(result))
+      break
+    results[[result$package]] <- result
+    collected <- c(collected, result$package)
+  }
+
+  # mark uncollected workers as failed (mirrors the real install loop)
+  for (pkg in setdiff(names(active), collected)) {
+    results[[pkg]] <- list(
+      success = FALSE,
+      output  = "worker process failed to report results"
+    )
+  }
 
   # pkgA and pkgB should have succeeded
   expect_true(results$pkgA$success)
