@@ -1503,7 +1503,7 @@ renv_graph_status_update <- function(label, items, pending = 0L) {
     ""
 
   body <- sprintf("- %s: (%s)", label, detail)
-  width <- the$install_step_width %||% 48L
+  width <- the$install_step_width
   msg <- paste0(format(body, width = width), suffix)
   printf("\r%s", format(msg, width = width + nchar(suffix)))
   flush(stdout())
@@ -1511,7 +1511,7 @@ renv_graph_status_update <- function(label, items, pending = 0L) {
 }
 
 renv_graph_status_update_clear <- function() {
-  width <- (the$install_step_width %||% 48L) + 20L
+  width <- the$install_step_width + 24L
   printf("\r%s\r", strrep(" ", width))
   flush(stdout())
 }

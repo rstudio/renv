@@ -6,7 +6,7 @@ the$install_pkg_type <- NULL
 the$install_dependency_fields <- NULL
 
 # the formatted width of installation steps printed to the console
-the$install_step_width <- 48L
+the$install_step_width <- 60L
 
 #' Install packages
 #'

@@ -535,6 +535,21 @@ renv_download_parallel_curl <- function(urls, destfiles, types, callback = NULL)
     nullfile()
   )
 
+  if (getRversion() >= "4.0") {
+    renv_download_parallel_curl_socket(command, callback)
+  } else {
+    renv_download_parallel_curl_pipe(command, callback)
+  }
+
+  # determine success by checking which destfiles exist and are non-empty
+  ok <- file.exists(destfiles) & (file.size(destfiles) > 0L)
+  names(ok) <- names
+  ok
+
+}
+
+renv_download_parallel_curl_pipe <- function(command, callback) {
+
   conn <- renv_pipe_create(command)
   defer(close(conn))
 
@@ -564,10 +579,112 @@ renv_download_parallel_curl <- function(urls, destfiles, types, callback = NULL)
 
   }
 
-  # determine success by checking which destfiles exist and are non-empty
-  ok <- file.exists(destfiles) & (file.size(destfiles) > 0L)
-  names(ok) <- names
-  ok
+}
+
+renv_download_parallel_curl_socket <- function(command, callback) {
+
+  server <- renv_socket_server()
+  defer(close(server$socket))
+
+  # on Windows, pipe() invokes cmd.exe /c <command>; wrap the whole
+  # command in an extra pair of quotes so inner quotes are preserved
+  if (renv_platform_windows())
+    command <- paste0("\"", command, "\"")
+
+  # build a self-contained R script that runs the curl command,
+  # reads completion events from the pipe, and sends each one
+  # to the parent over a socket connection
+  code <- expr({
+
+    conn <- pipe(!!command, open = "r")
+
+    while (TRUE) {
+
+      line <- readLines(conn, n = 1L, warn = FALSE)
+      if (length(line) == 0L)
+        break
+
+      if (!startsWith(line, "renv-output-begin\t"))
+        next
+
+      parts <- strsplit(line, "\t", fixed = TRUE)[[1L]]
+      result <- list(
+        type     = "result",
+        destfile = parts[[2L]],
+        code     = parts[[3L]],
+        size     = as.numeric(parts[[4L]]),
+        time     = as.numeric(parts[[5L]]),
+        exitcode = parts[[6L]],
+        error    = parts[[7L]]
+      )
+
+      sock <- socketConnection(
+        host = "127.0.0.1",
+        port = !!server$port,
+        open = "wb",
+        blocking = TRUE,
+        timeout = 60
+      )
+      serialize(result, sock)
+      close(sock)
+
+    }
+
+    close(conn)
+
+    # send sentinel to signal completion
+    sock <- socketConnection(
+      host = "127.0.0.1",
+      port = !!server$port,
+      open = "wb",
+      blocking = TRUE,
+      timeout = 60
+    )
+    serialize(list(type = "done"), sock)
+    close(sock)
+
+  })
+
+  script <- tempfile("renv-dl-curl-", fileext = ".R")
+  writeLines(deparse(code), con = script)
+
+  system2(
+    command = R(),
+    args    = c("--vanilla", "-s", "-f", renv_shell_path(script)),
+    stdout  = FALSE,
+    stderr  = FALSE,
+    wait    = FALSE
+  )
+
+  # accept results from the child until it sends the "done" sentinel
+  repeat {
+
+    conn <- tryCatch(
+      renv_socket_accept(server$socket, open = "rb", timeout = 3600),
+      error = function(e) NULL
+    )
+
+    if (is.null(conn))
+      break
+
+    data <- tryCatch(unserialize(conn), error = function(e) NULL)
+    close(conn)
+
+    if (is.null(data) || identical(data$type, "done"))
+      break
+
+    if (!is.null(callback)) {
+      callback(
+        destfile = data$destfile,
+        code     = data$code,
+        size     = data$size,
+        time     = data$time,
+        exitcode = data$exitcode,
+        error    = data$error
+      )
+    }
+
+  }
 
 }
 
