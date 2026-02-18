@@ -41,13 +41,13 @@ renv_graph_init <- function(remotes, records = list(), project = NULL, scope = p
   # if any resolved description indicates Bioconductor is needed (via Source
   # or biocViews), activate Bioconductor repos for the rest of resolution
   resolved <- as.list(envir)
-  bioc <- any(vapply(resolved, function(desc) {
+  bioc <- map_lgl(resolved, function(desc) {
     source <- renv_record_source(desc, normalize = TRUE)
     biocviews <- desc[["biocViews"]] %||% ""
     identical(source, "bioconductor") || nzchar(biocviews)
-  }, logical(1L)))
+  })
 
-  if (bioc) {
+  if (any(bioc)) {
     project <- renv_restore_state(key = "project") %||% renv_project_resolve()
     renv_scope_bioconductor(project = project, scope = scope)
   }
@@ -112,10 +112,10 @@ renv_graph_resolve <- function(remote, envir, records = NULL, fields = NULL, ove
   # renv_available_packages_latest(cellar = TRUE)
   desc <- catch(renv_graph_description(record))
   if (inherits(desc, "error")) {
-    reason <- conditionMessage(desc)
-    desc <- list()
-    attr(desc, "resolution_failed") <- TRUE
-    attr(desc, "resolution_error") <- reason
+    desc <- structure(list(),
+      resolution_failed = TRUE,
+      resolution_error = conditionMessage(desc)
+    )
   }
 
   # merge record fields (Source, Remote* fields) into description
@@ -371,12 +371,8 @@ renv_graph_deps <- function(desc, fields = NULL) {
 
   deps <- character()
   for (field in fields) {
-    value <- desc[[field]]
-    if (is.null(value) || !is.character(value) || is.na(value))
-      next
-    parsed <- renv_description_parse_field(value)
-    if (!is.null(parsed))
-      deps <- c(deps, parsed$Package)
+    value <- renv_description_parse_field(desc[[field]])
+    deps <- c(deps, value$Package)
   }
 
   # exclude base packages (R, utils, methods, etc.)
@@ -899,11 +895,11 @@ renv_graph_install <- function(descriptions) {
       }
 
       ok <- renv_download_parallel(urls, destfiles, types, callback = callback)
-
       for (pkg in names(downloadable)) {
         if (!isTRUE(ok[[pkg]]))
           fallbacks <- c(fallbacks, pkg)
       }
+
     }
 
     # sequential fallback for unsupported sources or failed parallel downloads

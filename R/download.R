@@ -582,35 +582,35 @@ renv_download_parallel_libcurl <- function(urls, destfiles, types) {
 
   # group URLs by their auth headers so we can pass uniform headers
   # to each download.file() call
-  auth_keys <- character(n)
-  auth_list <- vector("list", n)
+  authkeys <- character(n)
+  authvals <- vector("list", n)
   for (i in seq_len(n)) {
     auth <- renv_download_auth(urls[[i]], types[[i]])
     custom <- renv_download_custom_headers(urls[[i]])
-    hdrs <- c(auth, custom)
-    auth_list[[i]] <- hdrs
-    auth_keys[[i]] <- paste(sort(paste(names(hdrs), hdrs, sep = "=")), collapse = "\n")
+    headers <- c(auth, custom)
+    authvals[[i]] <- headers
+    authkeys[[i]] <- paste(sort(paste(names(headers), headers, sep = "=")), collapse = "\n")
   }
 
-  groups <- split(seq_len(n), auth_keys)
+  groups <- split(seq_len(n), authkeys)
 
   for (group in groups) {
 
-    group_urls <- urls[group]
-    group_dest <- destfiles[group]
-    hdrs <- auth_list[[group[[1L]]]]
+    gurls <- urls[group]
+    gdest <- destfiles[group]
+    headers <- authvals[[group[[1L]]]]
 
     # headers must be NULL rather than zero-length
-    if (length(hdrs) == 0L)
-      hdrs <- NULL
+    if (length(headers) == 0L)
+      headers <- NULL
 
     tryCatch(
       download.file(
-        url      = group_urls,
-        destfile = group_dest,
+        url      = gurls,
+        destfile = gdest,
         method   = "libcurl",
         mode     = "wb",
-        headers  = hdrs,
+        headers  = headers,
         quiet    = TRUE
       ),
       warning = function(w) invokeRestart("muffleWarning"),
@@ -630,24 +630,29 @@ renv_download_parallel_libcurl <- function(urls, destfiles, types) {
 
 renv_download_parallel_sequential <- function(urls, destfiles, types) {
 
-  n <- length(urls)
-  names <- names(urls) %||% urls
+  ok <- as.logical(.mapply(
+    renv_download_parallel_sequential_impl,
+    list(urls, destfiles, types),
+    NULL
+  ))
 
-  ok <- logical(n)
-  for (i in seq_len(n)) {
-    status <- catch(
-      download(
-        url      = urls[[i]],
-        destfile = destfiles[[i]],
-        type     = types[[i]],
-        quiet    = TRUE
-      )
-    )
-    ok[[i]] <- !inherits(status, "error") && file.exists(destfiles[[i]])
-  }
-
-  names(ok) <- names
+  names(ok) <- names(urls) %||% urls
   ok
+
+}
+
+renv_download_parallel_sequential_impl <- function(url, destfile, type) {
+
+  status <- catch(
+    download(
+      url      = url,
+      destfile = destfile,
+      type     = type,
+      quiet    = TRUE
+    )
+  )
+
+  !inherits(status, "error") && file.exists(destfile)
 
 }
 
