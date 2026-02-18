@@ -863,8 +863,7 @@ renv_graph_install <- function(descriptions) {
       destfiles <- vapply(downloadable, `[[`, character(1L), "destfile")
       types     <- vapply(downloadable, `[[`, character(1L), "type")
 
-      for (df in destfiles)
-        ensure_parent_directory(df)
+      ensure_parent_directory(destfiles)
 
       # build destfile -> package lookup for the callback
       lookup <- names(destfiles)
@@ -907,7 +906,8 @@ renv_graph_install <- function(descriptions) {
 
       status <- catch({
         renv_scope_options(renv.download.headers = NULL)
-        invisible(capture.output(renv_retrieve_impl_one(pkg)))
+        renv_scope_options(renv.verbose = FALSE)
+        renv_retrieve_impl_one(pkg)
       })
 
       if (inherits(status, "error")) {
