@@ -605,6 +605,8 @@ renv_download_parallel_curl_socket <- function(command, callback) {
     )
 
     conn <- pipe(!!command, open = "r")
+
+    on.exit(close(socket), add = TRUE)
     on.exit(close(conn), add = TRUE)
 
     while (TRUE) {
@@ -631,10 +633,7 @@ renv_download_parallel_curl_socket <- function(command, callback) {
 
     }
 
-    close(conn)
-
     serialize(list(type = "done"), socket)
-    close(socket)
 
   })
 
