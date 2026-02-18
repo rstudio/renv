@@ -1,20 +1,3 @@
-renv_size_format <- function(bytes) {
-
-  if (testing())
-    return("XX kB")
-
-  if (bytes < 1e3)
-    return(paste(round(bytes), "B"))
-
-  if (bytes < 1e6)
-    return(sprintf("%.0f kB", bytes / 1e3))
-
-  if (bytes < 1e9)
-    return(sprintf("%.1f MB", bytes / 1e6))
-
-  sprintf("%.1f GB", bytes / 1e9)
-
-}
 
 # download a file from 'url' to file 'destfile'. the 'type'
 # argument tells us the remote type, which is used to motivate
@@ -328,10 +311,8 @@ renv_download_curl <- function(url, destfile, type, request, headers) {
 
   renv_download_trace_begin(url, "curl")
 
-  configfile <- renv_scope_tempfile("renv-download-config-")
-
   text <- renv_download_curl_config_text(url, destfile, type, headers, request)
-
+  configfile <- renv_scope_tempfile("renv-download-config-")
   writeLines(text, con = configfile)
   renv_download_trace_request(text)
 

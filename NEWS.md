@@ -6,6 +6,15 @@
   before writing to the lockfile. Previously, the literal string `"devel"`
   was written, causing `renv::restore()` to fail. (#2170)
 
+* `renv::install()` and `renv::restore()` now download and install packages
+  in parallel. Package downloads are batched into a single `curl --parallel`
+  invocation, and source packages are compiled concurrently (up to
+  `install.jobs` workers, default 4) using ready-queue scheduling that
+  launches each package as soon as its dependencies finish. Binary packages
+  are installed up front since they require no build-time ordering.
+  Requires R >= 4.0 for full parallelism; older versions fall back to
+  sequential installation.
+
 * renv gains the configuration option `renv.config.crandb.enabled`. When
   enabled, renv will query the [crandb](https://github.com/r-hub/crandb)
   service to find the newest version of a package compatible with the current

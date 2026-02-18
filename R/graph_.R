@@ -862,6 +862,7 @@ renv_graph_install <- function(descriptions) {
     streamed <- character()
 
     if (length(downloadable)) {
+
       urls      <- vapply(downloadable, `[[`, character(1L), "url")
       destfiles <- vapply(downloadable, `[[`, character(1L), "destfile")
       types     <- vapply(downloadable, `[[`, character(1L), "type")
@@ -876,20 +877,25 @@ renv_graph_install <- function(descriptions) {
       # stream per-package progress as each download completes;
       # disabled in testing mode to keep output order deterministic
       callback <- if (!testing()) function(destfile, code, size, time, exitcode, error) {
+
         pkg <- lookup[[destfile]]
         if (is.null(pkg))
           return()
+
         desc <- descriptions[[pkg]]
         msg <- sprintf("- Downloading %s %s ... ", desc$Package, desc$Version)
         printf(format(msg, width = the$install_step_width))
+
         if (exitcode == "0") {
           elapsed <- as.difftime(time, units = "secs")
-          writef("OK [%s in %s]", renv_size_format(size), renv_difftime_format_short(elapsed))
+          writef("OK [%s in %s]", renv_pretty_bytes(size), renv_difftime_format_short(elapsed))
         } else {
           writef("FAILED")
         }
+
         streamed <<- c(streamed, pkg)
         flush(stdout())
+
       }
 
       ok <- renv_download_parallel(urls, destfiles, types, callback = callback)
@@ -902,21 +908,27 @@ renv_graph_install <- function(descriptions) {
 
     # sequential fallback for unsupported sources or failed parallel downloads
     for (pkg in fallbacks) {
+
       status <- catch({
         renv_scope_options(renv.download.headers = NULL)
         invisible(capture.output(renv_retrieve_impl_one(pkg)))
       })
+
       if (inherits(status, "error")) {
         downloadable[[pkg]] <- NULL
-      } else {
-        rec <- renv_restore_state()$install$data()[[pkg]]
-        if (!is.null(rec))
-          downloadable[[pkg]] <- list(
-            url      = "",
-            destfile = rec$Path,
-            type     = renv_record_source(rec, normalize = TRUE)
-          )
+        next
       }
+
+      rec <- renv_restore_state()$install$data()[[pkg]]
+      if (is.null(rec))
+        next
+
+      downloadable[[pkg]] <- list(
+        url      = "",
+        destfile = rec$Path,
+        type     = renv_record_source(rec, normalize = TRUE)
+      )
+
     }
 
     dlafter <- Sys.time()
@@ -1088,6 +1100,8 @@ renv_graph_install <- function(descriptions) {
     defer(close(server$socket))
     active <- list()
 
+    showstatus <- !testing() && !verbose
+
     repeat {
 
       # fill worker slots from ready queue
@@ -1104,8 +1118,16 @@ renv_graph_install <- function(descriptions) {
       if (length(active) == 0L)
         break
 
+      if (showstatus) {
+        pending <- length(ready) + sum(indegree > 0L)
+        renv_graph_install_status(active, pending)
+      }
+
       # accept one result (blocks until a worker reports back)
       result <- renv_graph_install_accept(server$socket, active, timeout = 3600)
+
+      if (showstatus)
+        renv_graph_install_status_clear()
 
       if (is.null(result)) {
         # timeout or error: mark all active workers as failed
@@ -1443,6 +1465,37 @@ renv_graph_install_backup <- function(installdir, pkg) {
   if (renv_file_broken(installpath))
     renv_file_remove(installpath)
   callback
+}
+
+renv_graph_install_status <- function(active, pending = 0L) {
+
+  pkgs <- names(active)
+  n <- length(pkgs)
+  max <- 4L
+
+  detail <- if (n <= max) {
+    paste(pkgs, collapse = ", ")
+  } else {
+    paste0(paste(head(pkgs, max), collapse = ", "), ", ...")
+  }
+
+  suffix <- if (pending > 0L)
+    sprintf(" [%s pending]", pending)
+  else
+    ""
+
+  body <- sprintf("- Building: (%s)", detail)
+  width <- the$install_step_width %||% 48L
+  msg <- paste0(format(body, width = width), suffix)
+  printf("\r%s", format(msg, width = width + nchar(suffix)))
+  flush(stdout())
+
+}
+
+renv_graph_install_status_clear <- function() {
+  width <- (the$install_step_width %||% 48L) + 20L
+  printf("\r%s\r", strrep(" ", width))
+  flush(stdout())
 }
 
 renv_graph_install_collect_all <- function(socket, workers, callback, timeout = 3600) {

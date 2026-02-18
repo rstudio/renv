@@ -88,3 +88,21 @@ renv_pretty_print_records_pair_impl <- function(old, new, formatter) {
 # We should think of a cleaner way of exposing this.
 # https://github.com/rstudio/renv/issues/1413
 renv_pretty_print_impl <- renv_caution_impl
+
+renv_pretty_bytes <- function(bytes) {
+
+  if (testing())
+    return("XX kB")
+
+  if (bytes < 1e3)
+    return(paste(round(bytes), "B"))
+
+  if (bytes < 1e6)
+    return(sprintf("%.0f kB", bytes / 1e3))
+
+  if (bytes < 1e9)
+    return(sprintf("%.1f MB", bytes / 1e6))
+
+  sprintf("%.1f GB", bytes / 1e9)
+
+}
