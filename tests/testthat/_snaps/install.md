@@ -8,7 +8,7 @@
       These packages will be installed into "<tempdir>/<renv-library>".
       
       # Downloading packages ---
-      - Installing bread 0.1.0 ...                    OK [copied from cache in XXs]
+      - Installing bread 0.1.0 ... OK [copied from cache in XXs]
       # Installing packages ---
       Successfully installed 1 package in XXXX seconds.
       
@@ -30,15 +30,15 @@
       These packages will be installed into "<tempdir>/<renv-library>".
       
       # Downloading packages ---
-      - Downloading bread 1.0.0 ...                   OK
-      - Downloading breakfast 1.0.0 ...               OK
-      - Downloading oatmeal 1.0.0 ...                 OK
-      - Downloading toast 1.0.0 ...                   OK
+      - Downloading bread 1.0.0 ... OK
+      - Downloading breakfast 1.0.0 ... OK
+      - Downloading oatmeal 1.0.0 ... OK
+      - Downloading toast 1.0.0 ... OK
       # Installing packages ---
-      - Installing bread 1.0.0 ...                    OK [built from source in XXs]
-      - Installing breakfast 1.0.0 ...                OK [built from source in XXs]
-      - Installing oatmeal 1.0.0 ...                  OK [built from source in XXs]
-      - Installing toast 1.0.0 ...                    OK [built from source in XXs]
+      - Installing bread 1.0.0 ... OK [built from source in XXs]
+      - Installing breakfast 1.0.0 ... OK [built from source in XXs]
+      - Installing oatmeal 1.0.0 ... OK [built from source in XXs]
+      - Installing toast 1.0.0 ... OK [built from source in XXs]
       Successfully downloaded 4 packages in XXXX seconds.
       Successfully installed 4 packages in XXXX seconds.
 
@@ -55,10 +55,10 @@
       These packages will be installed into "<tempdir>/<renv-library>".
       
       # Downloading packages ---
-      - Installing bread 1.0.0 ...                    OK [copied from cache in XXs]
-      - Installing breakfast 1.0.0 ...                OK [copied from cache in XXs]
-      - Installing oatmeal 1.0.0 ...                  OK [copied from cache in XXs]
-      - Installing toast 1.0.0 ...                    OK [copied from cache in XXs]
+      - Installing bread 1.0.0 ... OK [copied from cache in XXs]
+      - Installing breakfast 1.0.0 ... OK [copied from cache in XXs]
+      - Installing oatmeal 1.0.0 ... OK [copied from cache in XXs]
+      - Installing toast 1.0.0 ... OK [copied from cache in XXs]
       # Installing packages ---
       Successfully installed 4 packages in XXXX seconds.
 

@@ -593,10 +593,19 @@ renv_download_parallel_curl_socket <- function(command, callback) {
 
   # build a self-contained R script that runs the curl command,
   # reads completion events from the pipe, and sends each one
-  # to the parent over a socket connection
+  # to the parent over a persistent socket connection
   code <- expr({
 
+    socket <- socketConnection(
+      host = "127.0.0.1",
+      port = !!server$port,
+      open = "wb",
+      blocking = TRUE,
+      timeout = 60
+    )
+
     conn <- pipe(!!command, open = "r")
+    on.exit(close(conn), add = TRUE)
 
     while (TRUE) {
 
@@ -618,30 +627,14 @@ renv_download_parallel_curl_socket <- function(command, callback) {
         error    = parts[[7L]]
       )
 
-      sock <- socketConnection(
-        host = "127.0.0.1",
-        port = !!server$port,
-        open = "wb",
-        blocking = TRUE,
-        timeout = 60
-      )
-      serialize(result, sock)
-      close(sock)
+      serialize(result, socket)
 
     }
 
     close(conn)
 
-    # send sentinel to signal completion
-    sock <- socketConnection(
-      host = "127.0.0.1",
-      port = !!server$port,
-      open = "wb",
-      blocking = TRUE,
-      timeout = 60
-    )
-    serialize(list(type = "done"), sock)
-    close(sock)
+    serialize(list(type = "done"), socket)
+    close(socket)
 
   })
 
@@ -656,19 +649,28 @@ renv_download_parallel_curl_socket <- function(command, callback) {
     wait    = FALSE
   )
 
-  # accept results from the child until it sends the "done" sentinel
+  # accept the single child connection; short timeout to detect launch failure
+  conn <- tryCatch(
+    renv_socket_accept(server$socket, open = "rb", timeout = 30),
+    error = function(e) NULL
+  )
+
+  if (is.null(conn)) {
+    # child failed to start; fall back to blocking pipe method
+    renv_download_parallel_curl_pipe(command, callback)
+    return(invisible())
+  }
+
+  defer(close(conn))
+
+  # receive results until the child sends "done" or the connection closes
   repeat {
 
-    conn <- tryCatch(
-      renv_socket_accept(server$socket, open = "rb", timeout = 3600),
-      error = function(e) NULL
-    )
-
-    if (is.null(conn))
-      break
+    ready <- socketSelect(list(conn), write = FALSE, timeout = 60)
+    if (!ready)
+      next
 
     data <- tryCatch(unserialize(conn), error = function(e) NULL)
-    close(conn)
 
     if (is.null(data) || identical(data$type, "done"))
       break

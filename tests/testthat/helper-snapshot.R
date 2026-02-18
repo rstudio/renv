@@ -53,6 +53,9 @@ strip_dirs <- function(x) {
   # Standardise the dashes produced by header()
   x <- gsub("-{3,}\\s*$", "---", x, perl = TRUE)
 
+  # Collapse width-dependent padding in progress lines
+  x <- gsub("(\\.\\.\\.) +(OK|FAILED)", "\\1 \\2", x)
+
   # Standardise version
   x <- gsub(renv_metadata_version_friendly(), "<version>", x, fixed = TRUE)
 
