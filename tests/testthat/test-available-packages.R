@@ -198,6 +198,7 @@ test_that("available_packages() tolerates missing repositories", {
 test_that("crandb query returns R-compatible versions", {
   skip_on_cran()
   skip_if_offline()
+  skip_if_offline(host = "r-pkg.org")
   renv_scope_options(renv.config.crandb.enabled = TRUE)
 
   # Query crandb for a package with known R version requirements
@@ -223,6 +224,7 @@ test_that("crandb query returns R-compatible versions", {
 test_that("crandb returns newest compatible version", {
   skip_on_cran()
   skip_if_offline()
+  skip_if_offline(host = "r-pkg.org")
   renv_scope_options(renv.config.crandb.enabled = TRUE)
 
   # Test that we get the newest compatible version
@@ -241,6 +243,7 @@ test_that("crandb returns newest compatible version", {
 test_that("when crandb is enabled, repos entry is preferred when versions match (tagged record)", {
   skip_on_cran()
   skip_if_offline()
+  skip_if_offline(host = "r-pkg.org")
 
   # Use real CRAN so both repos and crandb can return the same package version
   renv_scope_options(
