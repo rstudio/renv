@@ -881,11 +881,9 @@ renv_graph_install <- function(descriptions) {
   errors <- stack()
   verbose <- config$install.verbose()
   jobs <- config$install.jobs()
+  timer <- timer()
 
-  before <- Sys.time()
   progress <- spinner("", 0L, width = the$install_step_width)
-
-  writef(header("Downloading packages"))
 
   # ── Phase 1: Download all packages up front ──────────────────────
 
@@ -917,19 +915,19 @@ renv_graph_install <- function(descriptions) {
   remaining <- setdiff(remaining, hits)
 
   # download all remaining packages in one parallel batch
-  total <- 0
   count <- 0L
   downloaded <- list()
 
   if (length(remaining) > 0L) {
+
+    writef(header("Downloading packages"))
 
     urlinfo <- renv_graph_urls(descriptions[remaining])
 
     downloadable <- Filter(Negate(is.null), urlinfo)
     fallbacks <- setdiff(remaining, names(downloadable))
 
-    dlbefore <- Sys.time()
-
+    timer$tick()
     streamed <- character()
 
     if (length(downloadable)) {
@@ -1022,8 +1020,6 @@ renv_graph_install <- function(descriptions) {
 
     }
 
-    dlafter <- Sys.time()
-
     # build downloaded records and report any packages not already streamed
     for (package in sort(remaining)) {
 
@@ -1062,18 +1058,18 @@ renv_graph_install <- function(descriptions) {
 
     }
 
-    total <- as.numeric(difftime(dlafter, dlbefore, units = "secs"))
     count <- length(downloaded)
 
   }
 
   if (count > 0L) {
     fmt <- "Successfully downloaded %s in %s.\n"
-    elapsed <- as.difftime(total, units = "secs")
+    elapsed <- timer$tick()
     writef(fmt, nplural("package", count), renv_difftime_format(elapsed))
   }
 
   writef(header("Installing packages"))
+  timer$tick()
 
   # ── Phase 2: Unpack + classify all packages ───────────────────
   # Separating binaries from source up front lets us install all
@@ -1298,14 +1294,13 @@ renv_graph_install <- function(descriptions) {
 
   }
 
-  after <- Sys.time()
-
   # migrate staged packages into real library;
   # if transactional and there were failures, skip migration entirely
   # (the staging directory is cleaned up by defer, leaving the real
   # library unchanged for a clean rollback)
   transactional <- config$install.transactional()
   if (staged && length(all) > 0L && !(transactional && !failed$empty())) {
+
     stagepaths <- file.path(templib, names(all))
     stagepaths <- stagepaths[file.exists(stagepaths)]
     targets <- file.path(library, basename(stagepaths))
@@ -1320,8 +1315,9 @@ renv_graph_install <- function(descriptions) {
 
   n <- length(all)
   if (n > 0L) {
-    elapsed <- difftime(after, before, units = "secs")
-    writef("Successfully installed %s in %s.", nplural("package", n), renv_difftime_format(elapsed))
+    fmt <- "Successfully installed %s in %s."
+    elapsed <- timer$tick()
+    writef(fmt, nplural("package", n), renv_difftime_format(elapsed))
   }
 
   # report errors
