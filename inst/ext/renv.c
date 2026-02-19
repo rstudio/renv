@@ -306,6 +306,7 @@ static SEXP recurse(SEXP object,
     expr = BODY(callback);
     SEXP call = PROTECT(Rf_lang3(Rf_install("new.env"), Rf_ScalarLogical(0), CLOENV(callback)));
     frame = PROTECT(Rf_eval(call, R_BaseNamespace));
+    UNPROTECT(1);
   }
 
   SEXP queue[kQueueSize];
@@ -361,7 +362,7 @@ static SEXP recurse(SEXP object,
     }
   }
 
-  UNPROTECT(frame != R_NilValue ? 2 : 0);
+  UNPROTECT(frame != R_NilValue ? 1 : 0);
   return R_NilValue;
 }
 

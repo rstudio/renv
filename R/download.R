@@ -397,7 +397,7 @@ renv_download_curl_config <- function() {
 
 }
 
-renv_download_parallel <- function(urls, destfiles, types, callback = NULL, tick = NULL) {
+renv_download_parallel <- function(urls, destfiles, types, callback = NULL) {
 
   # make sure we're using forward slashes uniformly
   urls <- chartr("\\", "/", urls)
@@ -414,7 +414,7 @@ renv_download_parallel <- function(urls, destfiles, types, callback = NULL, tick
 
   switch(method,
     libcurl = renv_download_parallel_libcurl(urls, destfiles, types),
-    curl    = renv_download_parallel_curl(urls, destfiles, types, callback = callback, tick = tick),
+    curl    = renv_download_parallel_curl(urls, destfiles, types, callback = callback),
     renv_download_parallel_sequential(urls, destfiles, types)
   )
 
@@ -444,7 +444,7 @@ renv_download_parallel_supported_libcurl <- function() {
     return("libcurl")
 }
 
-renv_download_parallel_curl <- function(urls, destfiles, types, callback = NULL, tick = NULL) {
+renv_download_parallel_curl <- function(urls, destfiles, types, callback = NULL) {
 
   n <- length(urls)
   names <- names(urls) %||% urls
@@ -536,7 +536,7 @@ renv_download_parallel_curl <- function(urls, destfiles, types, callback = NULL,
   )
 
   if (getRversion() >= "4.0") {
-    renv_download_parallel_curl_socket(command, callback, tick = tick)
+    renv_download_parallel_curl_socket(command, callback)
   } else {
     renv_download_parallel_curl_pipe(command, callback)
   }
@@ -581,7 +581,7 @@ renv_download_parallel_curl_pipe <- function(command, callback) {
 
 }
 
-renv_download_parallel_curl_socket <- function(command, callback, tick = NULL) {
+renv_download_parallel_curl_socket <- function(command, callback) {
 
   server <- renv_socket_server()
   defer(close(server$socket))
@@ -662,15 +662,12 @@ renv_download_parallel_curl_socket <- function(command, callback, tick = NULL) {
 
   defer(close(conn))
 
-  # receive results until the child sends "done" or the connection closes;
-  # use a short select timeout so on_tick can animate a spinner
+  # receive results until the child sends "done" or the connection closes
   repeat {
 
-    ready <- socketSelect(list(conn), write = FALSE, timeout = 0.2)
-    if (!ready) {
-      if (is.function(tick)) tick()
+    ready <- socketSelect(list(conn), write = FALSE, timeout = 60)
+    if (!ready)
       next
-    }
 
     data <- tryCatch(unserialize(conn), error = function(e) NULL)
 

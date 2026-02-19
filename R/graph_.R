@@ -809,6 +809,8 @@ renv_graph_install <- function(descriptions) {
 
   before <- Sys.time()
 
+  writef(header("Downloading packages"))
+
   # ── Phase 1: Download all packages up front ──────────────────────
 
   # filter out packages that are already correctly installed;
@@ -817,9 +819,6 @@ renv_graph_install <- function(descriptions) {
     path <- renv_restore_find(pkg, descriptions[[pkg]])
     !nzchar(path)
   }, packages)
-
-  if (length(remaining) > 0L)
-    writef(header("Downloading packages"))
 
   # check cache: packages with a valid cache entry can be installed
   # directly (just a link/copy), skipping download entirely
@@ -874,9 +873,7 @@ renv_graph_install <- function(descriptions) {
       # disabled in testing mode to keep output order deterministic
       progress <- !testing()
       awaiting <- names(downloadable)
-
-      dlspinner <- if (progress)
-        spinner("Downloading", length(downloadable), the$install_step_width)
+      maxdl <- 16L
 
       callback <- if (progress) function(destfile, code, size, time, exitcode, error) {
 
@@ -884,7 +881,7 @@ renv_graph_install <- function(descriptions) {
         if (is.null(pkg))
           return()
 
-        dlspinner$clear()
+        renv_graph_status_update_clear()
 
         desc <- descriptions[[pkg]]
         msg <- sprintf("- Downloading %s %s ... ", desc$Package, desc$Version)
@@ -899,26 +896,27 @@ renv_graph_install <- function(descriptions) {
 
         streamed <<- c(streamed, pkg)
         awaiting <<- setdiff(awaiting, pkg)
-        dlspinner$completed()
 
-        if (length(awaiting) > 0L)
-          dlspinner$update(awaiting)
+        if (length(awaiting) > 0L) {
+          active <- head(awaiting, maxdl)
+          pending <- max(length(awaiting) - maxdl, 0L)
+          renv_graph_status_update("Downloading", active, pending)
+        }
 
         flush(stdout())
 
       }
 
-      tick <- if (progress && length(awaiting) > 1L) function() {
-        dlspinner$update(awaiting)
+      if (progress && length(awaiting) > 1L) {
+        active <- head(awaiting, maxdl)
+        pending <- max(length(awaiting) - maxdl, 0L)
+        renv_graph_status_update("Downloading", active, pending)
       }
 
-      if (!is.null(tick))
-        tick()
-
-      ok <- renv_download_parallel(urls, destfiles, types, callback = callback, tick = tick)
+      ok <- renv_download_parallel(urls, destfiles, types, callback = callback)
 
       if (progress)
-        dlspinner$clear()
+        renv_graph_status_update_clear()
       for (pkg in names(downloadable)) {
         if (!isTRUE(ok[[pkg]]))
           fallbacks <- c(fallbacks, pkg)
@@ -995,12 +993,6 @@ renv_graph_install <- function(descriptions) {
     total <- as.numeric(difftime(dlafter, dlbefore, units = "secs"))
     count <- length(downloaded)
 
-  }
-
-  if (count > 0L) {
-    fmt <- "Successfully downloaded %s in %s.\n"
-    elapsed <- as.difftime(total, units = "secs")
-    writef(fmt, nplural("package", count), renv_difftime_format(elapsed))
   }
 
   writef(header("Installing packages"))
@@ -1129,9 +1121,6 @@ renv_graph_install <- function(descriptions) {
 
     showstatus <- !testing() && !verbose
 
-    buildspinner <- if (showstatus)
-      spinner("Building", length(sourcedescs), the$install_step_width)
-
     repeat {
 
       # fill worker slots from ready queue
@@ -1148,23 +1137,19 @@ renv_graph_install <- function(descriptions) {
       if (length(active) == 0L)
         break
 
-      if (showstatus)
-        buildspinner$update(names(active))
+      if (showstatus) {
+        pending <- length(ready) + sum(indegree > 0L)
+        renv_graph_status_update("Building", names(active), pending)
+      }
 
-      # wait for a worker to report back; use a short timeout so the
-      # spinner can animate while we wait
-      result <- renv_graph_install_accept(server$socket, active, timeout = 0.2)
+      # accept one result (blocks until a worker reports back)
+      result <- renv_graph_install_accept(server$socket, active, timeout = 3600)
+
+      if (showstatus)
+        renv_graph_status_update_clear()
 
       if (is.null(result)) {
-        # socketSelect timed out; check if we've exceeded the real deadline
-        starts <- vapply(active, `[[`, numeric(1L), "start")
-        elapsed <- as.numeric(Sys.time()) - min(starts)
-        if (elapsed < 3600)
-          next
-
-        # real timeout: mark all active workers as failed
-        if (showstatus)
-          buildspinner$clear()
+        # timeout or error: mark all active workers as failed
         for (pkg in names(active)) {
           elapsed <- difftime(Sys.time(), active[[pkg]]$start, units = "auto")
           handle(pkg, list(success = FALSE, output = "worker process timed out", elapsed = elapsed))
@@ -1173,15 +1158,9 @@ renv_graph_install <- function(descriptions) {
         next
       }
 
-      if (showstatus)
-        buildspinner$clear()
-
       pkg <- result$package
       handle(pkg, result)
       active[[pkg]] <- NULL
-
-      if (showstatus)
-        buildspinner$completed()
 
       # on success, decrement dependents' indegree and enqueue newly ready
       if (result$success) {
@@ -1256,6 +1235,11 @@ renv_graph_install <- function(descriptions) {
     descpaths <- file.path(targets, "DESCRIPTION")
     renv_filebacked_clear("renv_description_read", descpaths)
     renv_filebacked_clear("renv_hash_description", descpaths)
+  }
+
+  if (count > 0L) {
+    elapsed <- as.difftime(total, units = "secs")
+    writef("Successfully downloaded %s in %s.", nplural("package", count), renv_difftime_format(elapsed))
   }
 
   n <- length(all)
@@ -1500,6 +1484,36 @@ renv_graph_install_backup <- function(installdir, pkg) {
   if (renv_file_broken(installpath))
     renv_file_remove(installpath)
   callback
+}
+
+renv_graph_status_update <- function(label, items, pending = 0L) {
+
+  n <- length(items)
+  max <- 4L
+
+  detail <- if (n <= max) {
+    paste(items, collapse = ", ")
+  } else {
+    paste0(paste(head(items, max), collapse = ", "), ", ...")
+  }
+
+  suffix <- if (pending > 0L)
+    sprintf("[%s pending]", pending)
+  else
+    ""
+
+  body <- sprintf("- %s: (%s)", label, detail)
+  width <- the$install_step_width
+  msg <- paste0(format(body, width = width), suffix)
+  printf("\r%s", format(msg, width = width + nchar(suffix)))
+  flush(stdout())
+
+}
+
+renv_graph_status_update_clear <- function() {
+  width <- the$install_step_width + 24L
+  printf("\r%s\r", strrep(" ", width))
+  flush(stdout())
 }
 
 

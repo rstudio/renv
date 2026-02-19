@@ -164,10 +164,9 @@
       
       # Downloading packages ---
       - Downloading egg 1.0.0 ... OK
-      Successfully downloaded 1 package in XXXX seconds.
-      
       # Installing packages ---
       - Installing egg 1.0.0 ... OK [built from source in XXs]
+      Successfully downloaded 1 package in XXXX seconds.
       Successfully installed 1 package in XXXX seconds.
       The following package(s) will be updated in the lockfile:
       
