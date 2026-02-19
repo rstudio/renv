@@ -995,6 +995,12 @@ renv_graph_install <- function(descriptions) {
 
   }
 
+  if (count > 0L) {
+    fmt <- "Successfully downloaded %s in %s.\n"
+    elapsed <- as.difftime(total, units = "secs")
+    writef(fmt, nplural("package", count), renv_difftime_format(elapsed))
+  }
+
   writef(header("Installing packages"))
 
   # ── Phase 2: Unpack + classify all packages ───────────────────
@@ -1235,11 +1241,6 @@ renv_graph_install <- function(descriptions) {
     descpaths <- file.path(targets, "DESCRIPTION")
     renv_filebacked_clear("renv_description_read", descpaths)
     renv_filebacked_clear("renv_hash_description", descpaths)
-  }
-
-  if (count > 0L) {
-    elapsed <- as.difftime(total, units = "secs")
-    writef("Successfully downloaded %s in %s.", nplural("package", count), renv_difftime_format(elapsed))
   }
 
   n <- length(all)
