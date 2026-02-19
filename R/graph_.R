@@ -61,7 +61,35 @@ renv_graph_init <- function(remotes, records = list(), project = NULL, scope = p
     queue <- c(queue, as.list(deps))
   }
 
-  as.list(envir)
+  # phase 3: check version requirements; if a resolved package
+  # doesn't satisfy constraints from other packages in the graph,
+  # try to upgrade it to the latest available version
+  descriptions <- as.list(envir)
+  for (package in names(descriptions)) {
+
+    reqs <- renv_graph_requirements(descriptions, package)
+    if (is.null(reqs) || nrow(reqs) == 0L)
+      next
+
+    version <- descriptions[[package]]$Version
+    if (is.null(version))
+      next
+
+    if (renv_graph_compatible(version, reqs))
+      next
+
+    latest <- catch(renv_available_packages_latest(package))
+    if (inherits(latest, "error"))
+      next
+
+    desc <- descriptions[[package]]
+    desc$Version <- latest$Version
+    descriptions[[package]] <- desc
+    assign(package, desc, envir = envir)
+
+  }
+
+  descriptions
 
 }
 
