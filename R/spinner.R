@@ -12,7 +12,7 @@ spinner <- function(label, n, width) {
     .i <<- 0L
   }
 
-  update <- function(items, pending = 0L) {
+  update <- function(items) {
 
     max <- 4L
     detail <- if (length(items) <= max) {
@@ -21,11 +21,7 @@ spinner <- function(label, n, width) {
       paste0(paste(head(items, max), collapse = ", "), ", ...")
     }
 
-    suffix <- if (pending > 0L)
-      sprintf("[%s pending]", pending)
-    else
-      ""
-
+    suffix <- sprintf("(%i/%i)", .i, .n)
     body <- sprintf("  %s: %s", .label, detail)
     msg <- paste0(format(body, width = .width), suffix)
     printf("\r%s", format(msg, width = .width + nchar(suffix)))

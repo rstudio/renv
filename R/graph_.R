@@ -874,7 +874,6 @@ renv_graph_install <- function(descriptions) {
       # disabled in testing mode to keep output order deterministic
       showprogress <- !testing()
       awaiting <- names(downloadable)
-      maxdl <- 16L
 
       if (showprogress)
         progress$reset("Downloading", length(awaiting))
@@ -886,6 +885,7 @@ renv_graph_install <- function(descriptions) {
           return()
 
         progress$clear()
+        progress$tick()
 
         desc <- descriptions[[pkg]]
         msg <- sprintf("- Downloading %s %s ... ", desc$Package, desc$Version)
@@ -901,21 +901,15 @@ renv_graph_install <- function(descriptions) {
         streamed <<- c(streamed, pkg)
         awaiting <<- setdiff(awaiting, pkg)
 
-        if (length(awaiting) > 0L) {
-          active <- head(awaiting, maxdl)
-          pending <- max(length(awaiting) - maxdl, 0L)
-          progress$update(active, pending)
-        }
+        if (length(awaiting) > 0L)
+          progress$update(awaiting)
 
         flush(stdout())
 
       }
 
-      if (showprogress && length(awaiting) > 1L) {
-        active <- head(awaiting, maxdl)
-        pending <- max(length(awaiting) - maxdl, 0L)
-        progress$update(active, pending)
-      }
+      if (showprogress && length(awaiting) > 1L)
+        progress$update(awaiting)
 
       ok <- renv_download_parallel(urls, destfiles, types, callback = callback)
 
@@ -1132,7 +1126,7 @@ renv_graph_install <- function(descriptions) {
     showstatus <- !testing() && !verbose
 
     if (showstatus)
-      progress$reset("Building", length(ready))
+      progress$reset("Building", length(sourcenames))
 
     repeat {
 
@@ -1150,16 +1144,16 @@ renv_graph_install <- function(descriptions) {
       if (length(active) == 0L)
         break
 
-      if (showstatus) {
-        pending <- length(ready) + sum(indegree > 0L)
-        progress$update(names(active), pending)
-      }
+      if (showstatus)
+        progress$update(names(active))
 
       # accept one result (blocks until a worker reports back)
       result <- renv_graph_install_accept(server$socket, active, timeout = 3600)
 
-      if (showstatus)
+      if (showstatus) {
         progress$clear()
+        progress$tick()
+      }
 
       if (is.null(result)) {
         # timeout or error: mark all active workers as failed
