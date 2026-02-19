@@ -381,6 +381,53 @@ renv_graph_deps <- function(desc, fields = NULL) {
 
 }
 
+renv_graph_requirements <- function(descriptions, package) {
+
+  requirements <- list()
+
+  fields <- c("Depends", "Imports", "LinkingTo")
+  for (desc in descriptions) {
+    for (field in fields) {
+      parsed <- renv_description_parse_field(desc[[field]])
+      if (is.null(parsed))
+        next
+      rows <- parsed[parsed$Package == package & nzchar(parsed$Require) & nzchar(parsed$Version), ]
+      if (nrow(rows) > 0L)
+        requirements[[length(requirements) + 1L]] <- rows
+    }
+  }
+
+  bind(requirements)
+
+}
+
+renv_graph_compatible <- function(version, requirements) {
+
+  if (is.null(requirements) || nrow(requirements) == 0L)
+    return(TRUE)
+
+  rversion <- numeric_version(version)
+  all(map_lgl(seq_len(nrow(requirements)), function(i) {
+    expr <- call(requirements$Require[[i]], rversion, requirements$Version[[i]])
+    eval(expr, envir = baseenv())
+  }))
+
+}
+
+renv_graph_needs_update <- function(pkg, descriptions) {
+
+  # check whether the resolved version differs from installed
+  path <- renv_restore_find(pkg, descriptions[[pkg]])
+  if (!nzchar(path))
+    return(TRUE)
+
+  # check whether the installed version satisfies dependency requirements
+  reqs <- renv_graph_requirements(descriptions, pkg)
+  installed <- renv_package_version(pkg)
+  !renv_graph_compatible(installed, reqs)
+
+}
+
 renv_graph_adjacency <- function(descriptions) {
 
   packages <- names(descriptions)
@@ -817,8 +864,7 @@ renv_graph_install <- function(descriptions) {
   # filter out packages that are already correctly installed;
   # safe to do up front since nothing has been installed yet
   remaining <- Filter(function(pkg) {
-    path <- renv_restore_find(pkg, descriptions[[pkg]])
-    !nzchar(path)
+    renv_graph_needs_update(pkg, descriptions)
   }, packages)
 
   # check cache: packages with a valid cache entry can be installed

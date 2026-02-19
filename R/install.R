@@ -242,8 +242,7 @@ install <- function(packages = NULL,
   # renv_graph_install performs the same filtering internally
   library <- renv_libpaths_active()
   needed <- Filter(function(pkg) {
-    path <- renv_restore_find(pkg, descriptions[[pkg]])
-    !nzchar(path)
+    renv_graph_needs_update(pkg, descriptions)
   }, names(descriptions))
 
   if (empty(needed)) {
