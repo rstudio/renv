@@ -808,6 +808,7 @@ renv_graph_install <- function(descriptions) {
   jobs <- config$install.jobs()
 
   before <- Sys.time()
+  progress <- spinner("", 0L, width = the$install_step_width)
 
   writef(header("Downloading packages"))
 
@@ -871,17 +872,20 @@ renv_graph_install <- function(descriptions) {
 
       # stream per-package progress as each download completes;
       # disabled in testing mode to keep output order deterministic
-      progress <- !testing()
+      showprogress <- !testing()
       awaiting <- names(downloadable)
       maxdl <- 16L
 
-      callback <- if (progress) function(destfile, code, size, time, exitcode, error) {
+      if (showprogress)
+        progress$reset("Downloading", length(awaiting))
+
+      callback <- if (showprogress) function(destfile, code, size, time, exitcode, error) {
 
         pkg <- lookup[[destfile]]
         if (is.null(pkg))
           return()
 
-        renv_graph_status_update_clear()
+        progress$clear()
 
         desc <- descriptions[[pkg]]
         msg <- sprintf("- Downloading %s %s ... ", desc$Package, desc$Version)
@@ -900,23 +904,23 @@ renv_graph_install <- function(descriptions) {
         if (length(awaiting) > 0L) {
           active <- head(awaiting, maxdl)
           pending <- max(length(awaiting) - maxdl, 0L)
-          renv_graph_status_update("Downloading", active, pending)
+          progress$update(active, pending)
         }
 
         flush(stdout())
 
       }
 
-      if (progress && length(awaiting) > 1L) {
+      if (showprogress && length(awaiting) > 1L) {
         active <- head(awaiting, maxdl)
         pending <- max(length(awaiting) - maxdl, 0L)
-        renv_graph_status_update("Downloading", active, pending)
+        progress$update(active, pending)
       }
 
       ok <- renv_download_parallel(urls, destfiles, types, callback = callback)
 
-      if (progress)
-        renv_graph_status_update_clear()
+      if (showprogress)
+        progress$clear()
       for (pkg in names(downloadable)) {
         if (!isTRUE(ok[[pkg]]))
           fallbacks <- c(fallbacks, pkg)
@@ -1127,6 +1131,9 @@ renv_graph_install <- function(descriptions) {
 
     showstatus <- !testing() && !verbose
 
+    if (showstatus)
+      progress$reset("Building", length(ready))
+
     repeat {
 
       # fill worker slots from ready queue
@@ -1145,14 +1152,14 @@ renv_graph_install <- function(descriptions) {
 
       if (showstatus) {
         pending <- length(ready) + sum(indegree > 0L)
-        renv_graph_status_update("Building", names(active), pending)
+        progress$update(names(active), pending)
       }
 
       # accept one result (blocks until a worker reports back)
       result <- renv_graph_install_accept(server$socket, active, timeout = 3600)
 
       if (showstatus)
-        renv_graph_status_update_clear()
+        progress$clear()
 
       if (is.null(result)) {
         # timeout or error: mark all active workers as failed
@@ -1487,35 +1494,6 @@ renv_graph_install_backup <- function(installdir, pkg) {
   callback
 }
 
-renv_graph_status_update <- function(label, items, pending = 0L) {
-
-  n <- length(items)
-  max <- 4L
-
-  detail <- if (n <= max) {
-    paste(items, collapse = ", ")
-  } else {
-    paste0(paste(head(items, max), collapse = ", "), ", ...")
-  }
-
-  suffix <- if (pending > 0L)
-    sprintf("[%s pending]", pending)
-  else
-    ""
-
-  body <- sprintf("- %s: (%s)", label, detail)
-  width <- the$install_step_width
-  msg <- paste0(format(body, width = width), suffix)
-  printf("\r%s", format(msg, width = width + nchar(suffix)))
-  flush(stdout())
-
-}
-
-renv_graph_status_update_clear <- function() {
-  width <- the$install_step_width + 24L
-  printf("\r%s\r", strrep(" ", width))
-  flush(stdout())
-}
 
 
 renv_graph_install_copy <- function(prepared) {

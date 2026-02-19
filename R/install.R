@@ -237,17 +237,21 @@ install <- function(packages = NULL,
     return(invisible(list()))
   }
 
+  # filter out packages that are already correctly installed so
+  # the report only lists packages that will actually be installed;
+  # renv_graph_install performs the same filtering internally
+  library <- renv_libpaths_active()
+  needed <- Filter(function(pkg) {
+    path <- renv_restore_find(pkg, descriptions[[pkg]])
+    !nzchar(path)
+  }, names(descriptions))
+
+  if (empty(needed)) {
+    writef("- All packages are already installed.")
+    return(invisible(list()))
+  }
+
   if (prompt || renv_verbose()) {
-
-    # filter out packages that are already correctly installed so
-    # the report only lists packages that will actually be installed;
-    # renv_graph_install performs the same filtering internally
-    library <- renv_libpaths_active()
-    needed <- Filter(function(pkg) {
-      path <- renv_restore_find(pkg, descriptions[[pkg]])
-      !nzchar(path)
-    }, names(descriptions))
-
     renv_install_report(descriptions[needed], library = library)
     cancel_if(prompt && !proceed())
   }
