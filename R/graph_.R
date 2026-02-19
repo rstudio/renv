@@ -65,11 +65,11 @@ renv_graph_init <- function(remotes, records = list(), project = NULL, scope = p
   # doesn't satisfy constraints from other packages in the graph,
   # try to upgrade it to the latest available version
   descriptions <- as.list(envir)
-  for (package in names(descriptions)) {
+  requirements <- renv_graph_requirements(descriptions)
 
-    reqs <- renv_graph_requirements(descriptions, package)
-    if (is.null(reqs) || nrow(reqs) == 0L)
-      next
+  for (package in ls(envir = requirements)) {
+
+    reqs <- requirements[[package]]
 
     version <- descriptions[[package]]$Version
     if (is.null(version))
@@ -409,9 +409,9 @@ renv_graph_deps <- function(desc, fields = NULL) {
 
 }
 
-renv_graph_requirements <- function(descriptions, package) {
+renv_graph_requirements <- function(descriptions) {
 
-  requirements <- list()
+  requirements <- new.env(parent = emptyenv())
 
   fields <- c("Depends", "Imports", "LinkingTo")
   for (desc in descriptions) {
@@ -419,13 +419,22 @@ renv_graph_requirements <- function(descriptions, package) {
       parsed <- renv_description_parse_field(desc[[field]])
       if (is.null(parsed))
         next
-      rows <- parsed[parsed$Package == package & nzchar(parsed$Require) & nzchar(parsed$Version), ]
-      if (nrow(rows) > 0L)
-        requirements[[length(requirements) + 1L]] <- rows
+      explicit <- parsed[nzchar(parsed$Require) & nzchar(parsed$Version), ]
+      if (nrow(explicit) == 0L)
+        next
+      for (i in seq_len(nrow(explicit))) {
+        pkg <- explicit$Package[[i]]
+        requirements[[pkg]] <- c(requirements[[pkg]], list(explicit[i, ]))
+      }
     }
   }
 
-  bind(requirements)
+  # bind each package's requirement rows into a single data frame
+  enumerate(as.list(requirements), function(pkg, rows) {
+    requirements[[pkg]] <- bind(rows)
+  })
+
+  requirements
 
 }
 
@@ -442,15 +451,15 @@ renv_graph_compatible <- function(version, requirements) {
 
 }
 
-renv_graph_needs_update <- function(pkg, descriptions) {
+renv_graph_needs_update <- function(pkg, record, requirements) {
 
   # check whether the resolved version differs from installed
-  path <- renv_restore_find(pkg, descriptions[[pkg]])
+  path <- renv_restore_find(pkg, record)
   if (!nzchar(path))
     return(TRUE)
 
   # check whether the installed version satisfies dependency requirements
-  reqs <- renv_graph_requirements(descriptions, pkg)
+  reqs <- requirements[[pkg]]
   installed <- renv_package_version(pkg)
   !renv_graph_compatible(installed, reqs)
 
@@ -889,8 +898,9 @@ renv_graph_install <- function(descriptions) {
 
   # filter out packages that are already correctly installed;
   # safe to do up front since nothing has been installed yet
+  requirements <- renv_graph_requirements(descriptions)
   remaining <- Filter(function(pkg) {
-    renv_graph_needs_update(pkg, descriptions)
+    renv_graph_needs_update(pkg, descriptions[[pkg]], requirements)
   }, packages)
 
   # check cache: packages with a valid cache entry can be installed

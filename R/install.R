@@ -241,8 +241,9 @@ install <- function(packages = NULL,
   # the report only lists packages that will actually be installed;
   # renv_graph_install performs the same filtering internally
   library <- renv_libpaths_active()
+  requirements <- renv_graph_requirements(descriptions)
   needed <- Filter(function(pkg) {
-    renv_graph_needs_update(pkg, descriptions)
+    renv_graph_needs_update(pkg, descriptions[[pkg]], requirements)
   }, names(descriptions))
 
   if (empty(needed)) {
