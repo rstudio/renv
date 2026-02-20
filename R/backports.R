@@ -1,4 +1,12 @@
 
+if (is.null(.BaseNamespaceEnv$isNamespaceLoaded)) {
+
+  isNamespaceLoaded <- function(name) {
+    name %in% loadedNamespaces()
+  }
+
+}
+
 if (is.null(.BaseNamespaceEnv$dir.exists)) {
 
   dir.exists <- function(paths) {

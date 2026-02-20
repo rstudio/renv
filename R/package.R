@@ -1,19 +1,27 @@
 
-# NOTE: When lib.loc is NULL, renv will also check to see if a package matching
-# the provided name is currently loaded. This function will also intentionally
-# check the library paths before checking loaded namespaces.
-# This differs from the behavior of `find.package()`.
 renv_package_find <- function(package, lib.loc = NULL) {
   map_chr(package, renv_package_find_impl, lib.loc = lib.loc)
 }
 
-renv_package_find_impl <- function(package, lib.loc = NULL) {
+renv_package_find_impl <- function(package, lib.loc = NULL, compat = FALSE) {
 
   # if we've been given the path to an existing package, use it as-is
   if (grepl("/", package) && file.exists(file.path(package, "DESCRIPTION")))
     return(renv_path_normalize(package, mustWork = TRUE))
 
-  # first, look in the library paths
+  # if we're trying to be compatible with find.package(), then
+  # check loaded namespaces before library paths if appropriate
+  if (compat) {
+
+    if (is.null(lib.loc) && isNamespaceLoaded(package)) {
+      path <- renv_namespace_path(package)
+      if (file.exists(path))
+        return(path)
+    }
+
+  }
+
+  # check library paths
   for (libpath in (lib.loc %||% .libPaths())) {
     pkgpath <- file.path(libpath, package)
     descpath <- file.path(pkgpath, "DESCRIPTION")
@@ -21,11 +29,15 @@ renv_package_find_impl <- function(package, lib.loc = NULL) {
       return(pkgpath)
   }
 
-  # if that failed, check to see if it's loaded and use the associated path
-  if (is.null(lib.loc) && package %in% loadedNamespaces()) {
-    path <- renv_namespace_path(package)
-    if (file.exists(path))
-      return(path)
+  # check for loaded namespaces
+  if (!compat) {
+
+    if (is.null(lib.loc) && isNamespaceLoaded(package)) {
+      path <- renv_namespace_path(package)
+      if (file.exists(path))
+        return(path)
+    }
+
   }
 
   # failed to find package
