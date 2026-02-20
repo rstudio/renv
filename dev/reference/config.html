@@ -122,6 +122,11 @@ Defaults to <code>"api.bitbucket.org/2.0"</code>.</p>
 Defaults to <code>"auto"</code>.</p>
 </div>
 <div class="section">
+<h3 id="renv-config-crandb-enabled">renv.config.crandb.enabled<a class="anchor" aria-label="anchor" href="#renv-config-crandb-enabled"></a></h3>
+<p>Use the <a href="https://github.com/r-hub/crandb" class="external-link">crandb</a> service when looking up packages from CRAN which are not available in the configured repositories? When enabled, renv will query the crandb API to find the latest version of a package compatible with the current version of R. This can be useful when an older version of R is being used, and the latest version of a package on CRAN requires a newer version of R. Disabled by default.
+Defaults to <code>FALSE</code>.</p>
+</div>
+<div class="section">
 <h3 id="renv-config-connect-timeout">renv.config.connect.timeout<a class="anchor" aria-label="anchor" href="#renv-config-connect-timeout"></a></h3>
 <p>The amount of time to spend (in seconds) when attempting to download a file. Only applicable when the <code>curl</code> downloader is used.
 Defaults to <code>20L</code>.</p>

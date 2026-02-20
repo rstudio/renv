@@ -52,6 +52,7 @@ use(
   ...,
   lockfile = NULL,
   library = NULL,
+  repos = getOption("repos"),
   isolate = TRUE,
   sandbox = TRUE,
   attach = FALSE,
@@ -90,6 +91,14 @@ use(
   library path will be re-used on future calls to `renv::use()`,
   allowing `renv::use()` to be used multiple times within a single
   script.
+
+- repos:
+
+  The R package repositories to use. When `NULL`, packages will be
+  resolved from the renv cache, without querying any external
+  repositories. This can be useful if you'd like to use packages that
+  have already been cached by renv, even when no active package
+  repositories have been configured.
 
 - isolate:
 
