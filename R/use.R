@@ -37,6 +37,13 @@ the$use_libpath <- NULL
 #' @param verbose
 #'   Boolean; be verbose while installing packages?
 #'
+#' @param repos
+#'   The \R package repositories to use. When `NULL`, packages will be
+#'   resolved from the renv cache, without querying any external repositories.
+#'   This can be useful if you'd like to use packages that have already been
+#'   cached by renv, even when no active package repositories have been
+#'   configured.
+#'
 #' @return
 #'   This function is normally called for its side effects.
 #'
@@ -44,14 +51,17 @@ the$use_libpath <- NULL
 use <- function(...,
                 lockfile = NULL,
                 library  = NULL,
+                repos    = getOption("repos"),
                 isolate  = TRUE,
                 sandbox  = TRUE,
                 attach   = FALSE,
                 verbose  = TRUE)
 {
-
   # allow use of the cache in this context
   renv_scope_options(renv.cache.linkable = TRUE)
+
+  # treat NULL repos as an implicit request to only use the cache
+  cacheonly <- is.null(repos)
 
   # set up sandbox if requested
   renv_use_sandbox(sandbox)
@@ -64,10 +74,16 @@ use <- function(...,
   libpaths <- c(library, if (!isolate) .libPaths())
   renv_libpaths_set(libpaths)
 
+  # override repos
+  renv_scope_options(repos = repos)
+
   # if we were supplied a lockfile, use it
   if (!is.null(lockfile)) {
     renv_scope_options(renv.verbose = verbose)
-    records <- restore(lockfile = lockfile, clean = FALSE, prompt = FALSE)
+    if (cacheonly)
+      records <- renv_use_cacheonly_restore(lockfile = lockfile, library = library)
+    else
+      records <- restore(lockfile = lockfile, clean = FALSE, prompt = FALSE)
     return(invisible(records))
   }
 
@@ -76,7 +92,7 @@ use <- function(...,
     return(invisible())
 
   # resolve the provided remotes
-  records <- lapply(dots, renv_remotes_resolve, latest = TRUE)
+  records <- lapply(dots, renv_remotes_resolve, latest = !cacheonly)
   names(records) <- map_chr(records, `[[`, "Package")
 
   # remove any remotes which already appear to be installed
@@ -102,10 +118,14 @@ use <- function(...,
     return(invisible())
 
   # install packages
-  records <- local({
-    renv_scope_options(renv.verbose = verbose)
-    install(packages = records, library = library, rebuild = character(), prompt = FALSE)
-  })
+  if (cacheonly) {
+    records <- renv_use_cacheonly_install(records = records, library = library)
+  } else {
+    records <- local({
+      renv_scope_options(renv.verbose = verbose)
+      install(packages = records, library = library, rebuild = character(), prompt = FALSE)
+    })
+  }
 
   # automatically load the requested remotes
   if (attach) {
@@ -121,6 +141,72 @@ use <- function(...,
 
 renv_use_libpath <- function() {
   (the$use_libpath <- the$use_libpath %||% tempfile("renv-use-libpath-"))
+}
+
+renv_use_cacheonly_restore <- function(lockfile, library) {
+
+  # read the lockfile
+  if (is.character(lockfile))
+    lockfile <- renv_lockfile_read(lockfile)
+
+  # apply overrides
+  lockfile <- renv_lockfile_override(lockfile)
+
+  # extract and install records from cache
+  records <- renv_lockfile_records(lockfile)
+  renv_use_cacheonly_install(records = records, library = library)
+
+}
+
+renv_use_cacheonly_install <- function(records, library) {
+
+  # determine how to place packages from cache into library
+  linkable <- getOption("renv.cache.linkable", default = FALSE)
+  linker <- if (linkable) renv_file_link else renv_file_copy
+
+  installed <- list()
+
+  enumerate(records, function(package, record) {
+
+    # skip base packages
+    if (package %in% renv_packages_base())
+      return()
+
+    # skip packages that aren't cacheable
+    if (!renv_record_cacheable(record))
+      return()
+
+    # look up package in the cache
+    path <- renv_cache_find(record)
+
+    # if the record has no version (e.g. resolved with latest = FALSE),
+    # fall back to searching the cache for any available version
+    if (!nzchar(path) && is.null(record$Version)) {
+      paths <- renv_cache_list(packages = package)
+      path <- head(paths, n = 1L) %||% ""
+    }
+
+    if (!nzchar(path) || !renv_cache_package_validate(path)) {
+      writef("- Package '%s' is not available in the cache.", package)
+      return()
+    }
+
+    # skip if the target is already up-to-date
+    target <- file.path(library, package)
+    if (renv_file_same(path, target))
+      return()
+
+    # back up any existing installation, then link / copy from cache
+    callback <- renv_file_backup(target)
+    defer(callback())
+    linker(path, target)
+
+    installed[[package]] <<- record
+
+  })
+
+  invisible(installed)
+
 }
 
 renv_use_sandbox <- function(sandbox) {
