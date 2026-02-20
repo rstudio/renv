@@ -1,6 +1,12 @@
 
 # renv (under development)
 
+* `renv::use(repos = NULL)` now uses a cache-only install path, ensuring
+  packages are only installed from the renv cache and no external sources
+  (repositories, GitHub, etc.) are queried. Previously, `restore()` and
+  `install()` could still reach external sources through internal fallback
+  logic.
+
 * `renv::init(bioconductor = "devel")` now resolves symbolic Bioconductor
   version names (e.g. `"devel"`, `"release"`) to their numeric equivalents
   before writing to the lockfile. Previously, the literal string `"devel"`
