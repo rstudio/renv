@@ -1227,8 +1227,8 @@ renv_graph_install <- function(descriptions) {
       if (showstatus)
         progress$update(names(active))
 
-      # accept one result (blocks until a worker reports back)
-      result <- renv_graph_install_accept(server$socket, active, timeout = 3600)
+      # poll for results, checking worker liveness between attempts
+      result <- renv_graph_install_poll(server$socket, active)
 
       if (showstatus) {
         progress$clear()
@@ -1236,10 +1236,11 @@ renv_graph_install <- function(descriptions) {
       }
 
       if (is.null(result)) {
-        # timeout or error: mark all active workers as failed
+        # timeout: mark all active workers as failed
         for (pkg in names(active)) {
           elapsed <- difftime(Sys.time(), active[[pkg]]$start, units = "auto")
           handle(pkg, list(success = FALSE, output = "worker process timed out", elapsed = elapsed))
+          renv_graph_install_worker_cleanup(active[[pkg]])
         }
         active <- list()
         next
@@ -1247,6 +1248,7 @@ renv_graph_install <- function(descriptions) {
 
       pkg <- result$package
       handle(pkg, result)
+      renv_graph_install_worker_cleanup(active[[pkg]])
       active[[pkg]] <- NULL
 
       # on success, decrement dependents' indegree and enqueue newly ready
@@ -1501,20 +1503,31 @@ renv_graph_install_launch_socket <- function(prepared, port) {
   command <- paste(prepared$command, "2>&1")
   package <- prepared$package
 
+  # PID file so the parent can monitor worker liveness
+  pidfile <- tempfile("renv-pid-", fileext = ".pid")
+
   # build a self-contained R script that runs the install command
   # and reports the result back over a socket (base R only, no renv)
   code <- expr({
-    output <- suppressWarnings(
-      system(!!command, intern = TRUE, ignore.stderr = FALSE)
-    )
-    exitcode <- attr(output, "status")
-    if (is.null(exitcode)) exitcode <- 0L
-    conn <- socketConnection(
-      host = "127.0.0.1", port = !!port,
-      open = "wb", blocking = TRUE, timeout = 60
-    )
-    serialize(list(package = !!package, exitcode = exitcode, output = output), conn)
-    close(conn)
+    writeLines(as.character(Sys.getpid()), !!pidfile)
+    result <- tryCatch({
+      output <- suppressWarnings(
+        system(!!command, intern = TRUE, ignore.stderr = FALSE)
+      )
+      exitcode <- attr(output, "status")
+      if (is.null(exitcode)) exitcode <- 0L
+      list(package = !!package, exitcode = exitcode, output = output)
+    }, error = function(e) {
+      list(package = !!package, exitcode = 1L, output = conditionMessage(e))
+    })
+    tryCatch({
+      conn <- socketConnection(
+        host = "127.0.0.1", port = !!port,
+        open = "wb", blocking = TRUE, timeout = 60
+      )
+      serialize(result, conn)
+      close(conn)
+    }, error = function(e) NULL)
   })
 
   script <- tempfile("renv-install-", fileext = ".R")
@@ -1528,8 +1541,56 @@ renv_graph_install_launch_socket <- function(prepared, port) {
     wait    = FALSE
   )
 
-  list(package = package, start = Sys.time())
+  list(package = package, start = Sys.time(), pidfile = pidfile, script = script)
 
+}
+
+renv_graph_install_pid <- function(worker) {
+  pidfile <- worker$pidfile
+  if (is.null(pidfile) || !file.exists(pidfile))
+    return(NULL)
+  tryCatch({
+    pid <- as.integer(readLines(pidfile, n = 1L, warn = FALSE))
+    if (is.na(pid)) NULL else pid
+  }, error = function(e) NULL)
+}
+
+renv_graph_install_poll <- function(socket, active, interval = 2, timeout = 3600) {
+
+  deadline <- Sys.time() + timeout
+
+  repeat {
+
+    remaining <- as.double(deadline - Sys.time(), units = "secs")
+    if (remaining <= 0)
+      return(NULL)
+
+    # try to accept a result from any worker
+    wait <- min(interval, remaining)
+    result <- renv_graph_install_accept(socket, active, timeout = wait)
+    if (!is.null(result))
+      return(result)
+
+    # check whether any worker process has died without reporting back
+    for (pkg in names(active)) {
+      pid <- renv_graph_install_pid(active[[pkg]])
+      if (!is.null(pid) && !renv_process_exists(pid)) {
+        elapsed <- difftime(Sys.time(), active[[pkg]]$start, units = "auto")
+        return(list(
+          package = pkg,
+          success = FALSE,
+          output  = "worker process exited unexpectedly",
+          elapsed = elapsed
+        ))
+      }
+    }
+
+  }
+
+}
+
+renv_graph_install_worker_cleanup <- function(worker) {
+  unlink(c(worker$pidfile, worker$script))
 }
 
 renv_graph_install_accept <- function(socket, active, timeout = 3600) {
