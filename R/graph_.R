@@ -1300,7 +1300,11 @@ renv_graph_install <- function(descriptions) {
         if (is.null(active[[pkg]]))
           next
 
-        data <- tryCatch(unserialize(active[[pkg]]$conn), error = function(e) NULL)
+        err <- NULL
+        data <- tryCatch(
+          unserialize(active[[pkg]]$conn),
+          error = function(e) { err <<- conditionMessage(e); NULL }
+        )
         elapsed <- difftime(Sys.time(), active[[pkg]]$start, units = "auto")
 
         if (showstatus) {
@@ -1310,6 +1314,8 @@ renv_graph_install <- function(descriptions) {
 
         if (is.null(data)) {
           output <- "worker process exited unexpectedly"
+          if (!is.null(err))
+            output <- c(output, paste("unserialize error:", err))
           log <- renv_graph_install_worker_log(active[[pkg]])
           if (length(log))
             output <- c(output, "", "worker log:", log)
@@ -1594,34 +1600,44 @@ renv_graph_install_launch_socket <- function(prepared, port) {
     log <- function(...) cat(..., "\n", file = !!logfile, append = TRUE)
     log("pid:", Sys.getpid())
     log("command:", !!command)
-    tryCatch({
+    conn <- tryCatch({
       log("connecting")
-      conn <- socketConnection(
+      socketConnection(
         host = "127.0.0.1", port = !!port,
         open = "wb", blocking = TRUE, timeout = 60
       )
-      on.exit(close(conn))
-      log("sending hello")
-      serialize(!!package, conn)
-      log("running system command")
-      result <- tryCatch({
-        output <- suppressWarnings(
-          system(!!command, intern = TRUE, ignore.stderr = FALSE)
-        )
-        exitcode <- attr(output, "status")
-        if (is.null(exitcode)) exitcode <- 0L
-        log("system done, exitcode:", exitcode)
-        list(package = !!package, exitcode = exitcode, output = output)
-      }, error = function(e) {
-        log("system error:", conditionMessage(e))
-        list(package = !!package, exitcode = 1L, output = conditionMessage(e))
-      })
-      log("sending result")
-      serialize(result, conn)
-      log("done")
     }, error = function(e) {
-      log("top-level error:", conditionMessage(e))
+      log("connect error:", conditionMessage(e))
+      NULL
     })
+    if (!is.null(conn)) {
+      tryCatch({
+        log("sending hello")
+        serialize(!!package, conn)
+        log("running system command")
+        result <- tryCatch({
+          output <- suppressWarnings(
+            system(!!command, intern = TRUE, ignore.stderr = FALSE)
+          )
+          exitcode <- attr(output, "status")
+          if (is.null(exitcode)) exitcode <- 0L
+          log("system done, exitcode:", exitcode)
+          list(package = !!package, exitcode = exitcode, output = output)
+        }, error = function(e) {
+          log("system error:", conditionMessage(e))
+          list(package = !!package, exitcode = 1L, output = conditionMessage(e))
+        })
+        log("sending result")
+        serialize(result, conn)
+        log("flushing")
+        flush(conn)
+        log("done")
+      }, error = function(e) {
+        log("top-level error:", conditionMessage(e))
+      })
+      close(conn)
+      log("closed")
+    }
   })
 
   script <- tempfile("renv-install-", fileext = ".R")
