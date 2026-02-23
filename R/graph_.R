@@ -1244,7 +1244,11 @@ renv_graph_install <- function(descriptions) {
       if (remaining <= 0) {
         for (pkg in names(active)) {
           elapsed <- difftime(Sys.time(), active[[pkg]]$start, units = "auto")
-          handle(pkg, list(success = FALSE, output = "worker process timed out", elapsed = elapsed))
+          handle(pkg, list(
+            success = FALSE,
+            output  = "worker process timed out",
+            elapsed = elapsed
+          ))
           renv_graph_install_worker_cleanup(active[[pkg]])
         }
         active <- list()
@@ -1258,14 +1262,20 @@ renv_graph_install <- function(descriptions) {
         # no activity; check for workers that never connected (startup failure)
         for (pkg in names(active)) {
           if (is.null(active[[pkg]]$conn)) {
-            elapsed <- as.double(difftime(Sys.time(), active[[pkg]]$start, units = "secs"))
+            start <- active[[pkg]]$start
+            elapsed <- as.double(
+              difftime(Sys.time(), start, units = "secs")
+            )
             if (elapsed > 60) {
-              if (showstatus) { progress$clear(); progress$tick() }
-              output <- "worker failed to start"
-              log <- renv_graph_install_worker_log(active[[pkg]])
-              if (length(log))
-                output <- c(output, "", "worker log:", log)
-              handle(pkg, list(success = FALSE, output = output, elapsed = as.difftime(elapsed, units = "secs")))
+              if (showstatus) {
+                progress$clear()
+                progress$tick()
+              }
+              handle(pkg, list(
+                success = FALSE,
+                output  = "worker failed to start",
+                elapsed = as.difftime(elapsed, units = "secs")
+              ))
               renv_graph_install_worker_cleanup(active[[pkg]])
               active[[pkg]] <- NULL
             }
@@ -1279,14 +1289,20 @@ renv_graph_install <- function(descriptions) {
         if (identical(labels[[i]], "__server__")) {
           # new worker connecting: accept and read the hello (package name)
           conn <- tryCatch(
-            socketAccept(server$socket, open = "rb", blocking = TRUE, timeout = 30),
+            socketAccept(
+              server$socket,
+              open     = "rb",
+              blocking = TRUE,
+              timeout  = 30
+            ),
             error = function(e) NULL
           )
           if (is.null(conn))
             next
 
           pkg <- tryCatch(unserialize(conn), error = function(e) NULL)
-          if (is.null(pkg) || !is.character(pkg) || !(pkg %in% names(active))) {
+          valid <- is.character(pkg) && (pkg %in% names(active))
+          if (!valid) {
             close(conn)
             next
           }
@@ -1300,12 +1316,13 @@ renv_graph_install <- function(descriptions) {
         if (is.null(active[[pkg]]))
           next
 
-        err <- NULL
         data <- tryCatch(
           unserialize(active[[pkg]]$conn),
-          error = function(e) { err <<- conditionMessage(e); NULL }
+          error = function(e) NULL
         )
-        elapsed <- difftime(Sys.time(), active[[pkg]]$start, units = "auto")
+        elapsed <- difftime(
+          Sys.time(), active[[pkg]]$start, units = "auto"
+        )
 
         if (showstatus) {
           progress$clear()
@@ -1313,13 +1330,12 @@ renv_graph_install <- function(descriptions) {
         }
 
         if (is.null(data)) {
-          output <- "worker process exited unexpectedly"
-          if (!is.null(err))
-            output <- c(output, paste("unserialize error:", err))
-          log <- renv_graph_install_worker_log(active[[pkg]])
-          if (length(log))
-            output <- c(output, "", "worker log:", log)
-          result <- list(package = pkg, success = FALSE, output = output, elapsed = elapsed)
+          result <- list(
+            package = pkg,
+            success = FALSE,
+            output  = "worker process exited unexpectedly",
+            elapsed = elapsed
+          )
         } else {
           result <- list(
             package = pkg,
@@ -1594,49 +1610,44 @@ renv_graph_install_launch_socket <- function(prepared, port) {
   #
   # the persistent connection lets the parent detect worker death via
   # socketSelect() + EOF, without needing PID files or polling
-  logfile <- tempfile("renv-worker-", fileext = ".log")
-
   code <- expr({
-    log <- function(...) cat(..., "\n", file = !!logfile, append = TRUE)
-    log("pid:", Sys.getpid())
-    log("command:", !!command)
-    conn <- tryCatch({
-      log("connecting")
+    conn <- tryCatch(
       socketConnection(
-        host = "127.0.0.1", port = !!port,
-        open = "wb", blocking = TRUE, timeout = 60
-      )
-    }, error = function(e) {
-      log("connect error:", conditionMessage(e))
-      NULL
-    })
+        host     = "127.0.0.1",
+        port     = !!port,
+        open     = "wb",
+        blocking = TRUE,
+        timeout  = 60
+      ),
+      error = function(e) NULL
+    )
     if (!is.null(conn)) {
       tryCatch({
-        log("sending hello")
         serialize(!!package, conn)
-        log("running system command")
         result <- tryCatch({
-          output <- suppressWarnings(
-            system(!!command, intern = TRUE, ignore.stderr = FALSE)
-          )
+          output <- suppressWarnings(system(
+            !!command,
+            intern = TRUE,
+            ignore.stderr = FALSE
+          ))
           exitcode <- attr(output, "status")
           if (is.null(exitcode)) exitcode <- 0L
-          log("system done, exitcode:", exitcode)
-          list(package = !!package, exitcode = exitcode, output = output)
+          list(
+            package  = !!package,
+            exitcode = exitcode,
+            output   = output
+          )
         }, error = function(e) {
-          log("system error:", conditionMessage(e))
-          list(package = !!package, exitcode = 1L, output = conditionMessage(e))
+          list(
+            package  = !!package,
+            exitcode = 1L,
+            output   = conditionMessage(e)
+          )
         })
-        log("sending result")
         serialize(result, conn)
-        log("flushing")
         flush(conn)
-        log("done")
-      }, error = function(e) {
-        log("top-level error:", conditionMessage(e))
-      })
+      }, error = function(e) NULL)
       close(conn)
-      log("closed")
     }
   })
 
@@ -1651,20 +1662,13 @@ renv_graph_install_launch_socket <- function(prepared, port) {
     wait    = FALSE
   )
 
-  list(package = package, start = Sys.time(), conn = NULL, script = script, logfile = logfile)
+  list(package = package, start = Sys.time(), conn = NULL, script = script)
 
-}
-
-renv_graph_install_worker_log <- function(worker) {
-  logfile <- worker$logfile
-  if (is.null(logfile) || !file.exists(logfile))
-    return(NULL)
-  tryCatch(readLines(logfile, warn = FALSE), error = function(e) NULL)
 }
 
 renv_graph_install_worker_cleanup <- function(worker) {
   tryCatch(close(worker$conn), error = function(e) NULL)
-  unlink(c(worker$script, worker$logfile))
+  unlink(worker$script)
 }
 
 renv_graph_install_backup <- function(installdir, pkg) {
