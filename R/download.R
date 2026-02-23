@@ -606,35 +606,39 @@ renv_download_parallel_curl_socket <- function(command, callback) {
 
     conn <- pipe(!!command, open = "r")
 
-    on.exit(close(socket), add = TRUE)
     on.exit(close(conn), add = TRUE)
 
-    while (TRUE) {
+    tryCatch({
 
-      line <- readLines(conn, n = 1L, warn = FALSE)
-      if (length(line) == 0L)
-        break
+      while (TRUE) {
 
-      if (!startsWith(line, "renv-output-begin\t"))
-        next
+        line <- readLines(conn, n = 1L, warn = FALSE)
+        if (length(line) == 0L)
+          break
 
-      parts <- strsplit(line, "\t", fixed = TRUE)[[1L]]
-      result <- list(
-        type     = "result",
-        destfile = parts[[2L]],
-        code     = parts[[3L]],
-        size     = as.numeric(parts[[4L]]),
-        time     = as.numeric(parts[[5L]]),
-        exitcode = parts[[6L]],
-        error    = parts[[7L]]
-      )
+        if (!startsWith(line, "renv-output-begin\t"))
+          next
 
-      serialize(result, socket)
+        parts <- strsplit(line, "\t", fixed = TRUE)[[1L]]
+        result <- list(
+          type     = "result",
+          destfile = parts[[2L]],
+          code     = parts[[3L]],
+          size     = as.numeric(parts[[4L]]),
+          time     = as.numeric(parts[[5L]]),
+          exitcode = parts[[6L]],
+          error    = parts[[7L]]
+        )
 
-    }
+        serialize(result, socket)
 
-    serialize(list(type = "done"), socket)
-    flush(socket)
+      }
+
+      serialize(list(type = "done"), socket)
+
+    }, error = function(e) NULL)
+
+    close(socket)
 
   })
 

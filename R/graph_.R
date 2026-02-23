@@ -1646,7 +1646,6 @@ renv_graph_install_launch_socket <- function(prepared, port) {
           )
         })
         serialize(result, conn)
-        flush(conn)
       }, error = function(e) NULL)
       close(conn)
     }
