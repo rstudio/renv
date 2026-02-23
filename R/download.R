@@ -634,6 +634,7 @@ renv_download_parallel_curl_socket <- function(command, callback) {
     }
 
     serialize(list(type = "done"), socket)
+    flush(socket)
 
   })
 
