@@ -14,7 +14,7 @@ test_that("renv_socket_accept times out when no client connects", {
 
 })
 
-test_that("renv_graph_install_accept detects crashed workers via timeout", {
+test_that("persistent socket connections detect results and worker death", {
 
   skip_on_cran()
 
@@ -22,22 +22,16 @@ test_that("renv_graph_install_accept detects crashed workers via timeout", {
   defer(close(server$socket))
 
   port <- server$port
-  now <- Sys.time()
 
-  # simulate 3 workers; only "pkgA" and "pkgB" will connect back
-  active <- list(
-    pkgA = list(package = "pkgA", start = now),
-    pkgB = list(package = "pkgB", start = now),
-    pkgC = list(package = "pkgC", start = now)
-  )
-
-  # launch two child processes that report success
+  # launch two workers that follow the persistent connection protocol:
+  # 1. connect, 2. send package name (hello), 3. send result, 4. close
   for (pkg in c("pkgA", "pkgB")) {
     script <- renv_test_code({
       conn <- socketConnection(
         host = "127.0.0.1", port = port,
         open = "wb", blocking = TRUE, timeout = 10
       )
+      serialize(pkg, conn)
       serialize(list(package = pkg, exitcode = 0L, output = "ok"), conn)
       close(conn)
     }, list(port = port, pkg = pkg))
@@ -51,34 +45,65 @@ test_that("renv_graph_install_accept detects crashed workers via timeout", {
     )
   }
 
-  # collect results using the same accept loop pattern as renv_graph_install;
-  # pkgC never connects, so accept will return NULL on timeout
-  results <- list()
-  collected <- character()
-
-  for (i in seq_along(active)) {
-    result <- renv_graph_install_accept(server$socket, active, timeout = 3)
-    if (is.null(result))
-      break
-    results[[result$package]] <- result
-    collected <- c(collected, result$package)
-  }
-
-  # mark uncollected workers as failed (mirrors the real install loop)
-  for (pkg in setdiff(names(active), collected)) {
-    results[[pkg]] <- list(
-      success = FALSE,
-      output  = "worker process failed to report results"
+  # launch a worker that connects and sends hello, then crashes (no result)
+  script <- renv_test_code({
+    conn <- socketConnection(
+      host = "127.0.0.1", port = port,
+      open = "wb", blocking = TRUE, timeout = 10
     )
+    serialize("pkgC", conn)
+    close(conn)
+  }, list(port = port))
+
+  system2(
+    command = R(),
+    args    = c("--vanilla", "-s", "-f", renv_shell_path(script)),
+    stdout  = FALSE,
+    stderr  = FALSE,
+    wait    = FALSE
+  )
+
+  # accept all three hello connections via socketSelect on the server socket
+  conns <- list()
+  for (i in 1:3) {
+    socketSelect(list(server$socket), write = FALSE, timeout = 10)
+    conn <- socketAccept(server$socket, open = "rb", blocking = TRUE, timeout = 10)
+    pkg <- unserialize(conn)
+    conns[[pkg]] <- conn
   }
 
-  # pkgA and pkgB should have succeeded
+  expect_equal(sort(names(conns)), c("pkgA", "pkgB", "pkgC"))
+
+  # now use socketSelect on all three worker connections to read results
+  results <- list()
+  remaining <- names(conns)
+
+  while (length(remaining) > 0L) {
+    active_conns <- conns[remaining]
+    flags <- socketSelect(active_conns, write = FALSE, timeout = 10)
+    for (i in which(flags)) {
+      pkg <- remaining[i]
+      data <- tryCatch(unserialize(conns[[pkg]]), error = function(e) NULL)
+      close(conns[[pkg]])
+      if (is.null(data)) {
+        results[[pkg]] <- list(success = FALSE, output = "worker died")
+      } else {
+        results[[pkg]] <- list(
+          success = identical(as.integer(data$exitcode), 0L),
+          output  = data$output
+        )
+      }
+    }
+    remaining <- setdiff(remaining, remaining[flags])
+  }
+
+  # pkgA and pkgB sent results
   expect_true(results$pkgA$success)
   expect_true(results$pkgB$success)
 
-  # pkgC should be marked as failed
+  # pkgC connected but sent no result (EOF detected)
   expect_false(results$pkgC$success)
-  expect_equal(results$pkgC$output, "worker process failed to report results")
+  expect_equal(results$pkgC$output, "worker died")
 
 })
 
