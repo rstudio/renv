@@ -32,7 +32,7 @@ test_that("persistent socket connections detect results and worker death", {
         open = "wb", blocking = TRUE, timeout = 10
       )
       serialize(pkg, conn)
-      serialize(list(package = pkg, exitcode = 0L, output = "ok"), conn)
+      serialize(list(package = pkg, status = 0L, output = "ok"), conn)
       close(conn)
     }, list(port = port, pkg = pkg))
 
@@ -89,7 +89,7 @@ test_that("persistent socket connections detect results and worker death", {
         results[[pkg]] <- list(success = FALSE, output = "worker died")
       } else {
         results[[pkg]] <- list(
-          success = identical(as.integer(data$exitcode), 0L),
+          success = identical(as.integer(data$status), 0L),
           output  = data$output
         )
       }

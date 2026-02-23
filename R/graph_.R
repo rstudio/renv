@@ -1339,7 +1339,7 @@ renv_graph_install <- function(descriptions) {
           result <- list(
             package = pkg,
             success = identical(
-              as.integer(data$exitcode), 0L
+              as.integer(data$status), 0L
             ),
             output  = data$output,
             elapsed = elapsed
@@ -1631,17 +1631,17 @@ renv_graph_install_launch_socket <- function(prepared, port) {
             intern = TRUE,
             ignore.stderr = FALSE
           ))
-          exitcode <- attr(output, "status")
-          if (is.null(exitcode)) exitcode <- 0L
+          status <- attr(output, "status")
+          if (is.null(status)) status <- 0L
           list(
             package  = !!package,
-            exitcode = exitcode,
+            status = status,
             output   = output
           )
         }, error = function(e) {
           list(
             package  = !!package,
-            exitcode = 1L,
+            status = 1L,
             output   = conditionMessage(e)
           )
         })
