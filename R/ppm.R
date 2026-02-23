@@ -183,7 +183,13 @@ renv_ppm_platform <- function(file = "/etc/os-release") {
   if (renv_platform_macos())
     return("macos")
 
-  renv_ppm_platform_impl(file)
+  platform <- renv_ppm_platform_impl(file)
+
+  # https://github.com/rstudio/renv/issues/2227
+  if (startsWith(platform, "opensuse15"))
+    return("opensuse156")
+
+  platform
 
 }
 
