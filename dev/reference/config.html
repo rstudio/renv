@@ -213,6 +213,11 @@ Defaults to <code>TRUE</code>.</p>
 Defaults to <code>TRUE</code>.</p>
 </div>
 <div class="section">
+<h3 id="renv-config-install-jobs">renv.config.install.jobs<a class="anchor" aria-label="anchor" href="#renv-config-install-jobs"></a></h3>
+<p>The number of packages to install concurrently during <code><a href="install.html">install()</a></code> and <code><a href="restore.html">restore()</a></code>. Packages within the same dependency wave are installed in parallel using this many concurrent R CMD INSTALL processes. Set to <code>1L</code> for sequential installation.
+Defaults to <code>4L</code>.</p>
+</div>
+<div class="section">
 <h3 id="renv-config-install-verbose">renv.config.install.verbose<a class="anchor" aria-label="anchor" href="#renv-config-install-verbose"></a></h3>
 <p>Be verbose when installing R packages from sources? When <code>TRUE</code>, renv will stream any output generated during package build + installation to the console.
 Defaults to <code>FALSE</code>.</p>

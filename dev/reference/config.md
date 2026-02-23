@@ -246,6 +246,16 @@ if all packages were successfully downloaded and installed. This can be
 useful if you'd like to avoid mutating your project library if
 installation of one or more packages fails. Defaults to `TRUE`.
 
+### renv.config.install.jobs
+
+The number of packages to install concurrently during
+[`install()`](https://rstudio.github.io/renv/dev/reference/install.md)
+and
+[`restore()`](https://rstudio.github.io/renv/dev/reference/restore.md).
+Packages within the same dependency wave are installed in parallel using
+this many concurrent R CMD INSTALL processes. Set to `1L` for sequential
+installation. Defaults to `4L`.
+
 ### renv.config.install.verbose
 
 Be verbose when installing R packages from sources? When `TRUE`, renv
