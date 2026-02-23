@@ -63,6 +63,9 @@ test_that("system requirements for alternate distributions are reported", {
   skip_if(!renv_platform_linux())
 
   packages <- c("magick", "tesseract")
-  expect_snapshot(. <- sysreqs(packages, distro = "redhat:8"))
+  expect_snapshot(
+    . <- sysreqs(packages, distro = "redhat:8"),
+    transform = function(x) gsub("\\[\\d+/\\d+\\] ", "", x)
+  )
 
 })
