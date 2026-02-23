@@ -1261,7 +1261,11 @@ renv_graph_install <- function(descriptions) {
             elapsed <- as.double(difftime(Sys.time(), active[[pkg]]$start, units = "secs"))
             if (elapsed > 60) {
               if (showstatus) { progress$clear(); progress$tick() }
-              handle(pkg, list(success = FALSE, output = "worker failed to start", elapsed = as.difftime(elapsed, units = "secs")))
+              output <- "worker failed to start"
+              log <- renv_graph_install_worker_log(active[[pkg]])
+              if (length(log))
+                output <- c(output, "", "worker log:", log)
+              handle(pkg, list(success = FALSE, output = output, elapsed = as.difftime(elapsed, units = "secs")))
               renv_graph_install_worker_cleanup(active[[pkg]])
               active[[pkg]] <- NULL
             }
@@ -1305,7 +1309,11 @@ renv_graph_install <- function(descriptions) {
         }
 
         if (is.null(data)) {
-          result <- list(package = pkg, success = FALSE, output = "worker process exited unexpectedly", elapsed = elapsed)
+          output <- "worker process exited unexpectedly"
+          log <- renv_graph_install_worker_log(active[[pkg]])
+          if (length(log))
+            output <- c(output, "", "worker log:", log)
+          result <- list(package = pkg, success = FALSE, output = output, elapsed = elapsed)
         } else {
           result <- list(
             package = pkg,
@@ -1580,26 +1588,40 @@ renv_graph_install_launch_socket <- function(prepared, port) {
   #
   # the persistent connection lets the parent detect worker death via
   # socketSelect() + EOF, without needing PID files or polling
+  logfile <- tempfile("renv-worker-", fileext = ".log")
+
   code <- expr({
+    log <- function(...) cat(..., "\n", file = !!logfile, append = TRUE)
+    log("pid:", Sys.getpid())
+    log("command:", !!command)
     tryCatch({
+      log("connecting")
       conn <- socketConnection(
         host = "127.0.0.1", port = !!port,
         open = "wb", blocking = TRUE, timeout = 60
       )
       on.exit(close(conn))
+      log("sending hello")
       serialize(!!package, conn)
+      log("running system command")
       result <- tryCatch({
         output <- suppressWarnings(
           system(!!command, intern = TRUE, ignore.stderr = FALSE)
         )
         exitcode <- attr(output, "status")
         if (is.null(exitcode)) exitcode <- 0L
+        log("system done, exitcode:", exitcode)
         list(package = !!package, exitcode = exitcode, output = output)
       }, error = function(e) {
+        log("system error:", conditionMessage(e))
         list(package = !!package, exitcode = 1L, output = conditionMessage(e))
       })
+      log("sending result")
       serialize(result, conn)
-    }, error = function(e) NULL)
+      log("done")
+    }, error = function(e) {
+      log("top-level error:", conditionMessage(e))
+    })
   })
 
   script <- tempfile("renv-install-", fileext = ".R")
@@ -1613,13 +1635,20 @@ renv_graph_install_launch_socket <- function(prepared, port) {
     wait    = FALSE
   )
 
-  list(package = package, start = Sys.time(), conn = NULL, script = script)
+  list(package = package, start = Sys.time(), conn = NULL, script = script, logfile = logfile)
 
+}
+
+renv_graph_install_worker_log <- function(worker) {
+  logfile <- worker$logfile
+  if (is.null(logfile) || !file.exists(logfile))
+    return(NULL)
+  tryCatch(readLines(logfile, warn = FALSE), error = function(e) NULL)
 }
 
 renv_graph_install_worker_cleanup <- function(worker) {
   tryCatch(close(worker$conn), error = function(e) NULL)
-  unlink(worker$script)
+  unlink(c(worker$script, worker$logfile))
 }
 
 renv_graph_install_backup <- function(installdir, pkg) {
