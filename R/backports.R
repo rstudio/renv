@@ -1,4 +1,12 @@
 
+if (is.null(.BaseNamespaceEnv$isNamespaceLoaded)) {
+
+  isNamespaceLoaded <- function(name) {
+    name %in% loadedNamespaces()
+  }
+
+}
+
 if (is.null(.BaseNamespaceEnv$dir.exists)) {
 
   dir.exists <- function(paths) {
@@ -20,6 +28,15 @@ if (is.null(.BaseNamespaceEnv$startsWith)) {
 
   startsWith <- function(x, prefix) {
     pattern <- sprintf("^\\Q%s\\E", prefix)
+    grepl(pattern, x, perl = TRUE)
+  }
+
+}
+
+if (is.null(.BaseNamespaceEnv$endsWith)) {
+
+  endsWith <- function(x, suffix) {
+    pattern <- sprintf("\\Q%s\\E$", suffix)
     grepl(pattern, x, perl = TRUE)
   }
 

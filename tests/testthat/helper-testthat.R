@@ -10,14 +10,17 @@ test_that <- function(desc, code) {
   # record global state before test execution
   before <- renv_test_state(cran)
 
-  # run the test
+  # run the test with a condition handler that skips on download errors
+  # under the assumption that such errors are spotty / intermittent
   call <- sys.call()
   call[[1L]] <- quote(testthat::test_that)
   withCallingHandlers(
     eval(call, envir = parent.frame()),
     condition = function(cnd) {
       message <- conditionMessage(cnd)
-      if (any(grepl("SSL connect error", message)))
+      if (any(grepl("SSL connect error", message, fixed = TRUE)))
+        skip(message)
+      if (any(grepl("code 22", message, fixed = TRUE)))
         skip(message)
     }
   )

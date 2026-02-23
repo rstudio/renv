@@ -339,47 +339,30 @@ renv_hydrate_resolve_missing <- function(project, library, remotes, missing) {
 
   writef("- Resolving missing dependencies ... ")
 
-  # define a custom error handler for packages which we cannot retrieve
-  errors <- stack()
-  handler <- function(package, action) {
-    error <- catch(action)
-    if (inherits(error, "error"))
-      errors$push(list(package = package, error = error))
-  }
-
-  # perform the restore
+  # set up restore state for graph resolution
   renv_scope_restore(
     project  = project,
     library  = library,
     packages = packages,
-    records  = remotes,
-    handler  = handler
+    records  = remotes
   )
 
-  records <- renv_retrieve_impl(packages)
-  renv_install_impl(records)
-
-  # if we failed to restore anything, warn the user
-  data <- errors$data()
-  if (empty(data))
+  # resolve dependency graph and install in parallel waves;
+  # renv_graph_install handles error reporting internally
+  descriptions <- renv_graph_init(packages, records = remotes, project = project)
+  if (empty(descriptions))
     return()
 
-  if (renv_verbose()) {
+  records <- renv_graph_install(descriptions)
 
-    text <- map_chr(data, function(item) {
-      package <- item$package
-      message <- conditionMessage(item$error)
-      short <- trunc(paste(message, collapse = ";"), 60L)
-      sprintf("[%s]: %s", package, short)
-    })
+  # determine which requested packages failed to install
+  failed <- setdiff(packages, names(records))
+  if (empty(failed))
+    return()
 
-    bulletin(
-      "The following package(s) were not installed successfully:",
-      text,
-      "You may need to manually download and install these packages."
-    )
-
-  }
+  data <- lapply(failed, function(pkg) {
+    list(package = pkg, error = simpleError(sprintf("failed to install '%s'", pkg)))
+  })
 
   invisible(data)
 

@@ -30,8 +30,8 @@ renv_xcode_check <- function() {
   if (once())
     return()
 
-  cmd <- "/usr/bin/xcrun --find --show-sdk-path"
-  status <- system(cmd, ignore.stdout = TRUE, ignore.stderr = TRUE)
+  command <- "/usr/bin/xcrun --find --show-sdk-path"
+  status <- system(command, ignore.stdout = TRUE, ignore.stderr = TRUE)
   if (identical(status, 0L))
     return()
 
@@ -52,6 +52,6 @@ Set options(renv.xcode.check = FALSE) to disable this warning.
   }
 
   fmt <- "%s returned exit code %i"
-  warningf(fmt, cmd, status)
+  warningf(fmt, command, status)
 
 }

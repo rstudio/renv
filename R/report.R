@@ -8,7 +8,7 @@ renv_report_ok <- function(message, elapsed = 0, verbose = FALSE) {
   }
 
   # treat 'quick' times specially
-  if (!testing() && elapsed < 0.1)
+  if (!testing() && elapsed < 0.5)
     return(writef("OK [%s]", message))
 
   # otherwise, report step with elapsed time

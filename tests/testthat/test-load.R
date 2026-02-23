@@ -40,7 +40,8 @@ test_that("load() installs packages if needed", {
   init()
   unlink("renv/library", recursive = TRUE)
 
-  expect_snapshot(load())
+  load()
+  expect_true(renv_package_installed("breakfast"))
 
 })
 

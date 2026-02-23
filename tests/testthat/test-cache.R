@@ -187,11 +187,15 @@ test_that("ACLs set on packages in project library are reset", {
   skip_if(!renv_platform_linux())
 
   # use a custom tracer to set ACLs on a package after it's been installed
-  trace("renv_install_package_impl", exit = quote({
+  # but before cache sync runs (which may reset them); we trace
+  # renv_graph_install_finalize with an entry tracer so that ACLs are
+  # modified before renv_cache_synchronize is called inside it
+  trace("renv_graph_install_finalize", tracer = quote({
+    installpath <- file.path(library, record$Package)
     system(paste("setfacl -m g::-", renv_shell_path(installpath)))
   }), where = renv_envir_self(), print = FALSE)
 
-  defer(untrace("renv_install_package_impl", where = renv_envir_self()))
+  defer(untrace("renv_graph_install_finalize", where = renv_envir_self()))
 
   # use a custom cache
   cachedir <- renv_scope_tempfile("renv-cache-")
@@ -208,7 +212,7 @@ test_that("ACLs set on packages in project library are reset", {
     # check that the ACLs were not reset
     pkgpath <- find.package("bread")
     mode <- file.mode(pkgpath)
-    expect_false(file.mode(pkgpath) == file.mode(dirname(pkgpath)))
+    expect_false(file.mode(!!pkgpath) == file.mode(!!dirname(pkgpath)))
   })
 
   # try again, but reset ACLs this time
@@ -221,7 +225,7 @@ test_that("ACLs set on packages in project library are reset", {
     # check that the ACLs were reset this time
     pkgpath <- find.package("toast")
     mode <- file.mode(pkgpath)
-    expect_true(file.mode(pkgpath) == file.mode(dirname(pkgpath)))
+    expect_true(file.mode(!!pkgpath) == file.mode(!!dirname(pkgpath)))
 
   })
 

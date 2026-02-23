@@ -29,28 +29,28 @@
 #'
 #' \dontrun{
 #' # graph the relationship between devtools and rlang
-#' graph(root = "devtools", leaf = "rlang")
+#' graphviz(root = "devtools", leaf = "rlang")
 #'
 #' # figure out why a project depends on 'askpass'
-#' graph(leaf = "askpass")
+#' graphviz(leaf = "askpass")
 #' }
 #'
 #' @keywords internal
-graph <- function(root = NULL,
-                  leaf = NULL,
-                  ...,
-                  suggests   = FALSE,
-                  enhances   = FALSE,
-                  resolver   = NULL,
-                  renderer   = c("DiagrammeR", "visNetwork"),
-                  attributes = list(),
-                  project    = NULL)
+graphviz <- function(root = NULL,
+                     leaf = NULL,
+                     ...,
+                     suggests   = FALSE,
+                     enhances   = FALSE,
+                     resolver   = NULL,
+                     renderer   = c("DiagrammeR", "visNetwork"),
+                     attributes = list(),
+                     project    = NULL)
 {
   renv_scope_error_handler()
   project <- renv_project_resolve(project)
 
   # figure out packages to try and read
-  root <- root %||% renv_graph_roots(project)
+  root <- root %||% renv_graphviz_roots(project)
 
   # resolve fields
   fields <- c(
@@ -60,16 +60,16 @@ graph <- function(root = NULL,
   )
 
   # resolve renderer
-  renderer <- renv_graph_renderer(renderer)
+  renderer <- renv_graphviz_renderer(renderer)
 
   # find dependencies
   envir <- new.env(parent = emptyenv())
   revdeps <- new.env(parent = emptyenv())
   for (package in root)
-    renv_graph_build(package, fields, resolver, envir, revdeps)
+    renv_graphviz_build(package, fields, resolver, envir, revdeps)
 
   # prune the tree
-  tree <- renv_graph_prune(root, leaf, envir, revdeps)
+  tree <- renv_graphviz_prune(root, leaf, envir, revdeps)
 
   # compute the graph
   graph <- enumerate(tree, function(package, dependencies) {
@@ -170,14 +170,14 @@ graph <- function(root = NULL,
   renderer(diagram)
 }
 
-renv_graph_build <- function(package, fields, resolver, envir, revdeps) {
+renv_graphviz_build <- function(package, fields, resolver, envir, revdeps) {
 
   # check if we've already scanned this package
   if (exists(package, envir = envir))
     return()
 
   # read package dependencies
-  deps <- renv_graph_dependencies(package, fields, resolver)
+  deps <- renv_graphviz_dependencies(package, fields, resolver)
 
   # add dependencies to graph
   assign(package, deps, envir = envir)
@@ -186,39 +186,39 @@ renv_graph_build <- function(package, fields, resolver, envir, revdeps) {
   children <- sort(unique(unlist(deps)))
   for (child in children) {
     assign(child, c(package, revdeps[[child]]), envir = revdeps)
-    renv_graph_build(child, fields, resolver, envir, revdeps)
+    renv_graphviz_build(child, fields, resolver, envir, revdeps)
   }
 
 }
 
-renv_graph_revdeps <- function(packages, revdeps) {
+renv_graphviz_revdeps <- function(packages, revdeps) {
 
   envir <- new.env(parent = emptyenv())
   for (package in packages)
-    renv_graph_revdeps_impl(package, envir, revdeps)
+    renv_graphviz_revdeps_impl(package, envir, revdeps)
 
   ls(envir = envir)
 
 }
 
-renv_graph_revdeps_impl <- function(package, envir, revdeps) {
+renv_graphviz_revdeps_impl <- function(package, envir, revdeps) {
 
   if (visited(package, envir))
     return()
 
   for (child in revdeps[[package]])
-    renv_graph_revdeps_impl(child, envir, revdeps)
+    renv_graphviz_revdeps_impl(child, envir, revdeps)
 
 }
 
-renv_graph_roots <- function(project) {
+renv_graphviz_roots <- function(project) {
 
   deps <- renv_dependencies_impl(project, errors = "ignored")
   sort(unique(deps$Package))
 
 }
 
-renv_graph_dependencies <- function(package, fields, resolver) {
+renv_graphviz_dependencies <- function(package, fields, resolver) {
 
   base <- installed_packages(priority = "base")
 
@@ -262,7 +262,7 @@ renv_graph_dependencies <- function(package, fields, resolver) {
 
 }
 
-renv_graph_prune <- function(root, leaf, envir, revdeps) {
+renv_graphviz_prune <- function(root, leaf, envir, revdeps) {
 
   # grab all computed dependencies
   all <- as.list(envir)
@@ -272,7 +272,7 @@ renv_graph_prune <- function(root, leaf, envir, revdeps) {
     return(all)
 
   # otherwise, find recursive dependencies of the requested packages
-  rrd <- renv_graph_revdeps(leaf, revdeps)
+  rrd <- renv_graphviz_revdeps(leaf, revdeps)
   map(all, function(children) {
     map(children, intersect, rrd)
   })
@@ -427,7 +427,7 @@ renv_graphviz_render_value <- function(value) {
     renv_json_quote(value)
 }
 
-renv_graph_renderer <- function(renderer) {
+renv_graphviz_renderer <- function(renderer) {
 
   # allow functions as-is
   if (is.function(renderer))

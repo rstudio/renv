@@ -177,6 +177,7 @@ test_that("we can query the R universe", {
   # reduce risk of false positive test failures
   rownames(lhs) <- rownames(rhs) <- NULL
   lhs$MD5sum <- rhs$MD5sum <- NULL
+  lhs$Remotes <- rhs$Remotes <- NULL
 
   # otherwise, check they're identical
   expect_identical(lhs, rhs)

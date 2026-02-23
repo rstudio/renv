@@ -934,7 +934,7 @@ renv_load_base <- function(call, envir) {
 
   # check for a 'file' argument that looks like a file
   file <- eval(matched[["file"]], envir = envir)
-  if (is.character(file) && endswith(file, ".RData"))
+  if (is.character(file) && endsWith(file, ".RData"))
     return(renv_load_base_impl(call, envir))
 
 }

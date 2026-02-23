@@ -268,10 +268,6 @@ trunc <- function(text, n = 78) {
   text
 }
 
-endswith <- function(string, suffix) {
-  substring(string, nchar(string) - nchar(suffix) + 1) == suffix
-}
-
 # like tools::file_ext, but includes leading '.', and preserves
 # '.tar.gz', '.tar.bz' and so on
 fileext <- function(path, default = "") {
@@ -552,24 +548,6 @@ wait_until <- function(callback, ...) {
   repeat if (callback(...)) return(TRUE)
 }
 
-timer <- function(units = "secs") {
-
-  .time <- Sys.time()
-  .units <- units
-
-  list(
-
-    now = function() {
-      Sys.time()
-    },
-
-    elapsed = function() {
-      difftime(Sys.time(), .time, units = .units)
-    }
-  )
-
-}
-
 summon <- function() {
   envir <- do.call(attach, list(what = NULL, name = "renv"))
   renv <- renv_envir_self()
@@ -612,4 +590,8 @@ wait <- function(predicate, ...) {
   while (TRUE)
     if (predicate(...))
       break
+}
+
+exclude <- function(value, exclude) {
+  value[match(value, exclude, 0L) == 0L]
 }

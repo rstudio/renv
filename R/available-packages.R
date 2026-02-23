@@ -190,7 +190,7 @@ renv_available_packages_success <- function(db, url, type) {
   # add in necessary missing columns
   required <- c(
     "Package", "Version", "Priority",
-    "Depends", "Imports", "LinkingTo", "Suggests", "Enhances",
+    "Depends", "Imports", "LinkingTo", "Suggests", "Enhances", "Remotes",
     "License", "License_is_FOSS", "License_restricts_use",
     "OS_type", "Archs", "MD5sum",
     if (type %in% "source") "NeedsCompilation",

@@ -1613,7 +1613,7 @@ renv_dependencies_discover_r_ggplot2 <- function(node, envir) {
   if (!is.character(filename))
     return(FALSE)
 
-  if (!endswith(filename, ".svg"))
+  if (!endsWith(filename, ".svg"))
     return(FALSE)
 
   envir[["svglite"]] <- TRUE

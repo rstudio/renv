@@ -1,19 +1,27 @@
 
-# NOTE: When lib.loc is NULL, renv will also check to see if a package matching
-# the provided name is currently loaded. This function will also intentionally
-# check the library paths before checking loaded namespaces.
-# This differs from the behavior of `find.package()`.
 renv_package_find <- function(package, lib.loc = NULL) {
   map_chr(package, renv_package_find_impl, lib.loc = lib.loc)
 }
 
-renv_package_find_impl <- function(package, lib.loc = NULL) {
+renv_package_find_impl <- function(package, lib.loc = NULL, compat = FALSE) {
 
   # if we've been given the path to an existing package, use it as-is
   if (grepl("/", package) && file.exists(file.path(package, "DESCRIPTION")))
     return(renv_path_normalize(package, mustWork = TRUE))
 
-  # first, look in the library paths
+  # if we're trying to be compatible with find.package(), then
+  # check loaded namespaces before library paths if appropriate
+  if (compat) {
+
+    if (is.null(lib.loc) && isNamespaceLoaded(package)) {
+      path <- renv_namespace_path(package)
+      if (file.exists(path))
+        return(path)
+    }
+
+  }
+
+  # check library paths
   for (libpath in (lib.loc %||% .libPaths())) {
     pkgpath <- file.path(libpath, package)
     descpath <- file.path(pkgpath, "DESCRIPTION")
@@ -21,11 +29,15 @@ renv_package_find_impl <- function(package, lib.loc = NULL) {
       return(pkgpath)
   }
 
-  # if that failed, check to see if it's loaded and use the associated path
-  if (is.null(lib.loc) && package %in% loadedNamespaces()) {
-    path <- renv_namespace_path(package)
-    if (file.exists(path))
-      return(path)
+  # check for loaded namespaces
+  if (!compat) {
+
+    if (is.null(lib.loc) && isNamespaceLoaded(package)) {
+      path <- renv_namespace_path(package)
+      if (file.exists(path))
+        return(path)
+    }
+
   }
 
   # failed to find package
@@ -154,23 +166,38 @@ renv_package_pkgtypes <- function() {
 
 renv_package_augment_standard <- function(path, record) {
 
-  # check whether we tagged a url + type for this package
+  # use the installed package's DESCRIPTION as the canonical base
+  descpath <- file.path(path, "DESCRIPTION")
+  desc <- renv_description_read(descpath)
+
+  # NOTE: we use '^Remote(?!s$)' to match remote metadata fields
+  # (RemoteType, RemoteRef, RemoteSha, etc.) but not the 'Remotes'
+  # field, which lists dependency remotes for the package
+  pattern <- "^Remote(?!s$)"
+
+  # if the record has Remote fields (e.g. from a GitHub resolve or repair),
+  # overlay them onto the DESCRIPTION -- these take precedence since the
+  # caller is explicitly providing updated remote metadata
+  existing <- record[grep(pattern, names(record), perl = TRUE)]
+  if (length(existing)) {
+    existing$RemoteType <- existing$RemoteType %||% renv_record_source(record)
+    return(overlay(desc, existing))
+  }
+
+  # if the DESCRIPTION already has Remote fields, use as-is (e.g. r-universe)
+  if (any(grepl(pattern, names(desc), perl = TRUE)))
+    return(desc)
+
+  # check whether we tagged a url + type for building standard remotes
   url  <- attr(record, "url", exact = TRUE)
   type <- attr(record, "type", exact = TRUE)
   name <- attr(record, "name", exact = TRUE)
   if (is.null(url) || is.null(type))
-    return(record)
+    return(desc)
 
-  # skip if this isn't a repository remote
-  if (!identical(record$Source, "Repository"))
-    return(record)
-
-  # skip if the DESCRIPTION file already has Remote fields
-  # (mainly relevant for r-universe)
-  descpath <- file.path(path, "DESCRIPTION")
-  desc <- renv_description_read(descpath)
-  if (any(grepl("^Remote", names(desc))))
-    return(record)
+  source <- renv_record_source(record, normalize = TRUE)
+  if (!identical(source, "repository"))
+    return(desc)
 
   # figure out base of repository URL
   pattern <- "/(?:bin|src)/"
@@ -183,19 +210,19 @@ renv_package_augment_standard <- function(path, record) {
   # build pak-compatible standard remote reference
   remotes <- list(
     RemoteType        = "standard",
-    RemoteRef         = record$Package,
-    RemotePkgRef      = record$Package,
+    RemoteRef         = desc$Package,
+    RemotePkgRef      = desc$Package,
     RemoteRepos       = repos,
     RemoteReposName   = name,
     RemotePkgPlatform = platform,
-    RemoteSha         = record$Version
+    RemoteSha         = desc$Version
   )
 
   # if the repository value and name are identical, then exclude the name
   if (identical(repos, name))
     remotes$RemoteReposName <- NULL
 
-  overlay(record, remotes)
+  overlay(desc, remotes)
 
 }
 
@@ -211,7 +238,7 @@ renv_package_augment <- function(installpath, record) {
 
   # for backwards compatibility with older versions of Packrat,
   # we write out 'Github*' fields as well
-  if (identical(record$Source, "GitHub")) {
+  if (identical(tolower(remotes$RemoteType), "github")) {
 
     map <- list(
       "GithubHost"     = "RemoteHost",

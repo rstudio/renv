@@ -1,5 +1,6 @@
 
 the$curl_valid <- new.env(parent = emptyenv())
+the$curl_version <- new.env(parent = emptyenv())
 
 renv_curl_exe <- function() {
 
@@ -59,6 +60,33 @@ renv_curl_validate_impl <- function(curl) {
   )
 
   return(curl)
+
+}
+
+renv_curl_version <- function() {
+
+  curl <- renv_curl_exe()
+  if (!nzchar(curl))
+    return(numeric_version("0.0.0"))
+
+  the$curl_version[[curl]] <- the$curl_version[[curl]] %||% {
+    renv_curl_version_impl(curl)
+  }
+
+}
+
+renv_curl_version_impl <- function(curl) {
+
+  output <- catch(renv_system_exec(curl, args = "--version", success = NULL))
+  if (inherits(output, "error") || length(output) == 0L)
+    return(numeric_version("0.0.0"))
+
+  # first line is e.g. "curl 8.7.1 (x86_64-apple-darwin24.0) ..."
+  m <- regmatches(output[[1L]], regexpr("[0-9]+\\.[0-9]+[0-9.]*", output[[1L]]))
+  if (length(m) == 0L)
+    return(numeric_version("0.0.0"))
+
+  numeric_version(m)
 
 }
 

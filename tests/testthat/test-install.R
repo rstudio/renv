@@ -211,6 +211,7 @@ test_that("renv warns when installing an already-loaded package", {
 })
 
 test_that("install() writes out Github fields for backwards compatibility", {
+
   skip_if_no_github_auth()
   renv_tests_scope()
 
@@ -511,11 +512,28 @@ test_that("install has user-friendly output", {
   renv_scope_libpaths()
   renv_scope_envvars(RENV_PATHS_CACHE = renv_scope_tempfile("renv-tempcache-"))
 
-  renv_tests_scope("breakfast")
-  expect_snapshot(install())
+  # sort "Installing" lines so snapshot is stable regardless of
+  # completion order (socket-based collection is nondeterministic)
+  transform <- function(x) {
+    x <- strip_dirs(x)
+    installing <- grepl("^\\s*- Installing .* \\.\\.\\.", x)
+    runs <- rle(installing)
+    pos <- 1L
+    for (i in seq_along(runs$lengths)) {
+      len <- runs$lengths[[i]]
+      idx <- seq(pos, length.out = len)
+      if (runs$values[[i]])
+        x[idx] <- sort(x[idx])
+      pos <- pos + len
+    }
+    x
+  }
 
   renv_tests_scope("breakfast")
-  expect_snapshot(install())
+  expect_snapshot(install(), transform = transform)
+
+  renv_tests_scope("breakfast")
+  expect_snapshot(install(), transform = transform)
 
 })
 
@@ -773,13 +791,16 @@ test_that("installation of package from local sources works", {
 })
 
 test_that("packages installed from r-universe preserve their remote metadata", {
+
   skip_on_cran()
   skip_on_ci()
 
   project <- renv_tests_scope(packages = "rlang")
-  install("rlang", repos = "https://r-lib.r-universe.dev")
-  record <- renv_snapshot_description(package = "rlang")
+  install("rlang", repos = "https://r-lib.r-universe.dev", rebuild = TRUE)
+  pkgpath <- find.package("rlang", lib.loc = .libPaths())
+  record <- renv_snapshot_description(pkgpath)
   expect_true(is.character(record[["RemoteSha"]]))
+
 })
 
 # https://github.com/rstudio/renv/issues/2071
@@ -804,5 +825,24 @@ test_that("irrelevant R version requirements don't prevent package installation"
 
   # but installing that package should still fail
   expect_error(install("today"))
+
+})
+
+test_that("the remotes field in a package's DESCRIPTION is honoured", {
+
+  skip_on_cran()
+  skip_if_no_github_auth()
+
+  renv_tests_scope("halloween")
+  repopath <- renv_tests_repopath()
+  pkgpath <- file.path(repopath, "src/contrib/halloween_1.0.0.tar.gz")
+  install(pkgpath)
+
+  expect_true(renv_package_installed("halloween"))
+  expect_true(renv_package_installed("skeleton"))
+
+  skeleton <- renv_description_read(package = "skeleton")
+  expect_equal(skeleton$RemoteUsername, "kevinushey")
+  expect_equal(skeleton$RemoteRepo, "skeleton")
 
 })

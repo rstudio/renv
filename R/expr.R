@@ -20,7 +20,11 @@ renv_expr_impl <- function(expr, envir) {
   # recurse where possible
   if (is.recursive(expr)) {
     for (i in seq_along(expr)) {
-      expr[[i]] <- renv_expr_impl(expr[[i]], envir)
+      if (!identical(expr[[i]], quote(expr = ))) {
+        if (!is.null(expr[[i]])) {
+          expr[[i]] <- renv_expr_impl(expr[[i]], envir)
+        }
+      }
     }
   }
 

@@ -222,6 +222,15 @@ config <- list(
     )
   },
 
+  install.jobs = function(..., default = 4L) {
+    renv_config_get(
+      name    = "install.jobs",
+      type    = "integer[1]",
+      default = default,
+      args    = list(...)
+    )
+  },
+
   install.verbose = function(..., default = FALSE) {
     renv_config_get(
       name    = "install.verbose",
