@@ -41,6 +41,16 @@ renv_watchdog_enabled_impl <- function() {
   if (renv_platform_windows())
     return(FALSE)
 
+  # disable in child processes launched by parallel frameworks
+  # https://github.com/rstudio/renv/issues/2223
+  if (renv_envvar_exists("CALLR_CHILD_R_LIBS"))
+    return(FALSE)
+
+  args <- commandArgs()
+  for (arg in args)
+    if (grepl("parallel:::.workRSOCK|parallel:::.slaveRSOCK", arg))
+      return(FALSE)
+
   # skip during R CMD check (but not when running tests)
   checking <- renv_envvar_exists("_R_CHECK_PACKAGE_NAME_")
   if (checking && !testing())

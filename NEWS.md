@@ -1,6 +1,10 @@
 
 # renv (under development)
 
+* The renv watchdog is now automatically disabled in child processes
+  launched by parallel frameworks (e.g. `future::multisession`,
+  `parallel::makePSOCKcluster()`, `callr`). (#2223)
+
 * `renv::use(repos = NULL)` now uses a cache-only install path, ensuring
   packages are only installed from the renv cache and no external sources
   (repositories, GitHub, etc.) are queried. Previously, `restore()` and

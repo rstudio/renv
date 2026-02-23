@@ -854,6 +854,7 @@ renv_graph_install <- function(descriptions) {
   # prepare install environment (inherited by subprocesses)
   rlibs <- paste(renv_libpaths_all(), collapse = .Platform$path.sep)
   renv_scope_envvars(R_LIBS = rlibs, R_LIBS_USER = "NULL", R_LIBS_SITE = "NULL")
+  renv_scope_envvars(RENV_WATCHDOG_ENABLED = "FALSE")
   renv_scope_rtools()
 
   tar <- Sys.getenv("R_INSTALL_TAR", unset = renv_tar_exe(default = "internal"))

@@ -22,6 +22,8 @@ test_that <- function(desc, code) {
         skip(message)
       if (any(grepl("code 22", message, fixed = TRUE)))
         skip(message)
+      if (any(grepl("code 56", message, fixed = TRUE)))
+        skip(message)
     }
   )
 
