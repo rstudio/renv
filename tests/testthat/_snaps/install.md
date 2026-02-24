@@ -7,8 +7,8 @@
       - bread [0.1.0]
       These packages will be installed into "<tempdir>/<renv-library>".
       
-      - Installing bread 0.1.0 ... OK [copied from cache in XXs]
       # Installing packages ---
+      - Installing bread 0.1.0 ... OK [copied from cache in XXs]
       Successfully installed 1 package in XXXX seconds.
       
       The following loaded package(s) have been updated:
@@ -54,10 +54,10 @@
       - toast     [1.0.0]
       These packages will be installed into "<tempdir>/<renv-library>".
       
+      # Installing packages ---
       - Installing bread 1.0.0 ... OK [copied from cache in XXs]
       - Installing breakfast 1.0.0 ... OK [copied from cache in XXs]
       - Installing oatmeal 1.0.0 ... OK [copied from cache in XXs]
       - Installing toast 1.0.0 ... OK [copied from cache in XXs]
-      # Installing packages ---
       Successfully installed 4 packages in XXXX seconds.
 

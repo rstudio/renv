@@ -905,8 +905,10 @@ renv_graph_install <- function(descriptions) {
   }, packages)
 
   # check cache: packages with a valid cache entry can be installed
-  # directly (just a link/copy), skipping download entirely
-  hits <- character()
+  # directly (just a link/copy), skipping download entirely;
+  # defer the actual install until the "Installing packages" phase
+  # so the output appears under that header
+  cachehits <- list()
   for (pkg in remaining) {
     desc <- descriptions[[pkg]]
     cacheable <-
@@ -917,13 +919,11 @@ renv_graph_install <- function(descriptions) {
     if (cacheable) {
       path <- renv_cache_find(desc)
       if (renv_cache_package_validate(path)) {
-        renv_install_package_cache(desc, path, linker)
-        all[[pkg]] <- desc
-        hits <- c(hits, pkg)
+        cachehits[[pkg]] <- list(record = desc, cache = path)
       }
     }
   }
-  remaining <- setdiff(remaining, hits)
+  remaining <- setdiff(remaining, names(cachehits))
 
   # download all remaining packages in one parallel batch
   count <- 0L
@@ -1081,6 +1081,13 @@ renv_graph_install <- function(descriptions) {
 
   writef(header("Installing packages"))
   timer$tick()
+
+  # install packages from the cache
+  for (pkg in names(cachehits)) {
+    entry <- cachehits[[pkg]]
+    renv_install_package_cache(entry$record, entry$cache, linker)
+    all[[pkg]] <- entry$record
+  }
 
   # ── Phase 2: Unpack + classify all packages ───────────────────
   # Separating binaries from source up front lets us install all
