@@ -1,6 +1,11 @@
 
 # renv (under development)
 
+* renv now strips embedded credentials from repository URLs when writing
+  the lockfile. URLs of the form `https://user:token@host/path` are
+  sanitized to `https://host/path`, preventing accidental credential
+  leakage when sharing `renv.lock` files. (#2191)
+
 * The renv watchdog is now automatically disabled in child processes
   launched by parallel frameworks (e.g. `future::multisession`,
   `parallel::makePSOCKcluster()`, `callr`). (#2223)

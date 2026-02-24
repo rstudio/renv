@@ -124,6 +124,42 @@ test_that("lockfile APIs can be used", {
 
 })
 
+test_that("credentials are sanitized from lockfile repository URLs", {
+
+  lockfile <- list(
+    R = list(
+      Version = "4.4.0",
+      Repositories = list(
+        Custom = "https://user:token@private.repo.com/r"
+      )
+    ),
+    Packages = list(
+      mypkg = list(
+        Package = "mypkg",
+        Version = "1.0.0",
+        Source = "Repository",
+        Repository = "https://secret@private.repo.com/r"
+      ),
+      otherpkg = list(
+        Package = "otherpkg",
+        Version = "2.0.0",
+        Source = "Repository",
+        Repository = "CRAN"
+      )
+    )
+  )
+
+  sanitized <- renv_lockfile_sanitize(lockfile)
+
+  # repository URLs should have credentials stripped
+  expect_equal(sanitized$R$Repositories$Custom, "https://private.repo.com/r")
+  expect_equal(sanitized$Packages$mypkg$Repository, "https://private.repo.com/r")
+
+  # plain repository names should be unchanged
+  expect_equal(sanitized$Packages$otherpkg$Repository, "CRAN")
+
+})
+
 test_that("lockfiles with UTF-8 contents can be written, read", {
 
   author <- enc2utf8("cr\u00e8me br\u00fbl\u00e9e")

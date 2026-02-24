@@ -14,7 +14,38 @@ renv_lockfile_state_clear <- function() {
   rm(list = ls(the$lockfile_state), envir = the$lockfile_state)
 }
 
+renv_lockfile_sanitize <- function(lockfile) {
+
+  # sanitize repository URLs
+  repos <- lockfile$R$Repositories
+  if (length(repos)) {
+    lockfile$R$Repositories <- lapply(repos, function(url) {
+      renv_url_sanitize(url)
+    })
+  }
+
+  # sanitize per-package Repository fields
+  packages <- lockfile$Packages
+  if (length(packages)) {
+    lockfile$Packages <- lapply(packages, function(record) {
+      repo <- record$Repository
+      if (is.character(repo) && grepl("://", repo, fixed = TRUE))
+        record$Repository <- renv_url_sanitize(repo)
+      record
+    })
+  }
+
+  lockfile
+
+}
+
 renv_lockfile_write_preflight <- function(old, new) {
+
+  # sanitize repository URLs (remove embedded credentials)
+  new <- renv_lockfile_sanitize(new)
+
+  if (is.null(old))
+    return(new)
 
   diff <- renv_lockfile_diff(old, new)
   if (empty(diff))
@@ -49,11 +80,14 @@ renv_lockfile_write <- function(lockfile, file = stdout()) {
 
   # if we're updating an existing lockfile, try to avoid
   # "unnecessary" diffs that might otherwise be annoying
+  old <- NULL
   if (is.character(file) && file.exists(file)) {
     old <- catch(renv_lockfile_read(file))
-    if (!inherits(old, "error"))
-      lockfile <- renv_lockfile_write_preflight(old, lockfile)
+    if (inherits(old, "error"))
+      old <- NULL
   }
+
+  lockfile <- renv_lockfile_write_preflight(old, lockfile)
 
   lockfile <- renv_lockfile_sort(lockfile)
   result <- renv_lockfile_write_json(lockfile, file)

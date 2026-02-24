@@ -1,4 +1,8 @@
 
+renv_url_sanitize <- function(url) {
+  sub("://[^@/]+@", "://", url)
+}
+
 renv_url_parse <- function(url) {
 
   pattern <- paste0(
