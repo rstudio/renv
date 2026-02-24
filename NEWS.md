@@ -1,6 +1,12 @@
 
 # renv (under development)
 
+* The `renv.bioconductor.version` option is now respected as a global
+  override during `renv::restore()` and `renv::load()`. Previously, the
+  Bioconductor version recorded in the lockfile would take precedence,
+  preventing users from overriding the Bioconductor version when needed.
+  (#2218)
+
 * renv now strips embedded credentials from repository URLs when writing
   the lockfile. URLs of the form `https://user:token@host/path` are
   sanitized to `https://host/path`, preventing accidental credential
