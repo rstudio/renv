@@ -1,6 +1,12 @@
 
 renv_ppm_parse <- function(url) {
 
+  # Try extended path format first
+  if (renv_ppm_is_extended_path(url)) {
+    return(renv_ppm_parse_extended_path(url))
+  }
+
+  # Fall back to standard format parsing
   pattern <- paste0(
     "^",                                 # start of url
     "(?<root>",                          # start of root of url
@@ -30,11 +36,78 @@ renv_ppm_parse <- function(url) {
 }
 
 renv_ppm_normalize <- function(url) {
+  # Handle extended path format: remove /bin/linux/{platform-arch}/{rversion}
+  if (renv_ppm_is_extended_path(url)) {
+    return(sub("/bin/linux/[^/]+-[^/]+/\\d+\\.\\d+$", "", url))
+  }
+
+  # Handle standard format: remove /__os__/platform/
   sub("/__[^_]+__/[^/]+/", "/", url)
 }
 
 renv_ppm_is_manylinux <- function(url) {
   grepl("/__linux__/manylinux_\\d+_\\d+/", url)
+}
+
+renv_ppm_is_extended_path <- function(url) {
+  grepl("/bin/linux/[^/]+-[^/]+/\\d+\\.\\d+", url)
+}
+
+renv_ppm_parse_extended_path <- function(url) {
+  # Pattern: {root}/{repos}/{snapshot}/bin/linux/{platform-arch}/{rversion}
+  pattern <- paste0(
+    "^",
+    "(?<root>(?<scheme>[^:]+)://(?<authority>[^/]+))/",
+    "(?<repos>[^/]+)/",
+    "(?<snapshot>[^/]+)/",
+    "bin/linux/",
+    "(?<platform>[^-]+)-(?<arch>[^/]+)/",
+    "(?<rversion>\\d+\\.\\d+)",
+    "$"
+  )
+
+  matches <- gregexpr(pattern, url, perl = TRUE)[[1]]
+  if (matches == -1) return(NULL)
+
+  starts <- attr(matches, "capture.start")
+  ends <- starts + attr(matches, "capture.length") - 1
+  strings <- substring(url, starts, ends)
+  names(strings) <- attr(matches, "capture.names")
+
+  if (length(strings) == 0L || !any(nzchar(strings)))
+    return(NULL)
+
+  as.list(c(url = url, strings))
+}
+
+renv_ppm_r_version <- function() {
+  version <- getRversion()
+  paste(version[[1, 1]], version[[1, 2]], sep = ".")
+}
+
+renv_ppm_validate_r_version <- function(url) {
+  parsed <- renv_ppm_parse_extended_path(url)
+  if (is.null(parsed)) return(TRUE)  # Not extended path format, skip validation
+
+  url_version <- parsed$rversion
+  current_version <- renv_ppm_r_version()
+
+  if (!identical(url_version, current_version)) {
+    msg <- sprintf(
+      paste(
+        "Repository URL specifies R %s but current R version is %s.",
+        "Binary packages may not be compatible.",
+        "URL: %s"
+      ),
+      url_version,
+      current_version,
+      url
+    )
+    warning(msg, call. = FALSE)
+    return(FALSE)
+  }
+
+  return(TRUE)
 }
 
 renv_ppm_transform <- function(repos = getOption("repos")) {
@@ -70,6 +143,14 @@ renv_ppm_transform_impl <- function(url) {
   # manylinux URLs are already in the desired format
   if (renv_ppm_is_manylinux(url))
     return(url)
+
+  # Handle extended path format with /bin/linux/ and R version
+  if (renv_ppm_is_extended_path(url)) {
+    # Validate R version
+    renv_ppm_validate_r_version(url)
+    # Preserve extended path URLs as-is
+    return(url)
+  }
 
   # if this already appears to be a binary URL, then avoid
   # transforming it

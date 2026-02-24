@@ -446,3 +446,116 @@ test_that("manylinux URLs are normalized when installing source packages", {
   source_url <- "https://p3m.dev/cran/latest"
   expect_equal(unname(renv_ppm_transform(manylinux_url)), source_url)
 })
+
+test_that("renv_ppm_is_extended_path detects extended path PPM URLs", {
+  skip_on_cran()
+
+  expect_true(renv_ppm_is_extended_path("https://p3m.dev/cran/latest/bin/linux/jammy-x86_64/4.5"))
+  expect_true(renv_ppm_is_extended_path("https://packagemanager.posit.co/cran/2024-01-01/bin/linux/noble-x86_64/4.3"))
+  expect_false(renv_ppm_is_extended_path("https://p3m.dev/cran/__linux__/jammy/latest"))
+  expect_false(renv_ppm_is_extended_path("https://p3m.dev/cran/latest"))
+  expect_false(renv_ppm_is_extended_path("https://p3m.dev/cran/__linux__/manylinux_2_28/latest"))
+})
+
+test_that("renv_ppm_parse_extended_path extracts components correctly", {
+  skip_on_cran()
+
+  url <- "https://p3m.dev/cran/latest/bin/linux/jammy-x86_64/4.5"
+  parsed <- renv_ppm_parse_extended_path(url)
+
+  expect_equal(parsed$scheme, "https")
+  expect_equal(parsed$authority, "p3m.dev")
+  expect_equal(parsed$repos, "cran")
+  expect_equal(parsed$snapshot, "latest")
+  expect_equal(parsed$platform, "jammy")
+  expect_equal(parsed$arch, "x86_64")
+  expect_equal(parsed$rversion, "4.5")
+})
+
+test_that("renv_ppm_parse handles extended path URLs", {
+  skip_on_cran()
+
+  url <- "https://p3m.dev/cran/latest/bin/linux/noble-x86_64/4.3"
+  parsed <- renv_ppm_parse(url)
+
+  expect_equal(parsed$scheme, "https")
+  expect_equal(parsed$authority, "p3m.dev")
+  expect_equal(parsed$repos, "cran")
+  expect_equal(parsed$snapshot, "latest")
+  expect_equal(parsed$platform, "noble")
+  expect_equal(parsed$arch, "x86_64")
+  expect_equal(parsed$rversion, "4.3")
+})
+
+test_that("renv_ppm_normalize handles all URL formats", {
+  skip_on_cran()
+
+  # Standard format
+  standard_url <- "https://p3m.dev/cran/__linux__/jammy/latest"
+  expect_equal(renv_ppm_normalize(standard_url), "https://p3m.dev/cran/latest")
+
+  # Extended path format
+  extended_url <- "https://p3m.dev/cran/latest/bin/linux/jammy-x86_64/4.5"
+  expect_equal(renv_ppm_normalize(extended_url), "https://p3m.dev/cran/latest")
+
+  # Manylinux format
+  manylinux_url <- "https://p3m.dev/cran/__linux__/manylinux_2_28/latest"
+  expect_equal(renv_ppm_normalize(manylinux_url), "https://p3m.dev/cran/latest")
+})
+
+test_that("extended path URLs are preserved by renv_ppm_transform", {
+  skip_on_cran()
+  skip_on_os("windows")
+
+  renv_scope_envvars(
+    RENV_PPM_OS = "__linux__",
+    RENV_PPM_PLATFORM = "jammy"
+  )
+
+  # Mock R version to match URL (4.5)
+  renv_scope_binding(renv_envir_self(), "renv_ppm_r_version", function() "4.5")
+
+  extended_url <- "https://p3m.dev/cran/latest/bin/linux/jammy-x86_64/4.5"
+  expect_equal(unname(renv_ppm_transform(extended_url)), extended_url)
+})
+
+test_that("renv_ppm_validate_r_version warns on version mismatch", {
+  skip_on_cran()
+
+  # Mock R version as 4.3
+  renv_scope_binding(renv_envir_self(), "renv_ppm_r_version", function() "4.3")
+
+  url_45 <- "https://p3m.dev/cran/latest/bin/linux/jammy-x86_64/4.5"
+  expect_warning(
+    renv_ppm_validate_r_version(url_45),
+    "R 4\\.5.*current R version is 4\\.3"
+  )
+})
+
+test_that("renv_ppm_validate_r_version passes on version match", {
+  skip_on_cran()
+
+  # Mock R version as 4.5
+  renv_scope_binding(renv_envir_self(), "renv_ppm_r_version", function() "4.5")
+
+  url_45 <- "https://p3m.dev/cran/latest/bin/linux/jammy-x86_64/4.5"
+  expect_true(renv_ppm_validate_r_version(url_45))
+  expect_no_warning(renv_ppm_validate_r_version(url_45))
+})
+
+test_that("extended path URLs are normalized when installing source packages", {
+  skip_on_cran()
+  skip_on_os("windows")
+
+  renv_scope_envvars(
+    RENV_PPM_OS = "__linux__",
+    RENV_PPM_PLATFORM = "jammy"
+  )
+
+  # When installing source packages, extended path URLs should be normalized
+  renv_scope_binding(the, "install_pkg_type", "source")
+
+  extended_url <- "https://p3m.dev/cran/latest/bin/linux/jammy-x86_64/4.5"
+  source_url <- "https://p3m.dev/cran/latest"
+  expect_equal(unname(renv_ppm_transform(extended_url)), source_url)
+})
