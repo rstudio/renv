@@ -87,13 +87,6 @@ renv_description_read_impl <- function(path = NULL, subdir = NULL, ...) {
 
 }
 
-renv_description_path <- function(path) {
-  childpath <- file.path(path, "DESCRIPTION")
-  indirect <- file.exists(childpath)
-  path[indirect] <- childpath[indirect]
-  path
-}
-
 # parse the dependency requirements normally presented in
 # Depends, Imports, Suggests, and so on
 renv_description_parse_field <- function(field) {

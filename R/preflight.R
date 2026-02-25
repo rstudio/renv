@@ -1,6 +1,6 @@
 
-# returns TRUE if problems detected
-renv_preflight <- function(lockfile) {
+# TODO: can we finish this work and start using it?
+preflight <- function(lockfile) {
 
   problems <- stack()
 

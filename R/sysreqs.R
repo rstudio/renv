@@ -197,11 +197,6 @@ renv_sysreqs_resolve <- function(sysreqs, rules = renv_sysreqs_rules()) {
   unlist(matches, recursive = FALSE)
 }
 
-renv_sysreqs_read <- function(package) {
-  desc <- renv_description_read(package)
-  desc[["SystemRequirements"]] %||% ""
-}
-
 renv_sysreqs_rules <- function() {
   the$sysreqs <- the$sysreqs %||% renv_sysreqs_rules_impl()
 }

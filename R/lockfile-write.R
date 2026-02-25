@@ -126,32 +126,13 @@ renv_lockfile_write_json <- function(lockfile, file = stdout()) {
 
   box <- c("Requirements")
   config <- list(box = box)
-  
+
   json <- renv_json_convert(prepared, config)
   if (is.null(file))
     return(json)
 
   writeLines(json, con = file)
 
-}
-
-renv_lockfile_write_internal <- function(lockfile,
-                                         file = stdout(),
-                                         delim = "=")
-{
-  if (is.character(file)) {
-    file <- textfile(file)
-    defer(close(file))
-  }
-
-  emitter <- function(text) writeLines(text, con = file)
-
-  renv_lockfile_state_set("delim", delim)
-  renv_lockfile_state_set("emitter", emitter)
-  defer(renv_lockfile_state_clear())
-
-  renv_lockfile_write_list(lockfile, section = character())
-  invisible(lockfile)
 }
 
 renv_lockfile_write_list <- function(entry, section) {

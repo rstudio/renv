@@ -10,12 +10,3 @@ renv_packages_base <- function() {
   }
 
 }
-
-renv_packages_recommended <- function() {
-
-  the$packages_recommended <- the$packages_recommended %||% {
-    db <- installed_packages(lib.loc = .Library, priority = "recommended")
-    db$Package
-  }
-
-}
