@@ -4,16 +4,17 @@ test_that("system requirements are reported", {
   skip_on_cran()
 
   renv_scope_binding(the, "os", "linux")
-  renv_scope_binding(the, "platform", list(VERSION_ID = "24.04"))
 
   local({
     renv_scope_binding(the, "distro", "ubuntu")
+    renv_scope_binding(the, "platform", list(VERSION_ID = "24.04"))
     sysdep <- renv_sysreqs_resolve("zlib")
     expect_equal(sysdep$packages, list("zlib1g-dev"))
   })
 
   local({
     renv_scope_binding(the, "distro", "redhat")
+    renv_scope_binding(the, "platform", list(VERSION_ID = "9"))
     sysdep <- renv_sysreqs_resolve("zlib")
     expect_equal(sysdep$packages, list("zlib-devel"))
   })
