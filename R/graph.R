@@ -89,6 +89,9 @@ renv_graph_init <- function(remotes, records = list(), project = NULL, scope = p
 
   }
 
+  # warn about any remaining unsatisfied version requirements
+  renv_graph_requirements_check(descriptions, requirements)
+
   descriptions
 
 }
@@ -422,6 +425,7 @@ renv_graph_requirements <- function(descriptions) {
       explicit <- parsed[nzchar(parsed$Require) & nzchar(parsed$Version), ]
       if (nrow(explicit) == 0L)
         next
+      explicit$RequiredBy <- desc$Package
       for (i in seq_len(nrow(explicit))) {
         pkg <- explicit$Package[[i]]
         requirements[[pkg]] <- c(requirements[[pkg]], list(explicit[i, ]))
@@ -448,6 +452,51 @@ renv_graph_compatible <- function(version, requirements) {
     expr <- call(requirements$Require[[i]], rversion, requirements$Version[[i]])
     eval(expr, envir = baseenv())
   }))
+
+}
+
+renv_graph_requirements_check <- function(descriptions, requirements) {
+
+  if (!renv_verbose())
+    return(invisible())
+
+  messages <- character()
+  for (package in ls(envir = requirements)) {
+
+    reqs <- requirements[[package]]
+
+    version <- descriptions[[package]]$Version
+    if (is.null(version))
+      next
+
+    if (renv_graph_compatible(version, reqs))
+      next
+
+    # find which requirements are unsatisfied
+    rversion <- numeric_version(version)
+    for (i in seq_len(nrow(reqs))) {
+      expr <- call(reqs$Require[[i]], rversion, reqs$Version[[i]])
+      if (!eval(expr, envir = baseenv())) {
+        fmt <- "'%s' requires '%s %s %s', but '%s %s' will be installed"
+        msg <- sprintf(fmt,
+          reqs$RequiredBy[[i]],
+          package, reqs$Require[[i]], reqs$Version[[i]],
+          package, version
+        )
+        messages <- c(messages, msg)
+      }
+    }
+
+  }
+
+  if (empty(messages))
+    return()
+
+  bulletin(
+    "The following issues were discovered while preparing for installation:",
+    messages,
+    "Installation of these packages may not succeed."
+  )
 
 }
 
