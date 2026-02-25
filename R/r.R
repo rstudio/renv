@@ -86,7 +86,7 @@ r_exec_error_diagnostics_fortran_binary <- function() {
 
   suggestion <- "
 R was unable to find the gfortran binary.
-gfortran is required for the compilation of FORTRAN source files.
+gfortran is required for the compilation of Fortran source files.
 Please check that gfortran is installed and available on the PATH.
 Please see https://stackoverflow.com/q/35999874 for more information.
 "
@@ -120,12 +120,43 @@ Please see https://support.bioconductor.org/p/119536/ for a related discussion.
 
 }
 
+r_exec_error_diagnostics_libintl <- function() {
+
+  checker <- function(output) {
+    if (!renv_platform_macos())
+      return()
+    pattern <- "fatal error: 'libintl.h' file not found"
+    idx <- grep(pattern, output, fixed = TRUE)
+    if (length(idx))
+      return(unique(output[idx]))
+  }
+
+  suggestion <- "
+The compilation error above occurred because 'libintl.h' was not found.
+This header is provided by the 'gettext' library, which is not bundled with macOS.
+
+You may be able to install it by running:
+
+  source('https://mac.R-project.org/bin/install.R')
+  install.libs('gettext')
+
+See https://mac.r-project.org/bin/ for more details.
+"
+
+  list(
+    checker = checker,
+    suggestion = suggestion
+  )
+
+}
+
 r_exec_error_diagnostics <- function(package, output) {
 
   diagnostics <- list(
     r_exec_error_diagnostics_fortran_library(),
     r_exec_error_diagnostics_fortran_binary(),
-    r_exec_error_diagnostics_openmp()
+    r_exec_error_diagnostics_openmp(),
+    r_exec_error_diagnostics_libintl()
   )
 
   suggestions <- uapply(diagnostics, function(diagnostic) {
