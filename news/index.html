@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">renv</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">1.1.7</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">1.1.6</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -48,16 +48,9 @@
 <div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
       <img src="../logo.svg" class="logo" alt=""><h1>Changelog</h1>
-      <small>Source: <a href="https://github.com/rstudio/renv/blob/main/NEWS.md" class="external-link"><code>NEWS.md</code></a></small>
+      <small>Source: <a href="https://github.com/rstudio/renv/blob/v1.1.6/NEWS.md" class="external-link"><code>NEWS.md</code></a></small>
     </div>
 
-    <div class="section level2">
-<h2 class="pkg-version" data-toc-text="1.1.7" id="renv-117">renv 1.1.7<a class="anchor" aria-label="anchor" href="#renv-117"></a></h2><p class="text-muted">CRAN release: 2026-01-27</p>
-<ul><li><p>Fixed an issue where <code>.renvignore</code> files were not read when the project root was the filesystem root <code>/</code>. (<a href="https://github.com/rstudio/renv/issues/2203" class="external-link">#2203</a>)</p></li>
-<li><p>Fixed an issue where <code>renv</code> would incorrectly warn about the version of <code>renv</code> being used on project load. (<a href="https://github.com/rstudio/renv/issues/2207" class="external-link">#2207</a>)</p></li>
-<li><p>The renv version mismatch warning is now suppressed during bootstrap when <code>RENV_CONFIG_STARTUP_QUIET=TRUE</code> or <code>RENV_CONFIG_SYNCHRONIZED_CHECK=FALSE</code> is set. (<a href="https://github.com/rstudio/renv/issues/2214" class="external-link">#2214</a>)</p></li>
-<li><p>Fixed an issue where <code>RENV_CONFIG_REPOS_OVERRIDE</code> with multiple named repositories (e.g., <code>NAME1=URL1;NAME2=URL2</code>) was not properly decoded by the configuration system, causing functions like <code><a href="../reference/install.html">renv::install()</a></code> and <code><a href="../reference/restore.html">renv::restore()</a></code> to not use the specified repositories. (<a href="https://github.com/rstudio/renv/issues/2209" class="external-link">#2209</a>)</p></li>
-</ul></div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="1.1.6" id="renv-116">renv 1.1.6<a class="anchor" aria-label="anchor" href="#renv-116"></a></h2><p class="text-muted">CRAN release: 2026-01-16</p>
 <ul><li><p>A new setting, <code>snapshot.dev</code>, has been added to control whether development dependencies are included by default when calling <code><a href="../reference/snapshot.html">renv::snapshot()</a></code> or <code><a href="../reference/status.html">renv::status()</a></code>. This setting defaults to <code>FALSE</code>. (<a href="https://github.com/rstudio/renv/issues/2190" class="external-link">#2190</a>)</p></li>
