@@ -4,6 +4,19 @@
 #include <R.h>
 #include <R_ext/Rdynload.h>
 #include <Rinternals.h>
+#include <Rversion.h>
+
+#if R_VERSION < R_Version(4, 5, 0)
+# define R_ClosureBody    BODY
+# define R_ClosureFormals FORMALS
+# define R_ClosureEnv     CLOENV
+# define R_lsInternal(env, all) R_lsInternal3(env, all, FALSE)
+#endif
+
+#ifdef R_lsInternal
+# undef R_lsInternal
+#endif
+#define R_lsInternal(env, all) R_lsInternal3(env, all, FALSE)
 
 #define DBLSXP REALSXP
 
@@ -295,16 +308,18 @@ static SEXP recurse(SEXP object,
                     SEXP callback,
                     SEXP envir)
 {
-  SEXP symbol = R_NilValue;
   SEXP expr = R_NilValue;
+  SEXP formals = R_NilValue;
+  SEXP cloenv = R_NilValue;
   SEXP frame = R_NilValue;
 
   SEXP dots = Rf_findVarInFrame(envir, R_DotsSymbol);
   if (TYPEOF(callback) == CLOSXP && dots == R_MissingArg)
   {
-    symbol = TAG(FORMALS(callback));
-    expr = BODY(callback);
-    SEXP call = PROTECT(Rf_lang3(Rf_install("new.env"), Rf_ScalarLogical(0), CLOENV(callback)));
+    expr = R_ClosureBody(callback);
+    formals = R_ClosureFormals(callback);
+    cloenv = R_ClosureEnv(callback);
+    SEXP call = PROTECT(Rf_lang3(Rf_install("new.env"), Rf_ScalarLogical(0), cloenv));
     frame = PROTECT(Rf_eval(call, R_BaseNamespace));
   }
 
@@ -329,7 +344,7 @@ static SEXP recurse(SEXP object,
       }
       else
       {
-        Rf_defineVar(symbol, object, frame);
+        Rf_defineVar(TAG(formals), object, frame);
         Rf_eval(expr, frame);
       }
     }
