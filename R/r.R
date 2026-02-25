@@ -137,8 +137,8 @@ This header is provided by the 'gettext' library, which is not bundled with macO
 
 You may be able to install it by running:
 
-  source('https://mac.R-project.org/bin/install.R')
-  install.libs('gettext')
+  source(\"https://mac.R-project.org/bin/install.R\")
+  install.libs(\"gettext\")
 
 See https://mac.r-project.org/bin/ for more details.
 "
