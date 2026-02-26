@@ -7,8 +7,7 @@ expect_snapshot <- function(...,
                             cnd_class = FALSE)
 {
   if (renv_platform_windows() && getRversion() < "4.2") {
-    message("Skipping snapshot test on older Windows")
-    return(TRUE)
+    testthat::skip("Snapshot tests unsupported on older Windows")
   }
 
   renv_scope_options(
