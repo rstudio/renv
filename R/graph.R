@@ -632,7 +632,9 @@ renv_graph_urls <- function(descriptions) {
     package <- desc$Package
     source <- renv_record_source(desc, normalize = TRUE)
 
-    entry <- tryCatch(
+    # resolve download URL; on error the package falls through
+    # to sequential retrieval which handles its own error reporting
+    result[[package]] <- tryCatch(
       switch(source,
         repository   = renv_graph_url_repository(desc),
         bioconductor = renv_graph_url_bioconductor(desc),
@@ -643,10 +645,8 @@ renv_graph_urls <- function(descriptions) {
         cellar       = renv_graph_url_cellar(desc),
         NULL
       ),
-      error = function(e) NULL
+      error = function(cnd) NULL
     )
-
-    result[[package]] <- entry
 
   }
 
@@ -1362,7 +1362,9 @@ renv_graph_install <- function(descriptions) {
         next
       }
 
-      # handle new worker connections (server socket is first)
+      # handle new worker connections (server socket is first);
+      # errors here are transient -- the startup timeout (60s)
+      # handles workers that genuinely fail to connect
       if (flags[[1L]]) {
         conn <- tryCatch(
           socketAccept(
@@ -1371,13 +1373,10 @@ renv_graph_install <- function(descriptions) {
             blocking = TRUE,
             timeout  = 30
           ),
-          error = function(e) NULL
+          error = identity
         )
-        if (!is.null(conn)) {
-          pkg <- tryCatch(
-            unserialize(conn),
-            error = function(e) NULL
-          )
+        if (!inherits(conn, "error")) {
+          pkg <- tryCatch(unserialize(conn), error = identity)
           valid <- is.character(pkg) && (pkg %in% names(active))
           if (valid) {
             active[[pkg]]$conn <- conn
@@ -1396,10 +1395,13 @@ renv_graph_install <- function(descriptions) {
 
         data <- tryCatch(
           unserialize(active[[pkg]]$conn),
-          error = function(e) NULL
+          error = identity
         )
+
         elapsed <- difftime(
-          Sys.time(), active[[pkg]]$start, units = "auto"
+          time1 = Sys.time(),
+          time2 = active[[pkg]]$start,
+          units = "auto"
         )
 
         if (showstatus) {
@@ -1710,25 +1712,19 @@ renv_graph_install_collect <- function(worker) {
 
   conn <- worker$connection
 
-  # readLines blocks until the process exits (EOF on pipe)
-  lines <- tryCatch(
-    readLines(conn, warn = FALSE),
-    error = function(e) character()
-  )
+  # readLines blocks until the process exits (EOF on pipe);
+  # if the pipe breaks, the exit status from close() is the real signal
+  lines <- tryCatch(readLines(conn, warn = FALSE), error = identity)
+  if (inherits(lines, "error"))
+    lines <- character()
 
-  # close() on a pipe connection returns the process exit status invisibly;
-  # R emits a warning on non-zero exit, which we suppress
-  status <- tryCatch(
-    suppressWarnings(close(conn)),
-    error = function(e) 1L
-  )
-
-  exit_code <- status %||% 0L
-
+  # close() on a pipe returns the process status: 0 on success,
+  # non-zero on failure (encoding is platform-specific)
+  status <- close(conn) %||% 0L
   elapsed <- difftime(Sys.time(), worker$start, units = "auto")
 
   list(
-    success = identical(as.integer(exit_code), 0L),
+    success = identical(status, 0L),
     output  = lines,
     elapsed = elapsed
   )
@@ -1796,7 +1792,7 @@ renv_graph_install_launch_socket <- function(prepared, port) {
 }
 
 renv_graph_install_worker_cleanup <- function(worker) {
-  tryCatch(close(worker$conn), error = function(e) NULL)
+  try(close(worker$conn), silent = TRUE)
   unlink(worker$script)
 }
 
