@@ -937,7 +937,7 @@ renv_graph_install <- function(descriptions) {
   jobs <- config$install.jobs()
   timer <- timer()
 
-  progress <- spinner("", 0L, width = the$install_step_width)
+  progress <- spinner("", 0L, width = min(getOption("width"), 78L) - 10L)
 
   # ── Phase 1: Download all packages up front ──────────────────────
 
@@ -1015,14 +1015,14 @@ renv_graph_install <- function(descriptions) {
         progress$tick()
 
         desc <- descriptions[[pkg]]
-        msg <- sprintf("- Downloading %s %s ... ", desc$Package, desc$Version)
-        printf(format(msg, width = the$install_step_width))
+        pkgver <- paste(desc$Package, desc$Version)
 
         if (exitcode == "0") {
           elapsed <- as.difftime(time, units = "secs")
-          writef("OK [%s in %s]", renv_pretty_bytes(size), renv_difftime_format_short(elapsed))
+          status <- sprintf("%s in %s", renv_pretty_bytes(size), renv_difftime_format_short(elapsed))
+          writef("%s %s [%s]", yay(), format(pkgver, width = the$install_step_width), status)
         } else {
-          writef("FAILED")
+          writef("%s %s", boo(), format(pkgver, width = the$install_step_width))
         }
 
         streamed <<- c(streamed, pkg)
@@ -1082,8 +1082,11 @@ renv_graph_install <- function(descriptions) {
       hasfile <- !is.null(info) && file.exists(info$destfile)
 
       if (!hasfile) {
-        if (!(package %in% streamed))
-          writef("- Failed to download '%s'.", package)
+        if (!(package %in% streamed)) {
+          desc <- descriptions[[package]]
+          pkgver <- paste(desc$Package, desc$Version)
+          writef("%s %s", boo(), format(pkgver, width = the$install_step_width))
+        }
         errors$push(list(package = package, message = "failed to download"))
         failed$push(package)
         next
@@ -1104,9 +1107,8 @@ renv_graph_install <- function(descriptions) {
 
       # print progress for packages not already reported by the callback
       if (!(package %in% streamed)) {
-        msg <- sprintf("- Downloading %s %s ... ", record$Package, record$Version)
-        printf(format(msg, width = the$install_step_width))
-        writef("OK")
+        pkgver <- paste(record$Package, record$Version)
+        writef("%s %s", yay(), format(pkgver, width = the$install_step_width))
       }
 
       downloaded[[package]] <- record
@@ -1188,20 +1190,19 @@ renv_graph_install <- function(descriptions) {
   for (package in names(binaries)) {
 
     entry <- binaries[[package]]
-    renv_install_step_start("Installing", entry$record, verbose = verbose)
     t0 <- Sys.time()
     result <- catch(renv_graph_install_copy(entry$prepared))
     t1 <- Sys.time()
 
     if (inherits(result, "error")) {
       msg <- conditionMessage(result)
-      writef("FAILED")
+      renv_install_step_error(entry$record)
       errors$push(list(package = package, message = msg))
       failed$push(package)
       next
     }
 
-    renv_install_step_ok("installed binary", elapsed = difftime(t1, t0, units = "auto"), verbose = verbose)
+    renv_install_step_ok(entry$record, "installed binary", elapsed = difftime(t1, t0, units = "auto"))
     renv_graph_install_finalize(entry$record, entry$prepared, installdir, project, linkable)
     all[[package]] <- entry$record
 
@@ -1225,15 +1226,13 @@ renv_graph_install <- function(descriptions) {
     entry <- sources[[pkg]]
     installpath <- file.path(installdir, pkg)
 
-    renv_install_step_start("Installing", entry$record, verbose = verbose)
-
     if (result$success && file.exists(installpath)) {
-      renv_install_step_ok("built from source", elapsed = result$elapsed, verbose = verbose)
+      renv_install_step_ok(entry$record, "built from source", elapsed = result$elapsed)
       renv_graph_install_finalize(entry$record, entry$prepared, installdir, project, linkable)
       all[[pkg]] <<- entry$record
     } else {
       unlink(installpath, recursive = TRUE)
-      writef("FAILED")
+      renv_install_step_error(entry$record)
       if (verbose) writeLines(result$output)
       errors$push(list(package = pkg, message = "install failed", output = result$output))
       failed$push(pkg)
@@ -1463,14 +1462,31 @@ renv_graph_install <- function(descriptions) {
   # if transactional and there were failures, skip migration entirely
   # (the staging directory is cleaned up by defer, leaving the real
   # library unchanged for a clean rollback)
+  trash <- NULL
   transactional <- config$install.transactional()
   if (staged && length(all) > 0L && !(transactional && !failed$empty())) {
 
     stagepaths <- file.path(templib, names(all))
     stagepaths <- stagepaths[file.exists(stagepaths)]
     targets <- file.path(library, basename(stagepaths))
+
+    # move old installations into a single trash directory so they
+    # can be cleaned up in one pass after reporting success, rather
+    # than running a recursive unlink per package during migration
+    trash <- tempfile("renv-trash-", tmpdir = library)
+    dir.create(trash)
+
+    for (target in targets) {
+      if (renv_file_exists(target)) {
+        ok <- file.rename(target, file.path(trash, basename(target)))
+        if (!ok) unlink(target, recursive = TRUE)
+      } else if (renv_file_broken(target)) {
+        renv_file_remove(target)
+      }
+    }
+
     names(targets) <- stagepaths
-    enumerate(targets, renv_file_move, overwrite = TRUE)
+    enumerate(targets, renv_file_move)
 
     # clear filebacked cache entries
     descpaths <- file.path(targets, "DESCRIPTION")
@@ -1484,6 +1500,10 @@ renv_graph_install <- function(descriptions) {
     elapsed <- timer$tick()
     writef(fmt, nplural("package", n), renv_difftime_format(elapsed))
   }
+
+  # clean up old installations after reporting success
+  if (!is.null(trash))
+    unlink(trash, recursive = TRUE)
 
   # report errors
   renv_graph_install_errors(errors$data(), failed$data(), descriptions)

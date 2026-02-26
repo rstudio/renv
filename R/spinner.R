@@ -5,11 +5,14 @@ spinner <- function(label, n, width) {
   .n <- n
   .i <- 0L
   .width <- width
+  .nwidth <- nchar(as.character(n))
+  .last <- 0L
 
   reset <- function(label, n) {
     .label <<- label
     .n <<- n
     .i <<- 0L
+    .nwidth <<- nchar(as.character(n))
   }
 
   update <- function(items) {
@@ -21,17 +24,20 @@ spinner <- function(label, n, width) {
       paste0(paste(head(items, max), collapse = ", "), ", ...")
     }
 
-    suffix <- sprintf("(%i/%i)", .i, .n)
+    suffix <- sprintf("(%*i/%i)", .nwidth, .i, .n)
     body <- sprintf("  %s: %s", .label, detail)
-    msg <- paste0(format(body, width = .width), suffix)
-    printf("\r%s", format(msg, width = .width + nchar(suffix)))
+    body <- strtrim(body, .width)
+    msg <- paste(format(body, width = .width), suffix)
+    msg <- format(msg, width = max(nchar(msg), .last))
+    printf("\r%s", msg)
     flush(stdout())
-
+    .last <<- nchar(msg)
   }
 
   clear <- function() {
-    printf("\r%s\r", strrep(" ", .width + 24L))
+    printf("\r%s\r", strrep(" ", .last))
     flush(stdout())
+    .last <<- 0L
   }
 
   tick <- function() {

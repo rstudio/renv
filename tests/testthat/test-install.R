@@ -512,12 +512,12 @@ test_that("install has user-friendly output", {
   renv_scope_libpaths()
   renv_scope_envvars(RENV_PATHS_CACHE = renv_scope_tempfile("renv-tempcache-"))
 
-  # sort "Installing" lines so snapshot is stable regardless of
+  # sort status lines so snapshot is stable regardless of
   # completion order (socket-based collection is nondeterministic)
   transform <- function(x) {
     x <- strip_dirs(x)
-    installing <- grepl("^\\s*- Installing .* \\.\\.\\.", x)
-    runs <- rle(installing)
+    status <- grepl("\x1b\\[3[12]m", x)
+    runs <- rle(status)
     pos <- 1L
     for (i in seq_along(runs$lengths)) {
       len <- runs$lengths[[i]]
