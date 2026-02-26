@@ -756,32 +756,6 @@ renv_retrieve_repos <- function(record) {
 
 }
 
-renv_retrieve_repos_error_report <- function(record, errors) {
-
-  if (empty(errors))
-    return()
-
-  messages <- extract(errors, "message")
-  if (empty(messages))
-    return()
-
-  messages <- unlist(messages, recursive = TRUE, use.names = FALSE)
-  if (empty(messages))
-    return()
-
-  fmt <- "The following error(s) occurred while retrieving '%s':"
-  preamble <- sprintf(fmt, record$Package)
-
-  bulletin(
-    preamble = preamble,
-    values   = paste("-", messages)
-  )
-
-  if (renv_verbose())
-    str(errors)
-
-}
-
 renv_retrieve_url_resolve <- function(record) {
 
   # https://github.com/rstudio/renv/issues/2060

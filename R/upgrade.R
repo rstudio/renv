@@ -194,28 +194,3 @@ renv_upgrade_find_record_dev_latest <- function() {
   names[versions %in% latest][[1L]]
 
 }
-
-renv_upgrade_reload <- function() {
-
-  # we need to remove the task callbacks here, as otherwise
-  # we'll run into trouble trying to remove task callbacks
-  # within a task callback
-  renv_task_unload()
-
-  # now define and add a callback to reload renv; use the base namespace
-  # to avoid carrying along any bits of the current renv environment
-  callback <- function(...) {
-    unloadNamespace("renv")
-    loadNamespace("renv")
-    invisible(FALSE)
-  }
-
-  environment(callback) <- baseenv()
-
-  # add the task callback; don't name it so that the renv infrastructure
-  # doesn't try to remove this callback (it'll resolve and remove itself)
-  addTaskCallback(callback)
-
-  invisible(TRUE)
-
-}

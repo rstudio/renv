@@ -209,3 +209,4 @@ renv_index_reset <- function(root = NULL) {
   lockfiles <- list.files(root, pattern = "^index\\.lock$", full.names = TRUE)
   unlink(lockfiles)
 }
+

@@ -773,68 +773,6 @@ renv_install_package_options <- function(package) {
   options[[package]]
 }
 
-# nocov start
-renv_install_preflight_requirements <- function(records) {
-
-  deps <- bapply(records, function(record) {
-    renv_dependencies_discover_description(record$Path)
-  }, index = "ParentPackage")
-
-  splat <- split(deps, deps$Package)
-  bad <- enumerate(splat, function(package, requirements) {
-
-    # skip NULL records (should be handled above)
-    record <- records[[package]]
-    if (is.null(record))
-      return(NULL)
-
-    version <- record$Version
-
-    # drop packages without explicit version requirement
-    requirements <- requirements[nzchar(requirements$Require), ]
-    if (nrow(requirements) == 0)
-      return(NULL)
-
-    # add in requested version
-    requirements$RequestedVersion <- version
-
-    # generate expressions to evaluate
-    fmt <- "package_version('%s') %s package_version('%s')"
-    code <- with(requirements, sprintf(fmt, RequestedVersion, Require, Version))
-    parsed <- parse(text = code)
-    ok <- map_lgl(parsed, eval, envir = baseenv())
-
-    # return requirements that weren't satisfied
-    requirements[!ok, ]
-
-  })
-
-  bad <- bind(unname(bad))
-  if (empty(bad))
-    return(TRUE)
-
-  package  <- bad$ParentPackage
-  requires <- sprintf("%s (%s %s)", bad$Package, bad$Require, bad$Version)
-  actual   <- sprintf("%s %s", bad$Package, bad$RequestedVersion)
-
-  fmt <- "Package '%s' requires '%s', but '%s' will be installed"
-  text <- sprintf(fmt, format(package), format(requires), format(actual))
-  if (renv_verbose()) {
-    bulletin(
-      "The following issues were discovered while preparing for installation:",
-      text,
-      "Installation of these packages may not succeed."
-    )
-  }
-
-  if (interactive() && !proceed())
-    return(FALSE)
-
-  TRUE
-
-}
-# nocov end
-
 renv_install_postamble <- function(packages) {
 
   # only diagnose packages currently loaded

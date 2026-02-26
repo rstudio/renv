@@ -116,24 +116,6 @@ renv_package_type <- function(path, quiet = FALSE, default = "source") {
 
 }
 
-renv_package_priority <- function(package) {
-
-  # treat 'R' as pseudo base package
-  if (package == "R")
-    return("base")
-
-  # read priority from db
-  db <- installed_packages()
-  entry <- db[db$Package == package, ]
-  entry$Priority %NA% ""
-
-}
-
-renv_package_tarball_name <- function(path) {
-  desc <- renv_description_read(path)
-  with(desc, sprintf("%s_%s.tar.gz", Package, Version))
-}
-
 renv_package_ext <- function(type) {
 
   # always use '.tar.gz' for source packages
@@ -367,56 +349,11 @@ renv_package_dependencies_impl <- function(package,
     renv_package_dependencies_impl(subpackage, visited, libpaths, fields, callback, project)
 }
 
-renv_package_reload <- function(package, library = NULL) {
-  status <- catch(renv_package_reload_impl(package, library))
-  !inherits(status, "error") && status
-}
-
-renv_package_reload_impl <- function(package, library) {
-
-  if (renv_tests_running())
-    return(FALSE)
-
-  # record if package is attached (and, if so, where)
-  name <- paste("package", package, sep = ":")
-  pos <- match(name, search())
-
-  # unload the package
-  if (!is.na(pos))
-    renv_package_reload_impl_searchpath(package, library, pos)
-  else
-    renv_package_reload_impl_namespace(package, library)
-
-  TRUE
-
-}
-
-renv_package_reload_impl_searchpath <- function(package, library, pos) {
-
-  args <- list(pos = pos, unload = TRUE, force = TRUE)
-  quietly(do.call(base::detach, args), sink = FALSE)
-
-  args <- list(package = package, pos = pos, lib.loc = library, quietly = TRUE)
-  quietly(do.call(base::library, args), sink = FALSE)
-
-}
-
-renv_package_reload_impl_namespace <- function(package, library) {
-  unloadNamespace(package)
-  loadNamespace(package, lib.loc = library)
-}
-
 renv_package_hook <- function(package, hook) {
   if (package %in% loadedNamespaces())
     hook()
   else
     setHook(packageEvent(package, "onLoad"), hook)
-}
-
-renv_package_metadata <- function(package) {
-  pkgpath <- renv_package_find(package)
-  metapath <- file.path(pkgpath, "Meta/package.rds")
-  readRDS(metapath)
 }
 
 renv_package_shlib <- function(package) {
