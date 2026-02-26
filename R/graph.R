@@ -1407,23 +1407,7 @@ renv_graph_install <- function(descriptions) {
           progress$tick()
         }
 
-        if (is.null(data)) {
-          result <- list(
-            package = pkg,
-            success = FALSE,
-            output  = "worker process exited unexpectedly",
-            elapsed = elapsed
-          )
-        } else {
-          result <- list(
-            package = pkg,
-            success = identical(
-              as.integer(data$status), 0L
-            ),
-            output  = data$output,
-            elapsed = elapsed
-          )
-        }
+        result <- renv_graph_install_parse_result(data, elapsed)
 
         handle(pkg, result)
         renv_graph_install_worker_cleanup(active[[pkg]])
@@ -1675,6 +1659,7 @@ renv_graph_install_prepare <- function(record, path, library, type, isarchive) {
     # binary directory: copy into library
     # binary archive: extract directly into library
     list(
+      type    = "binary",
       method  = if (isarchive) "extract" else "copy",
       path    = path,
       library = library,
@@ -1697,6 +1682,7 @@ renv_graph_install_prepare <- function(record, path, library, type, isarchive) {
     command <- paste(renv_shell_path(R()), paste(args, collapse = " "))
 
     list(
+      type    = "source",
       method  = "install",
       command = command,
       path    = path,
@@ -1762,43 +1748,36 @@ renv_graph_install_launch_socket <- function(prepared, port) {
   # the persistent connection lets the parent detect worker death via
   # socketSelect() + EOF, without needing PID files or polling
   code <- expr({
-    conn <- tryCatch(
-      socketConnection(
+
+    main <- function() {
+
+      # connect to socket server created by parent
+      conn <- socketConnection(
         host     = "127.0.0.1",
         port     = !!port,
         open     = "wb",
         blocking = TRUE,
         timeout  = 60
-      ),
-      error = function(e) NULL
-    )
-    if (!is.null(conn)) {
-      tryCatch({
-        serialize(!!package, conn)
-        result <- tryCatch({
-          output <- suppressWarnings(system(
-            !!command,
-            intern = TRUE,
-            ignore.stderr = FALSE
-          ))
-          status <- attr(output, "status")
-          if (is.null(status)) status <- 0L
-          list(
-            package  = !!package,
-            status = status,
-            output   = output
-          )
-        }, error = function(e) {
-          list(
-            package  = !!package,
-            status = 1L,
-            output   = conditionMessage(e)
-          )
-        })
-        serialize(result, conn)
-      }, error = function(e) NULL)
-      close(conn)
+      )
+      on.exit(close(conn), add = TRUE)
+
+      # notify parent of the package we're installing
+      serialize(!!package, conn)
+
+      # run the install command and send the result back;
+      # on success 'output' is a character vector with a "status"
+      # attribute; on error it's a condition object
+      output <- tryCatch(
+        suppressWarnings(system(!!command, intern = TRUE)),
+        error = identity
+      )
+
+      serialize(output, conn)
+
     }
+
+    main()
+
   })
 
   script <- tempfile("renv-install-", fileext = ".R")
@@ -1819,6 +1798,38 @@ renv_graph_install_launch_socket <- function(prepared, port) {
 renv_graph_install_worker_cleanup <- function(worker) {
   tryCatch(close(worker$conn), error = function(e) NULL)
   unlink(worker$script)
+}
+
+renv_graph_install_parse_result <- function(data, elapsed) {
+
+  # NULL means the worker died before sending a result
+  if (is.null(data)) {
+    return(list(
+      success = FALSE,
+      output  = "worker process exited unexpectedly",
+      elapsed = elapsed
+    ))
+  }
+
+  # an error object means system() itself failed
+  if (inherits(data, "error")) {
+    return(list(
+      success = FALSE,
+      output  = conditionMessage(data),
+      elapsed = elapsed
+    ))
+  }
+
+  # otherwise, data is the character vector from system(intern = TRUE);
+  # the exit code lives in attr(data, "status")
+  status <- as.integer(attr(data, "status") %||% 0L)
+
+  list(
+    success = identical(status, 0L),
+    output  = data,
+    elapsed = elapsed
+  )
+
 }
 
 renv_graph_install_backup <- function(installdir, pkg) {
@@ -1857,9 +1868,9 @@ renv_graph_install_finalize <- function(record, prepared, library, project, link
   package <- record$Package
   installpath <- file.path(library, package)
 
-  # test binary loading
-  isbin <- prepared$method %in% c("copy", "extract")
-  if (isbin) {
+  # test loading; R CMD INSTALL already tests source packages,
+  # so we only need this for binaries (copy / extract)
+  if (identical(prepared$type, "binary")) {
     tryCatch(
       renv_install_test(package),
       error = function(err) {
