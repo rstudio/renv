@@ -86,6 +86,7 @@ rebuild <- function(packages  = NULL,
     library  = libpaths,
     type     = type,
     rebuild  = rebuild,
+    prompt   = FALSE,
     project  = project
   )
 }

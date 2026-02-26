@@ -8,7 +8,7 @@
       These packages will be installed into "<tempdir>/<renv-library>".
       
       # Installing packages ---
-      - Installing bread 0.1.0 ... OK [copied from cache in XXs]
+      [32m✔[0m bread 0.1.0                              [copied from cache]
       Successfully installed 1 package in XXXX seconds.
       
       The following loaded package(s) have been updated:
@@ -29,17 +29,17 @@
       These packages will be installed into "<tempdir>/<renv-library>".
       
       # Downloading packages ---
-      - Downloading bread 1.0.0 ... OK
-      - Downloading breakfast 1.0.0 ... OK
-      - Downloading oatmeal 1.0.0 ... OK
-      - Downloading toast 1.0.0 ... OK
+      [32m✔[0m bread 1.0.0                             
+      [32m✔[0m breakfast 1.0.0                         
+      [32m✔[0m oatmeal 1.0.0                           
+      [32m✔[0m toast 1.0.0                             
       Successfully downloaded 4 packages in XXXX seconds.
       
       # Installing packages ---
-      - Installing bread 1.0.0 ... OK [built from source in XXs]
-      - Installing breakfast 1.0.0 ... OK [built from source in XXs]
-      - Installing oatmeal 1.0.0 ... OK [built from source in XXs]
-      - Installing toast 1.0.0 ... OK [built from source in XXs]
+      [32m✔[0m bread 1.0.0                              [built from source]
+      [32m✔[0m breakfast 1.0.0                          [built from source]
+      [32m✔[0m oatmeal 1.0.0                            [built from source]
+      [32m✔[0m toast 1.0.0                              [built from source]
       Successfully installed 4 packages in XXXX seconds.
 
 ---
@@ -55,9 +55,9 @@
       These packages will be installed into "<tempdir>/<renv-library>".
       
       # Installing packages ---
-      - Installing bread 1.0.0 ... OK [copied from cache in XXs]
-      - Installing breakfast 1.0.0 ... OK [copied from cache in XXs]
-      - Installing oatmeal 1.0.0 ... OK [copied from cache in XXs]
-      - Installing toast 1.0.0 ... OK [copied from cache in XXs]
+      [32m✔[0m bread 1.0.0                              [copied from cache]
+      [32m✔[0m breakfast 1.0.0                          [copied from cache]
+      [32m✔[0m oatmeal 1.0.0                            [copied from cache]
+      [32m✔[0m toast 1.0.0                              [copied from cache]
       Successfully installed 4 packages in XXXX seconds.
 

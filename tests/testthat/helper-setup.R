@@ -173,6 +173,8 @@ renv_tests_setup_repos <- function(scope = parent.frame()) {
   source <- renv_tests_path("packages")
   target <- renv_scope_tempfile("renv-packages-", scope = scope)
   renv_file_copy(source, target)
+  if (!file.exists(target))
+    stopf("failed to copy '%s' to '%s'", source, target)
   renv_scope_wd(target)
 
   # update the local packrat package version to match what's available

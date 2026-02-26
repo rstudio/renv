@@ -246,8 +246,9 @@ renv_load_r <- function(project, fields) {
 
   # only compare major, minor versions
   if (!identical(requested, current)) {
-    fmt <- "%s Using R %s (lockfile was generated with R %s)"
-    writef(fmt, info_bullet(), getRversion(), version)
+    fmt <- "Using R %s (lockfile was generated with R %s)"
+    msg <- fyi(fmt, getRversion(), version)
+    writef(msg)
   }
 
 }

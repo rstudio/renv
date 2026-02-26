@@ -105,7 +105,7 @@ renv_file_copy_dir_r <- function(source, target) {
     )
   )
 
-  if (inherits(status, "error"))
+  if (inherits(status, "condition"))
     stop(status)
 
   # R will copy the directory to a sub-directory in the

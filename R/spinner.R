@@ -1,10 +1,9 @@
 
-spinner <- function(label, n, width) {
+spinner <- function(label, n) {
 
   .label <- label
   .n <- n
   .i <- 0L
-  .width <- width
 
   reset <- function(label, n) {
     .label <<- label
@@ -15,22 +14,21 @@ spinner <- function(label, n, width) {
   update <- function(items) {
 
     max <- 4L
-    detail <- if (length(items) <= max) {
-      paste(items, collapse = ", ")
-    } else {
-      paste0(paste(head(items, max), collapse = ", "), ", ...")
-    }
+    if (length(items) > max)
+      items <- c(head(items, max), "...")
 
-    suffix <- sprintf("(%i/%i)", .i, .n)
-    body <- sprintf("  %s: %s", .label, detail)
-    msg <- paste0(format(body, width = .width), suffix)
-    printf("\r%s", format(msg, width = .width + nchar(suffix)))
+    detail <- paste(items, collapse = ", ")
+    width <- getOption("width", 80L)
+
+    msg <- sprintf("  (%i/%i) %s: %s", .i, .n, .label, detail)
+    printf("\r%s", format(strtrim(msg, width), width = width))
     flush(stdout())
 
   }
 
   clear <- function() {
-    printf("\r%s\r", strrep(" ", .width + 24L))
+    width <- getOption("width", 80L)
+    printf("\r%s\r", strrep(" ", width))
     flush(stdout())
   }
 
