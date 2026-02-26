@@ -415,7 +415,7 @@ update <- function(packages = NULL,
     packages = updates,
     library  = library,
     rebuild  = rebuild,
-    prompt   = prompt,
+    prompt   = FALSE,
     lock     = lock,
     project  = project
   )
