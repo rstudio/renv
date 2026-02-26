@@ -14,18 +14,8 @@ test_that <- function(desc, code) {
   # under the assumption that such errors are spotty / intermittent
   call <- sys.call()
   call[[1L]] <- quote(testthat::test_that)
-  withCallingHandlers(
-    eval(call, envir = parent.frame()),
-    condition = function(cnd) {
-      message <- conditionMessage(cnd)
-      if (any(grepl("SSL connect error", message, fixed = TRUE)))
-        skip(message)
-      if (any(grepl("code 22", message, fixed = TRUE)))
-        skip(message)
-      if (any(grepl("code 56", message, fixed = TRUE)))
-        skip(message)
-    }
-  )
+  call[[3L]] <- renv_test_wrap(call[[3L]])
+  eval(call, envir = parent.frame())
 
   # record global state after test execution
   after <- renv_test_state(cran)
@@ -36,6 +26,25 @@ test_that <- function(desc, code) {
     fdiffs <- paste(format(diffs), collapse = "\n\n")
     stopf("Test '%s' has modified global state:\n%s\n", desc, fdiffs)
   }
+
+}
+
+renv_test_wrap <- function(code) {
+
+  expr(
+    withCallingHandlers(
+      !!code,
+      error = function(cnd) {
+        msg <- conditionMessage(cnd)
+        if (is.character(msg)) {
+          pattern <- "SSL connect error|code 22|code 56"
+          if (any(grepl(pattern, msg))) {
+            testthat::skip(msg)
+          }
+        }
+      }
+    )
+  )
 
 }
 
