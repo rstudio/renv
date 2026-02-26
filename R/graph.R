@@ -937,7 +937,7 @@ renv_graph_install <- function(descriptions) {
   jobs <- config$install.jobs()
   timer <- timer()
 
-  progress <- spinner("", 0L, width = min(getOption("width"), 78L) - 10L)
+  progress <- spinner("", 0L)
 
   # ── Phase 1: Download all packages up front ──────────────────────
 
@@ -1608,6 +1608,12 @@ renv_graph_install_needs_unpack <- function(record, type) {
   # archive; we must extract to reach it
   subdir <- record$RemoteSubdir %||% ""
   if (nzchar(subdir))
+    return(TRUE)
+
+  # R CMD INSTALL only handles .tar.gz / .tgz archives;
+  # other formats (e.g. .zip) must be unpacked first
+  archtype <- renv_archive_type(record$Path)
+  if (!identical(archtype, "tar"))
     return(TRUE)
 
   # install.build requires an unpacked directory for R CMD build;
