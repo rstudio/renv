@@ -783,7 +783,7 @@ test_that("installation of package from local sources works", {
   expect_true(renv_package_installed("bread"))
 
   # test a regular invocation of install
-  remove.packages("bread")
+  suppressMessages(remove.packages("bread"))
   info <- download.packages("bread", destdir = tempdir())
   install(info[, 2], repos = NULL, type = "source")
   expect_true(renv_package_installed("bread"))

@@ -335,7 +335,7 @@ test_that("we can restore a package installed with a custom repository", {
     snapshot()
   })
 
-  remove.packages("bread")
+  suppressMessages(remove.packages("bread"))
   local({
     renv_scope_options(repos = character())
     restore(rebuild = TRUE)

@@ -71,12 +71,13 @@ renv_tests_setup_options <- function(scope = parent.frame()) {
 
   renv_scope_options(
     renv.bootstrap.quiet = TRUE,
-    renv.config.user.library = FALSE,
-    renv.config.sandbox.enabled = TRUE,
-    renv.consent = TRUE,
-    restart = NULL,
+    renv.caution.verbose = interactive(),
     renv.config.install.transactional = FALSE,
+    renv.config.sandbox.enabled = TRUE,
+    renv.config.user.library = FALSE,
+    renv.consent = TRUE,
     renv.tests.running = TRUE,
+    restart = NULL,
     scope = scope
   )
 

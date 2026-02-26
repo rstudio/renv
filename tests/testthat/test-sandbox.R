@@ -138,6 +138,8 @@ test_that("multiple processes can attempt to acquire the sandbox", {
     system2(
       command = R(),
       args = c("--vanilla", "-s", "-f", renv_shell_path(script)),
+      stdout = FALSE,
+      stderr = FALSE,
       wait = FALSE
     )
   }

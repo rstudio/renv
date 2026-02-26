@@ -116,7 +116,7 @@ checkout <- function(repos = NULL,
 
     # invoke activate
     args <- c("--vanilla", "-s", "-e", shQuote("renv::activate()"))
-    r(args)
+    r(args, stdout = TRUE, stderr = TRUE)
 
     # update the renv lockfile record
     # (note: it might not be available when running tests)

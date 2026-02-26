@@ -78,7 +78,7 @@ renv_run_job <- function(script, name, args, project) {
   activate <- renv_paths_activate(project = project)
   exprs <- expr({
 
-    # insert a shim for commandArg
+    # insert a shim for commandArgs
     local({
 
       # unlock binding temporarily
@@ -114,9 +114,23 @@ renv_run_job <- function(script, name, args, project) {
 }
 
 renv_run_impl <- function(script, name, args, project) {
+
   renv_scope_wd(project)
-  system2(R(), c(
+
+  stdout <- if (testing()) FALSE else ""
+  stderr <- if (testing()) FALSE else ""
+
+  args <- c(
     "-s", "-f", renv_shell_path(script),
     if (length(args)) c("--args", args)
-  ), wait = FALSE)
+  )
+
+  system2(
+    command = R(),
+    args    = args,
+    stdout  = stdout,
+    stderr  = stderr,
+    wait    = FALSE
+  )
+
 }

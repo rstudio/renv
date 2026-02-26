@@ -1523,12 +1523,15 @@ renv_graph_install_errors <- function(errors, failed, descriptions) {
 
   # show full R CMD INSTALL output for failed source installs
   for (item in errors) {
+
     output <- item$output
     if (is.null(output) || length(output) == 0L)
       next
+
     writef(header(item$package))
-    writeLines(output)
+    writef(output)
     writef("")
+
   }
 
   invisible()

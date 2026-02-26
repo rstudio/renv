@@ -6,7 +6,11 @@ expect_snapshot <- function(...,
                             variant = NULL,
                             cnd_class = FALSE)
 {
-  renv_scope_options(renv.verbose = TRUE)
+  renv_scope_options(
+    renv.caution.verbose = TRUE,
+    renv.verbose = TRUE
+  )
+
   testthat::expect_snapshot(
     ...,
     cran = cran,

@@ -29,6 +29,8 @@ renv_shim_install_packages <- function(pkgs, ...) {
   if (!renv_shim_install_packages_compatible(matched)) {
     call <- sys.call()
     call[[1L]] <- quote(utils::install.packages)
+    if (testing())
+      call[["quiet"]] <- TRUE
     return(eval(call, envir = parent.frame()))
   }
 
@@ -65,6 +67,8 @@ renv_shim_remove_packages <- function(pkgs, lib) {
   if (nargs() != 1) {
     call <- sys.call()
     call[[1L]] <- quote(utils::remove.packages)
+    if (testing())
+      return(suppressMessages(eval(call, envir = parent.frame())))
     return(eval(call, envir = parent.frame()))
   }
 
