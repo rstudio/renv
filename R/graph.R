@@ -1135,13 +1135,17 @@ renv_graph_install <- function(descriptions) {
     all[[pkg]] <- entry$record
   }
 
-  # ── Phase 2: Unpack + classify all packages ───────────────────
+  # ── Phase 2: Classify all packages ────────────────────────────
   # Separating binaries from source up front lets us install all
   # binaries before the wave loop (they're just file copies with no
   # build-time dependency ordering).  This can collapse waves: a
   # source package whose deps are all binary no longer needs to wait.
   # To revert to wave-ordered binary installs, remove Phase 2a/2b
   # and restore the binary branch inside the wave loop.
+  #
+  # Classification uses download metadata or archive listings
+  # (without extracting), so no archives are unpacked here.
+  # Unpacking is deferred to the install phases (2a / 2b).
 
   binaries <- list()
   sources <- list()
@@ -1154,29 +1158,9 @@ renv_graph_install <- function(descriptions) {
       next
     }
 
-    # unpack archives and pre-build if needed; unpacked files are
-    # moved into 'staging' so they outlive the unpack function's frame
-    path <- catch(renv_graph_install_unpack(record, staging))
-    if (inherits(path, "error")) {
-      msg <- conditionMessage(path)
-      writef("- Failed to prepare '%s': %s", package, msg)
-      errors$push(list(package = package, message = msg))
-      failed$push(package)
-      next
-    }
-
-    # prepare the package for installation
-    prepared <- catch(renv_graph_install_prepare(record, path, installdir))
-    if (inherits(prepared, "error")) {
-      msg <- conditionMessage(prepared)
-      writef("- Failed to prepare '%s': %s", package, msg)
-      errors$push(list(package = package, message = msg))
-      failed$push(package)
-      next
-    }
-
-    entry <- list(record = record, prepared = prepared)
-    if (identical(prepared$method, "copy"))
+    entry <- list(record = record)
+    type <- renv_graph_install_classify(record)
+    if (identical(type, "binary"))
       binaries[[package]] <- entry
     else
       sources[[package]] <- entry
@@ -1190,8 +1174,29 @@ renv_graph_install <- function(descriptions) {
   for (package in names(binaries)) {
 
     entry <- binaries[[package]]
+
+    # unpack (if needed) and prepare (deferred from Phase 2)
+    prepared <- catch(
+      renv_graph_install_unpack_and_prepare(
+        record  = entry$record,
+        type    = "binary",
+        staging = staging,
+        library = installdir
+      )
+    )
+
+    if (inherits(prepared, "error")) {
+      msg <- conditionMessage(prepared)
+      writef("- Failed to prepare '%s': %s", package, msg)
+      errors$push(list(package = package, message = msg))
+      failed$push(package)
+      next
+    }
+
+    entry$prepared <- prepared
+
     t0 <- Sys.time()
-    result <- catch(renv_graph_install_copy(entry$prepared))
+    result <- catch(renv_graph_install_binary(prepared))
     t1 <- Sys.time()
 
     if (inherits(result, "error")) {
@@ -1202,8 +1207,13 @@ renv_graph_install <- function(descriptions) {
       next
     }
 
-    renv_install_step_ok(entry$record, "installed binary", elapsed = difftime(t1, t0, units = "auto"))
-    renv_graph_install_finalize(entry$record, entry$prepared, installdir, project, linkable)
+    renv_install_step_ok(
+      message = "installed binary",
+      record  = entry$record,
+      elapsed = difftime(t1, t0, units = "auto")
+    )
+
+    renv_graph_install_finalize(entry$record, prepared, installdir, project, linkable)
     all[[package]] <- entry$record
 
   }
@@ -1227,7 +1237,7 @@ renv_graph_install <- function(descriptions) {
     installpath <- file.path(installdir, pkg)
 
     if (result$success && file.exists(installpath)) {
-      renv_install_step_ok(entry$record, "built from source", elapsed = result$elapsed)
+      renv_install_step_ok("built from source", entry$record, elapsed = result$elapsed)
       renv_graph_install_finalize(entry$record, entry$prepared, installdir, project, linkable)
       all[[pkg]] <<- entry$record
     } else {
@@ -1268,9 +1278,27 @@ renv_graph_install <- function(descriptions) {
         pkg <- ready[1L]
         ready <- ready[-1L]
 
+        # unpack (if needed) and prepare (deferred from Phase 2)
+        entry <- sources[[pkg]]
+        prepared <- catch(renv_graph_install_unpack_and_prepare(
+          entry$record, "source", staging, installdir
+        ))
+        if (inherits(prepared, "error")) {
+          msg <- conditionMessage(prepared)
+          if (showstatus) progress$clear()
+          writef("- Failed to prepare '%s': %s", pkg, msg)
+          errors$push(list(package = pkg, message = msg))
+          failed$push(pkg)
+          if (showstatus) progress$tick()
+          next
+        }
+
+        entry$prepared <- prepared
+        sources[[pkg]] <- entry
+
         callbacks[[pkg]] <- renv_graph_install_backup(installdir, pkg)
         active[[pkg]] <- renv_graph_install_launch_socket(
-          sources[[pkg]]$prepared, server$port
+          prepared, server$port
         )
       }
 
@@ -1441,13 +1469,30 @@ renv_graph_install <- function(descriptions) {
 
         workers <- list()
 
-        for (pkg in batch)
-          callbacks[[pkg]] <- renv_graph_install_backup(installdir, pkg)
-
-        for (pkg in batch)
-          workers[[pkg]] <- renv_graph_install_launch(sources[[pkg]]$prepared)
-
         for (pkg in batch) {
+
+          # unpack (if needed) and prepare (deferred from Phase 2)
+          entry <- sources[[pkg]]
+          prepared <- catch(renv_graph_install_unpack_and_prepare(
+            entry$record, "source", staging, installdir
+          ))
+          if (inherits(prepared, "error")) {
+            msg <- conditionMessage(prepared)
+            writef("- Failed to prepare '%s': %s", pkg, msg)
+            errors$push(list(package = pkg, message = msg))
+            failed$push(pkg)
+            next
+          }
+
+          entry$prepared <- prepared
+          sources[[pkg]] <- entry
+
+          callbacks[[pkg]] <- renv_graph_install_backup(installdir, pkg)
+          workers[[pkg]] <- renv_graph_install_launch(prepared)
+
+        }
+
+        for (pkg in names(workers)) {
           result <- renv_graph_install_collect(workers[[pkg]])
           handle(pkg, result)
         }
@@ -1558,15 +1603,48 @@ renv_graph_install_errors <- function(errors, failed, descriptions) {
 
 }
 
-renv_graph_install_unpack <- function(record, staging) {
+renv_graph_install_classify <- function(record) {
+
+  # use type metadata from the download phase if available
+  type <- attr(record, "type", exact = TRUE)
+  if (!is.null(type))
+    return(type)
+
+  # otherwise, inspect the archive or directory directly;
+  # for archives this lists contents without extracting
+  renv_package_type(record$Path, quiet = TRUE)
+
+}
+
+renv_graph_install_needs_unpack <- function(record, type) {
+
+  # RemoteSubdir means the package lives in a subdirectory of the
+  # archive; we must extract to reach it
+  subdir <- record$RemoteSubdir %||% ""
+  if (nzchar(subdir))
+    return(TRUE)
+
+  # install.build requires an unpacked directory for R CMD build;
+  # only relevant for source packages (binaries are already built)
+  identical(type, "source") && identical(config$install.build(), TRUE)
+
+}
+
+renv_graph_install_unpack_and_prepare <- function(record, type, staging, library) {
 
   package <- record$Package
   path <- record$Path
+  isarchive <- identical(renv_file_info(path)$isdir, FALSE)
 
-  # check if it's an archive
-  info <- renv_file_info(path)
-  isarchive <- identical(info$isdir, FALSE)
+  # archives can often be used directly: R CMD INSTALL handles source
+  # archives natively, and binary archives can be extracted straight
+  # into the library.  We only need to unpack up front when the
+  # package is nested (RemoteSubdir) or needs pre-building.
+  if (isarchive && !renv_graph_install_needs_unpack(record, type)) {
+    return(renv_graph_install_prepare(record, path, library, type, isarchive = TRUE))
+  }
 
+  # unpack archive or adjust path for RemoteSubdir
   subdir <- record$RemoteSubdir %||% ""
   if (isarchive) {
     # renv_package_unpack creates a temp dir scoped to this function's
@@ -1582,25 +1660,22 @@ renv_graph_install_unpack <- function(record, staging) {
 
   # check whether we should pre-build
   path <- renv_install_package_impl_prebuild(record, path, quiet = TRUE)
+  path <- renv_path_normalize(path, mustWork = TRUE)
 
-  # normalize
-  renv_path_normalize(path, mustWork = TRUE)
+  renv_graph_install_prepare(record, path, library, type, isarchive = FALSE)
 
 }
 
-renv_graph_install_prepare <- function(record, path, library) {
+renv_graph_install_prepare <- function(record, path, library, type, isarchive) {
 
   package <- record$Package
 
-  # determine package type
-  isdir <- renv_file_type(path, symlinks = FALSE) == "directory"
-  isbin <- renv_package_type(path, quiet = TRUE) == "binary"
-  copyable <- isdir && isbin
+  if (identical(type, "binary")) {
 
-  if (copyable) {
-
+    # binary directory: copy into library
+    # binary archive: extract directly into library
     list(
-      method  = "copy",
+      method  = if (isarchive) "extract" else "copy",
       path    = path,
       library = library,
       package = package
@@ -1608,7 +1683,7 @@ renv_graph_install_prepare <- function(record, path, library) {
 
   } else {
 
-    # construct R CMD INSTALL command
+    # R CMD INSTALL handles both archives and directories
     args <- c(
       "--vanilla",
       "CMD", "INSTALL", "--preclean", "--no-multiarch", "--with-keep.source",
@@ -1754,9 +1829,7 @@ renv_graph_install_backup <- function(installdir, pkg) {
   callback
 }
 
-
-
-renv_graph_install_copy <- function(prepared) {
+renv_graph_install_binary <- function(prepared) {
 
   package <- prepared$package
   library <- prepared$library
@@ -1770,7 +1843,11 @@ renv_graph_install_copy <- function(prepared) {
   if (renv_file_broken(installpath))
     renv_file_remove(installpath)
 
-  renv_file_copy(prepared$path, installpath, overwrite = TRUE)
+  if (identical(prepared$method, "copy"))
+    renv_file_copy(prepared$path, installpath, overwrite = TRUE)
+  else
+    renv_archive_decompress(prepared$path, exdir = library)
+
   invisible(installpath)
 
 }
@@ -1781,7 +1858,7 @@ renv_graph_install_finalize <- function(record, prepared, library, project, link
   installpath <- file.path(library, package)
 
   # test binary loading
-  isbin <- renv_package_type(prepared$path, quiet = TRUE) == "binary"
+  isbin <- prepared$method %in% c("copy", "extract")
   if (isbin) {
     tryCatch(
       renv_install_test(package),

@@ -163,11 +163,11 @@
       These packages will be installed into "<tempdir>/<renv-library>".
       
       # Downloading packages ---
-      - Downloading egg 1.0.0 ... OK
+      [32m✔[0m egg 1.0.0                               
       Successfully downloaded 1 package in XXXX seconds.
       
       # Installing packages ---
-      - Installing egg 1.0.0 ... OK [built from source in XXs]
+      [32m✔[0m egg 1.0.0                                [built from source]
       Successfully installed 1 package in XXXX seconds.
       The following package(s) will be updated in the lockfile:
       

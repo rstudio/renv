@@ -502,7 +502,7 @@ renv_install_package <- function(record) {
   }
 
   elapsed <- difftime(after, before, units = "auto")
-  renv_install_step_ok(record, feedback, elapsed = elapsed)
+  renv_install_step_ok(feedback, record, elapsed = elapsed)
 
   invisible()
 
@@ -542,7 +542,7 @@ renv_install_package_cache <- function(record, cache, linker) {
   )
 
   elapsed <- difftime(after, before, units = "auto")
-  renv_install_step_ok(record, type, elapsed = elapsed)
+  renv_install_step_ok(type, record, elapsed = elapsed)
 
   return(TRUE)
 
@@ -837,12 +837,14 @@ renv_install_report <- function(records, library) {
   )
 }
 
-renv_install_step_ok <- function(record, ..., elapsed = NULL) {
+renv_install_step_ok <- function(message, record, elapsed = NULL) {
+
   pkgver <- paste(record[["Package"]], record[["Version"]])
-  message <- paste(..., collapse = "")
   if (!is.null(elapsed) && !testing() && elapsed >= 0.5)
     message <- sprintf("%s in %s", message, renv_difftime_format_short(elapsed))
+
   writef("%s %s [%s]", yay(), format(pkgver, width = the$install_step_width), message)
+
 }
 
 renv_install_step_error <- function(record) {
