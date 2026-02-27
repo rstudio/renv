@@ -4,6 +4,7 @@ spinner <- function(label, n) {
   .label <- label
   .n <- n
   .i <- 0L
+  .cursor <- TRUE
 
   reset <- function(label, n) {
     .label <<- label
@@ -12,6 +13,11 @@ spinner <- function(label, n) {
   }
 
   update <- function(items) {
+
+    if (.cursor) {
+      cat("\033[?25l", file = stdout())
+      .cursor <<- FALSE
+    }
 
     max <- 4L
     if (length(items) > max)
@@ -40,12 +46,20 @@ spinner <- function(label, n) {
     .i >= .n
   }
 
+  restore <- function() {
+    if (!.cursor) {
+      cat("\033[?25h", file = stdout())
+      .cursor <<- TRUE
+    }
+  }
+
   list(
-    reset  = reset,
-    update = update,
-    clear  = clear,
-    tick   = tick,
-    done   = done
+    reset   = reset,
+    update  = update,
+    clear   = clear,
+    tick    = tick,
+    done    = done,
+    restore = restore
   )
 
 }

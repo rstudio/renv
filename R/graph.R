@@ -938,6 +938,7 @@ renv_graph_install <- function(descriptions) {
   timer <- timer()
 
   progress <- spinner("", 0L)
+  defer(progress$restore())
 
   # ── Phase 1: Download all packages up front ──────────────────────
 
