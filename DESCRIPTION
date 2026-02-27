@@ -22,6 +22,7 @@ Suggests: BiocManager, cli, compiler, covr, cpp11, curl, devtools, generics,
     remotes, reticulate, rmarkdown, rstudioapi, shiny, testthat, uuid, waldo,
     yaml, webfakes
 Encoding: UTF-8
+NeedsCompilation: yes
 RoxygenNote: 7.3.3
 Roxygen: list(markdown = TRUE)
 VignetteBuilder: knitr
