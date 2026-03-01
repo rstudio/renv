@@ -1283,7 +1283,8 @@ renv_graph_install <- function(descriptions) {
     if (showstatus)
       progress$reset("Building", length(sourcenames))
 
-    deadline <- Sys.time() + 3600
+    timeout <- getOption("renv.install.timeout", default = 3600L)
+    deadline <- Sys.time() + timeout
 
     repeat {
 
