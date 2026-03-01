@@ -1046,7 +1046,12 @@ renv_graph_install <- function(descriptions) {
       }
 
       # perform the actual download
-      ok <- renv_download_parallel(urls, destfiles, types, callback = callback)
+      ok <- renv_download_parallel(
+        urls      = urls,
+        destfiles = destfiles,
+        types     = types,
+        callback  = if (showprogress) callback
+      )
 
       # clear up and determine what packages need 'fallback' downloads
       if (showprogress)
