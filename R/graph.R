@@ -992,6 +992,10 @@ renv_graph_install <- function(descriptions) {
       destfiles <- vapply(downloadable, `[[`, character(1L), "destfile")
       types     <- vapply(downloadable, `[[`, character(1L), "type")
 
+      # normalize to forward slashes so lookup keys match curl's %{filename_effective}
+      # output on all platforms (renv_download_parallel does the same normalization)
+      destfiles <- chartr("\\", "/", destfiles)
+
       ensure_parent_directory(destfiles)
 
       # build destfile -> package lookup for the callback
@@ -1003,10 +1007,8 @@ renv_graph_install <- function(descriptions) {
       showprogress <- !testing()
       awaiting <- names(downloadable)
 
-      if (showprogress)
-        progress$reset("Downloading", length(awaiting))
-
-      callback <- if (showprogress) function(destfile, code, size, time, exitcode, error) {
+      # define a callback to be invoked upon completion of each download
+      callback <- function(destfile, code, size, time, exitcode, error) {
 
         pkg <- lookup[[destfile]]
         if (is.null(pkg))
@@ -1036,11 +1038,17 @@ renv_graph_install <- function(descriptions) {
 
       }
 
-      if (showprogress && length(awaiting) > 1L)
-        progress$update(awaiting)
+      # notify that we're about to download some packages
+      if (showprogress) {
+        progress$reset("Downloading", length(awaiting))
+        if (length(awaiting))
+          progress$update(awaiting)
+      }
 
+      # perform the actual download
       ok <- renv_download_parallel(urls, destfiles, types, callback = callback)
 
+      # clear up and determine what packages need 'fallback' downloads
       if (showprogress)
         progress$clear()
       for (pkg in names(downloadable)) {
