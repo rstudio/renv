@@ -1,0 +1,2 @@
+# Ensure snapshot files always use LF line endings
+tests/testthat/_snaps/**/*.md text eol=lf

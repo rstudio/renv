@@ -48,8 +48,14 @@ strip_dirs <- function(x) {
     "<wd-name>"         = basename(getwd())
   )
 
+  # normalize backslashes to forward slashes so snapshots are
+  # platform-independent; do this before applying filters so that
+  # filter paths (which use forward slashes) match consistently
+  x <- chartr("\\", "/", x)
+
   # apply filters
   enumerate(filters, function(target, source) {
+    source <- chartr("\\", "/", source)
     x <<- gsub(source, target, x, fixed = TRUE)
   })
 
