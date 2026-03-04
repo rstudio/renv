@@ -66,13 +66,17 @@ bootstrap <- function(version, library) {
   section <- header(sprintf("Bootstrapping renv %s", friendly))
   catf(section)
 
+  # ensure the target library path exists; required for file.copy(..., recursive = TRUE)
+  dir.create(library, showWarnings = FALSE, recursive = TRUE)
+
   # try to install renv from cache
   md5 <- attr(version, "md5", exact = TRUE)
   if (length(md5)) {
     pkgpath <- renv_bootstrap_find(version)
     if (length(pkgpath) && file.exists(pkgpath)) {
-      file.copy(pkgpath, library, recursive = TRUE)
-      return(invisible())
+      ok <- file.copy(pkgpath, library, recursive = TRUE)
+      if (isTRUE(ok))
+        return(invisible())
     }
   }
 
