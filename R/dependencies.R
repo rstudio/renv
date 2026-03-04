@@ -1117,6 +1117,7 @@ renv_dependencies_discover_r <- function(path  = NULL,
     renv_dependencies_discover_r_require_namespace,
     renv_dependencies_discover_r_colon,
     renv_dependencies_discover_r_citation,
+    renv_dependencies_discover_r_system_file,
     renv_dependencies_discover_r_data,
     renv_dependencies_discover_r_pacman,
     renv_dependencies_discover_r_modules,
@@ -1292,6 +1293,25 @@ renv_dependencies_discover_r_citation <- function(node, envir) {
     return(FALSE)
 
   matched <- catch(match.call(utils::citation, node))
+  if (inherits(matched, "error"))
+    return(FALSE)
+
+  package <- matched[["package"]]
+  if (!is.character(package) || length(package) != 1L)
+    return(FALSE)
+
+  envir[[package]] <- TRUE
+  TRUE
+
+}
+
+renv_dependencies_discover_r_system_file <- function(node, envir) {
+
+  node <- renv_call_expect(node, "base", "system.file")
+  if (is.null(node))
+    return(FALSE)
+
+  matched <- catch(match.call(base::system.file, node))
   if (inherits(matched, "error"))
     return(FALSE)
 

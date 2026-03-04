@@ -680,3 +680,9 @@ test_that("data() dependencies are handled", {
   result <- dependencies(path, quiet = TRUE)
   expect_contains(result$Package, "A")
 })
+
+test_that("system.file() dependencies are handled", {
+  path <- renv_tests_path("resources/system-file.R")
+  result <- dependencies(path, quiet = TRUE)
+  expect_contains(result$Package, c("A", "B", "C"))
+})

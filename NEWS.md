@@ -1,6 +1,9 @@
 
 # renv (under development)
 
+* `renv::dependencies()` now detects packages referenced via
+  `system.file(..., package = "pkg")` calls. (#2236)
+
 * The `renv.bioconductor.version` option is now respected as a global
   override during `renv::restore()` and `renv::load()`. Previously, the
   Bioconductor version recorded in the lockfile would take precedence,
