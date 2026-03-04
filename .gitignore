@@ -1,6 +1,7 @@
-.Rproj.user
-.Rhistory
+.positai
 .RData
+.Rhistory
+.Rproj.user
 .Ruserdata
 .venv
 

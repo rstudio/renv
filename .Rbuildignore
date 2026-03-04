@@ -5,11 +5,12 @@
 ^\.Rproj\.user$
 
 ^.*\.backup$
-\.clang-format$
-\.claude$
-\.covrignore$
-\.renvignore$
-\.vscode
+^\.clang-format$
+^\.claude$
+^\.covrignore$
+^\.positai$
+^\.renvignore$
+^\.vscode
 
 ^appveyor\.yml$
 ^codecov\.yml$
