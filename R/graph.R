@@ -695,10 +695,8 @@ renv_graph_url_repository <- function(desc) {
 
   # the requested version is not in current available packages;
   # try the CRAN-style archive (source only)
-  root <- renv_retrieve_repos_archive_root(
-    attr(record, "url", exact = TRUE),
-    as.list(desc)
-  )
+  baseurl <- renv_repos_baseurl(attr(record, "url", exact = TRUE))
+  root <- renv_retrieve_repos_archive_root(baseurl, as.list(desc))
 
   if (!is.null(root)) {
     repourl <- attr(record, "url", exact = TRUE)

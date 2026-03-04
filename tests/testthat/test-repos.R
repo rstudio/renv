@@ -54,6 +54,25 @@ test_that("renv emits an error if repos option is malformed", {
 
 })
 
+test_that("renv_repos_baseurl strips contrib.url suffixes", {
+
+  expect_equal(
+    renv_repos_baseurl("https://cloud.r-project.org/src/contrib"),
+    "https://cloud.r-project.org"
+  )
+
+  expect_equal(
+    renv_repos_baseurl("https://cloud.r-project.org/bin/macosx/big-sur-arm64/contrib/4.4"),
+    "https://cloud.r-project.org"
+  )
+
+  expect_equal(
+    renv_repos_baseurl("https://cloud.r-project.org/bin/windows/contrib/4.4"),
+    "https://cloud.r-project.org"
+  )
+
+})
+
 test_that("repository names are always set", {
 
   skip_on_cran()

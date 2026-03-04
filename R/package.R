@@ -182,9 +182,7 @@ renv_package_augment_standard <- function(path, record) {
     return(desc)
 
   # figure out base of repository URL
-  pattern <- "/(?:bin|src)/"
-  index <- regexpr(pattern, url, perl = TRUE)
-  repos <- substring(url, 1L, index - 1L)
+  repos <- renv_repos_baseurl(url)
 
   # figure out the platform
   platform <- if (identical(type, "binary")) R.version$platform else "source"
