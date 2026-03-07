@@ -109,7 +109,7 @@ COPY .Rprofile .Rprofile
 COPY renv/activate.R renv/activate.R
 COPY renv/settings.json renv/settings.json
 
-RUN --mount=type=bind,from=renv-cache,source=.,target=/root/.cache/R/renv/cache \
+RUN --mount=type=bind,from=renv-cache,source=.,target=/root/.cache/R/renv/cache,rw \
     R -s -e "renv::restore()"
 
 COPY . .
@@ -123,7 +123,7 @@ docker buildx build \
   -t <image-name> .
 ```
 
-This approach is most useful when `.cache/renv` has already been populated on the host, for example by running `renv::restore()` outside Docker. It is often the preferred approach on ephemeral hosts such as GitHub Actions runners, because the host-side cache directory can be restored with the CI platform's native cache support before the build starts. GitHub Actions and Azure DevOps both provide native cache features that work well for this: [GitHub Actions cache](https://docs.github.com/actions/concepts/workflows-and-actions/dependency-caching) and [Azure DevOps Cache task](https://learn.microsoft.com/azure/devops/pipelines/release/caching?view=azure-devops).
+This approach is most useful when `.cache/renv` has already been populated on the host, for example by running `renv::restore()` outside Docker. Bind mounts are read-only by default, so the example uses `rw` to avoid write failures if `renv::restore()` needs to update the cache during the build. It is often the preferred approach on ephemeral hosts such as GitHub Actions runners, because the host-side cache directory can be restored with the CI platform's native cache support before the build starts. GitHub Actions and Azure DevOps both provide native cache features that work well for this: [GitHub Actions cache](https://docs.github.com/actions/concepts/workflows-and-actions/dependency-caching) and [Azure DevOps Cache task](https://learn.microsoft.com/azure/devops/pipelines/release/caching?view=azure-devops).
 
 If you want to use a different cache location inside the container, customize the mount target to match your configured renv cache path.
 
