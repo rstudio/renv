@@ -1,6 +1,9 @@
 
 # renv (under development)
 
+* Bootstrap failures during `.Rprofile` processing now emit a warning
+  instead of an error.
+
 * `renv::embed()` now warns when required packages are not found in the
   resolved lockfile. Previously, dependencies missing from the project
   lockfile were silently omitted from the generated `renv::use()` call.

@@ -20,7 +20,26 @@ use(
 }
 \arguments{
 \item{path}{The path to an \R or R Markdown script. The default will use the current
-document, if running within RStudio.}
+document, if running within RStudio.
+\subsection{Package Resolution}{
+
+When \code{embed()} generates a call to \code{use()}, it needs to determine the
+package versions to record. The \code{lockfile} parameter controls where these
+versions come from:
+\enumerate{
+\item If \code{lockfile} is \code{NULL} (the default), and the project has an existing
+\code{renv.lock} file, that project lockfile is used. Only packages present
+in the lockfile will be included -- any dependencies not recorded in the
+lockfile will be omitted.
+\item If \code{lockfile} is a path to a lockfile, or a lockfile object, that
+lockfile is used directly.
+\item If \code{lockfile} is \code{FALSE}, or if no project lockfile exists, package
+versions are inferred from the currently-installed packages in the
+active library paths.
+\item If \code{lockfile} is \code{NA}, package versions are inferred from the
+latest versions available in the active package repositories.
+}
+}}
 
 \item{...}{The \R packages to be used with this script. Ignored if \code{lockfile} is
 non-\code{NULL}.}

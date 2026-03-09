@@ -225,7 +225,7 @@ local({
     friendly <- renv_bootstrap_version_friendly(version)
     section <- header(sprintf("Bootstrapping renv %s", friendly))
     catf(section)
-
+  
     # ensure the target library path exists; required for file.copy(..., recursive = TRUE)
     dir.create(library, showWarnings = FALSE, recursive = TRUE)
   
@@ -1235,6 +1235,21 @@ local({
   }
   
   renv_bootstrap_run <- function(project, libpath, version) {
+    tryCatch(
+      renv_bootstrap_run_impl(project, libpath, version),
+      error = function(e) {
+        msg <- paste(
+          "failed to bootstrap renv: the project will not be loaded.",
+          paste("Reason:", conditionMessage(e)),
+          "Use `renv::activate()` to re-initialize the project.",
+          sep = "\n"
+        )
+        warning(msg, call. = FALSE)
+      }
+    )
+  }
+  
+  renv_bootstrap_run_impl <- function(project, libpath, version) {
   
     # perform bootstrap
     bootstrap(version, libpath)

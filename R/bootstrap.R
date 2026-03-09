@@ -1075,6 +1075,21 @@ renv_bootstrap_exec <- function(project, libpath, version) {
 }
 
 renv_bootstrap_run <- function(project, libpath, version) {
+  tryCatch(
+    renv_bootstrap_run_impl(project, libpath, version),
+    error = function(e) {
+      msg <- paste(
+        "failed to bootstrap renv: the project will not be loaded.",
+        paste("Reason:", conditionMessage(e)),
+        "Use `renv::activate()` to re-initialize the project.",
+        sep = "\n"
+      )
+      warning(msg, call. = FALSE)
+    }
+  )
+}
+
+renv_bootstrap_run_impl <- function(project, libpath, version) {
 
   # perform bootstrap
   bootstrap(version, libpath)
