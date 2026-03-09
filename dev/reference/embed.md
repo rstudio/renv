@@ -67,6 +67,27 @@ use(
   The path to an R or R Markdown script. The default will use the
   current document, if running within RStudio.
 
+  ### Package Resolution
+
+  When `embed()` generates a call to `use()`, it needs to determine the
+  package versions to record. The `lockfile` parameter controls where
+  these versions come from:
+
+  1.  If `lockfile` is `NULL` (the default), and the project has an
+      existing `renv.lock` file, that project lockfile is used. Only
+      packages present in the lockfile will be included – any
+      dependencies not recorded in the lockfile will be omitted.
+
+  2.  If `lockfile` is a path to a lockfile, or a lockfile object, that
+      lockfile is used directly.
+
+  3.  If `lockfile` is `FALSE`, or if no project lockfile exists,
+      package versions are inferred from the currently-installed
+      packages in the active library paths.
+
+  4.  If `lockfile` is `NA`, package versions are inferred from the
+      latest versions available in the active package repositories.
+
 - ...:
 
   The R packages to be used with this script. Ignored if `lockfile` is

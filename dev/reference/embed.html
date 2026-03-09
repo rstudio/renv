@@ -183,7 +183,24 @@ within that same <span style="R">R</span> script.</p>
 
 <dl><dt id="arg-path">path<a class="anchor" aria-label="anchor" href="#arg-path"></a></dt>
 <dd><p>The path to an <span style="R">R</span> or R Markdown script. The default will use the current
-document, if running within RStudio.</p></dd>
+document, if running within RStudio.</p><div class="section">
+<h3 id="package-resolution">Package Resolution<a class="anchor" aria-label="anchor" href="#package-resolution"></a></h3>
+
+
+<p>When <code>embed()</code> generates a call to <code>use()</code>, it needs to determine the
+package versions to record. The <code>lockfile</code> parameter controls where these
+versions come from:</p><ol><li><p>If <code>lockfile</code> is <code>NULL</code> (the default), and the project has an existing
+<code>renv.lock</code> file, that project lockfile is used. Only packages present
+in the lockfile will be included – any dependencies not recorded in the
+lockfile will be omitted.</p></li>
+<li><p>If <code>lockfile</code> is a path to a lockfile, or a lockfile object, that
+lockfile is used directly.</p></li>
+<li><p>If <code>lockfile</code> is <code>FALSE</code>, or if no project lockfile exists, package
+versions are inferred from the currently-installed packages in the
+active library paths.</p></li>
+<li><p>If <code>lockfile</code> is <code>NA</code>, package versions are inferred from the
+latest versions available in the active package repositories.</p></li>
+</ol></div></dd>
 
 
 <dt id="arg--">...<a class="anchor" aria-label="anchor" href="#arg--"></a></dt>
