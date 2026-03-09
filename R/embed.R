@@ -51,11 +51,34 @@
 #'   The path to an \R or R Markdown script. The default will use the current
 #'   document, if running within RStudio.
 #'
+#' ## Package Resolution
+#'
+#' When `embed()` generates a call to `use()`, it needs to determine the
+#' package versions to record. The `lockfile` parameter controls where these
+#' versions come from:
+#'
+#' 1. If `lockfile` is `NULL` (the default), and the project has an existing
+#'    `renv.lock` file, that project lockfile is used. Only packages present
+#'    in the lockfile will be included -- any dependencies not recorded in the
+#'    lockfile will be omitted.
+#'
+#' 2. If `lockfile` is a path to a lockfile, or a lockfile object, that
+#'    lockfile is used directly.
+#'
+#' 3. If `lockfile` is `FALSE`, or if no project lockfile exists, package
+#'    versions are inferred from the currently-installed packages in the
+#'    active library paths.
+#'
+#' 4. If `lockfile` is `NA`, package versions are inferred from the
+#'    latest versions available in the active package repositories.
+#'
 #' @param lockfile
 #'   The path to an renv lockfile. When `NULL` (the default), the project
 #'   lockfile will be read (if any); otherwise, a new lockfile will be generated
-#'   from the current library paths. Use `lockfile = FALSE` to force `renv`
-#'   to ignore the project lockfile, if any.
+#'   from the current library paths. Use `lockfile = FALSE` to use
+#'   currently-installed package versions, or `lockfile = NA` to use the
+#'   latest versions available in the active package repositories. See
+#'   **Package Resolution** for more details.
 #'
 #' @export
 embed <- function(path = NULL,
@@ -109,21 +132,52 @@ renv_embed_create_lockfile <- function(path = NULL,
   packages <- sort(unique(deps[["Package"]]))
   all <- renv_package_dependencies(packages)
 
-  # notify user if some dependencies appear to be unavailable
-  ok <- nzchar(all)
-  missing <- names(all)[!ok]
-  if (length(missing)) {
-    missing <- sort(unique(missing))
-    stop("required packages are not installed: ", paste(missing, collapse = ", "))
-  }
+  # select the lockfile source
+  source <- renv_embed_lockfile_select(lockfile, project)
 
-  # create a lockfile
-  lockfile <- renv_embed_lockfile_resolve(path, names(all), lockfile, project)
+  # notify user if some dependencies appear to be unavailable
+  # (skip when using repository versions, since we don't need
+  # packages to be installed in that case)
+  if (!identical(source, NA)) {
+    ok <- nzchar(all)
+    missing <- names(all)[!ok]
+    if (length(missing)) {
+      missing <- sort(unique(missing))
+      stop("required packages are not installed: ", paste(missing, collapse = ", "))
+    }
+  }
+  lockfile <- renv_embed_lockfile_resolve(path, names(all), source, project)
 
   # keep only matched records
   renv_lockfile_records(lockfile) <-
     renv_lockfile_records(lockfile) %>%
     keep(c("renv", names(all)))
+
+  # notify user if some dependencies are missing
+  ignored <- c("renv", renv_packages_base())
+  expected <- setdiff(names(all), ignored)
+  actual <- names(renv_lockfile_records(lockfile))
+  missing <- setdiff(expected, actual)
+  if (length(missing)) {
+
+    postamble <- if (identical(source, NA)) c(
+      "These packages are not available in the active package repositories."
+    ) else if (identical(source, FALSE)) c(
+      "Packages must first be installed before renv can snapshot them."
+    ) else c(
+      "Use `renv::snapshot()` to update the lockfile, or",
+      "use `renv::embed(lockfile = FALSE)` to use installed package versions instead."
+    )
+
+    bulletin(
+      preamble = "The following required packages are not available:",
+      values = sort(unique(missing)),
+      postamble = postamble
+    )
+
+    renv_condition_signal("renv.embed.missing_packages", missing)
+
+  }
 
   invisible(lockfile)
 }
@@ -264,38 +318,73 @@ renv_embed_rmd <- function(path,
 
 }
 
-renv_embed_lockfile_resolve <- function(path, packages, lockfile, project) {
+renv_embed_lockfile_select <- function(lockfile, project) {
 
-  # handle lockfile argument
-  if (!identical(lockfile, FALSE)) {
+  # if lockfile is explicitly FALSE, use installed packages
+  if (identical(lockfile, FALSE))
+    return(FALSE)
 
-    # if lockfile is character, assume it's the path to a lockfile
-    if (is.character(lockfile))
-      return(renv_lockfile_read(lockfile))
+  # if lockfile is NA, use available packages from repositories
+  if (identical(lockfile, NA))
+    return(NA)
 
-    # if lockfile is not NULL, assume lockfile object
-    if (is.list(lockfile))
-      return(lockfile)
+  # if lockfile is a character path or list, use it directly
+  if (is.character(lockfile) || is.list(lockfile))
+    return(lockfile)
 
-    # check for lockfile in project
-    if (length(project)) {
-      path <- renv_lockfile_path(project)
-      if (file.exists(path))
-        return(renv_lockfile_read(path))
-    }
-
+  # lockfile is NULL; check for a project lockfile
+  if (length(project)) {
+    path <- renv_lockfile_path(project)
+    if (file.exists(path))
+      return(path)
   }
 
-  # no lockfile was provided; we need to infer package versions based
-  # on the packages that are currently installed, or what's available
-  # in the user's package repositories
-  project <- renv_project_resolve(project, default = NULL)
+  # no project lockfile; fall back to installed packages
+  FALSE
 
-  # generate lockfile
+}
+
+renv_embed_lockfile_resolve <- function(path, packages, lockfile, project) {
+
+  # if we have a lockfile path, read it
+  if (is.character(lockfile))
+    return(renv_lockfile_read(lockfile))
+
+  # if we have a lockfile object, use it as-is
+  if (is.list(lockfile))
+    return(lockfile)
+
+  # if NA, use available packages from repositories
+  if (identical(lockfile, NA))
+    return(renv_embed_lockfile_resolve_available(packages, project))
+
+  # otherwise, generate a lockfile from installed packages
+  project <- renv_project_resolve(project, default = NULL)
   snapshot(
     lockfile = NULL,
     packages = packages,
     project  = project
   )
+
+}
+
+renv_embed_lockfile_resolve_available <- function(packages, project) {
+
+  project <- renv_project_resolve(project, default = NULL)
+  lockfile <- renv_lockfile_init(project)
+
+  # look up the latest version for each package
+  ignored <- renv_packages_base()
+  packages <- setdiff(packages, ignored)
+
+  records <- map(packages, function(package) {
+    catch(renv_available_packages_latest(package))
+  })
+
+  names(records) <- packages
+  records <- filter(records, function(record) !inherits(record, "error"))
+  renv_lockfile_records(lockfile) <- records
+
+  lockfile
 
 }

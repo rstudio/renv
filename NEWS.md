@@ -1,6 +1,15 @@
 
 # renv (under development)
 
+* `renv::embed()` now warns when required packages are not found in the
+  resolved lockfile. Previously, dependencies missing from the project
+  lockfile were silently omitted from the generated `renv::use()` call.
+  (#2178)
+
+* `renv::embed()` gains support for `lockfile = NA`, which resolves
+  package versions from the active package repositories rather than
+  from installed packages or a lockfile. (#2178)
+
 * `renv::dependencies()` now detects packages referenced via
   `system.file(..., package = "pkg")` calls. (#2236)
 
