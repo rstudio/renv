@@ -210,7 +210,14 @@ renv_graph_description_repository <- function(record) {
 
   # try available packages entry (returns full fields including Imports, Depends);
   # we need these fields for dependency graph resolution
-  entry <- catch(renv_available_packages_entry(package, filter = version, prefer = record[["Repository"]]))
+  entry <- catch(
+    renv_available_packages_entry(
+      package = package,
+      filter = version,
+      prefer = record[["Repository"]]
+    )
+  )
+
   if (!inherits(entry, "error"))
     return(as.list(entry))
 
