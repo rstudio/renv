@@ -210,7 +210,7 @@ renv_graph_description_repository <- function(record) {
 
   # try available packages entry (returns full fields including Imports, Depends);
   # we need these fields for dependency graph resolution
-  entry <- catch(renv_available_packages_entry(package, filter = version))
+  entry <- catch(renv_available_packages_entry(package, filter = version, prefer = record[["Repository"]]))
   if (!inherits(entry, "error"))
     return(as.list(entry))
 
@@ -670,7 +670,18 @@ renv_graph_url_repository <- function(desc) {
   # use renv_available_packages_latest to select the best record;
   # this handles binary vs source selection (including P3M),
   # NeedsCompilation checks, and toolchain availability
-  record <- catch(renv_available_packages_latest(package))
+  #
+  # include custom repository URL (if any) so packages only
+  # available on non-standard repositories can be found
+  repository <- desc[["Repository"]]
+  repos <- if (is.character(repository) && grepl("://", repository, fixed = TRUE)) {
+    baseurl <- renv_repos_baseurl(repository)
+    current <- getOption("repos")
+    if (!any(renv_repos_matches(baseurl, current)))
+      c(baseurl, current)
+  }
+
+  record <- catch(renv_available_packages_latest(package, repos = repos))
   if (inherits(record, "error"))
     return(NULL)
 

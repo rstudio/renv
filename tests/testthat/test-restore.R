@@ -345,6 +345,43 @@ test_that("we can restore a package installed with a custom repository", {
 
 })
 
+test_that("restore uses custom repository URL from lockfile", {
+
+  project <- renv_tests_scope(isolated = TRUE)
+  init()
+
+  # install bread from a named custom repo, with no global repos set
+  url <- unname(getOption("repos"))
+  local({
+    renv_scope_options(repos = character())
+    install("bread", repos = c(TEST = url))
+  })
+
+  # snapshot with no global repos
+  writeLines("library(bread)", con = "_deps.R")
+  local({
+    renv_scope_options(repos = character())
+    snapshot()
+  })
+
+  # check lockfile: no global repos, but package record has the custom URL
+  lockfile <- renv_lockfile_read("renv.lock")
+  expect_length(lockfile$R$Repositories, 0L)
+  expect_equal(lockfile$Packages$bread$Repository, url)
+
+  # remove the package and restore with no global repos
+  suppressMessages(remove.packages("bread"))
+  expect_false(renv_package_installed("bread"))
+
+  local({
+    renv_scope_options(repos = character())
+    restore()
+  })
+
+  expect_true(renv_package_installed("bread"))
+
+})
+
 test_that("the Repository field in a lockfile can be overridden", {
 
   skip_on_cran()
