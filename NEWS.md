@@ -10,6 +10,13 @@
   Requires R >= 4.0 for full parallelism; older versions fall back to
   sequential installation.
 
+* `renv::restore()` now consults the per-package `Repository` URL recorded
+  in the lockfile when resolving and downloading packages. Previously, only
+  the global repository list was used. The new `strict` parameter controls
+  whether packages with a URL-valued `Repository` field must be retrieved
+  from that exact repository (`strict = TRUE`) or merely prefer it
+  (`strict = FALSE`, the default).
+
 * Bootstrap failures during `.Rprofile` processing now emit a warning
   instead of an error.
 

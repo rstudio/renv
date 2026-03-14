@@ -581,6 +581,10 @@ warnify <- function(cnd) {
 
 }
 
+when <- function(condition, consequence, alternative) {
+  if (condition) consequence else alternative
+}
+
 # note: also handles stringy values like 'True'
 not <- function(value) {
   if (value) FALSE else TRUE
@@ -595,3 +599,4 @@ wait <- function(predicate, ...) {
 exclude <- function(value, exclude) {
   value[match(value, exclude, 0L) == 0L]
 }
+

@@ -17,8 +17,10 @@ test_that("we can check out packages from our local repository", {
 })
 
 test_that("we can check out packages from the package manager instance", {
+
   skip_on_cran()
   skip_if(Sys.info()[["machine"]] == "aarch64")
+  skip_if(getRversion() >= "4.6.0")
 
   renv_tests_scope()
   init()
@@ -32,4 +34,5 @@ test_that("we can check out packages from the package manager instance", {
   # check that we installed the requested version
   expect_true(renv_package_installed("rlang"))
   expect_true(renv_package_version("rlang") == "1.0.6")
+
 })

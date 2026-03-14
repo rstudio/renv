@@ -209,12 +209,19 @@ renv_graph_description_repository <- function(record) {
   version <- record$Version
 
   # try available packages entry (returns full fields including Imports, Depends);
-  # we need these fields for dependency graph resolution
+  # we need these fields for dependency graph resolution;
+  # in strict mode with a URL-valued Repository, search only that repository
+  repository <- record[["Repository"]]
+  strict <- renv_restore_state(key = "strict") %||% FALSE
+  repos <- if (strict && is.character(repository) && grepl("://", repository, fixed = TRUE))
+    renv_repos_baseurl(repository)
+
   entry <- catch(
     renv_available_packages_entry(
       package = package,
-      filter = version,
-      prefer = record[["Repository"]]
+      filter  = version,
+      repos   = repos,
+      prefer  = record[["Repository"]]
     )
   )
 
@@ -679,13 +686,16 @@ renv_graph_url_repository <- function(desc) {
   # NeedsCompilation checks, and toolchain availability
   #
   # include custom repository URL (if any) so packages only
-  # available on non-standard repositories can be found
+  # available on non-standard repositories can be found;
+  # in strict mode, use only the recorded URL
   repository <- desc[["Repository"]]
+  strict <- renv_restore_state(key = "strict") %||% FALSE
   repos <- if (is.character(repository) && grepl("://", repository, fixed = TRUE)) {
     baseurl <- renv_repos_baseurl(repository)
     current <- getOption("repos")
-    if (!any(renv_repos_matches(baseurl, current)))
-      c(baseurl, current)
+    matches <- any(renv_repos_matches(baseurl, current))
+    augmented <- when(matches, current, c(baseurl, current))
+    when(strict, baseurl, augmented)
   }
 
   record <- catch(renv_available_packages_latest(package, repos = repos))

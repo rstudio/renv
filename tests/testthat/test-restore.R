@@ -382,6 +382,55 @@ test_that("restore uses custom repository URL from lockfile", {
 
 })
 
+test_that("restore(strict = TRUE) uses only the recorded repository URL", {
+
+  project <- renv_tests_scope(isolated = TRUE)
+  init()
+
+  # install bread from a named custom repo, with no global repos set
+  url <- unname(getOption("repos"))
+  local({
+    renv_scope_options(repos = character())
+    install("bread", repos = c(TEST = url))
+  })
+
+  # snapshot with no global repos
+  writeLines("library(bread)", con = "_deps.R")
+  local({
+    renv_scope_options(repos = character())
+    snapshot()
+  })
+
+  # verify lockfile has the custom URL
+  lockfile <- renv_lockfile_read("renv.lock")
+  expect_equal(lockfile$Packages$bread$Repository, url)
+
+  # remove the package
+  suppressMessages(remove.packages("bread"))
+  expect_false(renv_package_installed("bread"))
+
+  # strict restore with the correct URL should succeed
+  local({
+    renv_scope_options(repos = character())
+    restore(strict = TRUE)
+  })
+  expect_true(renv_package_installed("bread"))
+
+  # now simulate a bad repository URL in the lockfile;
+  # disable the cache so we can verify the download path fails
+  suppressMessages(remove.packages("bread"))
+  lockfile$Packages$bread$Repository <- "file:///nonexistent/repo"
+  renv_lockfile_write(lockfile, "renv.lock")
+
+  # strict restore with a bad URL should fail
+  local({
+    renv_scope_options(repos = character(), renv.config.cache.enabled = FALSE)
+    expect_error(restore(strict = TRUE))
+  })
+  expect_false(renv_package_installed("bread"))
+
+})
+
 test_that("the Repository field in a lockfile can be overridden", {
 
   skip_on_cran()

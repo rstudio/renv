@@ -14,6 +14,7 @@ restore(
   rebuild = FALSE,
   repos = NULL,
   clean = FALSE,
+  strict = FALSE,
   transactional = NULL,
   prompt = interactive()
 )
@@ -59,6 +60,13 @@ an alternate way override.}
 \item{clean}{Boolean; remove packages not recorded in the lockfile from
 the target library? Use \code{clean = TRUE} if you'd like the library state
 to exactly reflect the lockfile contents after \code{restore()}.}
+
+\item{strict}{Boolean; when \code{TRUE}, packages whose lockfile records contain
+a repository URL in the \code{Repository} field will only be retrieved from
+that exact repository. If the recorded repository is unavailable, the
+restore will fail rather than falling back to other configured
+repositories. This can be useful when you need to ensure that packages
+are installed from a specific source (e.g. an internal package repository).}
 
 \item{transactional}{Whether or not to use a 'transactional' restore.
 See \strong{Transactional Restore} for more details. When \code{NULL} (the default),
