@@ -431,6 +431,111 @@ test_that("restore(strict = TRUE) uses only the recorded repository URL", {
 
 })
 
+test_that("restore(strict = FALSE) falls back when the recorded URL is bad", {
+
+  renv_tests_scope("bread")
+  init()
+
+  # doctor the lockfile with a bogus URL-valued Repository
+  lockfile <- renv_lockfile_read("renv.lock")
+  lockfile$Packages$bread$Repository <- "file:///nonexistent/repo"
+  renv_lockfile_write(lockfile, "renv.lock")
+
+  # remove the package and restore with the real repo still available;
+  # strict = FALSE (default) should fall back and succeed
+  remove("bread")
+  expect_false(renv_package_installed("bread"))
+
+  restore()
+  expect_true(renv_package_installed("bread"))
+
+})
+
+test_that("restore(strict = TRUE) does not affect name-valued Repository fields", {
+
+  renv_tests_scope("bread")
+  init()
+
+  # bread was installed from the test repo; its lockfile record should have
+  # Repository = "CRAN" (a name, not a URL)
+  lockfile <- renv_lockfile_read("renv.lock")
+  expect_equal(lockfile$Packages$bread$Repository, "CRAN")
+
+  # remove and strict-restore; name-valued Repository should resolve
+  # through the configured repos as usual
+  remove("bread")
+  expect_false(renv_package_installed("bread"))
+
+  restore(strict = TRUE)
+  expect_true(renv_package_installed("bread"))
+
+})
+
+test_that("restore(strict = TRUE) resolves dependencies from standard repos", {
+
+  project <- renv_tests_scope(isolated = TRUE)
+  init()
+
+  # install toast (depends on bread) from a custom-named repo
+  url <- unname(getOption("repos"))
+  local({
+    renv_scope_options(repos = character())
+    install("toast", repos = c(TEST = url))
+  })
+
+  # snapshot with no global repos
+  writeLines("library(toast)", con = "_deps.R")
+  local({
+    renv_scope_options(repos = character())
+    snapshot()
+  })
+
+  # verify toast has a URL-valued Repository; bread should too
+  lockfile <- renv_lockfile_read("renv.lock")
+  expect_equal(lockfile$Packages$toast$Repository, url)
+  expect_equal(lockfile$Packages$bread$Repository, url)
+
+  # remove both packages and strict-restore;
+  # both should be retrieved from the recorded URL
+  remove(c("toast", "bread"))
+  expect_false(renv_package_installed("toast"))
+  expect_false(renv_package_installed("bread"))
+
+  local({
+    renv_scope_options(repos = character())
+    restore(strict = TRUE)
+  })
+
+  expect_true(renv_package_installed("toast"))
+  expect_true(renv_package_installed("bread"))
+
+})
+
+test_that("restore(strict = TRUE) still works when repos.override is set", {
+
+  skip_on_cran()
+  skip_on_windows()
+
+  renv_tests_scope("bread")
+  init()
+
+  # doctor the lockfile with a bogus URL-valued Repository
+  lockfile <- renv_lockfile_read("renv.lock")
+  lockfile$Packages$bread$Repository <- "file:///nonexistent/repo"
+  renv_lockfile_write(lockfile, "renv.lock")
+
+  # remove the package
+  remove("bread")
+  expect_false(renv_package_installed("bread"))
+
+  # validate current behavior: repos.override nullifies the Repository
+  # field before strict sees it, so restore succeeds
+  renv_scope_options(renv.config.repos.override = getOption("repos"))
+  restore(packages = "bread", strict = TRUE, rebuild = TRUE)
+  expect_true(renv_package_installed("bread"))
+
+})
+
 test_that("the Repository field in a lockfile can be overridden", {
 
   skip_on_cran()
