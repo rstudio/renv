@@ -83,11 +83,16 @@ COPY .Rprofile .Rprofile
 COPY renv/activate.R renv/activate.R
 COPY renv/settings.json renv/settings.json
 
+ENV RENV_CONFIG_CACHE_SYMLINKS=FALSE
 RUN --mount=type=cache,target=/root/.cache/R/renv/cache \
     R -s -e "renv::restore()"
 
 COPY . .
 ```
+
+The line `RUN --mount=type=cache,target=/root/.cache/R/renv/cache` tells BuildKit to make a persistent build cache available at renv's cache path for that one `RUN` instruction, so `renv::restore()` can reuse previously downloaded packages; see Docker's [`RUN --mount` documentation](https://docs.docker.com/reference/dockerfile/#run---mount) and [cache mount guide](https://docs.docker.com/build/cache/optimize/).
+
+Setting `RENV_CONFIG_CACHE_SYMLINKS=FALSE` is important here because the cache mount is not part of the final image. With symlinks enabled, renv could leave the project library pointing at packages in the mounted cache, and those symlinks would be broken once the build step finishes.
 
 This cache only helps on the specific machine or builder that created it. It is useful for repeated local builds, but it will not usually carry over to a different machine or a fresh CI runner.
 
@@ -109,11 +114,14 @@ COPY .Rprofile .Rprofile
 COPY renv/activate.R renv/activate.R
 COPY renv/settings.json renv/settings.json
 
+ENV RENV_CONFIG_CACHE_SYMLINKS=FALSE
 RUN --mount=type=bind,from=renv-cache,source=.,target=/root/.cache/R/renv/cache,rw \
     R -s -e "renv::restore()"
 
 COPY . .
 ```
+
+The line `RUN --mount=type=bind,from=renv-cache,source=.,target=/root/.cache/R/renv/cache,rw` tells BuildKit to mount the named build context `renv-cache` at renv's cache path for that one `RUN` instruction, with temporary write access; see Docker's [`RUN --mount` documentation](https://docs.docker.com/reference/dockerfile/#run---mount) and [named contexts documentation](https://docs.docker.com/build/building/context/#named-contexts).
 
 You can then provide that cache directory at build time with `docker buildx build`:
 
@@ -123,7 +131,7 @@ docker buildx build \
   -t <image-name> .
 ```
 
-This approach is most useful when `.cache/renv` has already been populated on the host, for example by running `renv::restore()` outside Docker. Bind mounts are read-only by default, so the example uses `rw` to avoid write failures if `renv::restore()` needs to update the cache during the build. It is often the preferred approach on ephemeral hosts such as GitHub Actions runners, because the host-side cache directory can be restored with the CI platform's native cache support before the build starts. GitHub Actions and Azure DevOps both provide native cache features that work well for this: [GitHub Actions cache](https://docs.github.com/actions/concepts/workflows-and-actions/dependency-caching) and [Azure DevOps Cache task](https://learn.microsoft.com/azure/devops/pipelines/release/caching?view=azure-devops).
+This approach is most useful when `.cache/renv` has already been populated on the host, for example by running `renv::restore()` outside Docker. Bind mounts are read-only by default, so the example uses `rw` to avoid write failures if `renv::restore()` needs to update the cache during the build. Even with `rw`, writes to the bind mount are only available for the duration of that `RUN` instruction and are discarded afterwards, so the host-provided cache context is not modified. This helps keep repeated builds reproducible, including when multiple builds run sequentially or in parallel. `RENV_CONFIG_CACHE_SYMLINKS=FALSE` is needed here for the same reason as in the cache-mount example: the mounted cache is available during the build step, but it is not carried into the final image. It is often the preferred approach on ephemeral hosts such as GitHub Actions runners, because the host-side cache directory can be restored with the CI platform's native cache support before the build starts. GitHub Actions and Azure DevOps both provide native cache features that work well for this: [GitHub Actions cache](https://docs.github.com/actions/concepts/workflows-and-actions/dependency-caching) and [Azure DevOps Cache task](https://learn.microsoft.com/azure/devops/pipelines/release/caching?view=azure-devops).
 
 If you want to use a different cache location inside the container, customize the mount target to match your configured renv cache path.
 
