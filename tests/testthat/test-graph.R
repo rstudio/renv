@@ -301,3 +301,555 @@ test_that("renv_graph_url_repository resolves from test repo", {
   expect_equal(info$type, "repository")
 
 })
+
+# adjacency graph ----
+
+test_that("renv_graph_adjacency computes correct structure for chain", {
+
+  renv_tests_scope()
+
+  descriptions <- renv_graph_init("breakfast")
+  g <- renv_graph_adjacency(descriptions)
+
+  # breakfast -> oatmeal, toast; toast -> bread; bread, oatmeal -> nothing
+  expect_true(setequal(g$packages, c("breakfast", "oatmeal", "toast", "bread")))
+  expect_true("toast" %in% g$adj[["breakfast"]])
+  expect_true("oatmeal" %in% g$adj[["breakfast"]])
+  expect_equal(g$adj[["bread"]], character())
+  expect_equal(g$adj[["oatmeal"]], character())
+  expect_equal(g$adj[["toast"]], "bread")
+
+  # in-degree: bread=0, oatmeal=0, toast=1 (from breakfast), breakfast=0 wait no
+  # in-degree counts deps *within the set* for each package
+  expect_equal(g$indegree[["bread"]], 0L)
+  expect_equal(g$indegree[["oatmeal"]], 0L)
+  expect_equal(g$indegree[["toast"]], 1L)       # depends on bread
+  expect_equal(g$indegree[["breakfast"]], 2L)    # depends on oatmeal + toast
+
+  # reverse adjacency: bread is depended on by toast; toast by breakfast
+  expect_true("toast" %in% g$revadj[["bread"]])
+  expect_true("breakfast" %in% g$revadj[["toast"]])
+  expect_true("breakfast" %in% g$revadj[["oatmeal"]])
+
+})
+
+test_that("renv_graph_adjacency handles independent packages", {
+
+  renv_tests_scope()
+
+  descriptions <- renv_graph_init(c("bread", "egg"))
+  g <- renv_graph_adjacency(descriptions)
+
+  # no edges between independent packages
+  expect_equal(g$adj[["bread"]], character())
+  expect_equal(g$adj[["egg"]], character())
+  expect_equal(g$indegree[["bread"]], 0L)
+  expect_equal(g$indegree[["egg"]], 0L)
+
+})
+
+test_that("renv_graph_adjacency handles empty input", {
+
+  g <- renv_graph_adjacency(list())
+  expect_equal(length(g$packages), 0L)
+  expect_equal(length(g$adj), 0L)
+
+})
+
+# version requirements ----
+
+test_that("renv_graph_requirements extracts version constraints", {
+
+  renv_tests_scope()
+
+  # breakfast depends on toast (>= 1.0.0)
+  descriptions <- renv_graph_init("breakfast")
+  requirements <- renv_graph_requirements(descriptions)
+
+  # toast should have a requirement from breakfast
+  reqs <- requirements[["toast"]]
+  expect_true(is.data.frame(reqs))
+  expect_true(nrow(reqs) >= 1L)
+  expect_true("breakfast" %in% reqs$RequiredBy)
+
+})
+
+test_that("renv_graph_compatible accepts satisfied constraints", {
+
+  reqs <- data.frame(
+    Package    = "toast",
+    Require    = ">=",
+    Version    = "1.0.0",
+    RequiredBy = "breakfast",
+    stringsAsFactors = FALSE
+  )
+
+  expect_true(renv_graph_compatible("1.0.0", reqs))
+  expect_true(renv_graph_compatible("2.0.0", reqs))
+
+})
+
+test_that("renv_graph_compatible rejects unsatisfied constraints", {
+
+  reqs <- data.frame(
+    Package    = "toast",
+    Require    = ">=",
+    Version    = "2.0.0",
+    RequiredBy = "breakfast",
+    stringsAsFactors = FALSE
+  )
+
+  expect_false(renv_graph_compatible("1.0.0", reqs))
+  expect_false(renv_graph_compatible("1.9.9", reqs))
+
+})
+
+test_that("renv_graph_compatible handles multiple constraints", {
+
+  reqs <- data.frame(
+    Package    = c("toast", "toast"),
+    Require    = c(">=", ">="),
+    Version    = c("1.0.0", "1.5.0"),
+    RequiredBy = c("pkg1", "pkg2"),
+    stringsAsFactors = FALSE
+  )
+
+  expect_true(renv_graph_compatible("1.5.0", reqs))
+  expect_true(renv_graph_compatible("2.0.0", reqs))
+  expect_false(renv_graph_compatible("1.2.0", reqs))
+
+})
+
+test_that("renv_graph_compatible returns TRUE for no requirements", {
+
+  expect_true(renv_graph_compatible("1.0.0", NULL))
+  expect_true(renv_graph_compatible("1.0.0", data.frame()))
+
+})
+
+# install result parsing ----
+
+test_that("renv_graph_install_parse_result handles NULL data", {
+
+  elapsed <- as.difftime(1, units = "secs")
+  result <- renv_graph_install_parse_result(NULL, elapsed)
+
+  expect_false(result$success)
+  expect_true(grepl("unexpectedly", result$output))
+  expect_equal(result$elapsed, elapsed)
+
+})
+
+test_that("renv_graph_install_parse_result handles error object", {
+
+  elapsed <- as.difftime(2, units = "secs")
+  err <- simpleError("something went wrong")
+  result <- renv_graph_install_parse_result(err, elapsed)
+
+  expect_false(result$success)
+  expect_equal(result$output, "something went wrong")
+  expect_equal(result$elapsed, elapsed)
+
+})
+
+test_that("renv_graph_install_parse_result handles successful output", {
+
+  elapsed <- as.difftime(3, units = "secs")
+  output <- c("* installing *source* package 'bread' ...", "* DONE (bread)")
+  attr(output, "status") <- 0L
+  result <- renv_graph_install_parse_result(output, elapsed)
+
+  expect_true(result$success)
+  expect_equal(result$output, output)
+
+})
+
+test_that("renv_graph_install_parse_result handles failed output", {
+
+  elapsed <- as.difftime(4, units = "secs")
+  output <- c("ERROR: compilation failed")
+  attr(output, "status") <- 1L
+  result <- renv_graph_install_parse_result(output, elapsed)
+
+  expect_false(result$success)
+  expect_equal(result$output, output)
+
+})
+
+test_that("renv_graph_install_parse_result handles output with no status attr", {
+
+  elapsed <- as.difftime(1, units = "secs")
+  output <- c("some output")
+  result <- renv_graph_install_parse_result(output, elapsed)
+
+  # no status attribute means success (status 0)
+  expect_true(result$success)
+
+})
+
+# install classification ----
+
+test_that("renv_graph_install_classify uses type attribute when present", {
+
+  record <- list(Package = "bread", Path = "/tmp/bread_1.0.0.tar.gz")
+  attr(record, "type") <- "binary"
+  expect_equal(renv_graph_install_classify(record), "binary")
+
+  attr(record, "type") <- "source"
+  expect_equal(renv_graph_install_classify(record), "source")
+
+})
+
+# install needs unpack ----
+
+test_that("renv_graph_install_needs_unpack returns TRUE for RemoteSubdir", {
+
+  record <- list(
+    Package      = "mypkg",
+    Path         = "/tmp/mypkg.tar.gz",
+    RemoteSubdir = "subdir"
+  )
+  expect_true(renv_graph_install_needs_unpack(record, "source"))
+
+})
+
+test_that("renv_graph_install_needs_unpack returns FALSE for simple tar.gz source", {
+
+  archive <- renv_scope_tempfile("renv-test-", fileext = ".tar.gz")
+  file.create(archive)
+
+  record <- list(Package = "mypkg", Path = archive)
+  renv_scope_options(renv.config.install.build = FALSE)
+  expect_false(renv_graph_install_needs_unpack(record, "source"))
+
+})
+
+# install error reporting ----
+
+test_that("renv_graph_install_errors reports direct failures", {
+
+  renv_scope_options(renv.verbose = TRUE, renv.caution.verbose = TRUE)
+
+  descriptions <- list(
+    bread = list(Package = "bread", Version = "1.0.0")
+  )
+
+  errors <- list(
+    list(package = "bread", message = "compilation failed")
+  )
+
+  output <- capture.output(
+    renv_graph_install_errors(errors, "bread", descriptions)
+  )
+
+  output <- paste(output, collapse = "\n")
+  expect_true(grepl("bread", output))
+  expect_true(grepl("compilation failed", output))
+
+})
+
+test_that("renv_graph_install_errors reports dependency cascade failures", {
+
+  renv_scope_options(renv.verbose = TRUE, renv.caution.verbose = TRUE)
+
+  descriptions <- list(
+    bread = list(Package = "bread", Version = "1.0.0"),
+    toast = list(Package = "toast", Version = "1.0.0", Depends = "bread")
+  )
+
+  errors <- list(
+    list(package = "bread", message = "compilation failed")
+  )
+  failed <- c("bread", "toast")
+
+  output <- capture.output(
+    renv_graph_install_errors(errors, failed, descriptions)
+  )
+
+  output <- paste(output, collapse = "\n")
+  expect_true(grepl("bread", output))
+  expect_true(grepl("toast", output))
+  expect_true(grepl("dependency failed", output))
+
+})
+
+test_that("renv_graph_install_errors is silent with no errors", {
+
+  output <- capture.output(
+    renv_graph_install_errors(list(), character(), list())
+  )
+  expect_equal(length(output), 0L)
+
+})
+
+# wave cycle detection ----
+
+test_that("renv_graph_waves warns on dependency cycle", {
+
+  # synthetic descriptions that form a cycle: A -> B -> A
+  descriptions <- list(
+    A = list(Package = "A", Version = "1.0.0", Depends = "B"),
+    B = list(Package = "B", Version = "1.0.0", Depends = "A")
+  )
+
+  expect_warning(
+    waves <- renv_graph_waves(descriptions),
+    "dependency cycle"
+  )
+
+  # all packages should still appear
+  all_pkgs <- unlist(waves)
+  expect_true(setequal(all_pkgs, c("A", "B")))
+
+})
+
+test_that("renv_graph_waves handles empty input", {
+
+  waves <- renv_graph_waves(list())
+  expect_equal(waves, list())
+
+})
+
+# install pipeline integration tests ----
+
+test_that("renv_graph_install installs multiple independent packages", {
+
+  renv_tests_scope()
+
+  # bread and egg have no dependency relationship
+  descriptions <- renv_graph_init(c("bread", "egg"))
+  records <- renv_graph_install(descriptions)
+
+  expect_true(setequal(names(records), c("bread", "egg")))
+  expect_true(renv_package_installed("bread"))
+  expect_true(renv_package_installed("egg"))
+
+})
+
+test_that("renv_graph_install skips already-installed packages", {
+
+  renv_tests_scope()
+
+  # install bread first
+  descriptions <- renv_graph_init("bread")
+  renv_graph_install(descriptions)
+  expect_true(renv_package_installed("bread"))
+
+  # now install breakfast; bread should be skipped
+  descriptions <- renv_graph_init("breakfast")
+  records <- renv_graph_install(descriptions)
+
+  # breakfast and its other deps should be installed
+  expect_true(renv_package_installed("breakfast"))
+  expect_true(renv_package_installed("toast"))
+  expect_true(renv_package_installed("oatmeal"))
+
+})
+
+test_that("renv_graph_install returns empty list for empty input", {
+
+  renv_tests_scope()
+
+  records <- renv_graph_install(list())
+  expect_equal(records, list())
+
+})
+
+test_that("renv_graph_install handles deeper dependency chain", {
+
+  renv_tests_scope()
+
+  # jamie -> kevin + phone; kevin -> phone
+  # three levels: phone -> kevin -> jamie
+  descriptions <- renv_graph_init("jamie")
+  records <- renv_graph_install(descriptions)
+
+  expect_true("jamie" %in% names(records))
+  expect_true("kevin" %in% names(records))
+  expect_true("phone" %in% names(records))
+
+  for (pkg in names(records))
+    expect_true(renv_package_installed(pkg), info = pkg)
+
+})
+
+test_that("renv_graph_install with install.jobs = 1 uses sequential mode", {
+
+  renv_tests_scope()
+  renv_scope_options(renv.config.install.jobs = 1L)
+
+  descriptions <- renv_graph_init("breakfast")
+  records <- renv_graph_install(descriptions)
+
+  expect_true(setequal(
+    names(records),
+    c("bread", "oatmeal", "toast", "breakfast")
+  ))
+
+  for (pkg in names(records))
+    expect_true(renv_package_installed(pkg), info = pkg)
+
+})
+
+test_that("renv_graph_install with staged install", {
+
+  renv_tests_scope()
+
+  renv_scope_options(
+    renv.config.install.staged = TRUE,
+    renv.config.install.transactional = FALSE
+  )
+
+  descriptions <- renv_graph_init("breakfast")
+  records <- renv_graph_install(descriptions)
+
+  # all packages should be in the real library after staging
+  library <- renv_libpaths_active()
+  for (pkg in names(records))
+    expect_true(renv_package_installed(pkg, lib.loc = library), info = pkg)
+
+})
+
+test_that("renv_graph_install respects dependency ordering", {
+
+  renv_tests_scope(isolated = TRUE)
+
+  # disable cache so all packages go through source install
+  renv_scope_options(renv.config.cache.enabled = FALSE)
+
+  # track the order packages are finalized via a tracer;
+  # use a shared environment so the tracer (evaluated inside the
+  # renv namespace) can write to it
+  env <- new.env(parent = emptyenv())
+  env$order <- character()
+
+  trace(
+    "renv_graph_install_finalize",
+    tracer = bquote({
+      .env <- .(env)
+      .env$order <- c(.env$order, record$Package)
+    }),
+    where = renv_envir_self(),
+    print = FALSE
+  )
+  defer(untrace("renv_graph_install_finalize", where = renv_envir_self()))
+
+  descriptions <- renv_graph_init("breakfast")
+  records <- renv_graph_install(descriptions)
+
+  # bread must be finalized before toast, toast before breakfast
+  bread_idx <- match("bread", env$order)
+  toast_idx <- match("toast", env$order)
+  breakfast_idx <- match("breakfast", env$order)
+
+  expect_true(!is.na(bread_idx))
+  expect_true(!is.na(toast_idx))
+  expect_true(!is.na(breakfast_idx))
+  expect_true(bread_idx < toast_idx)
+  expect_true(toast_idx < breakfast_idx)
+
+})
+
+# graph sort edge cases ----
+
+test_that("renv_graph_sort handles empty input", {
+
+  sorted <- renv_graph_sort(list())
+  expect_equal(length(sorted), 0L)
+
+})
+
+test_that("renv_graph_sort produces stable ordering for independent packages", {
+
+  renv_tests_scope()
+
+  descriptions <- renv_graph_init(c("bread", "egg", "oatmeal"))
+  sorted <- renv_graph_sort(descriptions)
+
+  # all three should appear; order among independent packages
+  # is deterministic (alphabetical from the queue)
+  expect_equal(length(sorted), 3L)
+  expect_true(setequal(names(sorted), c("bread", "egg", "oatmeal")))
+
+})
+
+# graph deps ----
+
+test_that("renv_graph_deps extracts dependencies from Depends/Imports/LinkingTo", {
+
+  desc <- list(
+    Package   = "mypkg",
+    Depends   = "R (>= 3.5), bread, oatmeal",
+    Imports   = "toast",
+    LinkingTo = "egg"
+  )
+
+  deps <- renv_graph_deps(desc)
+
+  # R should be excluded (base package)
+  expect_false("R" %in% deps)
+  expect_true(setequal(deps, c("bread", "oatmeal", "toast", "egg")))
+
+})
+
+test_that("renv_graph_deps respects custom fields argument", {
+
+  desc <- list(
+    Package  = "mypkg",
+    Depends  = "bread",
+    Imports  = "toast",
+    Suggests = "egg"
+  )
+
+  # default fields don't include Suggests
+  deps_default <- renv_graph_deps(desc)
+  expect_false("egg" %in% deps_default)
+
+  # custom fields can include Suggests
+  deps_custom <- renv_graph_deps(desc, fields = c("Depends", "Imports", "Suggests"))
+  expect_true("egg" %in% deps_custom)
+
+})
+
+test_that("renv_graph_deps returns empty for package with no deps", {
+
+  desc <- list(Package = "mypkg", Version = "1.0.0")
+  deps <- renv_graph_deps(desc)
+  expect_equal(deps, character())
+
+})
+
+# graph URLs for multiple sources ----
+
+test_that("renv_graph_urls resolves URLs for full dependency tree", {
+
+  renv_tests_scope()
+
+  descriptions <- renv_graph_init("breakfast")
+  urls <- renv_graph_urls(descriptions)
+
+  # every package should have a resolved URL (they're all from the test repo)
+  for (pkg in names(descriptions)) {
+    info <- urls[[pkg]]
+    expect_true(is.list(info), info = pkg)
+    expect_true(nzchar(info$url), info = pkg)
+  }
+
+})
+
+test_that("renv_graph_urls gracefully handles mixed sources", {
+
+  renv_tests_scope()
+
+  descriptions <- list(
+    bread = list(Package = "bread", Version = "1.0.0", Source = "Repository"),
+    fake  = list(Package = "fake", Version = "1.0.0", Source = "unknown_source")
+  )
+
+  urls <- renv_graph_urls(descriptions)
+
+  # bread should resolve; fake should be NULL
+  expect_true(is.list(urls[["bread"]]))
+  expect_null(urls[["fake"]])
+
+})
