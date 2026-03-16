@@ -10,6 +10,15 @@
   Requires R >= 4.0 for full parallelism; older versions fall back to
   sequential installation.
 
+* New function `renv::plan()` resolves the packages required by a project
+  and generates a lockfile, without installing any packages. This can be
+  used to preview what `renv::restore()` would install. Similarly,
+  `renv::checkout()` with `actions = "snapshot"` now writes the resolved
+  lockfile directly from repository metadata, rather than requiring
+  packages to be installed first. Both functions accept a `dependencies`
+  parameter (defaulting to `"strong"`) to control which dependency types
+  are included in the recursive dependency tree.
+
 * `renv::restore()` now consults the per-package `Repository` URL recorded
   in the lockfile when resolving and downloading packages. Previously, only
   the global repository list was used. The new `strict` parameter controls
