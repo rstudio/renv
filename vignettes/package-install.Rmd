@@ -121,8 +121,8 @@ Installation from source can be challenging for a few reasons:
     In some cases, R packages may depend on C / C++ features that aren't available in an older system toolchain, especially in some older Linux enterprise environments.
 
 2.  Your system will need requisite system libraries, as many R packages contain compiled C / C++ code that depend on and link to these packages.
-
-<!-- TODO: renv::equip() for Linux + macOS; use sysreqsdb -->
+    On Linux, `renv::sysreqs()` can help identify which system packages are required by your project.
+    See `vignette("docker")` for an example of using `renv::sysreqs()` in a Dockerfile.
 
 ### Configure flags
 
