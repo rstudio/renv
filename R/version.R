@@ -93,10 +93,10 @@ renv_version_length <- function(version) {
   length(unclass(nv)[[1L]])
 }
 
-# order by package name and version, avoiding the overhead of
-# numeric_version() by splitting version strings into an integer
-# matrix and sorting on its columns directly
-renv_version_order <- function(packages, versions, decreasing = FALSE) {
+# produce an integer ranking of version strings, suitable for use
+# with order(). avoids the overhead of numeric_version() by splitting
+# version strings into an integer matrix and ranking the result.
+renv_version_rank <- function(versions) {
 
   parts <- strsplit(versions, "[.-]", perl = TRUE)
   lens <- lengths(parts)
@@ -109,8 +109,12 @@ renv_version_order <- function(packages, versions, decreasing = FALSE) {
   mat <- matrix(0L, nrow = length(versions), ncol = maxlen)
   mat[cbind(row, col)] <- as.integer(flat)
 
+  # order then rank, so the result can be composed with other
+  # sort keys via order(packages, renv_version_rank(versions))
   cols <- lapply(seq_len(maxlen), function(i) mat[, i])
-  args <- c(list(packages), cols, list(decreasing = decreasing))
-  do.call(order, args)
+  ord <- do.call(order, cols)
+  rank <- integer(length(versions))
+  rank[ord] <- seq_along(ord)
+  rank
 
 }
