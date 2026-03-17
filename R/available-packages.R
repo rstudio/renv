@@ -896,8 +896,7 @@ renv_available_packages_flatten <- function(dbs) {
   stacked <- bind(dbs)
 
   # order by package + version
-  # TODO: 'order()' is kind of slow for numeric versions; can we do better?
-  index <- with(stacked, order(Package, numeric_version(Version), decreasing = TRUE))
+  index <- renv_version_order(stacked$Package, stacked$Version, decreasing = TRUE)
   ordered <- rows(stacked, index)
 
   # remove duplicates

@@ -92,3 +92,24 @@ renv_version_length <- function(version) {
   nv <- as.numeric_version(version)
   length(unclass(nv)[[1L]])
 }
+
+# order by package name and version, avoiding the overhead of
+# numeric_version() by splitting version strings into an integer
+# matrix and sorting on its columns directly
+renv_version_order <- function(packages, versions, decreasing = FALSE) {
+
+  parts <- strsplit(versions, "[.-]", perl = TRUE)
+  lens <- lengths(parts)
+  maxlen <- max(lens)
+
+  flat <- unlist(parts, use.names = FALSE)
+  row <- rep.int(seq_along(versions), lens)
+  col <- sequence(lens)
+
+  mat <- matrix(0L, nrow = length(versions), ncol = maxlen)
+  mat[cbind(row, col)] <- as.integer(flat)
+
+  args <- c(list(packages), as.data.frame(mat), list(decreasing = decreasing))
+  do.call(order, args)
+
+}
