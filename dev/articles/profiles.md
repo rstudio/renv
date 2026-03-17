@@ -2,9 +2,9 @@
 
 ## Introduction
 
-Starting with `renv 0.13.0`, it is possible to activate and switch
-between different profiles associated with a project. A profile can be
-thought of as a different mode in which a project is used. For example:
+It is possible to activate and switch between different profiles
+associated with a project. A profile can be thought of as a different
+mode in which a project is used. For example:
 
 - A “development” profile might be used when developing and testing a
   project,
@@ -98,3 +98,25 @@ When set, only the dependencies listed in the project `DESCRIPTION` file
 will be used when the lockfile is generated. See
 [`?renv::snapshot`](https://rstudio.github.io/renv/dev/reference/snapshot.md)
 for more details.
+
+## Profile-specific ignore rules
+
+`.renvignore` files support profile-specific sections using comments of
+the form `#| <expr>`, where `<expr>` is an R expression evaluated to
+determine whether the subsequent ignore rules should apply. This is
+useful when different profiles should scan different parts of the
+project for dependencies.
+
+For example, to ignore the `shiny/` directory unless the “shiny” profile
+is active:
+
+    # rules in this section apply to all profiles
+    data/*.csv
+
+    #| profile == "shiny"
+    # only ignore these when the shiny profile is active
+    scripts/batch-*.R
+
+The first section (before any `#|` comment) applies to all profiles. If
+you want to restrict it to only the default profile, add
+`#| profile == "default"` as the first line.

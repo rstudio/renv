@@ -241,9 +241,12 @@ aren’t available in an older system toolchain, especially in some older
 Linux enterprise environments.</p></li>
 <li><p>Your system will need requisite system libraries, as many R
 packages contain compiled C / C++ code that depend on and link to these
-packages.</p></li>
+packages. On Linux, <code><a href="../reference/sysreqs.html">renv::sysreqs()</a></code> can help identify which
+system packages are required by your project. See
+<code><a href="../articles/docker.html">vignette("docker")</a></code> for an example of using
+<code><a href="../reference/sysreqs.html">renv::sysreqs()</a></code> in a Dockerfile.</p></li>
 </ol>
-<!-- TODO: renv::equip() for Linux + macOS; use sysreqsdb --><div class="section level3">
+<div class="section level3">
 <h3 id="configure-flags">Configure flags<a class="anchor" aria-label="anchor" href="#configure-flags"></a>
 </h3>
 <p>Many <code>R</code> packages have a <code>configure</code> script

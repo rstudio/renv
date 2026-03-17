@@ -159,7 +159,14 @@ from source can be challenging for a few reasons:
 
 2.  Your system will need requisite system libraries, as many R packages
     contain compiled C / C++ code that depend on and link to these
-    packages.
+    packages. On Linux,
+    [`renv::sysreqs()`](https://rstudio.github.io/renv/dev/reference/sysreqs.md)
+    can help identify which system packages are required by your
+    project. See
+    [`vignette("docker")`](https://rstudio.github.io/renv/dev/articles/docker.md)
+    for an example of using
+    [`renv::sysreqs()`](https://rstudio.github.io/renv/dev/reference/sysreqs.md)
+    in a Dockerfile.
 
 ### Configure flags
 
