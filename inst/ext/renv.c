@@ -387,54 +387,45 @@ static SEXP recurse(SEXP object,
 // zero-padded on the right.
 static SEXP renv_version_matrix(SEXP versions)
 {
-  R_xlen_t n = Rf_xlength(versions);
+  R_xlen_t nr = Rf_xlength(versions);
 
   // first pass: count the maximum number of components
-  int nc = 0;
-  for (R_xlen_t i = 0; i < n; i++)
+  int nc = 1;
+  for (R_xlen_t i = 0; i < nr; i++)
   {
     const char* s = CHAR(STRING_ELT(versions, i));
     int count = 1;
-    while (*s)
-    {
-      if (*s < '0' || *s > '9')
-        count++;
-      s++;
-    }
-    if (count > nc)
-      nc = count;
+    for (; *s != '\0'; s++)
+      count += (*s < '0' || *s > '9');
+    nc = count > nc ? count : nc;
   }
 
-  if (nc == 0)
-    nc = 1;
-
-  SEXP mat = PROTECT(Rf_allocMatrix(INTSXP, n, nc));
+  SEXP mat = PROTECT(Rf_allocMatrix(INTSXP, nr, nc));
   int* mp = INTEGER(mat);
-  memset(mp, 0, (size_t) n * nc * sizeof(int));
+  memset(mp, 0, (size_t) nr * nc * sizeof(int));
 
   // second pass: parse components into the matrix
-  for (R_xlen_t i = 0; i < n; i++)
+  for (R_xlen_t i = 0; i < nr; i++)
   {
     const char* s = CHAR(STRING_ELT(versions, i));
-    int col = 0;
-    int val = 0;
+    int col = 0, val = 0;
 
-    for (;;)
+    for (; *s != '\0'; s++)
     {
-      char ch = *s++;
+      char ch = *s;
       if (ch >= '0' && ch <= '9')
       {
         val = val * 10 + (ch - '0');
       }
       else
       {
-        mp[i + (R_xlen_t) col * n] = val;
+        mp[i + (R_xlen_t) col * nr] = val;
         val = 0;
         col++;
-        if (ch == '\0')
-          break;
       }
     }
+
+    mp[i + (R_xlen_t) col * nr] = val;
   }
 
   UNPROTECT(1);
