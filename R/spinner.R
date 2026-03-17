@@ -35,7 +35,6 @@ spinner <- function(label, n) {
   clear <- function() {
     width <- getOption("width", 80L)
     printf("\r%s\r", strrep(" ", width))
-    flush(stdout())
   }
 
   tick <- function() {

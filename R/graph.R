@@ -1474,6 +1474,8 @@ renv_graph_install <- function(descriptions) {
             ))
             renv_graph_install_worker_cleanup(active[[pkg]])
             active[[pkg]] <- NULL
+            if (showstatus && length(active) > 0L)
+              progress$update(names(active))
           }
         }
         next
@@ -1541,6 +1543,9 @@ renv_graph_install <- function(descriptions) {
           }
         }
         # on failure: dependents keep indegree > 0, never enqueued
+
+        if (showstatus && length(active) > 0L)
+          progress$update(names(active))
 
       }
 
