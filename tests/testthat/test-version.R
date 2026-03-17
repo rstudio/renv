@@ -33,3 +33,41 @@ test_that("renv_version_parts works as expected", {
   expect_equal(renv_version_parts("1.0", 3L), c(1L, 0L, 0L))
   expect_equal(renv_version_parts("1.1-4", 3L), c(1L, 1L, 4L))
 })
+
+test_that("renv_version_order matches base R ordering", {
+
+  packages <- c("A", "A", "B", "B", "A", "C", "B", "C")
+  versions <- c("1.2", "1.2.1", "1.4-5.100", "1.4-5.99",
+                 "1.4", "2.0", "1.10.0", "1.9.0")
+
+  expected <- order(packages, numeric_version(versions), decreasing = TRUE)
+  actual <- renv_version_order(packages, versions, decreasing = TRUE)
+  expect_identical(actual, expected)
+
+  expected <- order(packages, numeric_version(versions), decreasing = FALSE)
+  actual <- renv_version_order(packages, versions, decreasing = FALSE)
+  expect_identical(actual, expected)
+
+})
+
+test_that("renv_version_order handles single-component versions", {
+
+  packages <- c("A", "A", "A")
+  versions <- c("3", "1", "2")
+
+  expected <- order(packages, numeric_version(versions), decreasing = TRUE)
+  actual <- renv_version_order(packages, versions, decreasing = TRUE)
+  expect_identical(actual, expected)
+
+})
+
+test_that("renv_version_order handles mixed-length version components", {
+
+  packages <- rep("A", 5)
+  versions <- c("1.0", "1.0.0", "1.0.0.0", "1.0.1", "0.99.9")
+
+  expected <- order(packages, numeric_version(versions), decreasing = TRUE)
+  actual <- renv_version_order(packages, versions, decreasing = TRUE)
+  expect_identical(actual, expected)
+
+})
