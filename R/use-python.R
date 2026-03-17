@@ -37,7 +37,9 @@
 #'
 #' @param python
 #'   The path to the version of Python to be used with this project. See
-#'   **Finding Python** for more details.
+#'   **Finding Python** for more details. Alternatively, set `python = FALSE`
+#'   to deactivate Python integration for the project -- this removes the
+#'   `Python` section from `renv.lock`.
 #'
 #' @param type
 #'   The type of Python environment to use. When `"auto"` (the default),
@@ -122,6 +124,9 @@
 #'
 #' # use conda python with a project
 #' renv::use_python(type = "conda")
+#'
+#' # deactivate Python integration
+#' renv::use_python(python = FALSE)
 #'
 #' }
 use_python <- function(python = NULL,
@@ -425,7 +430,24 @@ renv_python_deactivate <- function(project) {
 
   lockfile$Python <- NULL
   renv_lockfile_write(lockfile, file = file)
-  writef("- Deactived Python -- the lockfile has been updated.")
+  writef("- Deactivated Python -- the lockfile has been updated.")
+
+  # notify the user about leftover files they may want to clean up
+  candidates <- c(
+    renv_paths_renv("python", project = project),
+    file.path(project, "requirements.txt"),
+    file.path(project, "environment.yml")
+  )
+
+  leftovers <- candidates[file.exists(candidates)]
+  if (length(leftovers)) {
+    bulletin(
+      "The following file(s) may no longer be needed:",
+      paste("-", renv_path_pretty(leftovers)),
+      "If these are no longer needed, they can be safely deleted."
+    )
+  }
+
   TRUE
 
 }

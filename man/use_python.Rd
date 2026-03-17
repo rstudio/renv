@@ -14,7 +14,9 @@ use_python(
 }
 \arguments{
 \item{python}{The path to the version of Python to be used with this project. See
-\strong{Finding Python} for more details.}
+\strong{Finding Python} for more details. Alternatively, set \code{python = FALSE}
+to deactivate Python integration for the project -- this removes the
+\code{Python} section from \code{renv.lock}.}
 
 \item{...}{Optional arguments; currently unused.}
 
@@ -127,6 +129,9 @@ renv::use_python(type = "virtualenv")
 
 # use conda python with a project
 renv::use_python(type = "conda")
+
+# deactivate Python integration
+renv::use_python(python = FALSE)
 
 }
 }

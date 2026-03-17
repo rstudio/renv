@@ -37,6 +37,20 @@ use that Python interpreter with your project. This can also be used with
 pre-existing virtual environments and Conda environments.
 
 
+## Deactivating Python integration
+
+If you'd like to deactivate Python integration for a project, you can do so
+with:
+
+```{r}
+renv::use_python(python = FALSE)
+```
+
+This removes the `Python` section from `renv.lock`. Note that this does not
+remove any previously-created virtual environments or `requirements.txt` files;
+those can be deleted manually if no longer needed.
+
+
 ## Understanding Python integration
 
 Once Python integration is active, renv will attempt to manage the state of
