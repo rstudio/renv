@@ -80,7 +80,7 @@ checkout <- function(repos = NULL,
                      date         = NULL,
                      clean        = FALSE,
                      actions      = "restore",
-                     dependencies = "strong",
+                     dependencies = NULL,
                      restart      = NULL,
                      project      = NULL)
 {
@@ -98,10 +98,11 @@ checkout <- function(repos = NULL,
   # TODO: Activate Bioconductor if it appears to be used by this project
 
   # select packages to install
+  requested <- packages
   packages <- packages %||% renv_checkout_packages(project = project)
 
   # expand dependency fields
-  fields <- renv_dependencies_fields(dependencies)
+  fields <- renv_dependencies_fields(dependencies, project = project)
 
   # get available packages database
   dbs <- available_packages(type = "source")
@@ -109,6 +110,9 @@ checkout <- function(repos = NULL,
     stop("no package repositories are available")
 
   db <- renv_available_packages_flatten(dbs)
+
+  # warn about user-requested packages not available in repositories
+  renv_checkout_report(requested, db)
 
   # resolve the full recursive dependency tree
   packages <- renv_checkout_resolve(packages, db, fields, project = project)
@@ -143,11 +147,15 @@ checkout <- function(repos = NULL,
 
   })
 
-  # write the resolved lockfile directly
+  # write the lockfile if requested
   if ("snapshot" %in% actions) {
-    lockfile <- renv_lockfile_fini(lockfile, project)
-    class(lockfile) <- "renv_lockfile"
-    renv_lockfile_write(lockfile, file = paths$lockfile(project = project))
+    if ("restore" %in% actions) {
+      snapshot(project = project)
+    } else {
+      lockfile <- renv_lockfile_fini(lockfile, project)
+      class(lockfile) <- "renv_lockfile"
+      renv_lockfile_write(lockfile, file = paths$lockfile(project = project))
+    }
   }
 
   # try to restart the session if we installed some packages
@@ -165,6 +173,19 @@ renv_checkout_packages <- function(project) {
     field = "Package",
     dev = TRUE
   )
+}
+
+renv_checkout_report <- function(requested, db) {
+
+  if (is.null(requested))
+    return()
+
+  missing <- setdiff(requested, db$Package)
+  bulletin(
+    "The following package(s) are not available in the configured repositories:",
+    missing
+  )
+
 }
 
 renv_checkout_resolve <- function(packages, db, fields, project = NULL) {

@@ -7,7 +7,7 @@
 plan(
   packages = NULL,
   ...,
-  dependencies = "strong",
+  dependencies = NULL,
   lockfile = paths$lockfile(project = project),
   project = NULL
 )
@@ -20,11 +20,10 @@ included, as determined by \code{\link[=dependencies]{dependencies()}}.}
 \item{...}{Unused arguments, reserved for future expansion. If any arguments
 are matched to \code{...}, renv will signal an error.}
 
-\item{dependencies}{The dependency types to include when resolving
-the recursive dependency tree. Defaults to \code{"strong"} (i.e.
-\code{Depends}, \code{Imports}, and \code{LinkingTo}). Use \code{"most"} to also
-include \code{Suggests}, or \code{"all"} to include \code{Enhances} as well.
-A character vector of DESCRIPTION field names is also accepted.
+\item{dependencies}{A vector of DESCRIPTION field names that should be used
+for package dependency resolution. When \code{NULL} (the default), the value
+of \code{renv::settings$package.dependency.fields} is used. The aliases
+"strong", "most", and "all" are also supported.
 See \code{\link[tools:package_dependencies]{tools::package_dependencies()}} for more details.}
 
 \item{lockfile}{The path where the generated lockfile should be written.

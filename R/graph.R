@@ -11,7 +11,7 @@ renv_graph_init <- function(remotes, records = list(), project = NULL, scope = p
   # when NULL, read from project settings so that e.g. Suggests is
   # respected when configured in settings$package.dependency.fields
   fields <- the$install_dependency_fields %||% {
-    renv_description_dependency_fields(NULL, project = project)
+    renv_dependencies_fields(project = project)
   }
 
   # pre-seed with project-level Remotes; these act as fallback records

@@ -138,11 +138,6 @@ renv_description_built_version <- function(desc = NULL) {
   substring(built, 3L, regexpr(";", built, fixed = TRUE) - 1L)
 }
 
-renv_description_dependency_fields <- function(fields, project) {
-  fields <- fields %||% settings$package.dependency.fields(project = project)
-  renv_dependencies_fields(fields)
-}
-
 renv_description_remotes <- function(path) {
 
   desc <- catch(renv_description_read(path))

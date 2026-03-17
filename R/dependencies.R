@@ -2097,7 +2097,9 @@ renv_dependencies_recurse_impl <- function(object, callback) {
       renv_dependencies_recurse_impl(object[[i]], callback)
 }
 
-renv_dependencies_fields <- function(fields) {
+renv_dependencies_fields <- function(fields = NULL, project = NULL) {
+
+  fields <- fields %||% settings$package.dependency.fields(project = project)
 
   expanded <- map(fields, function(field) {
 

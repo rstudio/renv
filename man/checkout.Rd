@@ -11,7 +11,7 @@ checkout(
   date = NULL,
   clean = FALSE,
   actions = "restore",
-  dependencies = "strong",
+  dependencies = NULL,
   restart = NULL,
   project = NULL
 )

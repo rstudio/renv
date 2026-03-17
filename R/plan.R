@@ -18,13 +18,6 @@
 #'   (the default), all packages currently used in the project will be
 #'   included, as determined by [renv::dependencies()].
 #'
-#' @param dependencies The dependency types to include when resolving
-#'   the recursive dependency tree. Defaults to `"strong"` (i.e.
-#'   `Depends`, `Imports`, and `LinkingTo`). Use `"most"` to also
-#'   include `Suggests`, or `"all"` to include `Enhances` as well.
-#'   A character vector of DESCRIPTION field names is also accepted.
-#'   See [tools::package_dependencies()] for more details.
-#'
 #' @param lockfile The path where the generated lockfile should be written.
 #'   Use `NULL` to skip writing the lockfile.
 #'
@@ -43,7 +36,7 @@
 #' @export
 plan <- function(packages     = NULL,
                  ...,
-                 dependencies = "strong",
+                 dependencies = NULL,
                  lockfile     = paths$lockfile(project = project),
                  project      = NULL)
 {
@@ -55,10 +48,11 @@ plan <- function(packages     = NULL,
   renv_project_lock(project = project)
 
   # resolve the set of packages to plan for
+  requested <- packages
   packages <- packages %||% renv_plan_packages(project)
 
   # expand dependency fields
-  fields <- renv_dependencies_fields(dependencies)
+  fields <- renv_dependencies_fields(dependencies, project = project)
 
   # get available packages database
   dbs <- available_packages(type = "source")
@@ -66,6 +60,9 @@ plan <- function(packages     = NULL,
     stop("no package repositories are available")
 
   db <- renv_available_packages_flatten(dbs)
+
+  # warn about user-requested packages not available in repositories
+  renv_checkout_report(requested, db)
 
   # resolve the full recursive dependency tree
   packages <- renv_checkout_resolve(packages, db, fields, project = project)

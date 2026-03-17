@@ -96,6 +96,10 @@ renv_version_length <- function(version) {
 # parse version strings into an integer matrix with one row per
 # version. the number of columns is determined by the version with
 # the most components; shorter versions are zero-padded on the right.
+#
+# NOTE: versions must be non-NA character strings parseable by
+# numeric_version(); NA or non-numeric components are not supported.
+#
 # replaced by C implementation when ext is enabled.
 renv_version_matrix <- function(versions) {
 
