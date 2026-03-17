@@ -128,7 +128,7 @@ install <- function(packages = NULL,
   # passes a value, so that renv_dependencies_discover_description_fields()
   # can still add Suggests for the project DESCRIPTION by default
   if (!is.null(dependencies)) {
-    fields <- renv_description_dependency_fields(dependencies, project = project)
+    fields <- renv_dependencies_fields(dependencies, project = project)
     renv_scope_binding(the, "install_dependency_fields", fields)
   }
 

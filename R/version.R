@@ -92,3 +92,46 @@ renv_version_length <- function(version) {
   nv <- as.numeric_version(version)
   length(unclass(nv)[[1L]])
 }
+
+# parse version strings into an integer matrix with one row per
+# version. the number of columns is determined by the version with
+# the most components; shorter versions are zero-padded on the right.
+#
+# NOTE: versions must be non-NA character strings parseable by
+# numeric_version(); NA or non-numeric components are not supported.
+#
+# replaced by C implementation when ext is enabled.
+renv_version_matrix <- function(versions) {
+
+  parts <- strsplit(versions, "[.-]", perl = TRUE)
+  lens <- lengths(parts, use.names = FALSE)
+  maxlen <- max(lens)
+
+  flat <- unlist(parts, use.names = FALSE)
+  row <- rep.int(seq_along(versions), lens)
+  col <- sequence(lens)
+
+  n <- length(versions)
+  mat <- matrix(0L, nrow = n, ncol = maxlen)
+  mat[row + (col - 1L) * n] <- as.integer(flat)
+
+  mat
+
+}
+
+# produce an integer ranking of version strings, suitable for use
+# with order(). avoids the overhead of numeric_version() by splitting
+# version strings into an integer matrix and ranking the result.
+renv_version_rank <- function(versions) {
+
+  mat <- renv_version_matrix(versions)
+
+  # order then rank, so the result can be composed with other
+  # sort keys via order(packages, renv_version_rank(versions))
+  cols <- lapply(seq_len(ncol(mat)), function(i) mat[, i])
+  ord <- do.call(order, cols)
+  rank <- integer(length(versions))
+  rank[ord] <- seq_along(ord)
+  rank
+
+}

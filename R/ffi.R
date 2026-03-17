@@ -27,6 +27,16 @@
   
 }
 
+`__ffi__renv_version_matrix` <- function(versions) {
+
+  .Call(
+    "renv_ffi__renv_version_matrix",
+    versions,
+    PACKAGE = "renv"
+  )
+
+}
+
 `__ffi__renv_call_expect` <- function(node, package, methods) {
   
   .Call(
