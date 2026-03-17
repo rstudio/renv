@@ -509,6 +509,82 @@ renv_graph_requirements_check <- function(descriptions, requirements) {
 
 }
 
+# Tree printing ----
+
+renv_graph_print <- function(records, roots, fields) {
+
+  if (!renv_verbose())
+    return(invisible())
+
+  # keep only roots that exist in the records
+  roots <- csort(intersect(roots, names(records)))
+  if (empty(roots))
+    return(invisible())
+
+  # print a virtual root with top-level packages as children
+  writef(".")
+  renv_graph_print_impl(roots, records, fields, prefix = "")
+
+  invisible()
+
+}
+
+renv_graph_print_impl <- function(children, records, fields, prefix) {
+
+  n <- length(children)
+  for (i in seq_len(n)) {
+
+    child <- children[[i]]
+    record <- records[[child]]
+    label <- renv_record_format_short(record)
+    last <- i == n
+
+    connector <- if (last) "\u2514\u2500 " else "\u251c\u2500 "
+    writef("%s%s%s %s", prefix, connector, child, label)
+
+    extension <- if (last) "   " else "\u2502  "
+    subdeps <- renv_graph_print_children(record, records, fields)
+    renv_graph_print_impl(subdeps, records, fields, paste0(prefix, extension))
+
+  }
+
+}
+
+renv_graph_print_children <- function(record, records, fields) {
+
+  deps <- character()
+  for (field in fields) {
+    value <- record[[field]]
+    if (is.null(value))
+      next
+    # extract package names, stripping version constraints
+    pkgs <- sub("\\s*\\(.*", "", unlist(value))
+    deps <- c(deps, pkgs)
+  }
+
+  # keep only packages present in the lockfile, sorted
+  csort(intersect(unique(deps), names(records)))
+
+}
+
+# compute the root packages in a set of records: packages that are
+# not dependencies of any other package in the set
+renv_graph_roots <- function(records, fields) {
+
+  deps <- character()
+  for (record in records)
+    deps <- c(deps, renv_graph_print_children(record, records, fields))
+
+  roots <- setdiff(names(records), unique(deps))
+
+  # if every package is a dep of something else (unlikely), fall back to all
+  if (empty(roots))
+    roots <- names(records)
+
+  csort(roots)
+
+}
+
 renv_graph_needs_update <- function(pkg, record, requirements) {
 
   # check whether the resolved version differs from installed

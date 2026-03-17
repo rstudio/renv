@@ -77,7 +77,7 @@ plan <- function(packages     = NULL,
   class(new) <- "renv_lockfile"
 
   # compare against existing lockfile if one exists
-  renv_plan_report(new, project)
+  renv_plan_report(new, fields)
 
   # write the lockfile
   if (!is.null(lockfile)) {
@@ -97,43 +97,16 @@ renv_plan_packages <- function(project) {
   )
 }
 
-renv_plan_report <- function(new, project) {
+renv_plan_report <- function(new, fields) {
 
-  # read the existing lockfile, if any
-  lockpath <- paths$lockfile(project = project)
-  old <- if (file.exists(lockpath))
-    catch(renv_lockfile_read(lockpath))
-
-  if (inherits(old, "error"))
-    old <- NULL
-
-  # compute the diff
-  if (is.null(old)) {
-    records <- renv_lockfile_records(new)
-    if (length(records)) {
-      renv_pretty_print_records(
-        "The following package(s) will be installed:",
-        records
-      )
-    } else {
-      writef("- No packages found for this project.")
-    }
+  records <- renv_lockfile_records(new)
+  if (empty(records)) {
+    writef("- No packages found for this project.")
     return(invisible())
   }
 
-  actions <- renv_lockfile_diff_packages(old, new)
-  if (empty(actions)) {
-    writef("- The lockfile is already up to date.")
-    renv_condition_signal("renv.plan.up_to_date")
-    return(invisible())
-  }
-
-  lhs <- renv_lockfile_records(old)
-  rhs <- renv_lockfile_records(new)
-  renv_pretty_print_records_pair(
-    "The following package(s) will be updated in the lockfile:",
-    lhs[names(lhs) %in% names(actions)],
-    rhs[names(rhs) %in% names(actions)]
-  )
+  writef("The following dependency tree will be encoded in the lockfile:\n")
+  roots <- renv_graph_roots(records, fields)
+  renv_graph_print(records, roots, fields)
 
 }

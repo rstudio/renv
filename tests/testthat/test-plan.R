@@ -41,18 +41,12 @@ test_that("plan() with explicit packages resolves dependencies", {
 
 })
 
-test_that("plan() reports up-to-date when lockfile matches", {
+test_that("plan() prints a dependency tree", {
 
   project <- renv_tests_scope()
   init()
 
   renv_tests_dependencies("breakfast")
-
-  # run plan twice -- second time should signal up-to-date condition
-  plan(project = project)
-  expect_condition(
-    plan(project = project),
-    class = "renv.plan.up_to_date"
-  )
+  expect_snapshot(plan(project = project))
 
 })
