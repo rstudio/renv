@@ -36,23 +36,26 @@ and `renv/settings.json`.
 
 ## Containerizing an existing renv project
 
-For an existing renv project, a good default is to copy the renv
-metadata first, restore packages, and only then copy the rest of the
-repository:
+A good default is to copy the renv metadata first, restore packages, and
+only then copy the rest of the repository:
 
 ``` dockerfile
 FROM <parent-image>
 
+# intialize application project directory
 WORKDIR /project
 RUN mkdir -p renv
 
+# copy renv infrastructure
 COPY renv.lock renv.lock
 COPY .Rprofile .Rprofile
 COPY renv/activate.R renv/activate.R
 COPY renv/settings.json renv/settings.json
 
+# restore R project library
 RUN R -s -e "renv::restore()"
 
+# copy application files into image
 COPY . .
 ```
 
@@ -66,7 +69,7 @@ before calling
 [`renv::restore()`](https://rstudio.github.io/renv/dev/reference/restore.md):
 
 ``` dockerfile
-ENV RENV_PATHS_LIBRARY=/project/renv/library
+ENV RENV_PATHS_LIBRARY=/renv/library
 RUN R -s -e "renv::restore()"
 ```
 
@@ -97,24 +100,34 @@ needs to be rebuilt.
 # syntax=docker/dockerfile:1
 FROM <parent-image>
 
+# intialize application project directory
 WORKDIR /project
 RUN mkdir -p renv
 
+# copy renv infrastructure
 COPY renv.lock renv.lock
 COPY .Rprofile .Rprofile
 COPY renv/activate.R renv/activate.R
 COPY renv/settings.json renv/settings.json
 
+# set path to the renv package cache
+ENV RENV_PATHS_CACHE=/renv/cache
+
+# ensure packages are copied, not symlinked
 ENV RENV_CONFIG_CACHE_SYMLINKS=FALSE
-RUN --mount=type=cache,target=/root/.cache/R/renv/cache \
+
+# restore with mounted cache
+RUN --mount=type=cache,target=/renv/cache \
     R -s -e "renv::restore()"
 
+# copy application files into the image
 COPY . .
 ```
 
-The line `RUN --mount=type=cache,target=/root/.cache/R/renv/cache` tells
-BuildKit to make a persistent build cache available at renv’s cache path
-for that one `RUN` instruction, so
+The `RENV_PATHS_CACHE` environment variable tells renv where to find its
+package cache. The `RUN --mount=type=cache` line tells BuildKit to make
+a persistent build cache available at that path for the duration of the
+`RUN` instruction, so
 [`renv::restore()`](https://rstudio.github.io/renv/dev/reference/restore.md)
 can reuse previously downloaded packages; see Docker’s [`RUN --mount`
 documentation](https://docs.docker.com/reference/dockerfile/#run---mount)
@@ -137,33 +150,39 @@ bind-mount that cache into the build and let
 reuse it. This is especially useful when the host cache is managed
 outside Docker.
 
-The Dockerfile can mount a host-provided cache context into the default
-renv cache path for a root-based Linux container:
+The Dockerfile can mount a host-provided cache context into the renv
+cache path:
 
 ``` dockerfile
 # syntax=docker/dockerfile:1
 FROM <parent-image>
 
+# intialize application project directory
 WORKDIR /project
 RUN mkdir -p renv
 
+# copy renv infrastructure
 COPY renv.lock renv.lock
 COPY .Rprofile .Rprofile
 COPY renv/activate.R renv/activate.R
 COPY renv/settings.json renv/settings.json
 
+# set path to the renv package cache
+ENV RENV_PATHS_CACHE=/renv/cache
+
+# ensure packages are copied, not symlinked
 ENV RENV_CONFIG_CACHE_SYMLINKS=FALSE
-RUN --mount=type=bind,from=renv-cache,source=.,target=/root/.cache/R/renv/cache,rw \
+
+# restore with mounted cache
+RUN --mount=type=bind,from=renv-cache,source=.,target=/renv/cache,rw \
     R -s -e "renv::restore()"
 
 COPY . .
 ```
 
-The line
-`RUN --mount=type=bind,from=renv-cache,source=.,target=/root/.cache/R/renv/cache,rw`
-tells BuildKit to mount the named build context `renv-cache` at renv’s
-cache path for that one `RUN` instruction, with temporary write access;
-see Docker’s [`RUN --mount`
+The `RUN --mount=type=bind` line tells BuildKit to mount the named build
+context `renv-cache` at the renv cache path for that one `RUN`
+instruction, with temporary write access; see Docker’s [`RUN --mount`
 documentation](https://docs.docker.com/reference/dockerfile/#run---mount)
 and [named contexts
 documentation](https://docs.docker.com/build/building/context/#named-contexts).
@@ -180,28 +199,29 @@ docker buildx build \
 This approach is most useful when `.cache/renv` has already been
 populated on the host, for example by running
 [`renv::restore()`](https://rstudio.github.io/renv/dev/reference/restore.md)
-outside Docker. Bind mounts are read-only by default, so the example
-uses `rw` to avoid write failures if
+outside Docker.
+
+Bind mounts are read-only by default, so the example uses `rw` to avoid
+write failures if
 [`renv::restore()`](https://rstudio.github.io/renv/dev/reference/restore.md)
 needs to update the cache during the build. Even with `rw`, writes to
 the bind mount are only available for the duration of that `RUN`
 instruction and are discarded afterwards, so the host-provided cache
 context is not modified. This helps keep repeated builds reproducible,
 including when multiple builds run sequentially or in parallel.
+
 `RENV_CONFIG_CACHE_SYMLINKS=FALSE` is needed here for the same reason as
 in the cache-mount example: the mounted cache is available during the
-build step, but it is not carried into the final image. It is often the
-preferred approach on ephemeral hosts such as GitHub Actions runners,
-because the host-side cache directory can be restored with the CI
-platform’s native cache support before the build starts. GitHub Actions
-and Azure DevOps both provide native cache features that work well for
-this: [GitHub Actions
+build step, but it is not carried into the final image.
+
+This is often the preferred approach on ephemeral hosts such as GitHub
+Actions runners, because the host-side cache directory can be restored
+with the CI platform’s native cache support before the build starts.
+GitHub Actions and Azure DevOps both provide native cache features that
+work well for this: [GitHub Actions
 cache](https://docs.github.com/actions/concepts/workflows-and-actions/dependency-caching)
 and [Azure DevOps Cache
 task](https://learn.microsoft.com/azure/devops/pipelines/release/caching?view=azure-devops).
-
-If you want to use a different cache location inside the container,
-customize the mount target to match your configured renv cache path.
 
 ## Handling the renv autoloader
 

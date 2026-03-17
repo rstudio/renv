@@ -122,22 +122,25 @@ your project already contains <code>renv.lock</code>,
 <div class="section level2">
 <h2 id="containerizing-an-existing-renv-project">Containerizing an existing renv project<a class="anchor" aria-label="anchor" href="#containerizing-an-existing-renv-project"></a>
 </h2>
-<p>For an existing renv project, a good default is to copy the renv
-metadata first, restore packages, and only then copy the rest of the
-repository:</p>
+<p>A good default is to copy the renv metadata first, restore packages,
+and only then copy the rest of the repository:</p>
 <div class="sourceCode" id="cb1"><pre class="sourceCode dockerfile"><code class="sourceCode dockerfile"><span id="cb1-1"><a href="#cb1-1" tabindex="-1"></a><span class="kw">FROM</span> &lt;parent-image&gt;</span>
 <span id="cb1-2"><a href="#cb1-2" tabindex="-1"></a></span>
-<span id="cb1-3"><a href="#cb1-3" tabindex="-1"></a><span class="kw">WORKDIR</span> /project</span>
-<span id="cb1-4"><a href="#cb1-4" tabindex="-1"></a><span class="kw">RUN</span> <span class="fu">mkdir</span> <span class="at">-p</span> renv</span>
-<span id="cb1-5"><a href="#cb1-5" tabindex="-1"></a></span>
-<span id="cb1-6"><a href="#cb1-6" tabindex="-1"></a><span class="kw">COPY</span> renv.lock renv.lock</span>
-<span id="cb1-7"><a href="#cb1-7" tabindex="-1"></a><span class="kw">COPY</span> .Rprofile .Rprofile</span>
-<span id="cb1-8"><a href="#cb1-8" tabindex="-1"></a><span class="kw">COPY</span> renv/activate.R renv/activate.R</span>
-<span id="cb1-9"><a href="#cb1-9" tabindex="-1"></a><span class="kw">COPY</span> renv/settings.json renv/settings.json</span>
-<span id="cb1-10"><a href="#cb1-10" tabindex="-1"></a></span>
-<span id="cb1-11"><a href="#cb1-11" tabindex="-1"></a><span class="kw">RUN</span> <span class="ex">R</span> <span class="at">-s</span> <span class="at">-e</span> <span class="st">"renv::restore()"</span></span>
+<span id="cb1-3"><a href="#cb1-3" tabindex="-1"></a><span class="co"># intialize application project directory</span></span>
+<span id="cb1-4"><a href="#cb1-4" tabindex="-1"></a><span class="kw">WORKDIR</span> /project</span>
+<span id="cb1-5"><a href="#cb1-5" tabindex="-1"></a><span class="kw">RUN</span> <span class="fu">mkdir</span> <span class="at">-p</span> renv</span>
+<span id="cb1-6"><a href="#cb1-6" tabindex="-1"></a></span>
+<span id="cb1-7"><a href="#cb1-7" tabindex="-1"></a><span class="co"># copy renv infrastructure</span></span>
+<span id="cb1-8"><a href="#cb1-8" tabindex="-1"></a><span class="kw">COPY</span> renv.lock renv.lock</span>
+<span id="cb1-9"><a href="#cb1-9" tabindex="-1"></a><span class="kw">COPY</span> .Rprofile .Rprofile</span>
+<span id="cb1-10"><a href="#cb1-10" tabindex="-1"></a><span class="kw">COPY</span> renv/activate.R renv/activate.R</span>
+<span id="cb1-11"><a href="#cb1-11" tabindex="-1"></a><span class="kw">COPY</span> renv/settings.json renv/settings.json</span>
 <span id="cb1-12"><a href="#cb1-12" tabindex="-1"></a></span>
-<span id="cb1-13"><a href="#cb1-13" tabindex="-1"></a><span class="kw">COPY</span> . .</span></code></pre></div>
+<span id="cb1-13"><a href="#cb1-13" tabindex="-1"></a><span class="co"># restore R project library</span></span>
+<span id="cb1-14"><a href="#cb1-14" tabindex="-1"></a><span class="kw">RUN</span> <span class="ex">R</span> <span class="at">-s</span> <span class="at">-e</span> <span class="st">"renv::restore()"</span></span>
+<span id="cb1-15"><a href="#cb1-15" tabindex="-1"></a></span>
+<span id="cb1-16"><a href="#cb1-16" tabindex="-1"></a><span class="co"># copy application files into image</span></span>
+<span id="cb1-17"><a href="#cb1-17" tabindex="-1"></a><span class="kw">COPY</span> . .</span></code></pre></div>
 <p>This is a good starting point for most projects. The image restore
 step uses the same project metadata that you already commit to version
 control, so the container can recreate the project library before the
@@ -145,7 +148,7 @@ rest of the source tree is copied.</p>
 <p>If you need to customize the library path, set
 <code>RENV_PATHS_LIBRARY</code> before calling
 <code><a href="../reference/restore.html">renv::restore()</a></code>:</p>
-<div class="sourceCode" id="cb2"><pre class="sourceCode dockerfile"><code class="sourceCode dockerfile"><span id="cb2-1"><a href="#cb2-1" tabindex="-1"></a><span class="kw">ENV</span> RENV_PATHS_LIBRARY=/project/renv/library</span>
+<div class="sourceCode" id="cb2"><pre class="sourceCode dockerfile"><code class="sourceCode dockerfile"><span id="cb2-1"><a href="#cb2-1" tabindex="-1"></a><span class="kw">ENV</span> RENV_PATHS_LIBRARY=/renv/library</span>
 <span id="cb2-2"><a href="#cb2-2" tabindex="-1"></a><span class="kw">RUN</span> <span class="ex">R</span> <span class="at">-s</span> <span class="at">-e</span> <span class="st">"renv::restore()"</span></span></code></pre></div>
 </div>
 <div class="section level2">
@@ -173,23 +176,32 @@ rebuilt.</p>
 <div class="sourceCode" id="cb3"><pre class="sourceCode dockerfile"><code class="sourceCode dockerfile"><span id="cb3-1"><a href="#cb3-1" tabindex="-1"></a><span class="co"># </span><span class="cv">syntax=docker/dockerfile:1</span></span>
 <span id="cb3-2"><a href="#cb3-2" tabindex="-1"></a><span class="kw">FROM</span> &lt;parent-image&gt;</span>
 <span id="cb3-3"><a href="#cb3-3" tabindex="-1"></a></span>
-<span id="cb3-4"><a href="#cb3-4" tabindex="-1"></a><span class="kw">WORKDIR</span> /project</span>
-<span id="cb3-5"><a href="#cb3-5" tabindex="-1"></a><span class="kw">RUN</span> <span class="fu">mkdir</span> <span class="at">-p</span> renv</span>
-<span id="cb3-6"><a href="#cb3-6" tabindex="-1"></a></span>
-<span id="cb3-7"><a href="#cb3-7" tabindex="-1"></a><span class="kw">COPY</span> renv.lock renv.lock</span>
-<span id="cb3-8"><a href="#cb3-8" tabindex="-1"></a><span class="kw">COPY</span> .Rprofile .Rprofile</span>
-<span id="cb3-9"><a href="#cb3-9" tabindex="-1"></a><span class="kw">COPY</span> renv/activate.R renv/activate.R</span>
-<span id="cb3-10"><a href="#cb3-10" tabindex="-1"></a><span class="kw">COPY</span> renv/settings.json renv/settings.json</span>
-<span id="cb3-11"><a href="#cb3-11" tabindex="-1"></a></span>
-<span id="cb3-12"><a href="#cb3-12" tabindex="-1"></a><span class="kw">ENV</span> RENV_CONFIG_CACHE_SYMLINKS=FALSE</span>
-<span id="cb3-13"><a href="#cb3-13" tabindex="-1"></a><span class="kw">RUN</span> <span class="op">--mount=type=cache,target=/root/.cache/R/renv/cache</span> <span class="op">\</span></span>
-<span id="cb3-14"><a href="#cb3-14" tabindex="-1"></a>    <span class="ex">R</span> <span class="at">-s</span> <span class="at">-e</span> <span class="st">"renv::restore()"</span></span>
-<span id="cb3-15"><a href="#cb3-15" tabindex="-1"></a></span>
-<span id="cb3-16"><a href="#cb3-16" tabindex="-1"></a><span class="kw">COPY</span> . .</span></code></pre></div>
-<p>The line
-<code>RUN --mount=type=cache,target=/root/.cache/R/renv/cache</code>
-tells BuildKit to make a persistent build cache available at renv’s
-cache path for that one <code>RUN</code> instruction, so
+<span id="cb3-4"><a href="#cb3-4" tabindex="-1"></a><span class="co"># intialize application project directory</span></span>
+<span id="cb3-5"><a href="#cb3-5" tabindex="-1"></a><span class="kw">WORKDIR</span> /project</span>
+<span id="cb3-6"><a href="#cb3-6" tabindex="-1"></a><span class="kw">RUN</span> <span class="fu">mkdir</span> <span class="at">-p</span> renv</span>
+<span id="cb3-7"><a href="#cb3-7" tabindex="-1"></a></span>
+<span id="cb3-8"><a href="#cb3-8" tabindex="-1"></a><span class="co"># copy renv infrastructure</span></span>
+<span id="cb3-9"><a href="#cb3-9" tabindex="-1"></a><span class="kw">COPY</span> renv.lock renv.lock</span>
+<span id="cb3-10"><a href="#cb3-10" tabindex="-1"></a><span class="kw">COPY</span> .Rprofile .Rprofile</span>
+<span id="cb3-11"><a href="#cb3-11" tabindex="-1"></a><span class="kw">COPY</span> renv/activate.R renv/activate.R</span>
+<span id="cb3-12"><a href="#cb3-12" tabindex="-1"></a><span class="kw">COPY</span> renv/settings.json renv/settings.json</span>
+<span id="cb3-13"><a href="#cb3-13" tabindex="-1"></a></span>
+<span id="cb3-14"><a href="#cb3-14" tabindex="-1"></a><span class="co"># set path to the renv package cache</span></span>
+<span id="cb3-15"><a href="#cb3-15" tabindex="-1"></a><span class="kw">ENV</span> RENV_PATHS_CACHE=/renv/cache</span>
+<span id="cb3-16"><a href="#cb3-16" tabindex="-1"></a></span>
+<span id="cb3-17"><a href="#cb3-17" tabindex="-1"></a><span class="co"># ensure packages are copied, not symlinked</span></span>
+<span id="cb3-18"><a href="#cb3-18" tabindex="-1"></a><span class="kw">ENV</span> RENV_CONFIG_CACHE_SYMLINKS=FALSE</span>
+<span id="cb3-19"><a href="#cb3-19" tabindex="-1"></a></span>
+<span id="cb3-20"><a href="#cb3-20" tabindex="-1"></a><span class="co"># restore with mounted cache</span></span>
+<span id="cb3-21"><a href="#cb3-21" tabindex="-1"></a><span class="kw">RUN</span> <span class="op">--mount=type=cache,target=/renv/cache</span> <span class="op">\</span></span>
+<span id="cb3-22"><a href="#cb3-22" tabindex="-1"></a>    <span class="ex">R</span> <span class="at">-s</span> <span class="at">-e</span> <span class="st">"renv::restore()"</span></span>
+<span id="cb3-23"><a href="#cb3-23" tabindex="-1"></a></span>
+<span id="cb3-24"><a href="#cb3-24" tabindex="-1"></a><span class="co"># copy application files into the image</span></span>
+<span id="cb3-25"><a href="#cb3-25" tabindex="-1"></a><span class="kw">COPY</span> . .</span></code></pre></div>
+<p>The <code>RENV_PATHS_CACHE</code> environment variable tells renv
+where to find its package cache. The <code>RUN --mount=type=cache</code>
+line tells BuildKit to make a persistent build cache available at that
+path for the duration of the <code>RUN</code> instruction, so
 <code><a href="../reference/restore.html">renv::restore()</a></code> can reuse previously downloaded packages;
 see Docker’s <a href="https://docs.docker.com/reference/dockerfile/#run---mount" class="external-link"><code>RUN --mount</code>
 documentation</a> and <a href="https://docs.docker.com/build/cache/optimize/" class="external-link">cache mount
@@ -210,29 +222,36 @@ carry over to a different machine or a fresh CI runner.</p>
 bind-mount that cache into the build and let
 <code><a href="../reference/restore.html">renv::restore()</a></code> reuse it. This is especially useful when
 the host cache is managed outside Docker.</p>
-<p>The Dockerfile can mount a host-provided cache context into the
-default renv cache path for a root-based Linux container:</p>
+<p>The Dockerfile can mount a host-provided cache context into the renv
+cache path:</p>
 <div class="sourceCode" id="cb4"><pre class="sourceCode dockerfile"><code class="sourceCode dockerfile"><span id="cb4-1"><a href="#cb4-1" tabindex="-1"></a><span class="co"># </span><span class="cv">syntax=docker/dockerfile:1</span></span>
 <span id="cb4-2"><a href="#cb4-2" tabindex="-1"></a><span class="kw">FROM</span> &lt;parent-image&gt;</span>
 <span id="cb4-3"><a href="#cb4-3" tabindex="-1"></a></span>
-<span id="cb4-4"><a href="#cb4-4" tabindex="-1"></a><span class="kw">WORKDIR</span> /project</span>
-<span id="cb4-5"><a href="#cb4-5" tabindex="-1"></a><span class="kw">RUN</span> <span class="fu">mkdir</span> <span class="at">-p</span> renv</span>
-<span id="cb4-6"><a href="#cb4-6" tabindex="-1"></a></span>
-<span id="cb4-7"><a href="#cb4-7" tabindex="-1"></a><span class="kw">COPY</span> renv.lock renv.lock</span>
-<span id="cb4-8"><a href="#cb4-8" tabindex="-1"></a><span class="kw">COPY</span> .Rprofile .Rprofile</span>
-<span id="cb4-9"><a href="#cb4-9" tabindex="-1"></a><span class="kw">COPY</span> renv/activate.R renv/activate.R</span>
-<span id="cb4-10"><a href="#cb4-10" tabindex="-1"></a><span class="kw">COPY</span> renv/settings.json renv/settings.json</span>
-<span id="cb4-11"><a href="#cb4-11" tabindex="-1"></a></span>
-<span id="cb4-12"><a href="#cb4-12" tabindex="-1"></a><span class="kw">ENV</span> RENV_CONFIG_CACHE_SYMLINKS=FALSE</span>
-<span id="cb4-13"><a href="#cb4-13" tabindex="-1"></a><span class="kw">RUN</span> <span class="op">--mount=type=bind,from=renv-cache,source=.,target=/root/.cache/R/renv/cache,rw</span> <span class="op">\</span></span>
-<span id="cb4-14"><a href="#cb4-14" tabindex="-1"></a>    <span class="ex">R</span> <span class="at">-s</span> <span class="at">-e</span> <span class="st">"renv::restore()"</span></span>
-<span id="cb4-15"><a href="#cb4-15" tabindex="-1"></a></span>
-<span id="cb4-16"><a href="#cb4-16" tabindex="-1"></a><span class="kw">COPY</span> . .</span></code></pre></div>
-<p>The line
-<code>RUN --mount=type=bind,from=renv-cache,source=.,target=/root/.cache/R/renv/cache,rw</code>
-tells BuildKit to mount the named build context <code>renv-cache</code>
-at renv’s cache path for that one <code>RUN</code> instruction, with
-temporary write access; see Docker’s <a href="https://docs.docker.com/reference/dockerfile/#run---mount" class="external-link"><code>RUN --mount</code>
+<span id="cb4-4"><a href="#cb4-4" tabindex="-1"></a><span class="co"># intialize application project directory</span></span>
+<span id="cb4-5"><a href="#cb4-5" tabindex="-1"></a><span class="kw">WORKDIR</span> /project</span>
+<span id="cb4-6"><a href="#cb4-6" tabindex="-1"></a><span class="kw">RUN</span> <span class="fu">mkdir</span> <span class="at">-p</span> renv</span>
+<span id="cb4-7"><a href="#cb4-7" tabindex="-1"></a></span>
+<span id="cb4-8"><a href="#cb4-8" tabindex="-1"></a><span class="co"># copy renv infrastructure</span></span>
+<span id="cb4-9"><a href="#cb4-9" tabindex="-1"></a><span class="kw">COPY</span> renv.lock renv.lock</span>
+<span id="cb4-10"><a href="#cb4-10" tabindex="-1"></a><span class="kw">COPY</span> .Rprofile .Rprofile</span>
+<span id="cb4-11"><a href="#cb4-11" tabindex="-1"></a><span class="kw">COPY</span> renv/activate.R renv/activate.R</span>
+<span id="cb4-12"><a href="#cb4-12" tabindex="-1"></a><span class="kw">COPY</span> renv/settings.json renv/settings.json</span>
+<span id="cb4-13"><a href="#cb4-13" tabindex="-1"></a></span>
+<span id="cb4-14"><a href="#cb4-14" tabindex="-1"></a><span class="co"># set path to the renv package cache</span></span>
+<span id="cb4-15"><a href="#cb4-15" tabindex="-1"></a><span class="kw">ENV</span> RENV_PATHS_CACHE=/renv/cache</span>
+<span id="cb4-16"><a href="#cb4-16" tabindex="-1"></a></span>
+<span id="cb4-17"><a href="#cb4-17" tabindex="-1"></a><span class="co"># ensure packages are copied, not symlinked</span></span>
+<span id="cb4-18"><a href="#cb4-18" tabindex="-1"></a><span class="kw">ENV</span> RENV_CONFIG_CACHE_SYMLINKS=FALSE</span>
+<span id="cb4-19"><a href="#cb4-19" tabindex="-1"></a></span>
+<span id="cb4-20"><a href="#cb4-20" tabindex="-1"></a><span class="co"># restore with mounted cache</span></span>
+<span id="cb4-21"><a href="#cb4-21" tabindex="-1"></a><span class="kw">RUN</span> <span class="op">--mount=type=bind,from=renv-cache,source=.,target=/renv/cache,rw</span> <span class="op">\</span></span>
+<span id="cb4-22"><a href="#cb4-22" tabindex="-1"></a>    <span class="ex">R</span> <span class="at">-s</span> <span class="at">-e</span> <span class="st">"renv::restore()"</span></span>
+<span id="cb4-23"><a href="#cb4-23" tabindex="-1"></a></span>
+<span id="cb4-24"><a href="#cb4-24" tabindex="-1"></a><span class="kw">COPY</span> . .</span></code></pre></div>
+<p>The <code>RUN --mount=type=bind</code> line tells BuildKit to mount
+the named build context <code>renv-cache</code> at the renv cache path
+for that one <code>RUN</code> instruction, with temporary write access;
+see Docker’s <a href="https://docs.docker.com/reference/dockerfile/#run---mount" class="external-link"><code>RUN --mount</code>
 documentation</a> and <a href="https://docs.docker.com/build/building/context/#named-contexts" class="external-link">named
 contexts documentation</a>.</p>
 <p>You can then provide that cache directory at build time with
@@ -242,26 +261,26 @@ contexts documentation</a>.</p>
 <span id="cb5-3"><a href="#cb5-3" tabindex="-1"></a>  <span class="at">-t</span> <span class="op">&lt;</span>image-name<span class="op">&gt;</span> .</span></code></pre></div>
 <p>This approach is most useful when <code>.cache/renv</code> has
 already been populated on the host, for example by running
-<code><a href="../reference/restore.html">renv::restore()</a></code> outside Docker. Bind mounts are read-only
-by default, so the example uses <code>rw</code> to avoid write failures
-if <code><a href="../reference/restore.html">renv::restore()</a></code> needs to update the cache during the
-build. Even with <code>rw</code>, writes to the bind mount are only
-available for the duration of that <code>RUN</code> instruction and are
-discarded afterwards, so the host-provided cache context is not
-modified. This helps keep repeated builds reproducible, including when
-multiple builds run sequentially or in parallel.
-<code>RENV_CONFIG_CACHE_SYMLINKS=FALSE</code> is needed here for the
+<code><a href="../reference/restore.html">renv::restore()</a></code> outside Docker.</p>
+<p>Bind mounts are read-only by default, so the example uses
+<code>rw</code> to avoid write failures if <code><a href="../reference/restore.html">renv::restore()</a></code>
+needs to update the cache during the build. Even with <code>rw</code>,
+writes to the bind mount are only available for the duration of that
+<code>RUN</code> instruction and are discarded afterwards, so the
+host-provided cache context is not modified. This helps keep repeated
+builds reproducible, including when multiple builds run sequentially or
+in parallel.</p>
+<p><code>RENV_CONFIG_CACHE_SYMLINKS=FALSE</code> is needed here for the
 same reason as in the cache-mount example: the mounted cache is
 available during the build step, but it is not carried into the final
-image. It is often the preferred approach on ephemeral hosts such as
+image.</p>
+<p>This is often the preferred approach on ephemeral hosts such as
 GitHub Actions runners, because the host-side cache directory can be
 restored with the CI platform’s native cache support before the build
 starts. GitHub Actions and Azure DevOps both provide native cache
 features that work well for this: <a href="https://docs.github.com/actions/concepts/workflows-and-actions/dependency-caching" class="external-link">GitHub
 Actions cache</a> and <a href="https://learn.microsoft.com/azure/devops/pipelines/release/caching?view=azure-devops" class="external-link">Azure
 DevOps Cache task</a>.</p>
-<p>If you want to use a different cache location inside the container,
-customize the mount target to match your configured renv cache path.</p>
 </div>
 </div>
 <div class="section level2">
