@@ -585,7 +585,7 @@ renv_dependencies_discover_description <- function(path,
   fields <- fields %||% renv_dependencies_discover_description_fields(path, project)
 
   # make sure dependency fields are expanded
-  fields <- renv_description_dependency_fields_expand(fields)
+  fields <- renv_dependencies_fields(fields)
 
   data <- map(
     fields,
@@ -2095,4 +2095,32 @@ renv_dependencies_recurse_impl <- function(object, callback) {
   for (i in seq_along(object))
     if (is.call(object[[i]]))
       renv_dependencies_recurse_impl(object[[i]], callback)
+}
+
+renv_dependencies_fields <- function(fields) {
+
+  expanded <- map(fields, function(field) {
+
+    case(
+
+      identical(field, FALSE)
+        ~ NULL,
+
+      identical(field, "strong") || is.na(field)
+        ~ c("Depends", "Imports", "LinkingTo"),
+
+      identical(field, "most") || identical(field, TRUE)
+        ~ c("Depends", "Imports", "LinkingTo", "Suggests"),
+
+      identical(field, "all")
+        ~ c("Depends", "Imports", "LinkingTo", "Suggests", "Enhances"),
+
+      field
+
+    )
+
+  })
+
+  unique(unlist(expanded, recursive = FALSE, use.names = FALSE))
+
 }

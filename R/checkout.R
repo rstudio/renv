@@ -101,7 +101,7 @@ checkout <- function(repos = NULL,
   packages <- packages %||% renv_checkout_packages(project = project)
 
   # expand dependency fields
-  fields <- renv_description_dependency_fields_expand(dependencies)
+  fields <- renv_dependencies_fields(dependencies)
 
   # get available packages database
   dbs <- available_packages(type = "source")

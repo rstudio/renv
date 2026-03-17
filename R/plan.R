@@ -58,7 +58,7 @@ plan <- function(packages     = NULL,
   packages <- packages %||% renv_plan_packages(project)
 
   # expand dependency fields
-  fields <- renv_description_dependency_fields_expand(dependencies)
+  fields <- renv_dependencies_fields(dependencies)
 
   # get available packages database
   dbs <- available_packages(type = "source")
