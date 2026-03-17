@@ -10,13 +10,25 @@
 # define R_ClosureBody    BODY
 # define R_ClosureFormals FORMALS
 # define R_ClosureEnv     CLOENV
-# define R_lsInternal(env, all) R_lsInternal3(env, all, FALSE)
 #endif
 
-#ifdef R_lsInternal
-# undef R_lsInternal
+#if R_VERSION < R_Version(4, 5, 0)
+# define EnvironNames(env, all) (R_lsInternal(env, all))
+#else
+# define EnvironNames(env, all) (R_lsInternal3(env, all, FALSE))
 #endif
-#define R_lsInternal(env, all) R_lsInternal3(env, all, FALSE)
+
+#if R_VERSION < R_Version(4, 6, 0)
+# define DotsMissing(envir) (Rf_findVarInFrame(envir, R_DotsSymbol) == R_MissingArg)
+#else
+# define DotsMissing(envir) (R_DotsExist(envir) == FALSE)
+#endif
+
+#if R_VERSION < R_Version(4, 6, 0)
+# define FrameBindingValue(rho, sym) (Rf_findVarInFrame(rho, sym))
+#else
+# define FrameBindingValue(rho, sym) (R_getVar(rho, sym, FALSE))
+#endif
 
 #define DBLSXP REALSXP
 
@@ -138,7 +150,7 @@ static SEXP renv_dependencies_recurse(SEXP object,
 #define GET_NAMES_LGLSXP(__X__) Rf_getAttrib(__X__, R_NamesSymbol)
 #define GET_NAMES_STRSXP(__X__) Rf_getAttrib(__X__, R_NamesSymbol)
 #define GET_NAMES_VECSXP(__X__) Rf_getAttrib(__X__, R_NamesSymbol)
-#define GET_NAMES_ENVSXP(__X__) R_lsInternal(__X__, FALSE)
+#define GET_NAMES_ENVSXP(__X__) EnvironNames(__X__, FALSE)
 
 #define GET_INTSXP(__X__, __I__) Rf_ScalarInteger(INTEGER(__X__)[__I__])
 #define GET_DBLSXP(__X__, __I__) Rf_ScalarReal(REAL(__X__)[__I__])
@@ -265,7 +277,7 @@ static SEXP renv_dependencies_recurse(SEXP object,
       SEXP key = PROTECT(Rf_allocVector(STRSXP, 1));                                                                   \
       SET_STRING_ELT(key, 0, name);                                                                                    \
       Rf_defineVar(keysym, key, envir);                                                                                \
-      SEXP val = Rf_findVarInFrame(x, Rf_installChar(name));                                                           \
+      SEXP val = FrameBindingValue(x, Rf_installChar(name));                                                           \
       Rf_defineVar(valsym, val, envir);                                                                                \
       SEXP call = PROTECT(Rf_lang4(fsym, keysym, valsym, dsym));                                                       \
       SEXP result = PROTECT(R_forceAndCall(call, 2, envir));                                                           \
@@ -313,8 +325,7 @@ static SEXP recurse(SEXP object,
   SEXP cloenv = R_NilValue;
   SEXP frame = R_NilValue;
 
-  SEXP dots = Rf_findVarInFrame(envir, R_DotsSymbol);
-  if (TYPEOF(callback) == CLOSXP && dots == R_MissingArg)
+  if (TYPEOF(callback) == CLOSXP && DotsMissing(envir))
   {
     expr = R_ClosureBody(callback);
     formals = R_ClosureFormals(callback);
