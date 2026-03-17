@@ -27,12 +27,11 @@
   
 }
 
-`__ffi__renv_version_matrix` <- function(versions, ncols) {
+`__ffi__renv_version_matrix` <- function(versions) {
 
   .Call(
     "renv_ffi__renv_version_matrix",
     versions,
-    as.integer(ncols),
     PACKAGE = "renv"
   )
 

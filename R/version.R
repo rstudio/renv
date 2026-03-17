@@ -94,22 +94,22 @@ renv_version_length <- function(version) {
 }
 
 # parse version strings into an integer matrix with one row per
-# version and 'ncols' columns, zero-padded for shorter versions.
+# version. the number of columns is determined by the version with
+# the most components; shorter versions are zero-padded on the right.
 # replaced by C implementation when ext is enabled.
-renv_version_matrix <- function(versions, ncols) {
+renv_version_matrix <- function(versions) {
 
   parts <- strsplit(versions, "[.-]", perl = TRUE)
   lens <- lengths(parts, use.names = FALSE)
+  maxlen <- max(lens)
 
   flat <- unlist(parts, use.names = FALSE)
   row <- rep.int(seq_along(versions), lens)
   col <- sequence(lens)
 
   n <- length(versions)
-  mat <- matrix(0L, nrow = n, ncol = ncols)
-
-  keep <- col <= ncols
-  mat[row[keep] + (col[keep] - 1L) * n] <- as.integer(flat[keep])
+  mat <- matrix(0L, nrow = n, ncol = maxlen)
+  mat[row + (col - 1L) * n] <- as.integer(flat)
 
   mat
 
@@ -120,7 +120,7 @@ renv_version_matrix <- function(versions, ncols) {
 # version strings into an integer matrix and ranking the result.
 renv_version_rank <- function(versions) {
 
-  mat <- renv_version_matrix(versions, ncols = 6L)
+  mat <- renv_version_matrix(versions)
 
   # order then rank, so the result can be composed with other
   # sort keys via order(packages, renv_version_rank(versions))

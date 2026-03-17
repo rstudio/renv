@@ -382,17 +382,37 @@ static SEXP recurse(SEXP object,
 
 // Given a character vector of version strings (e.g. "1.4-5.100"),
 // parse each into integer components and return an integer matrix
-// with one row per version and 'ncols' columns. Shorter versions
-// are zero-padded on the right.
-static SEXP renv_version_matrix(SEXP versions, SEXP ncols)
+// with one row per version. The number of columns is determined by
+// the version with the most components; shorter versions are
+// zero-padded on the right.
+static SEXP renv_version_matrix(SEXP versions)
 {
   R_xlen_t n = Rf_xlength(versions);
-  int nc = INTEGER(ncols)[0];
+
+  // first pass: count the maximum number of components
+  int nc = 0;
+  for (R_xlen_t i = 0; i < n; i++)
+  {
+    const char* s = CHAR(STRING_ELT(versions, i));
+    int count = 1;
+    while (*s)
+    {
+      if (*s < '0' || *s > '9')
+        count++;
+      s++;
+    }
+    if (count > nc)
+      nc = count;
+  }
+
+  if (nc == 0)
+    nc = 1;
 
   SEXP mat = PROTECT(Rf_allocMatrix(INTSXP, n, nc));
   int* mp = INTEGER(mat);
   memset(mp, 0, (size_t) n * nc * sizeof(int));
 
+  // second pass: parse components into the matrix
   for (R_xlen_t i = 0; i < n; i++)
   {
     const char* s = CHAR(STRING_ELT(versions, i));
@@ -408,8 +428,7 @@ static SEXP renv_version_matrix(SEXP versions, SEXP ncols)
       }
       else
       {
-        if (col < nc)
-          mp[i + (R_xlen_t) col * n] = val;
+        mp[i + (R_xlen_t) col * n] = val;
         val = 0;
         col++;
         if (ch == '\0')
@@ -425,11 +444,11 @@ static SEXP renv_version_matrix(SEXP versions, SEXP ncols)
 // Init ----
 
 static const R_CallMethodDef callEntries[] = {
-    {"renv_ffi__renv_call_expect",          (DL_FUNC) &renv_call_expect,          3},
-    {"renv_ffi__renv_dependencies_recurse", (DL_FUNC) &renv_dependencies_recurse, 4},
     {"renv_ffi__enumerate",                 (DL_FUNC) &enumerate,                 3},
     {"renv_ffi__recurse",                   (DL_FUNC) &recurse,                   3},
-    {"renv_ffi__renv_version_matrix",       (DL_FUNC) &renv_version_matrix,       2},
+    {"renv_ffi__renv_call_expect",          (DL_FUNC) &renv_call_expect,          3},
+    {"renv_ffi__renv_dependencies_recurse", (DL_FUNC) &renv_dependencies_recurse, 4},
+    {"renv_ffi__renv_version_matrix",       (DL_FUNC) &renv_version_matrix,       1},
     {NULL,                                  NULL,                                 0}
 };
 
