@@ -380,6 +380,48 @@ static SEXP recurse(SEXP object,
   return R_NilValue;
 }
 
+// Given a character vector of version strings (e.g. "1.4-5.100"),
+// parse each into integer components and return an integer matrix
+// with one row per version and 'ncols' columns. Shorter versions
+// are zero-padded on the right.
+static SEXP renv_version_matrix(SEXP versions, SEXP ncols)
+{
+  R_xlen_t n = Rf_xlength(versions);
+  int nc = INTEGER(ncols)[0];
+
+  SEXP mat = PROTECT(Rf_allocMatrix(INTSXP, n, nc));
+  int* mp = INTEGER(mat);
+  memset(mp, 0, (size_t) n * nc * sizeof(int));
+
+  for (R_xlen_t i = 0; i < n; i++)
+  {
+    const char* s = CHAR(STRING_ELT(versions, i));
+    int col = 0;
+    int val = 0;
+
+    for (;;)
+    {
+      char ch = *s++;
+      if (ch >= '0' && ch <= '9')
+      {
+        val = val * 10 + (ch - '0');
+      }
+      else
+      {
+        if (col < nc)
+          mp[i + (R_xlen_t) col * n] = val;
+        val = 0;
+        col++;
+        if (ch == '\0')
+          break;
+      }
+    }
+  }
+
+  UNPROTECT(1);
+  return mat;
+}
+
 // Init ----
 
 static const R_CallMethodDef callEntries[] = {
@@ -387,6 +429,7 @@ static const R_CallMethodDef callEntries[] = {
     {"renv_ffi__renv_dependencies_recurse", (DL_FUNC) &renv_dependencies_recurse, 4},
     {"renv_ffi__enumerate",                 (DL_FUNC) &enumerate,                 3},
     {"renv_ffi__recurse",                   (DL_FUNC) &recurse,                   3},
+    {"renv_ffi__renv_version_matrix",       (DL_FUNC) &renv_version_matrix,       2},
     {NULL,                                  NULL,                                 0}
 };
 
