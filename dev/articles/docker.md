@@ -16,7 +16,7 @@ speaking, one can think of a container as a small, self-contained system
 within which different applications can be run. Using Docker, one can
 declaratively state how a container should be built, and then use that
 system to run applications. For more details, please see
-<https://environments.rstudio.com/docker>.
+<https://solutions.posit.co/envs-pkgs/environments/docker/>.
 
 Using Docker and renv together, one can then ensure that both the
 underlying system, alongside the required R packages, are fixed and
@@ -27,12 +27,21 @@ are not yet familiar with Docker, the [Docker
 Documentation](https://docs.docker.com/) provides a thorough
 introduction. To learn more about using Docker to manage R environments,
 visit
-[environments.rstudio.com](https://environments.rstudio.com/docker.html).
+[solutions.posit.co](https://solutions.posit.co/envs-pkgs/environments/docker/).
 
 We focus here on the most common case: you already have an existing renv
 project and want to build a Docker image from it. We assume that your
 project already contains `renv.lock`, `.Rprofile`, `renv/activate.R`,
 and `renv/settings.json`.
+
+The examples below use `<parent-image>` as a placeholder for the base
+image, which is assumed to provide R and the system libraries required
+by your project’s packages. The [Rocker
+project](https://rocker-project.org/) provides widely-used R base
+images; for example, `rocker/r-ver:4.4` pins a specific R version. Using
+a version-tagged base image is recommended for reproducibility. See the
+[system dependencies](#system-dependencies) section for help identifying
+which system libraries your packages need.
 
 ## Containerizing an existing renv project
 
@@ -42,7 +51,7 @@ only then copy the rest of the repository:
 ``` dockerfile
 FROM <parent-image>
 
-# intialize application project directory
+# initialize application project directory
 WORKDIR /project
 RUN mkdir -p renv
 
@@ -59,10 +68,29 @@ RUN R -s -e "renv::restore()"
 COPY . .
 ```
 
+You should also add a `.dockerignore` file to prevent the host’s project
+library and other renv working directories from being copied into the
+build context:
+
+    renv/*
+    !renv/activate.R
+    !renv/settings.json
+
+This excludes everything inside `renv/` except the two files the
+Dockerfile needs. The project library, sandbox, and other working
+directories are either rebuilt by
+[`renv::restore()`](https://rstudio.github.io/renv/dev/reference/restore.md)
+inside the container or are host-specific, so they should not be copied
+into the image.
+
 This is a good starting point for most projects. The image restore step
 uses the same project metadata that you already commit to version
 control, so the container can recreate the project library before the
-rest of the source tree is copied.
+rest of the source tree is copied. Note that renv does not need to be
+pre-installed on the parent image: when R starts, it sources
+`.Rprofile`, which in turn sources `renv/activate.R`. The activate
+script automatically downloads and installs renv if it is not already
+available.
 
 If you need to customize the library path, set `RENV_PATHS_LIBRARY`
 before calling
@@ -100,7 +128,7 @@ needs to be rebuilt.
 # syntax=docker/dockerfile:1
 FROM <parent-image>
 
-# intialize application project directory
+# initialize application project directory
 WORKDIR /project
 RUN mkdir -p renv
 
@@ -157,7 +185,7 @@ cache path:
 # syntax=docker/dockerfile:1
 FROM <parent-image>
 
-# intialize application project directory
+# initialize application project directory
 WORKDIR /project
 RUN mkdir -p renv
 
@@ -223,28 +251,34 @@ cache](https://docs.github.com/actions/concepts/workflows-and-actions/dependency
 and [Azure DevOps Cache
 task](https://learn.microsoft.com/azure/devops/pipelines/release/caching?view=azure-devops).
 
-## Handling the renv autoloader
+## System dependencies
 
-When `R` is launched within a project folder, the renv auto-loader (if
-present) will attempt to download and install renv into the project
-library if it’s not available. Depending on how your Docker container is
-configured, this could fail. For example:
+Many R packages require system libraries to compile (e.g. `libcurl`,
+`libxml2`). These need to be installed before
+[`renv::restore()`](https://rstudio.github.io/renv/dev/reference/restore.md)
+runs. You can use \[renv::sysreqs()\] to compute the system packages
+required by your project:
 
-``` sh
-Error installing renv:
-======================
-ERROR: unable to create '/usr/local/pipe/renv/library/master/R-4.0/x86_64-pc-linux-gnu/renv'
-Warning messages:
-1: In system2(r, args, stdout = TRUE, stderr = TRUE) :
-  running command ''/usr/lib/R/bin/R' --vanilla CMD INSTALL -l 'renv/library/master/R-4.0/x86_64-pc-linux-gnu' '/tmp/RtmpwM7ooh/renv_0.12.2.tar.gz' 2>&1' had status 1
-2: Failed to find an renv installation: the project will not be loaded.
-Use `renv::activate()` to re-initialize the project.
+``` r
+renv::sysreqs(distro = "ubuntu:24.04", report = TRUE, collapse = TRUE)
 ```
 
-Bootstrapping renv into the project library might be unnecessary for
-you. If that is the case, then you can avoid this behavior by launching
-R with the `--vanilla` flag set; for example:
+This reports the installation command needed for a given distribution,
+which you can then add to your Dockerfile before the restore step:
 
-``` sh
-R --vanilla -s -e 'renv::restore()'
+``` dockerfile
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    libcurl4-openssl-dev \
+    libxml2-dev \
+    && rm -rf /var/lib/apt/lists/*
 ```
+
+## Multi-stage builds
+
+For production images, a multi-stage build can separate the build
+environment (with compilers and development headers) from the final
+runtime image. This keeps the deployed image smaller by excluding tools
+that are only needed to compile packages. See Docker’s [multi-stage
+build
+documentation](https://docs.docker.com/build/building/multi-stage/) for
+details.
