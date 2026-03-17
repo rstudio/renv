@@ -109,7 +109,8 @@ renv_version_order <- function(packages, versions, decreasing = FALSE) {
   mat <- matrix(0L, nrow = length(versions), ncol = maxlen)
   mat[cbind(row, col)] <- as.integer(flat)
 
-  args <- c(list(packages), as.data.frame(mat), list(decreasing = decreasing))
+  cols <- lapply(seq_len(maxlen), function(i) mat[, i])
+  args <- c(list(packages), cols, list(decreasing = decreasing))
   do.call(order, args)
 
 }
