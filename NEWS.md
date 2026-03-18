@@ -1,17 +1,18 @@
 
 # renv (under development)
 
-* PPM is now enabled by default on arm64 Linux, since Posit Package Manager
-  now serves binaries for that platform. (#2241)
-
 * `renv::install()` and `renv::restore()` now download and install packages
   in parallel. Package downloads are batched into a single `curl --parallel`
   invocation, and source packages are compiled concurrently (up to
   `install.jobs` workers, default 4) using ready-queue scheduling that
   launches each package as soon as its dependencies finish. Binary packages
-  are installed up front since they require no build-time ordering.
+  are installed up front as they require no build-time ordering.
+
   Requires R >= 4.0 for full parallelism; older versions fall back to
   sequential installation.
+
+* PPM is now enabled by default on arm64 Linux, as Posit Package Manager
+  now serves binaries for that platform. (#2241)
 
 * New function `renv::plan()` resolves the packages required by a project
   and generates a lockfile, without installing any packages. This can be
