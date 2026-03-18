@@ -723,16 +723,13 @@ test_that("renv_graph_install respects dependency ordering", {
   env <- new.env(parent = emptyenv())
   env$order <- character()
 
-  trace(
-    "renv_graph_install_finalize",
+  renv_scope_trace(
+    what = renv:::renv_graph_install_finalize,
     tracer = bquote({
       .env <- .(env)
       .env$order <- c(.env$order, record$Package)
-    }),
-    where = renv_envir_self(),
-    print = FALSE
+    })
   )
-  defer(untrace("renv_graph_install_finalize", where = renv_envir_self()))
 
   descriptions <- renv_graph_init("breakfast")
   records <- renv_graph_install(descriptions)
