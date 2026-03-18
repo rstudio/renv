@@ -27,7 +27,7 @@
 #if R_VERSION < R_Version(4, 6, 0)
 # define FrameBindingValue(rho, sym) (Rf_findVarInFrame(rho, sym))
 #else
-# define FrameBindingValue(rho, sym) (R_getVar(rho, sym, FALSE))
+# define FrameBindingValue(rho, sym) (R_getVar(sym, rho, FALSE))
 #endif
 
 #define DBLSXP REALSXP
