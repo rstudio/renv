@@ -1,6 +1,9 @@
 
 # renv (under development)
 
+* PPM is now enabled by default on arm64 Linux, since Posit Package Manager
+  now serves binaries for that platform. (#2241)
+
 * `renv::install()` and `renv::restore()` now download and install packages
   in parallel. Package downloads are batched into a single `curl --parallel`
   invocation, and source packages are compiled concurrently (up to

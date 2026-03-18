@@ -358,19 +358,6 @@ renv_ppm_enabled <- function() {
   if (!is.na(enabled))
     return(truthy(enabled, default = TRUE))
 
-  # TODO: can we remove this check?
-  # https://github.com/rstudio/renv/issues/1132
-  if (!testing()) {
-
-    disabled <-
-      renv_platform_linux() &&
-      identical(renv_platform_machine(), "aarch64")
-
-    if (disabled)
-      return(FALSE)
-
-  }
-
   # check for project setting
   enabled <- settings$ppm.enabled()
   if (!is.null(enabled))
