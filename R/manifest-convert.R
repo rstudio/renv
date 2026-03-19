@@ -1,12 +1,12 @@
 
-#' Generate `renv.lock` from an RStudio Connect `manifest.json`
+#' Generate `renv.lock` from an Posit Connect `manifest.json`
 #'
 #' @description
 #' Use `renv_lockfile_from_manifest()` to convert a `manifest.json` file from
-#' an RStudio Connect content bundle into an `renv.lock` lockfile.
+#' an Posit Connect content bundle into an `renv.lock` lockfile.
 #'
 #' This function can be useful when you need to recreate the package environment
-#' of a piece of content that is deployed to RStudio Connect. The content bundle
+#' of a piece of content that is deployed to Posit Connect. The content bundle
 #' contains a `manifest.json` file that is used to recreate the package
 #' environment. This function will let you convert that manifest file to an
 #' `renv.lock` file. Run `renv::restore()` after you've converted the file to
