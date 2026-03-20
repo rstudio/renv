@@ -2068,7 +2068,7 @@
 
 * Packages installed from GitHub using `renv::install()` will now also have
   `Github*` fields added, in addition to the default `Remote*` fields. This
-  should help fix issues when attempting to deploy projects to RStudio Connect
+  should help fix issues when attempting to deploy projects to Posit Connect
   requiring packages installed by renv. (#397)
   
 * renv now prefers using a RemoteType field (if any) when attempting to
