@@ -1,5 +1,11 @@
 # Changelog
 
+## renv 1.1.8
+
+CRAN release: 2026-03-05
+
+- Update to conform with changes to the R API.
+
 ## renv 1.1.7
 
 CRAN release: 2026-01-27
