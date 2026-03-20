@@ -2709,8 +2709,8 @@ CRAN release: 2020-02-10
   [`renv::install()`](https://rstudio.github.io/renv/dev/reference/install.md)
   will now also have `Github*` fields added, in addition to the default
   `Remote*` fields. This should help fix issues when attempting to
-  deploy projects to RStudio Connect requiring packages installed by
-  renv. ([\#397](https://github.com/rstudio/renv/issues/397))
+  deploy projects to Posit Connect requiring packages installed by renv.
+  ([\#397](https://github.com/rstudio/renv/issues/397))
 
 - renv now prefers using a RemoteType field (if any) when attempting to
   determine a package’s source.
