@@ -78,6 +78,10 @@
   the latest version of a package on CRAN requires a newer R version.
   (#1735)
 
+# renv 1.1.8
+
+* Update to conform with changes to the R API.
+
 
 # renv 1.1.7
 
