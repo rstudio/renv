@@ -2,7 +2,7 @@
 #' Generate `renv.lock` from an Posit Connect `manifest.json`
 #'
 #' @description
-#' Use `renv_lockfile_from_manifest()` to convert a `manifest.json` file from
+#' Use `lockfile_from_manifest()` to convert a `manifest.json` file from
 #' an Posit Connect content bundle into an `renv.lock` lockfile.
 #'
 #' This function can be useful when you need to recreate the package environment
@@ -24,10 +24,10 @@
 #' @return
 #' An renv lockfile.
 #'
-#' @keywords internal
-renv_lockfile_from_manifest <- function(manifest = "manifest.json",
-                                        lockfile = NA,
-                                        project = NULL)
+#' @export
+lockfile_from_manifest <- function(manifest = "manifest.json",
+                                   lockfile = NA,
+                                   project = NULL)
 {
   renv_scope_error_handler()
   project <- renv_project_resolve(project)
