@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">renv</a>
 
-    <small class="nav-text text-danger me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="In-development version">1.1.8.9000</small>
+    <small class="nav-text text-danger me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="In-development version">1.2.0.9000</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -51,6 +51,29 @@
       <small>Source: <a href="https://github.com/rstudio/renv/blob/main/NEWS.md" class="external-link"><code>NEWS.md</code></a></small>
     </div>
 
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="development version" id="renv-development-version">renv (development version)<a class="anchor" aria-label="anchor" href="#renv-development-version"></a></h2>
+</div>
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="1.2.0" id="renv-120">renv 1.2.0<a class="anchor" aria-label="anchor" href="#renv-120"></a></h2><p class="text-muted">CRAN release: 2026-03-25</p>
+<ul><li>
+<p><code><a href="../reference/install.html">renv::install()</a></code> and <code><a href="../reference/restore.html">renv::restore()</a></code> now download and install packages in parallel. Package downloads are batched into a single <code>curl --parallel</code> invocation, and source packages are compiled concurrently (up to <code>install.jobs</code> workers, default 4) using ready-queue scheduling that launches each package as soon as its dependencies finish. Binary packages are installed up front as they require no build-time ordering.</p>
+<p>Requires R &gt;= 4.0 for full parallelism; older versions fall back to sequential installation.</p>
+</li>
+<li><p>PPM is now enabled by default on arm64 Linux, as Posit Package Manager now serves binaries for that platform. (<a href="https://github.com/rstudio/renv/issues/2241" class="external-link">#2241</a>)</p></li>
+<li><p>New function <code><a href="../reference/plan.html">renv::plan()</a></code> resolves the packages required by a project and generates a lockfile, without installing any packages. This can be used to preview what <code><a href="../reference/restore.html">renv::restore()</a></code> would install. Similarly, <code><a href="../reference/checkout.html">renv::checkout()</a></code> with <code>actions = "snapshot"</code> now writes the resolved lockfile directly from repository metadata, rather than requiring packages to be installed first. Both functions accept a <code>dependencies</code> parameter (defaulting to <code>"strong"</code>) to control which dependency types are included in the recursive dependency tree.</p></li>
+<li><p><code><a href="../reference/restore.html">renv::restore()</a></code> now consults the per-package <code>Repository</code> URL recorded in the lockfile when resolving and downloading packages. Previously, only the global repository list was used. The new <code>strict</code> parameter controls whether packages with a URL-valued <code>Repository</code> field must be retrieved from that exact repository (<code>strict = TRUE</code>) or merely prefer it (<code>strict = FALSE</code>, the default).</p></li>
+<li><p>Bootstrap failures during <code>.Rprofile</code> processing now emit a warning instead of an error.</p></li>
+<li><p><code><a href="../reference/embed.html">renv::embed()</a></code> now warns when required packages are not found in the resolved lockfile. Previously, dependencies missing from the project lockfile were silently omitted from the generated <code><a href="../reference/embed.html">renv::use()</a></code> call. (<a href="https://github.com/rstudio/renv/issues/2178" class="external-link">#2178</a>)</p></li>
+<li><p><code><a href="../reference/embed.html">renv::embed()</a></code> gains support for <code>lockfile = NA</code>, which resolves package versions from the active package repositories rather than from installed packages or a lockfile. (<a href="https://github.com/rstudio/renv/issues/2178" class="external-link">#2178</a>)</p></li>
+<li><p><code><a href="../reference/dependencies.html">renv::dependencies()</a></code> now detects packages referenced via <code>system.file(..., package = "pkg")</code> calls. (<a href="https://github.com/rstudio/renv/issues/2236" class="external-link">#2236</a>)</p></li>
+<li><p>The <code>renv.bioconductor.version</code> option is now respected as a global override during <code><a href="../reference/restore.html">renv::restore()</a></code> and <code><a href="../reference/load.html">renv::load()</a></code>. Previously, the Bioconductor version recorded in the lockfile would take precedence, preventing users from overriding the Bioconductor version when needed. (<a href="https://github.com/rstudio/renv/issues/2218" class="external-link">#2218</a>)</p></li>
+<li><p>renv now strips embedded credentials from repository URLs when writing the lockfile. URLs of the form <code>https://user:token@host/path</code> are sanitized to <code>https://host/path</code>, preventing accidental credential leakage when sharing <code>renv.lock</code> files. (<a href="https://github.com/rstudio/renv/issues/2191" class="external-link">#2191</a>)</p></li>
+<li><p>The renv watchdog is now automatically disabled in child processes launched by parallel frameworks (e.g. <code>future::multisession</code>, <code><a href="https://rdrr.io/r/parallel/makeCluster.html" class="external-link">parallel::makePSOCKcluster()</a></code>, <code>callr</code>). (<a href="https://github.com/rstudio/renv/issues/2223" class="external-link">#2223</a>)</p></li>
+<li><p><code>renv::use(repos = NULL)</code> now uses a cache-only install path, ensuring packages are only installed from the renv cache and no external sources (repositories, GitHub, etc.) are queried. Previously, <code><a href="../reference/restore.html">restore()</a></code> and <code><a href="../reference/install.html">install()</a></code> could still reach external sources through internal fallback logic.</p></li>
+<li><p><code>renv::init(bioconductor = "devel")</code> now resolves symbolic Bioconductor version names (e.g. <code>"devel"</code>, <code>"release"</code>) to their numeric equivalents before writing to the lockfile. Previously, the literal string <code>"devel"</code> was written, causing <code><a href="../reference/restore.html">renv::restore()</a></code> to fail. (<a href="https://github.com/rstudio/renv/issues/2170" class="external-link">#2170</a>)</p></li>
+<li><p>renv gains the configuration option <code>renv.config.crandb.enabled</code>. When enabled, renv will query the <a href="https://github.com/r-hub/crandb" class="external-link">crandb</a> service to find the newest version of a package compatible with the current version of R. This can be useful when using an older version of R, where the latest version of a package on CRAN requires a newer R version. (<a href="https://github.com/rstudio/renv/issues/1735" class="external-link">#1735</a>)</p></li>
+</ul></div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="1.1.8" id="renv-118">renv 1.1.8<a class="anchor" aria-label="anchor" href="#renv-118"></a></h2><p class="text-muted">CRAN release: 2026-03-05</p>
 <ul><li>Update to conform with changes to the R API.</li>

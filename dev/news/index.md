@@ -1,5 +1,113 @@
 # Changelog
 
+## renv (development version)
+
+## renv 1.2.0
+
+CRAN release: 2026-03-25
+
+- [`renv::install()`](https://rstudio.github.io/renv/dev/reference/install.md)
+  and
+  [`renv::restore()`](https://rstudio.github.io/renv/dev/reference/restore.md)
+  now download and install packages in parallel. Package downloads are
+  batched into a single `curl --parallel` invocation, and source
+  packages are compiled concurrently (up to `install.jobs` workers,
+  default 4) using ready-queue scheduling that launches each package as
+  soon as its dependencies finish. Binary packages are installed up
+  front as they require no build-time ordering.
+
+  Requires R \>= 4.0 for full parallelism; older versions fall back to
+  sequential installation.
+
+- PPM is now enabled by default on arm64 Linux, as Posit Package Manager
+  now serves binaries for that platform.
+  ([\#2241](https://github.com/rstudio/renv/issues/2241))
+
+- New function
+  [`renv::plan()`](https://rstudio.github.io/renv/dev/reference/plan.md)
+  resolves the packages required by a project and generates a lockfile,
+  without installing any packages. This can be used to preview what
+  [`renv::restore()`](https://rstudio.github.io/renv/dev/reference/restore.md)
+  would install. Similarly,
+  [`renv::checkout()`](https://rstudio.github.io/renv/dev/reference/checkout.md)
+  with `actions = "snapshot"` now writes the resolved lockfile directly
+  from repository metadata, rather than requiring packages to be
+  installed first. Both functions accept a `dependencies` parameter
+  (defaulting to `"strong"`) to control which dependency types are
+  included in the recursive dependency tree.
+
+- [`renv::restore()`](https://rstudio.github.io/renv/dev/reference/restore.md)
+  now consults the per-package `Repository` URL recorded in the lockfile
+  when resolving and downloading packages. Previously, only the global
+  repository list was used. The new `strict` parameter controls whether
+  packages with a URL-valued `Repository` field must be retrieved from
+  that exact repository (`strict = TRUE`) or merely prefer it
+  (`strict = FALSE`, the default).
+
+- Bootstrap failures during `.Rprofile` processing now emit a warning
+  instead of an error.
+
+- [`renv::embed()`](https://rstudio.github.io/renv/dev/reference/embed.md)
+  now warns when required packages are not found in the resolved
+  lockfile. Previously, dependencies missing from the project lockfile
+  were silently omitted from the generated
+  [`renv::use()`](https://rstudio.github.io/renv/dev/reference/embed.md)
+  call. ([\#2178](https://github.com/rstudio/renv/issues/2178))
+
+- [`renv::embed()`](https://rstudio.github.io/renv/dev/reference/embed.md)
+  gains support for `lockfile = NA`, which resolves package versions
+  from the active package repositories rather than from installed
+  packages or a lockfile.
+  ([\#2178](https://github.com/rstudio/renv/issues/2178))
+
+- [`renv::dependencies()`](https://rstudio.github.io/renv/dev/reference/dependencies.md)
+  now detects packages referenced via
+  `system.file(..., package = "pkg")` calls.
+  ([\#2236](https://github.com/rstudio/renv/issues/2236))
+
+- The `renv.bioconductor.version` option is now respected as a global
+  override during
+  [`renv::restore()`](https://rstudio.github.io/renv/dev/reference/restore.md)
+  and
+  [`renv::load()`](https://rstudio.github.io/renv/dev/reference/load.md).
+  Previously, the Bioconductor version recorded in the lockfile would
+  take precedence, preventing users from overriding the Bioconductor
+  version when needed.
+  ([\#2218](https://github.com/rstudio/renv/issues/2218))
+
+- renv now strips embedded credentials from repository URLs when writing
+  the lockfile. URLs of the form `https://user:token@host/path` are
+  sanitized to `https://host/path`, preventing accidental credential
+  leakage when sharing `renv.lock` files.
+  ([\#2191](https://github.com/rstudio/renv/issues/2191))
+
+- The renv watchdog is now automatically disabled in child processes
+  launched by parallel frameworks (e.g. `future::multisession`,
+  [`parallel::makePSOCKcluster()`](https://rdrr.io/r/parallel/makeCluster.html),
+  `callr`). ([\#2223](https://github.com/rstudio/renv/issues/2223))
+
+- `renv::use(repos = NULL)` now uses a cache-only install path, ensuring
+  packages are only installed from the renv cache and no external
+  sources (repositories, GitHub, etc.) are queried. Previously,
+  [`restore()`](https://rstudio.github.io/renv/dev/reference/restore.md)
+  and
+  [`install()`](https://rstudio.github.io/renv/dev/reference/install.md)
+  could still reach external sources through internal fallback logic.
+
+- `renv::init(bioconductor = "devel")` now resolves symbolic
+  Bioconductor version names (e.g. `"devel"`, `"release"`) to their
+  numeric equivalents before writing to the lockfile. Previously, the
+  literal string `"devel"` was written, causing
+  [`renv::restore()`](https://rstudio.github.io/renv/dev/reference/restore.md)
+  to fail. ([\#2170](https://github.com/rstudio/renv/issues/2170))
+
+- renv gains the configuration option `renv.config.crandb.enabled`. When
+  enabled, renv will query the [crandb](https://github.com/r-hub/crandb)
+  service to find the newest version of a package compatible with the
+  current version of R. This can be useful when using an older version
+  of R, where the latest version of a package on CRAN requires a newer R
+  version. ([\#1735](https://github.com/rstudio/renv/issues/1735))
+
 ## renv 1.1.8
 
 CRAN release: 2026-03-05
