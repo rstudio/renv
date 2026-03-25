@@ -29,7 +29,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">renv</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">1.1.6</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">1.2.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -83,7 +83,7 @@
       <img src="../logo.svg" class="logo" alt=""><h1>Installing packages</h1>
             
       
-      <small class="dont-index">Source: <a href="https://github.com/rstudio/renv/blob/v1.1.6/vignettes/package-install.Rmd" class="external-link"><code>vignettes/package-install.Rmd</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/rstudio/renv/blob/main/vignettes/package-install.Rmd" class="external-link"><code>vignettes/package-install.Rmd</code></a></small>
       <div class="d-none name"><code>package-install.Rmd</code></div>
     </div>
 
@@ -240,9 +240,12 @@ aren’t available in an older system toolchain, especially in some older
 Linux enterprise environments.</p></li>
 <li><p>Your system will need requisite system libraries, as many R
 packages contain compiled C / C++ code that depend on and link to these
-packages.</p></li>
+packages. On Linux, <code><a href="../reference/sysreqs.html">renv::sysreqs()</a></code> can help identify which
+system packages are required by your project. See
+<code><a href="../articles/docker.html">vignette("docker")</a></code> for an example of using
+<code><a href="../reference/sysreqs.html">renv::sysreqs()</a></code> in a Dockerfile.</p></li>
 </ol>
-<!-- TODO: renv::equip() for Linux + macOS; use sysreqsdb --><div class="section level3">
+<div class="section level3">
 <h3 id="configure-flags">Configure flags<a class="anchor" aria-label="anchor" href="#configure-flags"></a>
 </h3>
 <p>Many <code>R</code> packages have a <code>configure</code> script

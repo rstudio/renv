@@ -83,6 +83,30 @@ to tell renv to work with both the official CRAN package repository, as
 well as a package repository you have hosted and set up in your work
 environment.
 
+#### Repository snapshots
+
+If you use [Posit Package Manager](https://packagemanager.posit.co/),
+you can use
+[`renv::checkout()`](https://rstudio.github.io/renv/reference/checkout.md)
+to switch your project to a specific snapshot date. This installs the
+versions of all packages that were available on that date:
+
+``` r
+# use packages as they were on 2024-01-15
+renv::checkout(date = "2024-01-15")
+```
+
+You can also generate a lockfile from a snapshot date without installing
+anything, by using `actions = "snapshot"`:
+
+``` r
+renv::checkout(date = "2024-01-15", actions = "snapshot")
+```
+
+See
+[`?renv::checkout`](https://rstudio.github.io/renv/reference/checkout.md)
+for more details.
+
 ### Bioconductor
 
 renv has been designed to work together as seamlessly as possible with
@@ -101,7 +125,7 @@ To initialize renv in a project using Bioconductor, you can pass the
 renv::init(bioconductor = TRUE)
 
 # use a specific version of Bioconductor
-renv::init(bioconductor = "3.14")
+renv::init(bioconductor = "3.20")
 ```
 
 This will tell renv to activate the appropriate Bioconductor
@@ -120,7 +144,7 @@ Bioconductor releases are made available for newer versions of R.
 To set the version of Bioconductor used in a project, you can use:
 
 ``` r
-renv::settings$bioconductor.version("3.14")
+renv::settings$bioconductor.version("3.20")
 ```
 
 If you later choose to upgrade R, you may need to upgrade the version of

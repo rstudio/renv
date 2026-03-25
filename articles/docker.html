@@ -29,7 +29,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">renv</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">1.1.6</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">1.2.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -83,7 +83,7 @@
       <img src="../logo.svg" class="logo" alt=""><h1>Using renv with Docker</h1>
             
       
-      <small class="dont-index">Source: <a href="https://github.com/rstudio/renv/blob/v1.1.6/vignettes/docker.Rmd" class="external-link"><code>vignettes/docker.Rmd</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/rstudio/renv/blob/main/vignettes/docker.Rmd" class="external-link"><code>vignettes/docker.Rmd</code></a></small>
       <div class="d-none name"><code>docker.Rmd</code></div>
     </div>
 
@@ -99,288 +99,237 @@ code can produce different results depending on:</p>
 <li>The LAPACK / BLAS system(s) in use,</li>
 <li>The versions of system libraries installed and in use,</li>
 </ul>
-<p>And so on. <a href="https://www.docker.com/" class="external-link">Docker</a> is a tool
+<p>and so on. <a href="https://www.docker.com/" class="external-link">Docker</a> is a tool
 that can help solve this problem through the use of
 <strong>containers</strong>. Very roughly speaking, one can think of a
 container as a small, self-contained system within which different
 applications can be run. Using Docker, one can declaratively state how a
-container should be built (what operating system it should use, and what
-system software should be installed within), and use that system to run
-applications. (For more details, please see <a href="https://environments.rstudio.com/docker" class="external-link uri">https://environments.rstudio.com/docker</a>.)</p>
+container should be built, and then use that system to run applications.
+For more details, please see <a href="https://solutions.posit.co/envs-pkgs/environments/docker/" class="external-link uri">https://solutions.posit.co/envs-pkgs/environments/docker/</a>.</p>
 <p>Using Docker and renv together, one can then ensure that both the
 underlying system, alongside the required R packages, are fixed and
 constant for a particular application.</p>
-<p>The main challenges in using Docker with renv are:</p>
-<ul>
-<li><p>Ensuring that the renv cache is visible to Docker containers,
-and</p></li>
-<li><p>Ensuring that required R package dependencies are available at
-runtime.</p></li>
-</ul>
 <p>This vignette will assume you are already familiar with Docker; if
 you are not yet familiar with Docker, the <a href="https://docs.docker.com/" class="external-link">Docker Documentation</a> provides a
 thorough introduction. To learn more about using Docker to manage R
-environments, visit <a href="https://environments.rstudio.com/docker.html" class="external-link">environments.rstudio.com</a>.</p>
-<p>We’ll discuss two strategies for using renv with Docker:</p>
-<ol style="list-style-type: decimal">
-<li>Using renv to install packages when the Docker image is
-generated;</li>
-<li>Using renv to install packages when Docker containers are run.</li>
-</ol>
-<p>We’ll also explore the pros and cons of each strategy.</p>
+environments, visit <a href="https://solutions.posit.co/envs-pkgs/environments/docker/" class="external-link">solutions.posit.co</a>.</p>
+<p>We focus here on the most common case: you already have an existing
+renv project and want to build a Docker image from it. We assume that
+your project already contains <code>renv.lock</code>,
+<code>.Rprofile</code>, <code>renv/activate.R</code>, and
+<code>renv/settings.json</code>.</p>
+<p>The examples below use <code>&lt;parent-image&gt;</code> as a
+placeholder for the base image, which is assumed to provide R and the
+system libraries required by your project’s packages. The <a href="https://rocker-project.org/" class="external-link">Rocker project</a> provides
+widely-used R base images; for example, <code>rocker/r-ver:4.4</code>
+pins a specific R version. Using a version-tagged base image is
+recommended for reproducibility. See the <a href="#system-dependencies">system dependencies</a> section for help
+identifying which system libraries your packages need.</p>
 <div class="section level2">
-<h2 id="creating-docker-images-with-renv">Creating Docker images with renv<a class="anchor" aria-label="anchor" href="#creating-docker-images-with-renv"></a>
+<h2 id="containerizing-an-existing-renv-project">Containerizing an existing renv project<a class="anchor" aria-label="anchor" href="#containerizing-an-existing-renv-project"></a>
 </h2>
-<p>With Docker, <a href="https://docs.docker.com/engine/reference/builder/" class="external-link">Dockerfiles</a>
-are used to define new images. Dockerfiles can be used to declaratively
-specify how a Docker image should be created. A Docker image captures
-the state of a machine at some point in time – e.g., a Linux operating
-system after downloading and installing R 4.5. Docker containers can be
-created using that image as a base, allowing different independent
-applications to run using the same pre-defined machine state.</p>
-<p>First, you’ll need to get renv installed on your Docker image. For
-example, you could install the latest release of renv from CRAN:</p>
-<div class="sourceCode" id="cb1"><pre class="sourceCode dockerfile"><code class="sourceCode dockerfile"><span id="cb1-1"><a href="#cb1-1" tabindex="-1"></a><span class="kw">RUN</span> <span class="ex">R</span> <span class="at">-e</span> <span class="st">"install.packages('renv', repos = c(CRAN = 'https://cloud.r-project.org'))"</span></span></code></pre></div>
-<p>Alternatively, if you need to use the development version of renv,
-you could use:</p>
-<div class="sourceCode" id="cb2"><pre class="sourceCode dockerfile"><code class="sourceCode dockerfile"><span id="cb2-1"><a href="#cb2-1" tabindex="-1"></a><span class="kw">RUN</span> <span class="ex">R</span> <span class="at">-e</span> <span class="st">"install.packages('renv', repos = 'https://rstudio.r-universe.dev')"</span></span></code></pre></div>
-<p>Next, we’ll copy <code>renv.lock</code> into the container:</p>
-<div class="sourceCode" id="cb3"><pre class="sourceCode dockerfile"><code class="sourceCode dockerfile"><span id="cb3-1"><a href="#cb3-1" tabindex="-1"></a><span class="kw">WORKDIR</span> /project</span>
-<span id="cb3-2"><a href="#cb3-2" tabindex="-1"></a><span class="kw">COPY</span> renv.lock renv.lock</span></code></pre></div>
-<p>Now, we <code><a href="../reference/restore.html">renv::restore()</a></code> to install those packages. At
-this stage, you’ll need to decide which of R’s library paths you’d like
-to use for pacakge installation. (See <code><a href="https://rdrr.io/r/base/libPaths.html" class="external-link">?.libPaths</a></code> for more
-information.) There are a couple of options available:</p>
-<div class="section level3">
-<h3 id="use-the-default-library-paths">Use the default library paths<a class="anchor" aria-label="anchor" href="#use-the-default-library-paths"></a>
-</h3>
-<p>This method is appropriate if you’d like these packages to be visible
-to all R processes launched using this image, and can be done via:</p>
-<div class="sourceCode" id="cb4"><pre class="sourceCode dockerfile"><code class="sourceCode dockerfile"><span id="cb4-1"><a href="#cb4-1" tabindex="-1"></a><span class="kw">RUN</span> <span class="ex">R</span> <span class="at">-e</span> <span class="st">"renv::restore()"</span></span></code></pre></div>
-<p>Note that this method may fail if R’s default library paths are not
-on a writable volume in the Docker image. If this is the case, consider
-one of the alternatives below.</p>
-</div>
-<div class="section level3">
-<h3 id="use-the-default-project-library-path">Use the default project library path<a class="anchor" aria-label="anchor" href="#use-the-default-project-library-path"></a>
-</h3>
-<p>If you want to use renv’s default project-local library path, you’ll
-need to initialize the project within the Docker container as an renv
-project. This can be done with:</p>
-<div class="sourceCode" id="cb5"><pre class="sourceCode dockerfile"><code class="sourceCode dockerfile"><span id="cb5-1"><a href="#cb5-1" tabindex="-1"></a><span class="kw">RUN</span> <span class="ex">R</span> <span class="at">-s</span> <span class="at">-e</span> <span class="st">"renv::init(bare = TRUE)"</span></span>
-<span id="cb5-2"><a href="#cb5-2" tabindex="-1"></a><span class="kw">RUN</span> <span class="ex">R</span> <span class="at">-s</span> <span class="at">-e</span> <span class="st">"renv::restore()"</span></span></code></pre></div>
-<p>Or, alternatively, if you already have a project autoloader +
-settings available – e.g. because you’re creating a Docker image from an
-existing renv project – you could use:</p>
-<div class="sourceCode" id="cb6"><pre class="sourceCode dockerfile"><code class="sourceCode dockerfile"><span id="cb6-1"><a href="#cb6-1" tabindex="-1"></a><span class="kw">RUN</span> <span class="fu">mkdir</span> <span class="at">-p</span> renv</span>
-<span id="cb6-2"><a href="#cb6-2" tabindex="-1"></a><span class="kw">COPY</span> .Rprofile .Rprofile</span>
-<span id="cb6-3"><a href="#cb6-3" tabindex="-1"></a><span class="kw">COPY</span> renv/activate.R renv/activate.R</span>
-<span id="cb6-4"><a href="#cb6-4" tabindex="-1"></a><span class="kw">COPY</span> renv/settings.json renv/settings.json</span>
-<span id="cb6-5"><a href="#cb6-5" tabindex="-1"></a><span class="kw">RUN</span> <span class="ex">R</span> <span class="at">-s</span> <span class="at">-e</span> <span class="st">"renv::restore()"</span></span></code></pre></div>
-<p>Note that in this mode, the installed packages would only be visible
-to R sessions launched using <code>/project</code> as the working
-directory. This will be the default behavior as long as
-<code>WORKDIR</code> is not changed, but it’s important to keep this in
-mind.</p>
-</div>
-<div class="section level3">
-<h3 id="use-a-custom-library-path">Use a custom library path<a class="anchor" aria-label="anchor" href="#use-a-custom-library-path"></a>
-</h3>
-<p>If you’d like to fully customize the library path used, the simplest
-approach is likely to use the <code>RENV_PATHS_LIBRARY</code>
-environment variable. This mimics the above approach, but customizes the
-library paths used by renv. For example:</p>
-<div class="sourceCode" id="cb7"><pre class="sourceCode dockerfile"><code class="sourceCode dockerfile"><span id="cb7-1"><a href="#cb7-1" tabindex="-1"></a><span class="kw">ENV</span> RENV_PATHS_LIBRARY=renv/library</span>
-<span id="cb7-2"><a href="#cb7-2" tabindex="-1"></a><span class="kw">RUN</span> <span class="ex">R</span> <span class="at">-s</span> <span class="at">-e</span> <span class="st">"renv::init(bare = TRUE)"</span></span>
-<span id="cb7-3"><a href="#cb7-3" tabindex="-1"></a><span class="kw">RUN</span> <span class="ex">R</span> <span class="at">-s</span> <span class="at">-e</span> <span class="st">"renv::restore()"</span></span></code></pre></div>
-<p>Alternatively, you could manage the library paths yourself via
-<code><a href="https://rdrr.io/r/base/libPaths.html" class="external-link">.libPaths()</a></code> – see <code><a href="https://rdrr.io/r/base/libPaths.html" class="external-link">?.libPaths</a></code> in R for more
-inforamtion.</p>
-</div>
+<p>A good default is to copy the renv metadata first, restore packages,
+and only then copy the rest of the repository:</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode dockerfile"><code class="sourceCode dockerfile"><span id="cb1-1"><a href="#cb1-1" tabindex="-1"></a><span class="kw">FROM</span> &lt;parent-image&gt;</span>
+<span id="cb1-2"><a href="#cb1-2" tabindex="-1"></a></span>
+<span id="cb1-3"><a href="#cb1-3" tabindex="-1"></a><span class="co"># initialize application project directory</span></span>
+<span id="cb1-4"><a href="#cb1-4" tabindex="-1"></a><span class="kw">WORKDIR</span> /project</span>
+<span id="cb1-5"><a href="#cb1-5" tabindex="-1"></a><span class="kw">RUN</span> <span class="fu">mkdir</span> <span class="at">-p</span> renv</span>
+<span id="cb1-6"><a href="#cb1-6" tabindex="-1"></a></span>
+<span id="cb1-7"><a href="#cb1-7" tabindex="-1"></a><span class="co"># copy renv infrastructure</span></span>
+<span id="cb1-8"><a href="#cb1-8" tabindex="-1"></a><span class="kw">COPY</span> renv.lock renv.lock</span>
+<span id="cb1-9"><a href="#cb1-9" tabindex="-1"></a><span class="kw">COPY</span> .Rprofile .Rprofile</span>
+<span id="cb1-10"><a href="#cb1-10" tabindex="-1"></a><span class="kw">COPY</span> renv/activate.R renv/activate.R</span>
+<span id="cb1-11"><a href="#cb1-11" tabindex="-1"></a><span class="kw">COPY</span> renv/settings.json renv/settings.json</span>
+<span id="cb1-12"><a href="#cb1-12" tabindex="-1"></a></span>
+<span id="cb1-13"><a href="#cb1-13" tabindex="-1"></a><span class="co"># restore R project library</span></span>
+<span id="cb1-14"><a href="#cb1-14" tabindex="-1"></a><span class="kw">RUN</span> <span class="ex">R</span> <span class="at">-s</span> <span class="at">-e</span> <span class="st">"renv::restore()"</span></span>
+<span id="cb1-15"><a href="#cb1-15" tabindex="-1"></a></span>
+<span id="cb1-16"><a href="#cb1-16" tabindex="-1"></a><span class="co"># copy application files into image</span></span>
+<span id="cb1-17"><a href="#cb1-17" tabindex="-1"></a><span class="kw">COPY</span> . .</span></code></pre></div>
+<p>You should also add a <code>.dockerignore</code> file to prevent the
+host’s project library and other renv working directories from being
+copied into the build context:</p>
+<pre><code>renv/*
+!renv/activate.R
+!renv/settings.json</code></pre>
+<p>This excludes everything inside <code>renv/</code> except the two
+files the Dockerfile needs. The project library, sandbox, and other
+working directories are either rebuilt by <code><a href="../reference/restore.html">renv::restore()</a></code>
+inside the container or are host-specific, so they should not be copied
+into the image.</p>
+<p>This is a good starting point for most projects. The image restore
+step uses the same project metadata that you already commit to version
+control, so the container can recreate the project library before the
+rest of the source tree is copied. Note that renv does not need to be
+pre-installed on the parent image: when R starts, it sources
+<code>.Rprofile</code>, which in turn sources
+<code>renv/activate.R</code>. The activate script automatically
+downloads and installs renv if it is not already available.</p>
+<p>If you need to customize the library path, set
+<code>RENV_PATHS_LIBRARY</code> before calling
+<code><a href="../reference/restore.html">renv::restore()</a></code>:</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode dockerfile"><code class="sourceCode dockerfile"><span id="cb3-1"><a href="#cb3-1" tabindex="-1"></a><span class="kw">ENV</span> RENV_PATHS_LIBRARY=/renv/library</span>
+<span id="cb3-2"><a href="#cb3-2" tabindex="-1"></a><span class="kw">RUN</span> <span class="ex">R</span> <span class="at">-s</span> <span class="at">-e</span> <span class="st">"renv::restore()"</span></span></code></pre></div>
 </div>
 <div class="section level2">
-<h2 id="speeding-up-package-installations">Speeding up package installations<a class="anchor" aria-label="anchor" href="#speeding-up-package-installations"></a>
+<h2 id="caching-package-installs">Caching package installs<a class="anchor" aria-label="anchor" href="#caching-package-installs"></a>
 </h2>
-<p>The previously-described approaches are useful if you have multiple
-applications with identical package requirements. In this case, a single
-image containing this identical package library could serve as the
-parent image for several containerized applications.</p>
-<p>However, <code><a href="../reference/restore.html">renv::restore()</a></code> is slow – it needs to download
-and install packages, which can take some time. Thus, some care is
-required to efficiently make use of the renv cache for projects that
-require:</p>
-<ol style="list-style-type: decimal">
-<li><p>Building an image multiple times (e.g., to debug the production
-application as source code is updated), or</p></li>
-<li><p>Calling <code><a href="../reference/restore.html">renv::restore()</a></code> each time the container is
-run.</p></li>
-</ol>
-<p>The former process can be sped up using multi-stage builds, the
-latter by dynamically provisioning R Libraries, as described below.</p>
+<p>If you rebuild the same image repeatedly, caching can make
+<code><a href="../reference/restore.html">renv::restore()</a></code> much faster. There are three common
+approaches.</p>
 <div class="section level3">
-<h3 id="multi-stage-builds">Multi-stage builds<a class="anchor" aria-label="anchor" href="#multi-stage-builds"></a>
+<h3 id="basic-docker-layer-cache">Basic Docker layer cache<a class="anchor" aria-label="anchor" href="#basic-docker-layer-cache"></a>
 </h3>
-<p>For projects that require repeatedly building an image, <a href="https://docs.docker.com/build/building/multi-stage/" class="external-link">multi-stage
-builds</a> can be used to speed up the build process. With multi-stage
-builds, multiple FROM statements are used in the Dockerfile and files
-can be copied across build stages.</p>
-<p>This approach can be leveraged to generate more efficient builds by
-dedicating a first stage build to package synchronization and a second
-stage build to copying files and executing code that may need to be
-updated often across builds (e.g., code that needs to be debugged in the
-container).</p>
-<p>To implement a two stage build, the following code could be used as
-part of a Dockerfile.</p>
-<div class="sourceCode" id="cb8"><pre class="sourceCode dockerfile"><code class="sourceCode dockerfile"><span id="cb8-1"><a href="#cb8-1" tabindex="-1"></a><span class="kw">FROM</span> &lt;parent-image&gt; <span class="kw">AS</span> base</span>
-<span id="cb8-2"><a href="#cb8-2" tabindex="-1"></a></span>
-<span id="cb8-3"><a href="#cb8-3" tabindex="-1"></a><span class="co"># intialize the project; assuming renv infrastructure available</span></span>
-<span id="cb8-4"><a href="#cb8-4" tabindex="-1"></a><span class="kw">WORKDIR</span> /project</span>
-<span id="cb8-5"><a href="#cb8-5" tabindex="-1"></a><span class="kw">RUN</span> <span class="fu">mkdir</span> <span class="at">-p</span> renv</span>
-<span id="cb8-6"><a href="#cb8-6" tabindex="-1"></a><span class="kw">COPY</span> renv.lock renv.lock</span>
-<span id="cb8-7"><a href="#cb8-7" tabindex="-1"></a><span class="kw">COPY</span> .Rprofile .Rprofile</span>
-<span id="cb8-8"><a href="#cb8-8" tabindex="-1"></a><span class="kw">COPY</span> renv/activate.R renv/activate.R</span>
-<span id="cb8-9"><a href="#cb8-9" tabindex="-1"></a><span class="kw">COPY</span> renv/settings.dcf renv/settings.dcf</span>
-<span id="cb8-10"><a href="#cb8-10" tabindex="-1"></a></span>
-<span id="cb8-11"><a href="#cb8-11" tabindex="-1"></a><span class="co"># change default location of cache to project folder</span></span>
-<span id="cb8-12"><a href="#cb8-12" tabindex="-1"></a><span class="kw">RUN</span> <span class="fu">mkdir</span> renv/.cache</span>
-<span id="cb8-13"><a href="#cb8-13" tabindex="-1"></a><span class="kw">ENV</span> RENV_PATHS_CACHE=renv/.cache</span>
-<span id="cb8-14"><a href="#cb8-14" tabindex="-1"></a></span>
-<span id="cb8-15"><a href="#cb8-15" tabindex="-1"></a><span class="co"># restore </span></span>
-<span id="cb8-16"><a href="#cb8-16" tabindex="-1"></a><span class="kw">RUN</span> <span class="ex">R</span> <span class="at">-s</span> <span class="at">-e</span> <span class="st">"renv::restore()"</span></span></code></pre></div>
-<p>The above code uses
-<code>FROM &lt;parent-image&gt; AS &lt;name&gt;</code> to name the first
-stage of the build <code>base</code>. Here,
-<code>&lt;parent-image&gt;</code> should be replaced with an appropriate
-image name.</p>
-<p>Subsequently, the code uses approach 2 (described above) to copy the
-auto-loader to the project directory in the image. It additionally
-creates the <code>renv/.cache</code> directory that is to be used as the
-renv cache.</p>
-<p>The second stage of the build is defined by adding the following code
-to the same Dockerfile, below the previous code chunk.</p>
-<div class="sourceCode" id="cb9"><pre class="sourceCode dockerfile"><code class="sourceCode dockerfile"><span id="cb9-1"><a href="#cb9-1" tabindex="-1"></a><span class="kw">FROM</span> &lt;parent-image&gt;</span>
-<span id="cb9-2"><a href="#cb9-2" tabindex="-1"></a></span>
-<span id="cb9-3"><a href="#cb9-3" tabindex="-1"></a><span class="kw">WORKDIR</span> /project</span>
-<span id="cb9-4"><a href="#cb9-4" tabindex="-1"></a><span class="kw">COPY</span> <span class="op">--from=base</span> /project .</span>
-<span id="cb9-5"><a href="#cb9-5" tabindex="-1"></a></span>
-<span id="cb9-6"><a href="#cb9-6" tabindex="-1"></a><span class="co"># add commands that need to be debugged below</span></span></code></pre></div>
-<p>Here, <code>&lt;parent-image&gt;</code> could be the same as the
-parent image of <code>base</code>, but does not have to be (see <a href="https://docs.docker.com/build/building/multi-stage/" class="external-link">documentation</a>
-for more details).</p>
-<p>The key line is the <code>COPY</code> command, which specifies that
-the contents of <code>/project</code> directory from the
-<code>base</code> image are copied into the <code>/project</code>
-directory of this image.</p>
-<p>Any commands that will change frequently across builds could be
-included below the <code>COPY</code> command. If only this code
-associated with the second stage build is updated then
-<code><a href="../reference/restore.html">renv::restore()</a></code> will not be called again at build time.
-Instead, the layers associated with the <code>base</code> image will be
-loaded from Docker’s cache, thereby saving significant time in build
-process.</p>
-<p>In fact, <code><a href="../reference/restore.html">renv::restore()</a></code> will only be called when the
-<code>base</code> image needs to be rebuilt (e.g., when changes are made
-to <code>renv.lock</code>). Docker’s cache system is generally good at
-understanding the dependencies of images. However, if you find that the
-<code>base</code> image is not updating as expected, it is possible to
-manually enforce a clean build by including the <code>--no-cache</code>
-option in the call to <code>docker build</code>.</p>
+<p>The Dockerfile above already uses Docker’s normal layer cache.
+Because <code><a href="../reference/restore.html">renv::restore()</a></code> happens before
+<code>COPY . .</code>, changes to application code do not invalidate the
+restore layer. Docker only needs to run <code><a href="../reference/restore.html">renv::restore()</a></code>
+again when the copied renv files change.</p>
 </div>
 <div class="section level3">
-<h3 id="dynamically-provisioning-r-libraries-with-renv">Dynamically Provisioning R Libraries with renv<a class="anchor" aria-label="anchor" href="#dynamically-provisioning-r-libraries-with-renv"></a>
+<h3 id="cache-mounts">Cache mounts<a class="anchor" aria-label="anchor" href="#cache-mounts"></a>
 </h3>
-<p>However, on occasion, one will have multiple applications built from
-a single base image, but each application will have its own independent
-R package requirements. In this case, rather than including the package
-dependencies in the image itself, it would be preferable for each
-container to provision its own library at runtime, based on that
-application’s <code>renv.lock</code> lockfile.</p>
-<p>In effect, this is as simple as ensuring that
-<code><a href="../reference/restore.html">renv::restore()</a></code> happens at container runtime, rather than
-image build time. However, on its own, <code><a href="../reference/restore.html">renv::restore()</a></code> is
-slow – it needs to download and install packages, which could take
-prohibitively long if an application needs to be run repeatedly.</p>
-<p>The renv package cache can be used to help ameliorate this issue.
-When the cache is enabled, whenever renv attempts to install or restore
-an R package, it first checks to see whether that package is already
-available within the renv cache. If it is, that instance of the package
-is linked into the project library. Otherwise, the package is first
-installed into the renv cache, and then that newly-installed copy is
-linked for use in the project.</p>
-<p>In effect, if the renv cache is available, you should only need to
-pay the cost of package installation once – after that, the
-newly-installed package will be available for re-use across different
-projects. At the same time, each project’s library will remain
-independent and isolated from one another, so installing a package
-within one container won’t affect another container.</p>
-<p>However, by default, each Docker container will have its own
-independent filesystem. Ideally, we’d like for <em>all</em> containers
-launched from a particular image to have access to the same renv cache.
-To accomplish this, we’ll have to tell each container to use an renv
-cache located on a shared mount.</p>
-<p>In sum, if we’d like to allow for runtime provisioning of R package
-dependencies, we will need to ensure the renv cache is located on a
-shared volume, which is visible to any containers launched. We will
-accomplish this by:</p>
-<ol style="list-style-type: decimal">
-<li><p>Setting the <code>RENV_PATHS_CACHE</code> environment variable,
-to tell the instance of renv running in each container where the global
-cache lives;</p></li>
-<li><p>Telling Docker to mount some filesystem location from the host
-filesystem, at some location (<code>RENV_PATHS_CACHE_HOST</code>), to a
-container-specific location
-(<code>RENV_PATHS_CACHE_CONTAINER</code>).</p></li>
-</ol>
-<p>For example, if you had a container running a Shiny application:</p>
-<div class="sourceCode" id="cb10"><pre class="sourceCode dockerfile"><code class="sourceCode dockerfile"><span id="cb10-1"><a href="#cb10-1" tabindex="-1"></a><span class="co"># the location of the renv cache on the host machine</span></span>
-<span id="cb10-2"><a href="#cb10-2" tabindex="-1"></a>RENV_PATHS_CACHE_HOST=/opt/local/renv/cache</span>
-<span id="cb10-3"><a href="#cb10-3" tabindex="-1"></a></span>
-<span id="cb10-4"><a href="#cb10-4" tabindex="-1"></a><span class="co"># where the cache should be mounted in the container</span></span>
-<span id="cb10-5"><a href="#cb10-5" tabindex="-1"></a>RENV_PATHS_CACHE_CONTAINER=/renv/cache</span>
-<span id="cb10-6"><a href="#cb10-6" tabindex="-1"></a></span>
-<span id="cb10-7"><a href="#cb10-7" tabindex="-1"></a><span class="co"># run the container with the host cache mounted in the container</span></span>
-<span id="cb10-8"><a href="#cb10-8" tabindex="-1"></a>docker run --rm <span class="op">\</span></span>
-<span id="cb10-9"><a href="#cb10-9" tabindex="-1"></a>    -e <span class="st">"RENV_PATHS_CACHE=${RENV_PATHS_CACHE_CONTAINER}"</span> <span class="op">\</span></span>
-<span id="cb10-10"><a href="#cb10-10" tabindex="-1"></a>    -v <span class="st">"${RENV_PATHS_CACHE_HOST}:${RENV_PATHS_CACHE_CONTAINER}"</span> <span class="op">\</span></span>
-<span id="cb10-11"><a href="#cb10-11" tabindex="-1"></a>    -p 14618:14618 <span class="op">\</span></span>
-<span id="cb10-12"><a href="#cb10-12" tabindex="-1"></a>    R -s -e <span class="st">'renv::restore(); shiny::runApp(host = "0.0.0.0", port = 14618)'</span></span></code></pre></div>
-<p>Note that the invocation above assumes that the project has already
-been initialized either via calling <code><a href="../reference/init.html">renv::init()</a></code> or by
-copying the requisite <code>renv</code> project infrastructure. With
-this, any calls to renv APIs within the created docker container will
-have access to the mounted cache. The first time you run a container,
-renv will likely need to populate the cache, and so some time will be
-spent downloading and installing the required packages. Subsequent runs
-will be much faster, as renv will be able to reuse the global package
-cache.</p>
-<p>The primary downside with this approach compared to the image-based
-approach is that it requires you to modify how containers are created,
-and requires a bit of extra orchestration in how containers are
-launched. However, once the renv cache is active, newly-created
-containers will launch very quickly, and a single image can then be used
-as a base for a myriad of different containers and applications, each
-with their own independent package dependencies.</p>
+<p>If you are using BuildKit, you can also mount a cache directory into
+the build. This allows <code><a href="../reference/restore.html">renv::restore()</a></code> to reuse previously
+cached packages even when the restore layer itself needs to be
+rebuilt.</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode dockerfile"><code class="sourceCode dockerfile"><span id="cb4-1"><a href="#cb4-1" tabindex="-1"></a><span class="co"># </span><span class="cv">syntax=docker/dockerfile:1</span></span>
+<span id="cb4-2"><a href="#cb4-2" tabindex="-1"></a><span class="kw">FROM</span> &lt;parent-image&gt;</span>
+<span id="cb4-3"><a href="#cb4-3" tabindex="-1"></a></span>
+<span id="cb4-4"><a href="#cb4-4" tabindex="-1"></a><span class="co"># initialize application project directory</span></span>
+<span id="cb4-5"><a href="#cb4-5" tabindex="-1"></a><span class="kw">WORKDIR</span> /project</span>
+<span id="cb4-6"><a href="#cb4-6" tabindex="-1"></a><span class="kw">RUN</span> <span class="fu">mkdir</span> <span class="at">-p</span> renv</span>
+<span id="cb4-7"><a href="#cb4-7" tabindex="-1"></a></span>
+<span id="cb4-8"><a href="#cb4-8" tabindex="-1"></a><span class="co"># copy renv infrastructure</span></span>
+<span id="cb4-9"><a href="#cb4-9" tabindex="-1"></a><span class="kw">COPY</span> renv.lock renv.lock</span>
+<span id="cb4-10"><a href="#cb4-10" tabindex="-1"></a><span class="kw">COPY</span> .Rprofile .Rprofile</span>
+<span id="cb4-11"><a href="#cb4-11" tabindex="-1"></a><span class="kw">COPY</span> renv/activate.R renv/activate.R</span>
+<span id="cb4-12"><a href="#cb4-12" tabindex="-1"></a><span class="kw">COPY</span> renv/settings.json renv/settings.json</span>
+<span id="cb4-13"><a href="#cb4-13" tabindex="-1"></a></span>
+<span id="cb4-14"><a href="#cb4-14" tabindex="-1"></a><span class="co"># set path to the renv package cache</span></span>
+<span id="cb4-15"><a href="#cb4-15" tabindex="-1"></a><span class="kw">ENV</span> RENV_PATHS_CACHE=/renv/cache</span>
+<span id="cb4-16"><a href="#cb4-16" tabindex="-1"></a></span>
+<span id="cb4-17"><a href="#cb4-17" tabindex="-1"></a><span class="co"># ensure packages are copied, not symlinked</span></span>
+<span id="cb4-18"><a href="#cb4-18" tabindex="-1"></a><span class="kw">ENV</span> RENV_CONFIG_CACHE_SYMLINKS=FALSE</span>
+<span id="cb4-19"><a href="#cb4-19" tabindex="-1"></a></span>
+<span id="cb4-20"><a href="#cb4-20" tabindex="-1"></a><span class="co"># restore with mounted cache</span></span>
+<span id="cb4-21"><a href="#cb4-21" tabindex="-1"></a><span class="kw">RUN</span> <span class="op">--mount=type=cache,target=/renv/cache</span> <span class="op">\</span></span>
+<span id="cb4-22"><a href="#cb4-22" tabindex="-1"></a>    <span class="ex">R</span> <span class="at">-s</span> <span class="at">-e</span> <span class="st">"renv::restore()"</span></span>
+<span id="cb4-23"><a href="#cb4-23" tabindex="-1"></a></span>
+<span id="cb4-24"><a href="#cb4-24" tabindex="-1"></a><span class="co"># copy application files into the image</span></span>
+<span id="cb4-25"><a href="#cb4-25" tabindex="-1"></a><span class="kw">COPY</span> . .</span></code></pre></div>
+<p>The <code>RENV_PATHS_CACHE</code> environment variable tells renv
+where to find its package cache. The <code>RUN --mount=type=cache</code>
+line tells BuildKit to make a persistent build cache available at that
+path for the duration of the <code>RUN</code> instruction, so
+<code><a href="../reference/restore.html">renv::restore()</a></code> can reuse previously downloaded packages;
+see Docker’s <a href="https://docs.docker.com/reference/dockerfile/#run---mount" class="external-link"><code>RUN --mount</code>
+documentation</a> and <a href="https://docs.docker.com/build/cache/optimize/" class="external-link">cache mount
+guide</a>.</p>
+<p>Setting <code>RENV_CONFIG_CACHE_SYMLINKS=FALSE</code> is important
+here because the cache mount is not part of the final image. With
+symlinks enabled, renv could leave the project library pointing at
+packages in the mounted cache, and those symlinks would be broken once
+the build step finishes.</p>
+<p>This cache only helps on the specific machine or builder that created
+it. It is useful for repeated local builds, but it will not usually
+carry over to a different machine or a fresh CI runner.</p>
+</div>
+<div class="section level3">
+<h3 id="bind-mounted-host-caches">Bind-mounted host caches<a class="anchor" aria-label="anchor" href="#bind-mounted-host-caches"></a>
+</h3>
+<p>If the host machine already has a populated renv cache, you can
+bind-mount that cache into the build and let
+<code><a href="../reference/restore.html">renv::restore()</a></code> reuse it. This is especially useful when
+the host cache is managed outside Docker.</p>
+<p>The Dockerfile can mount a host-provided cache context into the renv
+cache path:</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode dockerfile"><code class="sourceCode dockerfile"><span id="cb5-1"><a href="#cb5-1" tabindex="-1"></a><span class="co"># </span><span class="cv">syntax=docker/dockerfile:1</span></span>
+<span id="cb5-2"><a href="#cb5-2" tabindex="-1"></a><span class="kw">FROM</span> &lt;parent-image&gt;</span>
+<span id="cb5-3"><a href="#cb5-3" tabindex="-1"></a></span>
+<span id="cb5-4"><a href="#cb5-4" tabindex="-1"></a><span class="co"># initialize application project directory</span></span>
+<span id="cb5-5"><a href="#cb5-5" tabindex="-1"></a><span class="kw">WORKDIR</span> /project</span>
+<span id="cb5-6"><a href="#cb5-6" tabindex="-1"></a><span class="kw">RUN</span> <span class="fu">mkdir</span> <span class="at">-p</span> renv</span>
+<span id="cb5-7"><a href="#cb5-7" tabindex="-1"></a></span>
+<span id="cb5-8"><a href="#cb5-8" tabindex="-1"></a><span class="co"># copy renv infrastructure</span></span>
+<span id="cb5-9"><a href="#cb5-9" tabindex="-1"></a><span class="kw">COPY</span> renv.lock renv.lock</span>
+<span id="cb5-10"><a href="#cb5-10" tabindex="-1"></a><span class="kw">COPY</span> .Rprofile .Rprofile</span>
+<span id="cb5-11"><a href="#cb5-11" tabindex="-1"></a><span class="kw">COPY</span> renv/activate.R renv/activate.R</span>
+<span id="cb5-12"><a href="#cb5-12" tabindex="-1"></a><span class="kw">COPY</span> renv/settings.json renv/settings.json</span>
+<span id="cb5-13"><a href="#cb5-13" tabindex="-1"></a></span>
+<span id="cb5-14"><a href="#cb5-14" tabindex="-1"></a><span class="co"># set path to the renv package cache</span></span>
+<span id="cb5-15"><a href="#cb5-15" tabindex="-1"></a><span class="kw">ENV</span> RENV_PATHS_CACHE=/renv/cache</span>
+<span id="cb5-16"><a href="#cb5-16" tabindex="-1"></a></span>
+<span id="cb5-17"><a href="#cb5-17" tabindex="-1"></a><span class="co"># ensure packages are copied, not symlinked</span></span>
+<span id="cb5-18"><a href="#cb5-18" tabindex="-1"></a><span class="kw">ENV</span> RENV_CONFIG_CACHE_SYMLINKS=FALSE</span>
+<span id="cb5-19"><a href="#cb5-19" tabindex="-1"></a></span>
+<span id="cb5-20"><a href="#cb5-20" tabindex="-1"></a><span class="co"># restore with mounted cache</span></span>
+<span id="cb5-21"><a href="#cb5-21" tabindex="-1"></a><span class="kw">RUN</span> <span class="op">--mount=type=bind,from=renv-cache,source=.,target=/renv/cache,rw</span> <span class="op">\</span></span>
+<span id="cb5-22"><a href="#cb5-22" tabindex="-1"></a>    <span class="ex">R</span> <span class="at">-s</span> <span class="at">-e</span> <span class="st">"renv::restore()"</span></span>
+<span id="cb5-23"><a href="#cb5-23" tabindex="-1"></a></span>
+<span id="cb5-24"><a href="#cb5-24" tabindex="-1"></a><span class="kw">COPY</span> . .</span></code></pre></div>
+<p>The <code>RUN --mount=type=bind</code> line tells BuildKit to mount
+the named build context <code>renv-cache</code> at the renv cache path
+for that one <code>RUN</code> instruction, with temporary write access;
+see Docker’s <a href="https://docs.docker.com/reference/dockerfile/#run---mount" class="external-link"><code>RUN --mount</code>
+documentation</a> and <a href="https://docs.docker.com/build/building/context/#named-contexts" class="external-link">named
+contexts documentation</a>.</p>
+<p>You can then provide that cache directory at build time with
+<code>docker buildx build</code>:</p>
+<div class="sourceCode" id="cb6"><pre class="sourceCode sh"><code class="sourceCode bash"><span id="cb6-1"><a href="#cb6-1" tabindex="-1"></a><span class="ex">docker</span> buildx build <span class="dt">\</span></span>
+<span id="cb6-2"><a href="#cb6-2" tabindex="-1"></a>  <span class="at">--build-context</span> renv-cache=.cache/renv <span class="dt">\</span></span>
+<span id="cb6-3"><a href="#cb6-3" tabindex="-1"></a>  <span class="at">-t</span> <span class="op">&lt;</span>image-name<span class="op">&gt;</span> .</span></code></pre></div>
+<p>This approach is most useful when <code>.cache/renv</code> has
+already been populated on the host, for example by running
+<code><a href="../reference/restore.html">renv::restore()</a></code> outside Docker.</p>
+<p>Bind mounts are read-only by default, so the example uses
+<code>rw</code> to avoid write failures if <code><a href="../reference/restore.html">renv::restore()</a></code>
+needs to update the cache during the build. Even with <code>rw</code>,
+writes to the bind mount are only available for the duration of that
+<code>RUN</code> instruction and are discarded afterwards, so the
+host-provided cache context is not modified. This helps keep repeated
+builds reproducible, including when multiple builds run sequentially or
+in parallel.</p>
+<p><code>RENV_CONFIG_CACHE_SYMLINKS=FALSE</code> is needed here for the
+same reason as in the cache-mount example: the mounted cache is
+available during the build step, but it is not carried into the final
+image.</p>
+<p>This is often the preferred approach on ephemeral hosts such as
+GitHub Actions runners, because the host-side cache directory can be
+restored with the CI platform’s native cache support before the build
+starts. GitHub Actions and Azure DevOps both provide native cache
+features that work well for this: <a href="https://docs.github.com/actions/concepts/workflows-and-actions/dependency-caching" class="external-link">GitHub
+Actions cache</a> and <a href="https://learn.microsoft.com/azure/devops/pipelines/release/caching?view=azure-devops" class="external-link">Azure
+DevOps Cache task</a>.</p>
 </div>
 </div>
 <div class="section level2">
-<h2 id="handling-the-renv-autoloader">Handling the renv autoloader<a class="anchor" aria-label="anchor" href="#handling-the-renv-autoloader"></a>
+<h2 id="system-dependencies">System dependencies<a class="anchor" aria-label="anchor" href="#system-dependencies"></a>
 </h2>
-<p>When <code>R</code> is launched within a project folder, the renv
-auto-loader (if present) will attempt to download and install renv into
-the project library if it’s not available. Depending on how your Docker
-container is configured, this could fail. For example:</p>
-<div class="sourceCode" id="cb11"><pre class="sourceCode sh"><code class="sourceCode bash"><span id="cb11-1"><a href="#cb11-1" tabindex="-1"></a><span class="ex">Error</span> installing renv:</span>
-<span id="cb11-2"><a href="#cb11-2" tabindex="-1"></a><span class="ex">======================</span></span>
-<span id="cb11-3"><a href="#cb11-3" tabindex="-1"></a><span class="ex">ERROR:</span> unable to create <span class="st">'/usr/local/pipe/renv/library/master/R-4.0/x86_64-pc-linux-gnu/renv'</span></span>
-<span id="cb11-4"><a href="#cb11-4" tabindex="-1"></a><span class="ex">Warning</span> messages:</span>
-<span id="cb11-5"><a href="#cb11-5" tabindex="-1"></a><span class="ex">1:</span> In system2<span class="er">(</span><span class="ex">r,</span> args, stdout = TRUE, stderr = TRUE<span class="kw">)</span> <span class="bu">:</span></span>
-<span id="cb11-6"><a href="#cb11-6" tabindex="-1"></a>  <span class="ex">running</span> command <span class="st">''</span>/usr/lib/R/bin/R<span class="st">' --vanilla CMD INSTALL -l '</span>renv/library/master/R-4.0/x86_64-pc-linux-gnu<span class="st">' '</span>/tmp/RtmpwM7ooh/renv_0.12.2.tar.gz<span class="st">' 2&gt;&amp;1'</span> had status 1</span>
-<span id="cb11-7"><a href="#cb11-7" tabindex="-1"></a><span class="ex">2:</span> Failed to find an renv installation: the project will not be loaded.</span>
-<span id="cb11-8"><a href="#cb11-8" tabindex="-1"></a><span class="ex">Use</span> <span class="kw">`</span><span class="fu">renv::activate()</span><span class="kw">`</span> to re-initialize the project.</span></code></pre></div>
-<p>Bootstrapping renv into the project library might be unnecessary for
-you. If that is the case, then you can avoid this behavior by launching
-R with the <code>--vanilla</code> flag set; for example:</p>
-<div class="sourceCode" id="cb12"><pre class="sourceCode sh"><code class="sourceCode bash"><span id="cb12-1"><a href="#cb12-1" tabindex="-1"></a><span class="ex">R</span> <span class="at">--vanilla</span> <span class="at">-s</span> <span class="at">-e</span> <span class="st">'renv::restore()'</span></span></code></pre></div>
+<p>Many R packages require system libraries to compile
+(e.g. <code>libcurl</code>, <code>libxml2</code>). These need to be
+installed before <code><a href="../reference/restore.html">renv::restore()</a></code> runs. You can use
+[renv::sysreqs()] to compute the system packages required by your
+project:</p>
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu">renv</span><span class="fu">::</span><span class="fu"><a href="../reference/sysreqs.html">sysreqs</a></span><span class="op">(</span>distro <span class="op">=</span> <span class="st">"ubuntu:24.04"</span>, report <span class="op">=</span> <span class="cn">TRUE</span>, collapse <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
+<p>This reports the installation command needed for a given
+distribution, which you can then add to your Dockerfile before the
+restore step:</p>
+<div class="sourceCode" id="cb8"><pre class="sourceCode dockerfile"><code class="sourceCode dockerfile"><span id="cb8-1"><a href="#cb8-1" tabindex="-1"></a><span class="kw">RUN</span> <span class="ex">apt-get</span> update <span class="kw">&amp;&amp;</span> <span class="ex">apt-get</span> install <span class="at">-y</span> <span class="at">--no-install-recommends</span> <span class="dt">\</span></span>
+<span id="cb8-2"><a href="#cb8-2" tabindex="-1"></a>    libcurl4-openssl-dev <span class="dt">\</span></span>
+<span id="cb8-3"><a href="#cb8-3" tabindex="-1"></a>    libxml2-dev <span class="dt">\</span></span>
+<span id="cb8-4"><a href="#cb8-4" tabindex="-1"></a>    <span class="kw">&amp;&amp;</span> <span class="fu">rm</span> <span class="at">-rf</span> /var/lib/apt/lists/<span class="pp">*</span></span></code></pre></div>
+</div>
+<div class="section level2">
+<h2 id="multi-stage-builds">Multi-stage builds<a class="anchor" aria-label="anchor" href="#multi-stage-builds"></a>
+</h2>
+<p>For production images, a multi-stage build can separate the build
+environment (with compilers and development headers) from the final
+runtime image. This keeps the deployed image smaller by excluding tools
+that are only needed to compile packages. See Docker’s <a href="https://docs.docker.com/build/building/multi-stage/" class="external-link">multi-stage
+build documentation</a> for details.</p>
 </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside>

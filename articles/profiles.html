@@ -29,7 +29,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">renv</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">1.1.6</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">1.2.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -83,7 +83,7 @@
       <img src="../logo.svg" class="logo" alt=""><h1>Project profiles</h1>
             
       
-      <small class="dont-index">Source: <a href="https://github.com/rstudio/renv/blob/v1.1.6/vignettes/profiles.Rmd" class="external-link"><code>vignettes/profiles.Rmd</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/rstudio/renv/blob/main/vignettes/profiles.Rmd" class="external-link"><code>vignettes/profiles.Rmd</code></a></small>
       <div class="d-none name"><code>profiles.Rmd</code></div>
     </div>
 
@@ -92,10 +92,9 @@
 <div class="section level2">
 <h2 id="introduction">Introduction<a class="anchor" aria-label="anchor" href="#introduction"></a>
 </h2>
-<p>Starting with <code>renv 0.13.0</code>, it is possible to activate
-and switch between different profiles associated with a project. A
-profile can be thought of as a different mode in which a project is
-used. For example:</p>
+<p>It is possible to activate and switch between different profiles
+associated with a project. A profile can be thought of as a different
+mode in which a project is used. For example:</p>
 <ul>
 <li>A “development” profile might be used when developing and testing a
 project,</li>
@@ -168,6 +167,27 @@ leave the <code>Imports</code>, <code>Depends</code> and
 <p>When set, only the dependencies listed in the project
 <code>DESCRIPTION</code> file will be used when the lockfile is
 generated. See <code><a href="../reference/snapshot.html">?renv::snapshot</a></code> for more details.</p>
+</div>
+<div class="section level2">
+<h2 id="profile-specific-ignore-rules">Profile-specific ignore rules<a class="anchor" aria-label="anchor" href="#profile-specific-ignore-rules"></a>
+</h2>
+<p><code>.renvignore</code> files support profile-specific sections
+using comments of the form <code>#| &lt;expr&gt;</code>, where
+<code>&lt;expr&gt;</code> is an R expression evaluated to determine
+whether the subsequent ignore rules should apply. This is useful when
+different profiles should scan different parts of the project for
+dependencies.</p>
+<p>For example, to ignore the <code>shiny/</code> directory unless the
+“shiny” profile is active:</p>
+<pre><code># rules in this section apply to all profiles
+data/*.csv
+
+#| profile == "shiny"
+# only ignore these when the shiny profile is active
+scripts/batch-*.R</code></pre>
+<p>The first section (before any <code>#|</code> comment) applies to all
+profiles. If you want to restrict it to only the default profile, add
+<code>#| profile == "default"</code> as the first line.</p>
 </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside>

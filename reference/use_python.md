@@ -19,7 +19,9 @@ use_python(
 - python:
 
   The path to the version of Python to be used with this project. See
-  **Finding Python** for more details.
+  **Finding Python** for more details. Alternatively, set
+  `python = FALSE` to deactivate Python integration for the project –
+  this removes the `Python` section from `renv.lock`.
 
 - ...:
 
@@ -159,6 +161,9 @@ renv::use_python(type = "virtualenv")
 
 # use conda python with a project
 renv::use_python(type = "conda")
+
+# deactivate Python integration
+renv::use_python(python = FALSE)
 
 } # }
 ```

@@ -17,6 +17,7 @@ restore(
   rebuild = FALSE,
   repos = NULL,
   clean = FALSE,
+  strict = FALSE,
   transactional = NULL,
   prompt = interactive()
 )
@@ -83,6 +84,16 @@ restore(
   Boolean; remove packages not recorded in the lockfile from the target
   library? Use `clean = TRUE` if you'd like the library state to exactly
   reflect the lockfile contents after `restore()`.
+
+- strict:
+
+  Boolean; when `TRUE`, packages whose lockfile records contain a
+  repository URL in the `Repository` field will only be retrieved from
+  that exact repository. If the recorded repository is unavailable, the
+  restore will fail rather than falling back to other configured
+  repositories. This can be useful when you need to ensure that packages
+  are installed from a specific source (e.g. an internal package
+  repository).
 
 - transactional:
 

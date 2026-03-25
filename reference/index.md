@@ -106,6 +106,9 @@ bulk of day-to-day renv usage.
 - [`diagnostics()`](https://rstudio.github.io/renv/reference/diagnostics.md)
   : Print a diagnostics report
 
+- [`plan()`](https://rstudio.github.io/renv/reference/plan.md) : Plan
+  package installations
+
 - [`refresh()`](https://rstudio.github.io/renv/reference/refresh.md) :
   Refresh the local cache of available packages
 

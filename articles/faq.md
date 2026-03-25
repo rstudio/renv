@@ -86,6 +86,14 @@ is that you won’t be able to provide a `Hash` for that package, and so
 renv won’t be able to use its global package cache when installing that
 package.
 
+If you edit the lockfile by hand, you can use
+[`renv::lockfile_validate()`](https://rstudio.github.io/renv/reference/lockfile_validate.md)
+to check it against renv’s JSON schema:
+
+``` r
+renv::lockfile_validate()
+```
+
 ## How should I handle development dependencies?
 
 This is related to the above question: by design, `renv.lock` normally
@@ -106,6 +114,19 @@ to request that renv install the packages as described in the
 DESCRIPTION file. In addition, the `Remotes:` fields will be parsed and
 used, to ensure packages are installed from their declared remote source
 as appropriate.
+
+If you’d like development dependencies to be included in the lockfile by
+default, you can set:
+
+``` r
+renv::settings$snapshot.dev(TRUE)
+```
+
+When enabled,
+[`renv::snapshot()`](https://rstudio.github.io/renv/reference/snapshot.md)
+and
+[`renv::status()`](https://rstudio.github.io/renv/reference/status.md)
+will include development dependencies automatically.
 
 ## I’m returning to an older renv project. What do I do?
 
@@ -148,6 +169,24 @@ the two extremes:
 3.  Verify your code works, then call
     [`renv::snapshot()`](https://rstudio.github.io/renv/reference/snapshot.md)
     to update the new lockfile.
+
+## How can I check my packages for known vulnerabilities?
+
+If you use [Posit Package
+Manager](https://posit.co/products/enterprise/package-manager/) as a
+repository, you can use
+[`renv::vulns()`](https://rstudio.github.io/renv/reference/vulns.md) to
+check for known vulnerabilities in your project’s dependencies:
+
+``` r
+# check all packages recorded in the lockfile
+renv::vulns()
+
+# check specific packages
+renv::vulns(c("openssl==2.0.6", "curl==5.1.0"))
+```
+
+Only packages with known vulnerabilities are included in the result.
 
 ## Why are package downloads failing?
 

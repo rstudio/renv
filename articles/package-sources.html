@@ -29,7 +29,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">renv</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">1.1.6</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">1.2.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -83,7 +83,7 @@
       <img src="../logo.svg" class="logo" alt=""><h1>Package sources</h1>
             
       
-      <small class="dont-index">Source: <a href="https://github.com/rstudio/renv/blob/v1.1.6/vignettes/package-sources.Rmd" class="external-link"><code>vignettes/package-sources.Rmd</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/rstudio/renv/blob/main/vignettes/package-sources.Rmd" class="external-link"><code>vignettes/package-sources.Rmd</code></a></small>
       <div class="d-none name"><code>package-sources.Rmd</code></div>
     </div>
 
@@ -158,6 +158,22 @@ example, you might use:</p>
 <p>to tell renv to work with both the official CRAN package repository,
 as well as a package repository you have hosted and set up in your work
 environment.</p>
+<div class="section level4">
+<h4 id="repository-snapshots">Repository snapshots<a class="anchor" aria-label="anchor" href="#repository-snapshots"></a>
+</h4>
+<p>If you use <a href="https://packagemanager.posit.co/" class="external-link">Posit Package
+Manager</a>, you can use <code><a href="../reference/checkout.html">renv::checkout()</a></code> to switch your
+project to a specific snapshot date. This installs the versions of all
+packages that were available on that date:</p>
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># use packages as they were on 2024-01-15</span></span>
+<span><span class="fu">renv</span><span class="fu">::</span><span class="fu"><a href="../reference/checkout.html">checkout</a></span><span class="op">(</span>date <span class="op">=</span> <span class="st">"2024-01-15"</span><span class="op">)</span></span></code></pre></div>
+<p>You can also generate a lockfile from a snapshot date without
+installing anything, by using <code>actions = "snapshot"</code>:</p>
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu">renv</span><span class="fu">::</span><span class="fu"><a href="../reference/checkout.html">checkout</a></span><span class="op">(</span>date <span class="op">=</span> <span class="st">"2024-01-15"</span>, actions <span class="op">=</span> <span class="st">"snapshot"</span><span class="op">)</span></span></code></pre></div>
+<p>See <code><a href="../reference/checkout.html">?renv::checkout</a></code> for more details.</p>
+</div>
 </div>
 <div class="section level3">
 <h3 id="bioconductor">Bioconductor<a class="anchor" aria-label="anchor" href="#bioconductor"></a>
@@ -172,12 +188,12 @@ using renv with packages obtained from Bioconductor.</p>
 </h3>
 <p>To initialize renv in a project using Bioconductor, you can pass the
 <code>bioconductor</code> argument to <code><a href="../reference/init.html">renv::init()</a></code>:</p>
-<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># use the latest-available Bioconductor release</span></span>
 <span><span class="fu">renv</span><span class="fu">::</span><span class="fu"><a href="../reference/init.html">init</a></span><span class="op">(</span>bioconductor <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># use a specific version of Bioconductor</span></span>
-<span><span class="fu">renv</span><span class="fu">::</span><span class="fu"><a href="../reference/init.html">init</a></span><span class="op">(</span>bioconductor <span class="op">=</span> <span class="st">"3.14"</span><span class="op">)</span></span></code></pre></div>
+<span><span class="fu">renv</span><span class="fu">::</span><span class="fu"><a href="../reference/init.html">init</a></span><span class="op">(</span>bioconductor <span class="op">=</span> <span class="st">"3.20"</span><span class="op">)</span></span></code></pre></div>
 <p>This will tell renv to activate the appropriate Bioconductor
 repositories, and to use those repositories when attempting to restore
 packages.</p>
@@ -192,13 +208,13 @@ particular project to a particular Bioconductor release, even as new
 Bioconductor releases are made available for newer versions of R.</p>
 <p>To set the version of Bioconductor used in a project, you can
 use:</p>
-<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu">renv</span><span class="fu">::</span><span class="va"><a href="../reference/settings.html">settings</a></span><span class="op">$</span><span class="fu">bioconductor.version</span><span class="op">(</span><span class="st">"3.14"</span><span class="op">)</span></span></code></pre></div>
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu">renv</span><span class="fu">::</span><span class="va"><a href="../reference/settings.html">settings</a></span><span class="op">$</span><span class="fu">bioconductor.version</span><span class="op">(</span><span class="st">"3.20"</span><span class="op">)</span></span></code></pre></div>
 <p>If you later choose to upgrade R, you may need to upgrade the version
 of Bioconductor used as well.</p>
 <p>If you want to override the Bioconductor repositories used by renv,
 you can also explicitly set the following option:</p>
-<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/options.html" class="external-link">options</a></span><span class="op">(</span>renv.bioconductor.repos <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">...</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 </div>
 </div>
@@ -255,7 +271,7 @@ if <code>skeleton 1.0.0</code> was also available on CRAN,
 the cellar rather than the version available from CRAN.</p>
 <p>If you want to see what paths renv is using for the cellar, you can
 use:</p>
-<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu">renv</span><span class="fu">:::</span><span class="fu">renv_paths_cellar</span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
 <p>See <code><a href="../reference/paths.html">?paths</a></code> for more details.</p>
 <div class="section level4">
@@ -266,11 +282,11 @@ desired. This is most useful if you are building an renv lockfile “by
 hand”, or need to tweak an existing lockfile to point at a separate
 package for installation. For example, you could have a package record
 in <code>renv.lock</code> of the form:</p>
-<div class="sourceCode" id="cb9"><pre class="sourceCode json"><code class="sourceCode json"><span id="cb9-1"><a href="#cb9-1" tabindex="-1"></a><span class="fu">{</span></span>
-<span id="cb9-2"><a href="#cb9-2" tabindex="-1"></a>  <span class="dt">"Package"</span><span class="fu">:</span> <span class="st">"skeleton"</span><span class="fu">,</span></span>
-<span id="cb9-3"><a href="#cb9-3" tabindex="-1"></a>  <span class="dt">"Version"</span><span class="fu">:</span> <span class="st">"1.0.1"</span><span class="fu">,</span></span>
-<span id="cb9-4"><a href="#cb9-4" tabindex="-1"></a>  <span class="dt">"Source"</span><span class="fu">:</span> <span class="st">"/mnt/r/pkg/skeleton_1.0.1.tar.gz"</span></span>
-<span id="cb9-5"><a href="#cb9-5" tabindex="-1"></a><span class="fu">}</span></span></code></pre></div>
+<div class="sourceCode" id="cb11"><pre class="sourceCode json"><code class="sourceCode json"><span id="cb11-1"><a href="#cb11-1" tabindex="-1"></a><span class="fu">{</span></span>
+<span id="cb11-2"><a href="#cb11-2" tabindex="-1"></a>  <span class="dt">"Package"</span><span class="fu">:</span> <span class="st">"skeleton"</span><span class="fu">,</span></span>
+<span id="cb11-3"><a href="#cb11-3" tabindex="-1"></a>  <span class="dt">"Version"</span><span class="fu">:</span> <span class="st">"1.0.1"</span><span class="fu">,</span></span>
+<span id="cb11-4"><a href="#cb11-4" tabindex="-1"></a>  <span class="dt">"Source"</span><span class="fu">:</span> <span class="st">"/mnt/r/pkg/skeleton_1.0.1.tar.gz"</span></span>
+<span id="cb11-5"><a href="#cb11-5" tabindex="-1"></a><span class="fu">}</span></span></code></pre></div>
 <p>Packages should have the following extensions, depending on whether
 the archive contains a binary copy of the package or the package
 sources:</p>
@@ -328,7 +344,7 @@ was built against.</p>
 <p>R packages might occasionally (and unintentionally) take a build-time
 dependency on another R package – for example, a package with the
 code:</p>
-<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># please don't do this!</span></span>
 <span><span class="va">`%&gt;%`</span> <span class="op">&lt;-</span> <span class="fu">magrittr</span><span class="fu">::</span><span class="va">`%&gt;%`</span></span></code></pre></div>
 <p>would take the version of <code>%&gt;%</code> that was available from

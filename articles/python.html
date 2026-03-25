@@ -29,7 +29,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">renv</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">1.1.6</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">1.2.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -83,7 +83,7 @@
       <img src="../logo.svg" class="logo" alt=""><h1>Using Python with renv</h1>
             
       
-      <small class="dont-index">Source: <a href="https://github.com/rstudio/renv/blob/v1.1.6/vignettes/python.Rmd" class="external-link"><code>vignettes/python.Rmd</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/rstudio/renv/blob/main/vignettes/python.Rmd" class="external-link"><code>vignettes/python.Rmd</code></a></small>
       <div class="d-none name"><code>python.Rmd</code></div>
     </div>
 
@@ -110,6 +110,18 @@ environment instead – use
 record and use that Python interpreter with your project. This can also
 be used with pre-existing virtual environments and Conda
 environments.</p>
+</div>
+<div class="section level2">
+<h2 id="deactivating-python-integration">Deactivating Python integration<a class="anchor" aria-label="anchor" href="#deactivating-python-integration"></a>
+</h2>
+<p>If you’d like to deactivate Python integration for a project, you can
+do so with:</p>
+<div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu">renv</span><span class="fu">::</span><span class="fu"><a href="../reference/use_python.html">use_python</a></span><span class="op">(</span>python <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div>
+<p>This removes the <code>Python</code> section from
+<code>renv.lock</code>. Note that this does not remove any
+previously-created virtual environments or <code>requirements.txt</code>
+files; those can be deleted manually if no longer needed.</p>
 </div>
 <div class="section level2">
 <h2 id="understanding-python-integration">Understanding Python integration<a class="anchor" aria-label="anchor" href="#understanding-python-integration"></a>

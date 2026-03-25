@@ -14,9 +14,9 @@ you no longer want to use it.
 We assume you’re already living a project-centric lifestyle and are
 familiar with a version control system, like Git and GitHub: we believe
 these are table stakes for reproducible data science. If you’re not
-already using projects, we recommend [Workflow:
-Projects](https://r4ds.had.co.nz/workflow-projects.html) from *R for
-Data Science*; if you’re unfamiliar with [Git](https://git-scm.com/) and
+already using projects, we recommend [Workflow: scripts and
+projects](https://r4ds.hadley.nz/workflow-scripts.html) from *R for Data
+Science*; if you’re unfamiliar with [Git](https://git-scm.com/) and
 [GitHub](https://github.com/), we recommend [Happy Git and GitHub for
 the useR](https://happygitwithr.com).
 
@@ -198,7 +198,7 @@ from CRAN and the mime package installed from GitHub:
 ``` json
 {
   "R": {
-    "Version": "4.5.2",
+    "Version": "4.5.3",
     "Repositories": [
       {
         "Name": "CRAN",

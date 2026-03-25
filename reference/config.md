@@ -94,6 +94,16 @@ to `"api.bitbucket.org/2.0"`.
 The method to use when attempting to copy directories. See **Copy
 Methods** for more information. Defaults to `"auto"`.
 
+### renv.config.crandb.enabled
+
+Use the [crandb](https://github.com/r-hub/crandb) service when looking
+up packages from CRAN which are not available in the configured
+repositories? When enabled, renv will query the crandb API to find the
+latest version of a package compatible with the current version of R.
+This can be useful when an older version of R is being used, and the
+latest version of a package on CRAN requires a newer version of R.
+Disabled by default. Defaults to `FALSE`.
+
 ### renv.config.connect.timeout
 
 The amount of time to spend (in seconds) when attempting to download a
@@ -234,6 +244,15 @@ and later copy or move those packages back into the project library only
 if all packages were successfully downloaded and installed. This can be
 useful if you'd like to avoid mutating your project library if
 installation of one or more packages fails. Defaults to `TRUE`.
+
+### renv.config.install.jobs
+
+The number of packages to install concurrently during
+[`install()`](https://rstudio.github.io/renv/reference/install.md) and
+[`restore()`](https://rstudio.github.io/renv/reference/restore.md).
+Packages within the same dependency wave are installed in parallel using
+this many concurrent R CMD INSTALL processes. Set to `1L` for sequential
+installation. Defaults to `4L`.
 
 ### renv.config.install.verbose
 

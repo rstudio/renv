@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">renv</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">1.1.6</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">1.2.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -48,7 +48,7 @@
 <div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
       <img src="../logo.svg" class="logo" alt=""><h1>User-level settings</h1>
-      <small class="dont-index">Source: <a href="https://github.com/rstudio/renv/blob/v1.1.6/R/config-defaults.R" class="external-link"><code>R/config-defaults.R</code></a>, <a href="https://github.com/rstudio/renv/blob/v1.1.6/R/config.R" class="external-link"><code>R/config.R</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/rstudio/renv/blob/main/R/config-defaults.R" class="external-link"><code>R/config-defaults.R</code></a>, <a href="https://github.com/rstudio/renv/blob/main/R/config.R" class="external-link"><code>R/config.R</code></a></small>
       <div class="d-none name"><code>config.Rd</code></div>
     </div>
 
@@ -120,6 +120,11 @@ Defaults to <code>"api.bitbucket.org/2.0"</code>.</p>
 <h3 id="renv-config-copy-method">renv.config.copy.method<a class="anchor" aria-label="anchor" href="#renv-config-copy-method"></a></h3>
 <p>The method to use when attempting to copy directories. See <strong>Copy Methods</strong> for more information.
 Defaults to <code>"auto"</code>.</p>
+</div>
+<div class="section">
+<h3 id="renv-config-crandb-enabled">renv.config.crandb.enabled<a class="anchor" aria-label="anchor" href="#renv-config-crandb-enabled"></a></h3>
+<p>Use the <a href="https://github.com/r-hub/crandb" class="external-link">crandb</a> service when looking up packages from CRAN which are not available in the configured repositories? When enabled, renv will query the crandb API to find the latest version of a package compatible with the current version of R. This can be useful when an older version of R is being used, and the latest version of a package on CRAN requires a newer version of R. Disabled by default.
+Defaults to <code>FALSE</code>.</p>
 </div>
 <div class="section">
 <h3 id="renv-config-connect-timeout">renv.config.connect.timeout<a class="anchor" aria-label="anchor" href="#renv-config-connect-timeout"></a></h3>
@@ -206,6 +211,11 @@ Defaults to <code>TRUE</code>.</p>
 <h3 id="renv-config-install-transactional">renv.config.install.transactional<a class="anchor" aria-label="anchor" href="#renv-config-install-transactional"></a></h3>
 <p>Perform a transactional install of packages during install and restore? When enabled, renv will first install packages into a temporary library, and later copy or move those packages back into the project library only if all packages were successfully downloaded and installed. This can be useful if you'd like to avoid mutating your project library if installation of one or more packages fails.
 Defaults to <code>TRUE</code>.</p>
+</div>
+<div class="section">
+<h3 id="renv-config-install-jobs">renv.config.install.jobs<a class="anchor" aria-label="anchor" href="#renv-config-install-jobs"></a></h3>
+<p>The number of packages to install concurrently during <code><a href="install.html">install()</a></code> and <code><a href="restore.html">restore()</a></code>. Packages within the same dependency wave are installed in parallel using this many concurrent R CMD INSTALL processes. Set to <code>1L</code> for sequential installation.
+Defaults to <code>4L</code>.</p>
 </div>
 <div class="section">
 <h3 id="renv-config-install-verbose">renv.config.install.verbose<a class="anchor" aria-label="anchor" href="#renv-config-install-verbose"></a></h3>

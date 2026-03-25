@@ -29,7 +29,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">renv</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">1.1.6</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">1.2.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -83,7 +83,7 @@
       <img src="../logo.svg" class="logo" alt=""><h1>Frequently asked questions</h1>
             
       
-      <small class="dont-index">Source: <a href="https://github.com/rstudio/renv/blob/v1.1.6/vignettes/faq.Rmd" class="external-link"><code>vignettes/faq.Rmd</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/rstudio/renv/blob/main/vignettes/faq.Rmd" class="external-link"><code>vignettes/faq.Rmd</code></a></small>
       <div class="d-none name"><code>faq.Rmd</code></div>
     </div>
 
@@ -158,6 +158,11 @@ repository</a>.</p>
 directly is that you won’t be able to provide a <code>Hash</code> for
 that package, and so renv won’t be able to use its global package cache
 when installing that package.</p>
+<p>If you edit the lockfile by hand, you can use
+<code><a href="../reference/lockfile_validate.html">renv::lockfile_validate()</a></code> to check it against renv’s JSON
+schema:</p>
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu">renv</span><span class="fu">::</span><span class="fu"><a href="../reference/lockfile_validate.html">lockfile_validate</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="how-should-i-handle-development-dependencies">How should I handle development dependencies?<a class="anchor" aria-label="anchor" href="#how-should-i-handle-development-dependencies"></a>
@@ -171,12 +176,19 @@ trying to restore a project library.</p>
 <p>For cases like these, we recommend tracking these packages in a
 project DESCRIPTION file; typically, within the <code>Suggests:</code>
 field. Then, you can execute:</p>
-<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu">renv</span><span class="fu">::</span><span class="fu"><a href="../reference/install.html">install</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
 <p>to request that renv install the packages as described in the
 DESCRIPTION file. In addition, the <code>Remotes:</code> fields will be
 parsed and used, to ensure packages are installed from their declared
 remote source as appropriate.</p>
+<p>If you’d like development dependencies to be included in the lockfile
+by default, you can set:</p>
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu">renv</span><span class="fu">::</span><span class="va"><a href="../reference/settings.html">settings</a></span><span class="op">$</span><span class="fu">snapshot.dev</span><span class="op">(</span><span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
+<p>When enabled, <code><a href="../reference/snapshot.html">renv::snapshot()</a></code> and
+<code><a href="../reference/status.html">renv::status()</a></code> will include development dependencies
+automatically.</p>
 </div>
 <div class="section level2">
 <h2 id="im-returning-to-an-older-renv-project--what-do-i-do">I’m returning to an older renv project. What do I do?<a class="anchor" aria-label="anchor" href="#im-returning-to-an-older-renv-project--what-do-i-do"></a>
@@ -209,6 +221,22 @@ defined in the lockfile.</p></li>
 <li><p>Verify your code works, then call <code><a href="../reference/snapshot.html">renv::snapshot()</a></code>
 to update the new lockfile.</p></li>
 </ol>
+</div>
+<div class="section level2">
+<h2 id="how-can-i-check-my-packages-for-known-vulnerabilities">How can I check my packages for known vulnerabilities?<a class="anchor" aria-label="anchor" href="#how-can-i-check-my-packages-for-known-vulnerabilities"></a>
+</h2>
+<p>If you use <a href="https://posit.co/products/enterprise/package-manager/" class="external-link">Posit
+Package Manager</a> as a repository, you can use
+<code><a href="../reference/vulns.html">renv::vulns()</a></code> to check for known vulnerabilities in your
+project’s dependencies:</p>
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># check all packages recorded in the lockfile</span></span>
+<span><span class="fu">renv</span><span class="fu">::</span><span class="fu"><a href="../reference/vulns.html">vulns</a></span><span class="op">(</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># check specific packages</span></span>
+<span><span class="fu">renv</span><span class="fu">::</span><span class="fu"><a href="../reference/vulns.html">vulns</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"openssl==2.0.6"</span>, <span class="st">"curl==5.1.0"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+<p>Only packages with known vulnerabilities are included in the
+result.</p>
 </div>
 <div class="section level2">
 <h2 id="why-are-package-downloads-failing">Why are package downloads failing?<a class="anchor" aria-label="anchor" href="#why-are-package-downloads-failing"></a>

@@ -52,6 +52,7 @@ use(
   ...,
   lockfile = NULL,
   library = NULL,
+  repos = getOption("repos"),
   isolate = TRUE,
   sandbox = TRUE,
   attach = FALSE,
@@ -65,6 +66,27 @@ use(
 
   The path to an R or R Markdown script. The default will use the
   current document, if running within RStudio.
+
+  ### Package Resolution
+
+  When `embed()` generates a call to `use()`, it needs to determine the
+  package versions to record. The `lockfile` parameter controls where
+  these versions come from:
+
+  1.  If `lockfile` is `NULL` (the default), and the project has an
+      existing `renv.lock` file, that project lockfile is used. Only
+      packages present in the lockfile will be included – any
+      dependencies not recorded in the lockfile will be omitted.
+
+  2.  If `lockfile` is a path to a lockfile, or a lockfile object, that
+      lockfile is used directly.
+
+  3.  If `lockfile` is `FALSE`, or if no project lockfile exists,
+      package versions are inferred from the currently-installed
+      packages in the active library paths.
+
+  4.  If `lockfile` is `NA`, package versions are inferred from the
+      latest versions available in the active package repositories.
 
 - ...:
 
@@ -90,6 +112,14 @@ use(
   library path will be re-used on future calls to `renv::use()`,
   allowing `renv::use()` to be used multiple times within a single
   script.
+
+- repos:
+
+  The R package repositories to use. When `NULL`, packages will be
+  resolved from the renv cache, without querying any external
+  repositories. This can be useful if you'd like to use packages that
+  have already been cached by renv, even when no active package
+  repositories have been configured.
 
 - isolate:
 

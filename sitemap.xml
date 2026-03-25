@@ -26,7 +26,7 @@
 <url><loc>https://rstudio.github.io/renv/reference/diagnostics.html</loc></url>
 <url><loc>https://rstudio.github.io/renv/reference/embed.html</loc></url>
 <url><loc>https://rstudio.github.io/renv/reference/equip.html</loc></url>
-<url><loc>https://rstudio.github.io/renv/reference/graph.html</loc></url>
+<url><loc>https://rstudio.github.io/renv/reference/graphviz.html</loc></url>
 <url><loc>https://rstudio.github.io/renv/reference/history.html</loc></url>
 <url><loc>https://rstudio.github.io/renv/reference/hydrate.html</loc></url>
 <url><loc>https://rstudio.github.io/renv/reference/imbue.html</loc></url>
@@ -41,6 +41,7 @@
 <url><loc>https://rstudio.github.io/renv/reference/migrate.html</loc></url>
 <url><loc>https://rstudio.github.io/renv/reference/modify.html</loc></url>
 <url><loc>https://rstudio.github.io/renv/reference/paths.html</loc></url>
+<url><loc>https://rstudio.github.io/renv/reference/plan.html</loc></url>
 <url><loc>https://rstudio.github.io/renv/reference/project.html</loc></url>
 <url><loc>https://rstudio.github.io/renv/reference/purge.html</loc></url>
 <url><loc>https://rstudio.github.io/renv/reference/rebuild.html</loc></url>
