@@ -349,7 +349,7 @@ renv_graph_description_gitlab <- function(record) {
   subdir <- record$RemoteSubdir
   ref    <- record$RemoteRef
 
-  parts <- c(subdir, "DESCRIPTION")
+  parts <- c(if (nzchar(subdir %||% "")) subdir, "DESCRIPTION")
   descpath <- URLencode(paste(parts, collapse = "/"), reserved = TRUE)
 
   # scope authentication

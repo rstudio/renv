@@ -850,3 +850,21 @@ test_that("renv_graph_urls gracefully handles mixed sources", {
   expect_null(urls[["fake"]])
 
 })
+
+# https://github.com/rstudio/renv/issues/2249
+test_that("gitlab DESCRIPTION path handles empty RemoteSubdir", {
+
+  # when subdir is empty or NULL, the encoded path should be just "DESCRIPTION"
+  # (not "%2FDESCRIPTION" which results from pasting "" with "DESCRIPTION")
+  for (subdir in list(NULL, "")) {
+    parts <- c(if (nzchar(subdir %||% "")) subdir, "DESCRIPTION")
+    descpath <- URLencode(paste(parts, collapse = "/"), reserved = TRUE)
+    expect_equal(descpath, "DESCRIPTION")
+  }
+
+  # when subdir is non-empty, it should appear in the path
+  parts <- c(if (nzchar("src" %||% "")) "src", "DESCRIPTION")
+  descpath <- URLencode(paste(parts, collapse = "/"), reserved = TRUE)
+  expect_equal(descpath, "src%2FDESCRIPTION")
+
+})

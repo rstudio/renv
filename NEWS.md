@@ -4,6 +4,9 @@
 * Fixed an error when calling `renv::use()` multiple times in a single
   session. (#2248)
 
+* Fixed an issue where GitLab packages with an empty `RemoteSubdir` field
+  caused restore and install failures. (#2249)
+
 
 # renv 1.2.0
 
