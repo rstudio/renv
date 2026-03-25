@@ -1,5 +1,5 @@
 
-# renv (under development)
+# renv 1.2.0
 
 * `renv::install()` and `renv::restore()` now download and install packages
   in parallel. Package downloads are batched into a single `curl --parallel`

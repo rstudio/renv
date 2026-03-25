@@ -1,16 +1,17 @@
 
 ^_pkgdown\.yml$
-^\.travis\.yml$
 ^.*\.Rproj$
 ^\.Rproj\.user$
 
-^.*\.backup$
-^\.clang-format$
-^\.claude$
-^\.covrignore$
-^\.positai$
-^\.renvignore$
-^\.vscode
+\.backup$
+\.clang-format$
+\.claude$
+\.covrignore$
+\.positai$
+\.renvignore$
+\.vscode$
+^\.github$
+^\.venv$
 
 ^appveyor\.yml$
 ^codecov\.yml$
@@ -22,8 +23,6 @@
 ^requirements\.txt$
 ^TODO\.md$
 
-^\.github$
-^\.venv$
 ^check$
 ^ci$
 ^docs$
@@ -42,3 +41,4 @@
 ^tests/testthat/testthat-problems.rds$
 ^vignettes/renv\.graffle$
 ^README\.Rmd$
+
