@@ -2,6 +2,11 @@
 
 ## renv (development version)
 
+- Fixed an error when calling
+  [`renv::use()`](https://rstudio.github.io/renv/dev/reference/embed.md)
+  multiple times in a single session.
+  ([\#2248](https://github.com/rstudio/renv/issues/2248))
+
 ## renv 1.2.0
 
 CRAN release: 2026-03-25
