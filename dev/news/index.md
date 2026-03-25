@@ -7,6 +7,10 @@
   multiple times in a single session.
   ([\#2248](https://github.com/rstudio/renv/issues/2248))
 
+- Fixed an issue where GitLab packages with an empty `RemoteSubdir`
+  field caused restore and install failures.
+  ([\#2249](https://github.com/rstudio/renv/issues/2249))
+
 ## renv 1.2.0
 
 CRAN release: 2026-03-25
