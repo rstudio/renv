@@ -119,6 +119,23 @@ test_that("compatible records from pak are handled correctly", {
 
 })
 
+test_that("records with NULL versions are treated as crossgrades", {
+
+  # https://github.com/rstudio/renv/issues/2248
+  before <- list(Package = "skeleton", Version = NULL)
+  after  <- list(Package = "skeleton", Version = "1.0.0")
+  expect_equal(renv_lockfile_diff_record(before, after), "crossgrade")
+
+  before <- list(Package = "skeleton", Version = "1.0.0")
+  after  <- list(Package = "skeleton", Version = NULL)
+  expect_equal(renv_lockfile_diff_record(before, after), "crossgrade")
+
+  before <- list(Package = "skeleton", Version = NULL)
+  after  <- list(Package = "skeleton", Version = NULL)
+  expect_equal(renv_lockfile_diff_record(before, after), "crossgrade")
+
+})
+
 test_that("pak's cran remotes are considered cranlike", {
 
   record <- list(

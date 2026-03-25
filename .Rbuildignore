@@ -10,7 +10,10 @@
 \.positai$
 \.renvignore$
 \.vscode$
+
+^\.claude$
 ^\.github$
+^\.positai$
 ^\.venv$
 
 ^appveyor\.yml$

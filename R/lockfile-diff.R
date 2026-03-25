@@ -54,6 +54,7 @@ renv_lockfile_diff_record <- function(before, after) {
   type <- case(
     is.null(before) ~ "install",
     is.null(after)  ~ "remove",
+    is.null(before$Version) || is.null(after$Version) ~ "crossgrade",
     before$Version < after$Version ~ "upgrade",
     before$Version > after$Version ~ "downgrade"
   )

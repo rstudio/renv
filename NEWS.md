@@ -1,6 +1,9 @@
 
 # renv (development version)
 
+* Fixed an error when calling `renv::use()` multiple times in a single
+  session. (#2248)
+
 
 # renv 1.2.0
 
