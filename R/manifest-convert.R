@@ -21,6 +21,9 @@
 #'   object; otherwise, the lockfile will be written to the path specified by
 #'   `lockfile`.
 #'
+#' @param project The project directory. If `NULL`, the active project will
+#'   be used instead.
+#'
 #' @return
 #' An renv lockfile.
 #'

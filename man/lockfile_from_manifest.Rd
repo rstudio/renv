@@ -17,6 +17,9 @@ lockfile_from_manifest(
 When \code{NA} (the default), the generated lockfile is returned as an \R
 object; otherwise, the lockfile will be written to the path specified by
 \code{lockfile}.}
+
+\item{project}{The project directory. If \code{NULL}, the active project will
+be used instead.}
 }
 \value{
 An renv lockfile.

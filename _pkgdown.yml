@@ -52,6 +52,7 @@ reference:
   - modify
   - history
   - scaffold
+  - lockfile_from_manifest
 
 - title: Package Cache
   contents:
