@@ -11,6 +11,10 @@
   field caused restore and install failures.
   ([\#2249](https://github.com/rstudio/renv/issues/2249))
 
+- Fixed an error in the install report when a package record had no
+  version, e.g. when a dependency could not be found in any configured
+  repository. ([\#2251](https://github.com/rstudio/renv/issues/2251))
+
 ## renv 1.2.0
 
 CRAN release: 2026-03-25
