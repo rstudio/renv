@@ -50,12 +50,14 @@ test_that("we cannot initialize a project using 'brunch'", {
 
 })
 
+# https://github.com/rstudio/renv/issues/2251
 test_that("attempts to initialize a project with a missing package is okay", {
 
   renv_tests_scope("missing")
 
-  # package 'missing' does not exist and so cannot be installed
-  init()
+  # package 'missing' does not exist and so cannot be installed;
+  # this should warn but not crash with a vapply error
+  expect_snapshot(init())
 
   expect_false(file.exists(renv_paths_library("missing")))
 
