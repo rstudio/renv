@@ -95,6 +95,11 @@ use <- function(...,
   records <- lapply(dots, renv_remotes_resolve, latest = !cacheonly)
   names(records) <- map_chr(records, `[[`, "Package")
 
+  # for cache-only installs, resolve dependencies before filtering
+  # so that dependencies of already-installed packages are still considered
+  if (cacheonly)
+    records <- renv_use_cacheonly_resolve(records = records, library = library)
+
   # remove any remotes which already appear to be installed
   compat <- enum_lgl(records, function(package, record) {
 
@@ -119,7 +124,6 @@ use <- function(...,
 
   # install packages
   if (cacheonly) {
-    records <- renv_use_cacheonly_resolve(records = records, library = library)
     records <- renv_use_cacheonly_install(records = records, library = library)
   } else {
     records <- local({
