@@ -165,44 +165,44 @@ renv_use_cacheonly_resolve <- function(records, library) {
   visited <- new.env(parent = emptyenv())
   base <- renv_packages_base()
 
-  recurse <- function(records) {
+  enumerate(records, function(package, record) {
+    renv_use_cacheonly_resolve_impl(package, record, visited, base)
+  })
 
-    enumerate(records, function(package, record) {
+  as.list(visited)
 
-      # skip if already visited or a base package
-      if (!is.null(visited[[package]]) || package %in% base)
-        return()
+}
 
-      visited[[package]] <- record
+renv_use_cacheonly_resolve_impl <- function(package, record, visited, base) {
 
-      # find the cached path for this record
-      path <- renv_cache_find(record)
+  # skip if already visited or a base package
+  if (!is.null(visited[[package]]) || package %in% base)
+    return()
 
-      # if the record has no version, fall back to any cached version
-      if (!nzchar(path) && is.null(record$Version)) {
-        paths <- renv_cache_list(packages = package)
-        path <- head(paths, n = 1L) %||% ""
-      }
+  visited[[package]] <- record
 
-      if (nzchar(path) && renv_cache_package_validate(path)) {
-        # read dependencies from the cached package DESCRIPTION
-        deps <- renv_dependencies_discover_description(path, fields = "strong")
-        if (is.data.frame(deps) && nrow(deps) > 0L) {
-          needed <- renv_vector_diff(deps$Package, c(ls(visited), base))
-          if (length(needed)) {
-            deprecords <- lapply(needed, renv_remotes_resolve, latest = FALSE)
-            names(deprecords) <- map_chr(deprecords, `[[`, "Package")
-            recurse(deprecords)
-          }
-        }
-      }
+  # find the cached path for this record
+  path <- renv_cache_find(record)
 
-    })
-
+  # if the record has no version, fall back to any cached version
+  if (!nzchar(path) && is.null(record$Version)) {
+    paths <- renv_cache_list(packages = package)
+    path <- head(paths, n = 1L) %||% ""
   }
 
-  recurse(records)
-  as.list(visited)
+  if (!nzchar(path) || !renv_cache_package_validate(path))
+    return()
+
+  # read dependencies from the cached package DESCRIPTION
+  deps <- renv_dependencies_discover_description(path, fields = "strong")
+  if (!is.data.frame(deps) || nrow(deps) == 0L)
+    return()
+
+  needed <- renv_vector_diff(deps$Package, c(ls(visited), base))
+  for (dep in needed) {
+    deprecord <- renv_remotes_resolve(dep, latest = FALSE)
+    renv_use_cacheonly_resolve_impl(dep, deprecord, visited, base)
+  }
 
 }
 
