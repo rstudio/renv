@@ -284,8 +284,8 @@ install <- function(packages = NULL,
     }, character(1L))
     labels <- ifelse(
       nzchar(reasons),
-      sprintf("%s (%s)", shQuote(failed), reasons),
-      shQuote(failed)
+      sprintf("%s (%s)", dQuote(failed), reasons),
+      dQuote(failed)
     )
     stopf("failed to install %s", paste(labels, collapse = ", "))
   }

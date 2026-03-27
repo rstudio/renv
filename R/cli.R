@@ -137,7 +137,7 @@ renv_cli_unknown <- function(method, exports) {
 
   candidates <- names(distance)[distance == n]
   fmt <- "did you mean %s?"
-  caution(fmt, paste(shQuote(candidates), collapse = " or "))
+  caution(fmt, paste(dQuote(candidates), collapse = " or "))
   return(1L)
 
 }

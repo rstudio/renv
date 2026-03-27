@@ -244,7 +244,7 @@ renv_restore_run_actions <- function(project, actions, current, lockfile, rebuil
   if (length(failed)) {
     stopf(
       "failed to install %s",
-      paste(shQuote(failed), collapse = ", ")
+      paste(dQuote(failed), collapse = ", ")
     )
   }
 

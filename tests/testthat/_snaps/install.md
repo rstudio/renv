@@ -77,5 +77,5 @@
       
     Condition
       Error:
-      ! failed to install 'missing' (package 'missing' is not available)
+      ! failed to install "missing" (package 'missing' is not available)
 

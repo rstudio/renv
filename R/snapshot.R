@@ -751,7 +751,7 @@ renv_snapshot_description_impl_v1 <- function(dcf, path = NULL) {
   missing <- renv_vector_diff(required, names(dcf))
   if (length(missing)) {
     fmt <- "required fields %s missing from DESCRIPTION at path '%s'"
-    stopf(fmt, paste(shQuote(missing), collapse = ", "), path %||% "<unknown>")
+    stopf(fmt, paste(dQuote(missing), collapse = ", "), path %||% "<unknown>")
   }
 
   # if this is a standard remote for a bioconductor package,
@@ -823,7 +823,7 @@ renv_snapshot_description_impl_v2 <- function(dcf, path) {
   missing <- renv_vector_diff(required, names(dcf))
   if (length(missing)) {
     fmt <- "required fields %s missing from DESCRIPTION at path '%s'"
-    stopf(fmt, paste(shQuote(missing), collapse = ", "), path %||% "<unknown>")
+    stopf(fmt, paste(dQuote(missing), collapse = ", "), path %||% "<unknown>")
   }
 
   # if this is a standard remote for a bioconductor package,
