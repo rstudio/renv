@@ -222,7 +222,7 @@ renv_record_format_short <- function(record, versioned = FALSE) {
     return(remote)
   }
 
-  record$Version
+  record$Version %||% renv_record_placeholder()
 
 }
 
