@@ -739,3 +739,30 @@ test_that("snapshot.dev setting works and snapshot() uses it as default", {
   expect_true("devtools" %in% deps2)
 
 })
+
+test_that("snapshot(description) creates a record from a list", {
+
+  desc <- list(
+    Package    = "example",
+    Version    = "1.0.0",
+    Repository = "CRAN"
+  )
+
+  record <- snapshot(description = desc)
+  expect_true(is.list(record))
+  expect_equal(record$Package, "example")
+  expect_equal(record$Version, "1.0.0")
+  expect_equal(record$Source, "Repository")
+
+})
+
+test_that("snapshot(description) creates a record from a path", {
+
+  skip_on_cran()
+
+  descpath <- system.file("DESCRIPTION", package = "utils")
+  record <- snapshot(description = descpath)
+  expect_true(is.list(record))
+  expect_equal(record$Package, "utils")
+
+})
