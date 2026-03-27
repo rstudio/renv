@@ -186,17 +186,18 @@ renv_use_cacheonly_resolve_impl <- function(package, record, visited, base,
 
   # find a suitable cached path for this record
   path <- renv_use_cacheonly_find(record, require, version)
+  valid <- nzchar(path) && renv_cache_package_validate(path)
 
   # update the record with the resolved version from the cache path,
   # so the install phase uses the same version we selected here
-  if (nzchar(path) && renv_cache_package_validate(path))
+  if (valid)
     record$Version <- renv_path_component(path, 3L)
 
   # always store the record so the install phase can report cache misses
   visited[[package]] <- record
 
   # can't resolve sub-dependencies without a valid cache entry
-  if (!nzchar(path) || !renv_cache_package_validate(path))
+  if (!valid)
     return()
 
   # read dependencies from the cached package DESCRIPTION
