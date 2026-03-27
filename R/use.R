@@ -95,6 +95,11 @@ use <- function(...,
   records <- lapply(dots, renv_remotes_resolve, latest = !cacheonly)
   names(records) <- map_chr(records, `[[`, "Package")
 
+  # for cache-only installs, resolve dependencies before filtering
+  # so that dependencies of already-installed packages are still considered
+  if (cacheonly)
+    records <- renv_use_cacheonly_resolve(records = records, library = library)
+
   # remove any remotes which already appear to be installed
   compat <- enum_lgl(records, function(package, record) {
 
@@ -158,6 +163,98 @@ renv_use_cacheonly_restore <- function(lockfile, library) {
 
 }
 
+renv_use_cacheonly_resolve <- function(records, library) {
+
+  # resolve transitive dependencies from cached package DESCRIPTION files
+  visited <- new.env(parent = emptyenv())
+  base <- renv_packages_base()
+
+  enumerate(records, function(package, record) {
+    renv_use_cacheonly_resolve_impl(package, record, visited, base)
+  })
+
+  as.list(visited)
+
+}
+
+renv_use_cacheonly_resolve_impl <- function(package, record, visited, base,
+                                            require = "", version = "") {
+
+  # skip if already visited or a base package
+  if (!is.null(visited[[package]]) || package %in% base)
+    return()
+
+  # find a suitable cached path for this record
+  path <- renv_use_cacheonly_find(record, require, version)
+  valid <- nzchar(path) && renv_cache_package_validate(path)
+
+  # update the record with the resolved version from the cache path,
+  # so the install phase uses the same version we selected here
+  if (valid)
+    record$Version <- renv_path_component(path, 3L)
+
+  # always store the record so the install phase can report cache misses
+  visited[[package]] <- record
+
+  # can't resolve sub-dependencies without a valid cache entry
+  if (!valid)
+    return()
+
+  # read dependencies from the cached package DESCRIPTION
+  deps <- renv_dependencies_discover_description(path, fields = "strong")
+  if (!is.data.frame(deps) || nrow(deps) == 0L)
+    return()
+
+  needed <- renv_vector_diff(deps$Package, c(ls(visited), base))
+  for (dep in needed) {
+    idx <- match(dep, deps$Package)
+    deprecord <- renv_remotes_resolve(dep, latest = FALSE)
+    renv_use_cacheonly_resolve_impl(
+      dep, deprecord, visited, base,
+      require = deps$Require[[idx]],
+      version = deps$Version[[idx]]
+    )
+  }
+
+}
+
+renv_use_cacheonly_find <- function(record, require = "", version = "") {
+
+  # if the record has a specific version, use it directly
+  path <- renv_cache_find(record)
+  if (nzchar(path))
+    return(path)
+
+  # if a specific version was requested but not found, don't fall back
+  if (!is.null(record$Version))
+    return("")
+
+  # no specific version requested; search the cache for a suitable version
+  paths <- renv_cache_list(packages = record$Package)
+  if (!length(paths))
+    return("")
+
+  # extract versions from cache paths (<package>/<version>/<hash>/<package>)
+  versions <- renv_path_component(paths, 3L)
+
+  # sort by version descending so we prefer the newest
+  order <- order(renv_version_rank(versions), decreasing = TRUE)
+  paths <- paths[order]
+  versions <- versions[order]
+
+  # if we have a version constraint, filter to satisfying versions
+  if (nzchar(require) && nzchar(version)) {
+    constraint <- paste(require, version)
+    satisfied <- map_lgl(versions, function(v) {
+      renv_version_requirement_satisfied(v, constraint)
+    })
+    paths <- paths[satisfied]
+  }
+
+  head(paths, n = 1L) %||% ""
+
+}
+
 renv_use_cacheonly_install <- function(records, library) {
 
   # determine how to place packages from cache into library
@@ -180,11 +277,9 @@ renv_use_cacheonly_install <- function(records, library) {
     path <- renv_cache_find(record)
 
     # if the record has no version (e.g. resolved with latest = FALSE),
-    # fall back to searching the cache for any available version
-    if (!nzchar(path) && is.null(record$Version)) {
-      paths <- renv_cache_list(packages = package)
-      path <- head(paths, n = 1L) %||% ""
-    }
+    # fall back to searching the cache for the newest available version
+    if (!nzchar(path) && is.null(record$Version))
+      path <- renv_use_cacheonly_find(record)
 
     if (!nzchar(path) || !renv_cache_package_validate(path)) {
       writef("- Package '%s' is not available in the cache.", package)
