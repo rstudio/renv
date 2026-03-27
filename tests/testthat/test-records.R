@@ -80,6 +80,13 @@ test_that("we can format records in various ways", {
 
 })
 
+test_that("renv_record_format_short handles missing Version", {
+
+  record <- list(Package = "thispackagedoesnotexist")
+  expect_equal(renv_record_format_short(record), "*")
+
+})
+
 test_that("compatible records from pak are handled correctly", {
 
   lhs <- list(

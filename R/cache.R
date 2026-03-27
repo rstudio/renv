@@ -551,7 +551,7 @@ renv_cache_package_validate <- function(path) {
 
   name <- if (type == "directory") "directory" else "file"
   fmt <- "%s %s exists but does not appear to be an R package"
-  warningf(fmt, name, shQuote(path))
+  warningf(fmt, name, dQuote(path))
 
   FALSE
 

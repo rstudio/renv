@@ -42,7 +42,7 @@ renv_id_generate_uuidgen <- function() {
 
   if (!nzchar(Sys.which("uuidgen"))) {
     fmt <- "program %s does not exist on this system"
-    stopf(fmt, shQuote("uuidgen"))
+    stopf(fmt, dQuote("uuidgen"))
   }
 
   system("uuidgen", intern = TRUE)

@@ -50,6 +50,10 @@ zlength <- function(x) {
   length(x) != 0L
 }
 
+dQuote <- function(x) {
+  encodeString(x, quote = "\"", justify = "none")
+}
+
 trim <- function(x) {
   gsub("^\\s+|\\s+$", "", x, perl = TRUE)
 }

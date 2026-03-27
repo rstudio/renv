@@ -165,7 +165,7 @@ r_exec_error_diagnostics <- function(package, output) {
     if (!is.character(check))
       return()
 
-    reasons <- paste("-", shQuote(check), collapse = "\n")
+    reasons <- paste("-", dQuote(check), collapse = "\n")
     paste(diagnostic$suggestion, "Reason(s):", reasons, sep = "\n")
 
   })
