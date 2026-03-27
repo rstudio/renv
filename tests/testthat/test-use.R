@@ -110,6 +110,34 @@ test_that("renv_use_cacheonly_restore installs lockfile packages from cache", {
 
 })
 
+test_that("use(repos = NULL) resolves dependencies from cache", {
+
+  skip_on_cran()
+
+  renv_tests_scope("breakfast")
+  init()
+
+  # reset the shared use libpath so we get a fresh library
+  renv_scope_binding(the, "use_libpath", NULL)
+  renv_scope_libpaths()
+
+  use(
+    "breakfast",
+    repos    = NULL,
+    isolate  = TRUE,
+    verbose  = FALSE,
+    sandbox  = FALSE
+  )
+
+  # breakfast depends on oatmeal and toast; toast depends on bread
+  libpath <- renv_use_libpath()
+  expect_true(file.exists(file.path(libpath, "breakfast")))
+  expect_true(file.exists(file.path(libpath, "oatmeal")))
+  expect_true(file.exists(file.path(libpath, "toast")))
+  expect_true(file.exists(file.path(libpath, "bread")))
+
+})
+
 test_that("use(repos = NULL) installs from cache only", {
 
   skip_on_cran()

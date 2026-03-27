@@ -119,6 +119,7 @@ use <- function(...,
 
   # install packages
   if (cacheonly) {
+    records <- renv_use_cacheonly_resolve(records = records, library = library)
     records <- renv_use_cacheonly_install(records = records, library = library)
   } else {
     records <- local({
@@ -155,6 +156,53 @@ renv_use_cacheonly_restore <- function(lockfile, library) {
   # extract and install records from cache
   records <- renv_lockfile_records(lockfile)
   renv_use_cacheonly_install(records = records, library = library)
+
+}
+
+renv_use_cacheonly_resolve <- function(records, library) {
+
+  # resolve transitive dependencies from cached package DESCRIPTION files
+  visited <- new.env(parent = emptyenv())
+  base <- renv_packages_base()
+
+  recurse <- function(records) {
+
+    enumerate(records, function(package, record) {
+
+      # skip if already visited or a base package
+      if (!is.null(visited[[package]]) || package %in% base)
+        return()
+
+      visited[[package]] <- record
+
+      # find the cached path for this record
+      path <- renv_cache_find(record)
+
+      # if the record has no version, fall back to any cached version
+      if (!nzchar(path) && is.null(record$Version)) {
+        paths <- renv_cache_list(packages = package)
+        path <- head(paths, n = 1L) %||% ""
+      }
+
+      if (nzchar(path) && renv_cache_package_validate(path)) {
+        # read dependencies from the cached package DESCRIPTION
+        deps <- renv_dependencies_discover_description(path, fields = "strong")
+        if (is.data.frame(deps) && nrow(deps) > 0L) {
+          needed <- renv_vector_diff(deps$Package, c(ls(visited), base))
+          if (length(needed)) {
+            deprecords <- lapply(needed, renv_remotes_resolve, latest = FALSE)
+            names(deprecords) <- map_chr(deprecords, `[[`, "Package")
+            recurse(deprecords)
+          }
+        }
+      }
+
+    })
+
+  }
+
+  recurse(records)
+  as.list(visited)
 
 }
 
