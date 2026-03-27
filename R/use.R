@@ -219,11 +219,14 @@ renv_use_cacheonly_resolve_impl <- function(package, record, visited, base,
 
 renv_use_cacheonly_find <- function(record, require = "", version = "") {
 
-  # if the record has a specific version, use it directly;
-  # don't fall back to other versions if the requested one is missing
+  # if the record has a specific version, use it directly
   path <- renv_cache_find(record)
-  if (nzchar(path) || !is.null(record$Version))
+  if (nzchar(path))
     return(path)
+
+  # if a specific version was requested but not found, don't fall back
+  if (!is.null(record$Version))
+    return("")
 
   # no specific version requested; search the cache for a suitable version
   paths <- renv_cache_list(packages = record$Package)
