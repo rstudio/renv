@@ -39,17 +39,36 @@ renv_record_cacheable <- function(record) {
 
 renv_record_source <- function(record, normalize = FALSE) {
 
+  # retrieve / infer package source from record
+  source <- renv_record_source_impl(record)
+
   # if this appears to be a file path, then keep it as-is
-  source <- record$Source %||% "unknown"
   if (grepl("[/\\]", source))
     return(source)
 
   # otherwise, try to normalize it
-  source <- tolower(record$Source %||% "unknown")
+  source <- tolower(source)
   if (normalize)
     source <- renv_record_source_normalize(record, source)
 
   source
+
+}
+
+renv_record_source_impl <- function(record) {
+
+  # if the record has a recorded source, use it
+  source <- record$Source
+  if (!is.null(source))
+    return(source)
+
+  # otherwise, if it has a Repository field, infer 'repository' source
+  repository <- record$Repository
+  if (!is.null(repository))
+    return("repository")
+
+  # otherwise, we don't know
+  "unknown"
 
 }
 

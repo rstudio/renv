@@ -1106,7 +1106,7 @@ renv_graph_install <- function(descriptions) {
 
       # stream per-package progress as each download completes;
       # disabled in testing mode to keep output order deterministic
-      showprogress <- !testing()
+      showprogress <- !testing() && !ci()
       awaiting <- names(downloadable)
 
       # define a callback to be invoked upon completion of each download
@@ -1116,8 +1116,8 @@ renv_graph_install <- function(descriptions) {
         if (is.null(pkg))
           return()
 
-        progress$clear()
-        progress$tick()
+        if (showprogress) progress$clear()
+        if (showprogress) progress$tick()
 
         desc <- descriptions[[pkg]]
         pkgver <- paste(desc$Package, desc$Version)
@@ -1133,7 +1133,7 @@ renv_graph_install <- function(descriptions) {
         streamed <<- c(streamed, pkg)
         awaiting <<- setdiff(awaiting, pkg)
 
-        if (length(awaiting) > 0L)
+        if (showprogress && length(awaiting) > 0L)
           progress$update(awaiting)
 
         flush(stdout())
@@ -1152,7 +1152,7 @@ renv_graph_install <- function(descriptions) {
         urls      = urls,
         destfiles = destfiles,
         types     = types,
-        callback  = if (showprogress) callback
+        callback  = if (!testing()) callback
       )
 
       # clear up and determine what packages need 'fallback' downloads
@@ -1380,7 +1380,7 @@ renv_graph_install <- function(descriptions) {
     defer(close(server$socket))
     active <- list()
 
-    showstatus <- !testing() && !verbose
+    showstatus <- !testing() && !verbose && !ci()
 
     if (showstatus)
       progress$reset("Building", length(sourcenames))

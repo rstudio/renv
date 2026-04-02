@@ -209,3 +209,19 @@ test_that("remote hosts are included when formatting", {
   expect_equal(remote, "github@github.example.com::kevinushey/skeleton@e4aafb92b86ba7eba3b7036d9d96fdfb6c32761a")
 
 })
+
+test_that("renv_record_source infers 'repository' from Repository field", {
+
+  # a record with Source explicitly set uses that
+  record <- list(Package = "skeleton", Version = "1.0.0", Source = "GitHub")
+  expect_equal(renv_record_source(record), "github")
+
+  # a record with no Source but a Repository field infers 'repository'
+  record <- list(Package = "skeleton", Version = "1.0.0", Repository = "CRAN")
+  expect_equal(renv_record_source(record), "repository")
+
+  # a record with neither Source nor Repository falls back to 'unknown'
+  record <- list(Package = "skeleton", Version = "1.0.0")
+  expect_equal(renv_record_source(record), "unknown")
+
+})
