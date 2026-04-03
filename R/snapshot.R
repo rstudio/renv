@@ -112,8 +112,16 @@
 #' @param reprex Boolean; generate output appropriate for embedding the lockfile
 #'   as part of a [reprex](https://tidyverse.org/help/#reprex)?
 #'
+#' @param description A package DESCRIPTION, provided either as a named list
+#'   of DESCRIPTION fields, or a path to a package directory or DESCRIPTION
+#'   file. When set, all other arguments are ignored, and a single lockfile
+#'   record for that package is returned.
+#'
 #' @return The generated lockfile, as an \R object (invisibly). Note that
 #'   this function is normally called for its side effects.
+#'
+#'   When `description` is provided, a single lockfile record (a named list)
+#'   is returned instead.
 #'
 #'
 #' @seealso More on handling package [dependencies()]
@@ -134,12 +142,16 @@ snapshot <- function(project  = NULL,
                      prompt   = interactive(),
                      update   = FALSE,
                      force    = FALSE,
-                     reprex   = FALSE)
+                     reprex   = FALSE,
+                     description = NULL)
 {
-  renv_consent_check()
   renv_scope_error_handler()
   renv_dots_check(...)
 
+  if (!is.null(description))
+    return(renv_snapshot_description_dispatch(description))
+
+  renv_consent_check()
   renv_snapshot_auto_suppress_next()
 
   project <- renv_project_resolve(project)
@@ -709,6 +721,18 @@ renv_snapshot_check_missing_description <- function(paths) {
   )
 
   paths[!missing]
+
+}
+
+renv_snapshot_description_dispatch <- function(description) {
+
+  dcf <- case(
+    is.character(description) ~ renv_description_read(description),
+    is.list(description)      ~ description,
+    TRUE                      ~ renv_type_unexpected(description)
+  )
+
+  renv_snapshot_description_impl(dcf)
 
 }
 
