@@ -181,8 +181,12 @@ restore <- function(project = NULL,
   # only take action with requested packages; if a subset of packages was
   # explicitly requested, include their recursive lockfile dependencies as well
   requested <- packages
-  packages <- setdiff(requested %||% names(renv_lockfile_records(lockfile)), exclude)
-  if (!is.null(requested)) {
+  packages <- if (is.null(requested)) {
+    setdiff(names(diff), exclude)
+  } else {
+    setdiff(requested, exclude)
+  }
+  if (length(requested)) {
     records <- renv_lockfile_records(lockfile)
     descriptions <- renv_graph_init(packages, records = records, project = project)
     packages <- names(descriptions)
