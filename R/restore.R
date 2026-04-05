@@ -181,6 +181,7 @@ restore <- function(project = NULL,
   # only take action with requested packages; if a subset of packages was
   # explicitly requested, include their recursive lockfile dependencies as well
   requested <- packages
+  descriptions <- NULL
   packages <- if (is.null(requested)) {
     setdiff(names(diff), exclude)
   } else {
@@ -216,11 +217,11 @@ restore <- function(project = NULL,
   }
 
   # perform the restore
-  records <- renv_restore_run_actions(project, diff, current, lockfile, rebuild, strict)
+  records <- renv_restore_run_actions(project, diff, current, lockfile, rebuild, strict, descriptions)
   renv_restore_successful(records, prompt, project)
 }
 
-renv_restore_run_actions <- function(project, actions, current, lockfile, rebuild, strict = FALSE) {
+renv_restore_run_actions <- function(project, actions, current, lockfile, rebuild, strict = FALSE, descriptions = NULL) {
 
   packages <- names(actions)
 
@@ -245,7 +246,8 @@ renv_restore_run_actions <- function(project, actions, current, lockfile, rebuil
 
   # resolve dependency graph using lockfile records as lookup table
   lockrecords <- renv_lockfile_records(lockfile)
-  descriptions <- renv_graph_init(packages, records = lockrecords, project = project)
+  descriptions <- descriptions %||%
+    renv_graph_init(packages, records = lockrecords, project = project)
 
   # download + install in parallel dependency waves
   records <- renv_graph_install(descriptions)
