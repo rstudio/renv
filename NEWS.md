@@ -14,6 +14,9 @@
 * Fixed an issue where `renv_record_source()` returned `"unknown"` for
   lockfile records that had a `Repository` field but no `Source` field.
 
+* Fixed an issue where `renv::restore(packages = ...)` did not install
+  transitive dependencies of the requested packages. (#2259)
+
 
 # renv 1.2.0
 
