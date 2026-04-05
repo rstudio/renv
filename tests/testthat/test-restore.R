@@ -602,3 +602,49 @@ test_that("restore(packages = ...) is a no-op for already-installed transitive d
   expect_true(renv_package_installed("bread"))
   expect_true(renv_package_installed("toast"))
 })
+
+test_that("restore(packages = ...) walks the full transitive closure", {
+  skip_on_cran()
+  renv_tests_scope("breakfast")
+  init()
+
+  # bread is two levels deep: breakfast -> toast -> bread
+  remove("bread")
+  expect_false(renv_package_installed("bread"))
+
+  restore(packages = "breakfast")
+
+  expect_true(renv_package_installed("bread"))
+  expect_true(renv_package_installed("toast"))
+  expect_true(renv_package_installed("breakfast"))
+})
+
+test_that("restore(packages = ...) works for a leaf package with no deps", {
+  skip_on_cran()
+  renv_tests_scope("breakfast")
+  init()
+
+  remove("oatmeal")
+  expect_false(renv_package_installed("oatmeal"))
+
+  restore(packages = "oatmeal")
+
+  expect_true(renv_package_installed("oatmeal"))
+})
+
+test_that("restore(packages = ...) expands deps for multiple requested packages", {
+  skip_on_cran()
+  renv_tests_scope("breakfast")
+  init()
+
+  remove("bread")
+  remove("oatmeal")
+  expect_false(renv_package_installed("bread"))
+  expect_false(renv_package_installed("oatmeal"))
+
+  restore(packages = c("toast", "oatmeal"))
+
+  expect_true(renv_package_installed("bread"))
+  expect_true(renv_package_installed("toast"))
+  expect_true(renv_package_installed("oatmeal"))
+})
