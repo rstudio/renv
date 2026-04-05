@@ -57,6 +57,7 @@
 <li><p>Fixed an issue where GitLab packages with an empty <code>RemoteSubdir</code> field caused restore and install failures. (<a href="https://github.com/rstudio/renv/issues/2249" class="external-link">#2249</a>)</p></li>
 <li><p>Fixed an error in the install report when a package record had no version, e.g. when a dependency could not be found in any configured repository. (<a href="https://github.com/rstudio/renv/issues/2251" class="external-link">#2251</a>)</p></li>
 <li><p>Fixed an issue where <code>renv_record_source()</code> returned <code>"unknown"</code> for lockfile records that had a <code>Repository</code> field but no <code>Source</code> field.</p></li>
+<li><p>Fixed an issue where <code>renv::restore(packages = ...)</code> did not install transitive dependencies of the requested packages. (<a href="https://github.com/rstudio/renv/issues/2259" class="external-link">#2259</a>)</p></li>
 </ul></div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="1.2.0" id="renv-120">renv 1.2.0<a class="anchor" aria-label="anchor" href="#renv-120"></a></h2><p class="text-muted">CRAN release: 2026-03-25</p>
