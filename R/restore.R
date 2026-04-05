@@ -178,8 +178,19 @@ restore <- function(project = NULL,
   ignored <- renv_project_ignored_packages(project = project)
   diff <- diff[renv_vector_diff(names(diff), ignored)]
 
-  # only take action with requested packages
-  packages <- setdiff(packages %||% names(diff), exclude)
+  # only take action with requested packages; if a subset of packages was
+  # explicitly requested, include their recursive lockfile dependencies as well
+  requested <- packages
+  packages <- if (is.null(requested)) {
+    setdiff(names(diff), exclude)
+  } else {
+    setdiff(requested, exclude)
+  }
+  if (length(requested)) {
+    records <- renv_lockfile_records(lockfile)
+    descriptions <- renv_graph_init(packages, records = records, project = project)
+    packages <- names(descriptions)
+  }
   diff <- diff[intersect(names(diff), packages)]
 
   if (!length(diff)) {
