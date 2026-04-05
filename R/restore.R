@@ -186,10 +186,10 @@ restore <- function(project = NULL,
   } else {
     setdiff(requested, exclude)
   }
-  if (length(requested)) {
+  if (length(packages) && !is.null(requested)) {
     records <- renv_lockfile_records(lockfile)
     descriptions <- renv_graph_init(packages, records = records, project = project)
-    packages <- names(descriptions)
+    packages <- setdiff(names(descriptions), exclude)
   }
   diff <- diff[intersect(names(diff), packages)]
 

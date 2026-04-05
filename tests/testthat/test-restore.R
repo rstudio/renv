@@ -557,3 +557,48 @@ test_that("the Repository field in a lockfile can be overridden", {
   expect_true(renv_package_installed("bread"))
 
 })
+
+test_that("restore(packages = ...) installs missing transitive dependencies", {
+  skip_on_cran()
+  renv_tests_scope("breakfast")
+  init()
+
+  remove("bread")
+  expect_false(renv_package_installed("bread"))
+  expect_true(renv_package_installed("toast"))
+
+  restore(packages = "toast")
+
+  expect_true(renv_package_installed("bread"))
+  expect_true(renv_package_installed("toast"))
+})
+
+test_that("restore(packages = ..., exclude = ...) excludes transitive deps", {
+  skip_on_cran()
+  renv_tests_scope("breakfast")
+  init()
+
+  remove("bread")
+  expect_false(renv_package_installed("bread"))
+
+  restore(packages = "toast", exclude = "bread")
+
+  # bread should still be missing because it was excluded
+  expect_false(renv_package_installed("bread"))
+})
+
+test_that("restore(packages = ...) is a no-op for already-installed transitive deps", {
+  skip_on_cran()
+  renv_tests_scope("breakfast")
+  init()
+
+  # everything is already installed after init(); restore should succeed
+  # without error and not reinstall anything
+  expect_true(renv_package_installed("bread"))
+  expect_true(renv_package_installed("toast"))
+
+  restore(packages = "toast")
+
+  expect_true(renv_package_installed("bread"))
+  expect_true(renv_package_installed("toast"))
+})
