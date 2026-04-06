@@ -98,10 +98,10 @@ renv_infrastructure_write_activate <- function(project = NULL,
                                                version = NULL,
                                                create  = TRUE)
 {
-  # skip when called from within checkout(); the activate script is
-  # regenerated via a subprocess at the end of checkout instead, so
-  # that the newly-installed version of renv writes the template
-  if (isTRUE(the$checkout_running))
+  # skip when activate.R generation has been deferred; checkout() uses
+  # this so the newly-installed version of renv can write the template
+  # via a subprocess at the end, after snapshot() has finished
+  if (isTRUE(the$activate_deferred))
     return(invisible(FALSE))
 
   project <- renv_project_resolve(project)

@@ -63,7 +63,7 @@ test_that("renv_infrastructure_write_activate is skipped during checkout", {
   project <- renv_tests_scope("breakfast")
   init()
 
-  renv_scope_binding(the, "checkout_running", TRUE)
+  renv_scope_binding(the, "activate_deferred", TRUE)
   result <- renv_infrastructure_write_activate(project = project)
   expect_false(result)
 

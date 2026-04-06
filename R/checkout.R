@@ -128,7 +128,7 @@ checkout <- function(repos = NULL,
   # stale in-memory code doesn't overwrite the template with unreplaced
   # placeholders; the activate script is regenerated via a subprocess at
   # the end of checkout instead
-  renv_scope_binding(the, "checkout_running", TRUE)
+  renv_scope_binding(the, "activate_deferred", TRUE)
 
   if ("restore" %in% actions) {
 
