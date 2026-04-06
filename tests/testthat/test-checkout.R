@@ -44,6 +44,31 @@ test_that("checkout with actions = 'snapshot' creates a lockfile without install
 
 })
 
+test_that("activate.R has no unreplaced placeholders after checkout", {
+
+  project <- renv_tests_scope("breakfast")
+  init()
+
+  checkout(packages = "breakfast", actions = c("snapshot", "restore"))
+
+  activate <- renv_paths_activate(project = project)
+  contents <- readLines(activate)
+  placeholders <- grep("\\.\\.[a-zA-Z0-9]+\\.\\.", contents, value = TRUE)
+  expect_length(placeholders, 0)
+
+})
+
+test_that("renv_infrastructure_write_activate is skipped during checkout", {
+
+  project <- renv_tests_scope("breakfast")
+  init()
+
+  renv_scope_binding(the, "checkout_running", TRUE)
+  result <- renv_infrastructure_write_activate(project = project)
+  expect_false(result)
+
+})
+
 test_that("we can check out packages from the package manager instance", {
 
   skip_on_cran()
