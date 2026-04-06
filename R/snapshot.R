@@ -1144,10 +1144,20 @@ renv_snapshot_dependencies_impl <- function(project, type = NULL, dev = FALSE) {
       count <- count[count >= 200]
 
       # report to user
+      ignore <- file.exists(file.path(project, ".renvignore"))
+
       lines <- c(
         "",
-        "NOTE: Dependency discovery took %s during snapshot.",
-        "Consider using .renvignore to ignore files, or switching to explicit snapshots.",
+        if (ignore) {
+          "NOTE: Dependency discovery took %s during snapshot using current .renvignore specifications."
+        } else {
+          "NOTE: Dependency discovery took %s during snapshot."
+        },
+        if (ignore) {
+          "Consider modifying .renvignore or switching to explicit snapshots."
+        } else {
+          "Consider using .renvignore to ignore files, or switching to explicit snapshots."
+        },
         "See `?renv::dependencies` for more information.",
         if (length(count)) c(
           "",
