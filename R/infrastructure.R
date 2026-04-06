@@ -98,6 +98,12 @@ renv_infrastructure_write_activate <- function(project = NULL,
                                                version = NULL,
                                                create  = TRUE)
 {
+  # skip when called from within checkout(); the activate script is
+  # regenerated via a subprocess at the end of checkout instead, so
+  # that the newly-installed version of renv writes the template
+  if (isTRUE(the$checkout_running))
+    return(invisible(FALSE))
+
   project <- renv_project_resolve(project)
   version <- version %||% renv_activate_version(project)
   md5 <- attr(version, "md5", exact = TRUE)

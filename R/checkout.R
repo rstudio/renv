@@ -124,18 +124,16 @@ checkout <- function(repos = NULL,
   lockfile <- renv_lockfile_init(project)
   lockfile$Packages <- records
 
-  if ("restore" %in% actions) local({
+  # suppress activate.R regeneration during restore / snapshot so that
+  # stale in-memory code doesn't overwrite the template with unreplaced
+  # placeholders; the activate script is regenerated via a subprocess at
+  # the end of checkout instead
+  renv_scope_binding(the, "checkout_running", TRUE)
+
+  if ("restore" %in% actions) {
 
     # install the requested packages
     restore(lockfile = lockfile, clean = clean)
-
-    # make sure we can find 'renv' on the library paths
-    path <- renv_namespace_path("renv")
-    renv_scope_libpaths(c(dirname(path), renv_libpaths_all()))
-
-    # invoke activate
-    args <- c("--vanilla", "-s", "-e", shQuote("renv::activate()"))
-    r(args, stdout = TRUE, stderr = TRUE)
 
     # update the renv lockfile record
     # (note: it might not be available when running tests)
@@ -145,7 +143,7 @@ checkout <- function(repos = NULL,
       record(records = list(renv = renv), project = project)
     }
 
-  })
+  }
 
   # write the lockfile if requested
   if ("snapshot" %in% actions) {
@@ -158,10 +156,19 @@ checkout <- function(repos = NULL,
     }
   }
 
+  # regenerate the activate script via a subprocess so the newly-installed
+  # version of renv (if any) writes its own template correctly
+  if ("restore" %in% actions) {
+    path <- renv_namespace_path("renv")
+    renv_scope_libpaths(c(dirname(path), renv_libpaths_all()))
+    args <- c("--vanilla", "-s", "-e", shQuote("renv::activate()"))
+    r(args, stdout = TRUE, stderr = TRUE)
+  }
+
   # try to restart the session if we installed some packages
   restart <- restart %||% "restore" %in% actions
   if (restart)
-    renv_restart_request(project = project, reason = "renv has been updated")
+    renv_restart_request(project = project, reason = "packages have been updated")
 
   invisible(lockfile)
 
