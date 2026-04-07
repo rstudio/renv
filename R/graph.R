@@ -1283,9 +1283,18 @@ renv_graph_install <- function(descriptions) {
 
   }
 
+  showstatus <- !testing() && !verbose && !ci()
+
   # ── Phase 2a: Install all binaries up front ─────────────────
   # Binary installs are plain file copies with no build-time deps,
   # so they don't need wave ordering.
+
+  remaining <- names(binaries)
+
+  if (showstatus && length(remaining) > 0L) {
+    progress$reset("Installing", length(remaining))
+    progress$update(remaining)
+  }
 
   for (package in names(binaries)) {
 
@@ -1303,9 +1312,14 @@ renv_graph_install <- function(descriptions) {
 
     if (inherits(prepared, "error")) {
       msg <- conditionMessage(prepared)
+      if (showstatus) progress$clear()
       writef("- Failed to prepare '%s': %s", package, msg)
       errors$push(list(package = package, message = msg))
       failed$push(package)
+      if (showstatus) progress$tick()
+      remaining <- setdiff(remaining, package)
+      if (showstatus && length(remaining) > 0L)
+        progress$update(remaining)
       next
     }
 
@@ -1315,11 +1329,19 @@ renv_graph_install <- function(descriptions) {
     result <- catch(renv_graph_install_binary(prepared))
     t1 <- Sys.time()
 
+    if (showstatus) {
+      progress$clear()
+      progress$tick()
+    }
+
     if (inherits(result, "error")) {
       msg <- conditionMessage(result)
       renv_install_step_error(entry$record)
       errors$push(list(package = package, message = msg))
       failed$push(package)
+      remaining <- setdiff(remaining, package)
+      if (showstatus && length(remaining) > 0L)
+        progress$update(remaining)
       next
     }
 
@@ -1331,6 +1353,9 @@ renv_graph_install <- function(descriptions) {
 
     renv_graph_install_finalize(entry$record, prepared, installdir, project, linkable)
     all[[package]] <- entry$record
+    remaining <- setdiff(remaining, package)
+    if (showstatus && length(remaining) > 0L)
+      progress$update(remaining)
 
   }
 
@@ -1379,8 +1404,6 @@ renv_graph_install <- function(descriptions) {
     server <- renv_socket_server()
     defer(close(server$socket))
     active <- list()
-
-    showstatus <- !testing() && !verbose && !ci()
 
     if (showstatus)
       progress$reset("Building", length(sourcenames))
@@ -1561,6 +1584,13 @@ renv_graph_install <- function(descriptions) {
     # R < 4.0 fallback: wave-based, pipe-based collection
     waves <- renv_graph_waves(sourcedescs)
 
+    remaining <- sourcenames
+
+    if (showstatus && length(remaining) > 0L) {
+      progress$reset("Building", length(remaining))
+      progress$update(remaining)
+    }
+
     for (wave in waves) {
 
       wave <- setdiff(wave, failed$data())
@@ -1586,9 +1616,14 @@ renv_graph_install <- function(descriptions) {
           ))
           if (inherits(prepared, "error")) {
             msg <- conditionMessage(prepared)
+            if (showstatus) progress$clear()
             writef("- Failed to prepare '%s': %s", pkg, msg)
             errors$push(list(package = pkg, message = msg))
             failed$push(pkg)
+            if (showstatus) progress$tick()
+            remaining <- setdiff(remaining, pkg)
+            if (showstatus && length(remaining) > 0L)
+              progress$update(remaining)
             next
           }
 
@@ -1602,7 +1637,14 @@ renv_graph_install <- function(descriptions) {
 
         for (pkg in names(workers)) {
           result <- renv_graph_install_collect(workers[[pkg]])
+          if (showstatus) {
+            progress$clear()
+            progress$tick()
+          }
           handle(pkg, result)
+          remaining <- setdiff(remaining, pkg)
+          if (showstatus && length(remaining) > 0L)
+            progress$update(remaining)
         }
 
       }
