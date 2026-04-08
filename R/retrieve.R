@@ -318,6 +318,7 @@ renv_retrieve_impl_one <- function(package) {
          git          = renv_retrieve_git(record),
          github       = renv_retrieve_github(record),
          gitlab       = renv_retrieve_gitlab(record),
+         local        = renv_retrieve_local(record),
          repository   = renv_retrieve_repos(record),
          url          = renv_retrieve_url(record),
          renv_retrieve_unknown_source(record)
@@ -1310,17 +1311,21 @@ renv_retrieve_successful_recurse_impl_one <- function(remote) {
 
 }
 
-renv_retrieve_unknown_source <- function(record) {
+renv_retrieve_local <- function(record) {
 
   # try to find a matching local package
   status <- catch(renv_retrieve_cellar(record))
   if (!inherits(status, "error"))
     return(status)
 
-  # failed; parse as though from R package repository
+  # failed; try to retrieve from an R package repository
   record$Source <- "Repository"
   renv_retrieve_repos(record)
 
+}
+
+renv_retrieve_unknown_source <- function(record) {
+  renv_retrieve_local(record)
 }
 
 # TODO: what should we do if we detect incompatible remotes?

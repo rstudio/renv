@@ -386,6 +386,21 @@ test_that("retrieve handles local sources", {
 
 })
 
+test_that("explicitly local packages fall back to repository sources", {
+
+  renv_tests_scope()
+  renv_scope_options(renv.config.cache.enabled = FALSE)
+
+  record <- list(
+    Package = "bread",
+    Version = "1.0.0",
+    Source  = "Local"
+  )
+
+  renv_test_retrieve(record)
+
+})
+
 test_that("we can use retrieve() to download packages without installing", {
   project <- renv_tests_scope()
   init()
