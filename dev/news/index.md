@@ -2,6 +2,12 @@
 
 ## renv (development version)
 
+- Fixed an error during
+  [`restore()`](https://rstudio.github.io/renv/dev/reference/restore.md)
+  when a package from a custom repository could not be found in
+  available packages, and the lockfile used the v2 format.
+  ([\#2263](https://github.com/rstudio/renv/issues/2263))
+
 - The new `lockfile.sanitize` project setting controls whether renv
   strips embedded credentials from repository URLs when writing the
   lockfile. Set to `FALSE` to preserve credentials in the lockfile. See
