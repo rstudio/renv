@@ -24,6 +24,11 @@ renv_json_convert <- function(object, config = renv_json_config()) {
 
 renv_json_convert_impl <- function(key, value, config, depth) {
 
+  # coerce numeric_version to character, since these are list objects
+  # with a custom `[[` method that can cause infinite recursion
+  if (inherits(value, "numeric_version"))
+    value <- format(value)
+
   if (is.list(value) || !is.null(names(value)))
     return(renv_json_convert_list(key, value, config, depth))
 
