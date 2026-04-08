@@ -96,3 +96,49 @@ test_that("renv_defer_execute can run handlers earlier", {
   renv_defer_execute(environment())
   expect_false(exists("x", inherits = FALSE))
 })
+
+test_that("renv_scope_options inside catch does not leak", {
+
+  wrapper <- function() {
+    renv_scope_options(renv.test.option = "original")
+    catch({
+      renv_scope_options(renv.test.option = "modified")
+      expect_equal(getOption("renv.test.option"), "modified")
+    })
+    getOption("renv.test.option")
+  }
+
+  expect_equal(wrapper(), "original")
+
+})
+
+test_that("assignments inside catch are visible to the caller", {
+
+  wrapper <- function() {
+    x <- 1
+    catch({ x <- 42 })
+    x
+  }
+
+  expect_equal(wrapper(), 42)
+
+})
+
+test_that("nested catch scopes correctly", {
+
+  wrapper <- function() {
+    renv_scope_options(renv.test.option = "outer")
+    catch({
+      renv_scope_options(renv.test.option = "middle")
+      catch({
+        renv_scope_options(renv.test.option = "inner")
+        expect_equal(getOption("renv.test.option"), "inner")
+      })
+      expect_equal(getOption("renv.test.option"), "middle")
+    })
+    getOption("renv.test.option")
+  }
+
+  expect_equal(wrapper(), "outer")
+
+})

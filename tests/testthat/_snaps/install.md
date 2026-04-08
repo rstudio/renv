@@ -71,6 +71,9 @@
       These packages will be installed into "<wd>/renv/library/<platform-prefix>".
       
       # Downloading packages ---
+      [31m✖[0m missing                                 
+      # Installing packages ---
+      
       The following package(s) were not installed successfully:
       - [missing]: failed to download
       You may need to manually download and install these packages.

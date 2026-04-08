@@ -7,12 +7,15 @@ if (getRversion() < "4.0") {
 renv_socket_server <- function(min = 49152, max = 65535) {
 
   # create the socket server
-  port <- socket <- NULL
-  for (i in 1:2000) catch({
+  socket <- NULL
+  for (i in 1:2000) {
     port <- sample(min:max, size = 1L)
-    socket <- serverSocket(port)
-    break
-  })
+    socket <- catch(serverSocket(port))
+    if (inherits(socket, "error"))
+      socket <- NULL
+    else
+      break
+  }
 
   # if we still don't have a socket here, we failed
   if (is.null(socket))

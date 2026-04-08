@@ -98,22 +98,50 @@ compose <- function(wrapper, callback) {
 }
 
 catch <- function(expr) {
-  tryCatch(
-    withCallingHandlers(expr, error = renv_error_capture),
+
+  # evaluate in a child environment so that defer() / on.exit()
+  # cleanups scope to this eval frame rather than leaking to the
+  # caller via R's promise evaluation semantics
+  envir <- new.env(parent = parent.frame())
+
+  result <- tryCatch(
+    withCallingHandlers(
+      eval(substitute(expr), envir = envir),
+      error = renv_error_capture
+    ),
     error = renv_error_tag
   )
+
+  # copy bindings back so that <- assignments are visible to the caller
+  renv_catch_copy(envir, parent.frame())
+
+  result
+
 }
 
 catchall <- function(expr) {
-  tryCatch(
+
+  envir <- new.env(parent = parent.frame())
+
+  result <- tryCatch(
     withCallingHandlers(
-      expr = expr,
+      eval(substitute(expr), envir = envir),
       error = renv_error_capture,
       warning = renv_error_capture
     ),
     error = renv_error_tag,
     warning = renv_error_tag
   )
+
+  renv_catch_copy(envir, parent.frame())
+
+  result
+
+}
+
+renv_catch_copy <- function(envir, parent) {
+  for (name in ls(envir = envir, all.names = TRUE))
+    assign(name, envir[[name]], envir = parent)
 }
 
 # nocov start
