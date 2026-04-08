@@ -2,6 +2,13 @@
 
 ## renv (development version)
 
+- The new `lockfile.sanitize` project setting controls whether renv
+  strips embedded credentials from repository URLs when writing the
+  lockfile. Set to `FALSE` to preserve credentials in the lockfile. See
+  [`?renv::settings`](https://rstudio.github.io/renv/dev/reference/settings.md)
+  for more details.
+  ([\#2262](https://github.com/rstudio/renv/issues/2262))
+
 - Fixed an error when calling
   [`renv::use()`](https://rstudio.github.io/renv/dev/reference/embed.md)
   multiple times in a single session.
