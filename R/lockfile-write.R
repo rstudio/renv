@@ -42,7 +42,9 @@ renv_lockfile_sanitize <- function(lockfile) {
 renv_lockfile_write_preflight <- function(old, new) {
 
   # sanitize repository URLs (remove embedded credentials)
-  new <- renv_lockfile_sanitize(new)
+  sanitize <- settings$lockfile.sanitize(project = renv_project_resolve())
+  if (sanitize)
+    new <- renv_lockfile_sanitize(new)
 
   if (is.null(old))
     return(new)

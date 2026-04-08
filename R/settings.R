@@ -354,6 +354,14 @@ renv_settings_impl <- function(name, default, scalar, validate, coerce, update) 
 #' available, or you have been unable to orchestrate the pre-requisites for
 #' installing some packages from source on your machine).
 #'
+#' ## `lockfile.sanitize`
+#'
+#' Should renv sanitize repository URLs when writing the lockfile? When
+#' `TRUE`, embedded credentials are stripped from URLs (e.g.
+#' `https://user:token@host/path` becomes `https://host/path`) to prevent
+#' accidental credential leakage. Set this to `FALSE` if your repository
+#' URLs contain credentials required for [restore] to function correctly.
+#'
 #' ## `ignored.packages`
 #'
 #' A vector of packages, which should be ignored when attempting to snapshot
@@ -479,6 +487,15 @@ settings <- list(
     scalar   = TRUE,
     validate = is.character,
     coerce   = as.character,
+    update   = NULL
+  ),
+
+  lockfile.sanitize = renv_settings_impl(
+    name     = "lockfile.sanitize",
+    default  = TRUE,
+    scalar   = TRUE,
+    validate = is.logical,
+    coerce   = as.logical,
     update   = NULL
   ),
 

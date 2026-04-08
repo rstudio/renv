@@ -160,6 +160,26 @@ test_that("credentials are sanitized from lockfile repository URLs", {
 
 })
 
+test_that("credential sanitization can be disabled via settings", {
+
+  renv_tests_scope()
+  settings$lockfile.sanitize(FALSE)
+
+  url <- "https://user:token@private.repo.com/r"
+  lockfile <- list(
+    R = list(
+      Version = getRversion(),
+      Repositories = list(Custom = url)
+    ),
+    Packages = list()
+  )
+
+  renv_lockfile_write(lockfile, file = "renv.lock")
+  result <- renv_lockfile_read("renv.lock")
+  expect_equal(result$R$Repositories$Custom, url)
+
+})
+
 test_that("lockfiles with UTF-8 contents can be written, read", {
 
   author <- enc2utf8("cr\u00e8me br\u00fbl\u00e9e")

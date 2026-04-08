@@ -1,6 +1,11 @@
 
 # renv (development version)
 
+* The new `lockfile.sanitize` project setting controls whether renv strips
+  embedded credentials from repository URLs when writing the lockfile. Set
+  to `FALSE` to preserve credentials in the lockfile. See `?renv::settings`
+  for more details. (#2262)
+
 * Fixed an error when calling `renv::use()` multiple times in a single
   session. (#2248)
 
