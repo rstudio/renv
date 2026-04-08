@@ -855,3 +855,12 @@ test_that("install() report doesn't crash when a package has no version", {
   expect_snapshot(install(), error = TRUE)
 
 })
+
+test_that("install from local sources shows progress", {
+
+  renv_tests_scope()
+  init(bare = TRUE)
+  path <- renv_tests_path("packages/bread")
+  expect_snapshot(install(path))
+
+})

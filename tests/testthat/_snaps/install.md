@@ -82,3 +82,20 @@
       Error:
       ! failed to install "missing" (package 'missing' is not available)
 
+# install from local sources shows progress
+
+    Code
+      install(path)
+    Output
+      The following package(s) will be installed:
+      - bread [1.0.0]
+      These packages will be installed into "<wd>/renv/library/<platform-prefix>".
+      
+      # Downloading packages ---
+      [32m✔[0m bread 1.0.0                             
+      Successfully downloaded 1 package in XXXX seconds.
+      
+      # Installing packages ---
+      [32m✔[0m bread 1.0.0                              [built from source]
+      Successfully installed 1 package in XXXX seconds.
+
