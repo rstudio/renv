@@ -808,6 +808,21 @@ test_that("renv_graph_deps respects custom fields argument", {
 
 })
 
+test_that("renv_graph_deps handles list-valued dependency fields from v2 lockfiles", {
+
+  # v2 lockfile records store dependency fields as lists (JSON arrays)
+  # rather than comma-separated strings; renv_graph_deps should handle both
+  desc <- list(
+    Package   = "mypkg",
+    Imports   = list("Rcpp", "data.table", "jsonlite"),
+    LinkingTo = list("Rcpp", "BH")
+  )
+
+  deps <- renv_graph_deps(desc)
+  expect_true(setequal(deps, c("Rcpp", "data.table", "jsonlite", "BH")))
+
+})
+
 test_that("renv_graph_deps returns empty for package with no deps", {
 
   desc <- list(Package = "mypkg", Version = "1.0.0")

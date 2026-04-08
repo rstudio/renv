@@ -91,6 +91,11 @@ renv_description_read_impl <- function(path = NULL, subdir = NULL, ...) {
 # Depends, Imports, Suggests, and so on
 renv_description_parse_field <- function(field) {
 
+  # handle list inputs (e.g. from v2 lockfile records where
+  # dependency fields are stored as JSON arrays)
+  if (is.list(field))
+    field <- paste(field, collapse = ", ")
+
   # check for invalid / unexpected inputs
   if (is.null(field) || is.na(field) || !nzchar(field))
     return(NULL)
