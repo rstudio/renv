@@ -208,6 +208,12 @@ renv_graph_description_repository <- function(record) {
   package <- record$Package
   version <- record$Version
 
+  # respect explicitly-requested package type (e.g. install(..., type = "binary"))
+  # so that graph resolution finds versions available for the requested type;
+  # without this, we always search source packages and may resolve a version
+  # that only exists as source when the user asked for binaries
+  type <- the$install_pkg_type %||% "source"
+
   # try available packages entry (returns full fields including Imports, Depends);
   # we need these fields for dependency graph resolution;
   # in strict mode with a URL-valued Repository, search only that repository
@@ -219,6 +225,7 @@ renv_graph_description_repository <- function(record) {
   entry <- catch(
     renv_available_packages_entry(
       package = package,
+      type    = type,
       filter  = version,
       repos   = repos,
       prefer  = record[["Repository"]]
@@ -232,7 +239,7 @@ renv_graph_description_repository <- function(record) {
   # cellar packages won't be found by renv_available_packages_entry.
   # NOTE: renv_available_packages_latest only returns limited fields
   # (Package, Version, etc.) — no Depends/Imports/LinkingTo
-  latest <- catch(renv_available_packages_latest(package))
+  latest <- catch(renv_available_packages_latest(package, type = type))
   if (!inherits(latest, "error")) {
     if (is.null(version) || identical(latest$Version, version))
       return(as.list(latest))
@@ -242,7 +249,7 @@ renv_graph_description_repository <- function(record) {
   # the full-field entry with overridden version; renv_available_packages_entry
   # without filter returns complete dependency fields unlike latest
   if (!is.null(version) && !inherits(latest, "error")) {
-    full <- catch(renv_available_packages_entry(package))
+    full <- catch(renv_available_packages_entry(package, type = type))
     if (!inherits(full, "error")) {
       desc <- as.list(full)
       desc$Version <- version
