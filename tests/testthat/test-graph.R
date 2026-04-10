@@ -866,6 +866,38 @@ test_that("renv_graph_urls gracefully handles mixed sources", {
 
 })
 
+# https://github.com/rstudio/renv/issues/2264
+test_that("renv_graph_description_repository respects install_pkg_type", {
+
+  renv_tests_scope()
+
+  # track the type argument passed to renv_available_packages_entry
+  env <- new.env(parent = emptyenv())
+  env$types <- character()
+
+  renv_scope_trace(
+    what   = renv:::renv_available_packages_entry,
+    tracer = bquote({
+      .env <- .(env)
+      .env$types <- c(.env$types, type)
+    })
+  )
+
+  record <- list(Package = "bread", Source = "Repository")
+
+  # default: install_pkg_type is NULL, should fall back to "source"
+  renv_graph_description_repository(record)
+  expect_true("source" %in% env$types)
+
+  # when install_pkg_type is set, it should be forwarded
+  env$types <- character()
+  renv_scope_binding(the, "install_pkg_type", "binary")
+  catch(renv_graph_description_repository(record))
+  expect_true("binary" %in% env$types)
+  expect_false("source" %in% env$types)
+
+})
+
 # https://github.com/rstudio/renv/issues/2249
 test_that("gitlab DESCRIPTION path handles empty RemoteSubdir", {
 
