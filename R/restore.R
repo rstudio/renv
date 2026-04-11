@@ -252,8 +252,17 @@ renv_restore_run_actions <- function(project, actions, current, lockfile, rebuil
   # download + install in parallel dependency waves
   records <- renv_graph_install(descriptions)
 
-  # error if any requested packages failed to install
+  # check for failed packages; offer to retry with latest versions
   failed <- setdiff(packages, names(records))
+  if (length(failed)) {
+    recovered <- renv_restore_recover(failed, project)
+    if (length(recovered)) {
+      records <- c(records, recovered)
+      failed <- setdiff(packages, names(records))
+    }
+  }
+
+  # error if any requested packages still failed to install
   if (length(failed)) {
     stopf(
       "failed to install %s",
@@ -277,6 +286,34 @@ renv_restore_run_actions <- function(project, actions, current, lockfile, rebuil
 
   # return status
   invisible(records)
+
+}
+
+renv_restore_recover <- function(failed, project) {
+
+  ok <- ask(
+    "Would you like to try installing the latest available versions of these packages?",
+    default = FALSE
+  )
+
+  if (!ok)
+    return(NULL)
+
+  writef("")
+
+  # narrow state$packages to just the failed packages so that
+  # already-installed dependencies are not needlessly re-installed
+  state <- renv_restore_state()
+  old <- state$packages
+  state$packages <- failed
+  defer(state$packages <- old)
+
+  # resolve latest versions (no lockfile records = latest from repos)
+  descriptions <- catch(renv_graph_init(failed, project = project))
+  if (inherits(descriptions, "error"))
+    return(NULL)
+
+  renv_graph_install(descriptions)
 
 }
 
