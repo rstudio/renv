@@ -380,15 +380,18 @@ renv_graph_description_bitbucket <- function(record) {
   host   <- record$RemoteHost %||% config$bitbucket.host()
   user   <- record$RemoteUsername
   repo   <- record$RemoteRepo
+  subdir <- record$RemoteSubdir
   ref    <- record$RemoteRef
 
   # scope authentication
   renv_scope_auth(repo)
 
   # get DESCRIPTION file
-  fmt <- "%s/repositories/%s/%s/src/%s/DESCRIPTION"
+  parts <- c(if (nzchar(subdir %||% "")) subdir, "DESCRIPTION")
+  descpath <- paste(parts, collapse = "/")
+  fmt <- "%s/repositories/%s/%s/src/%s/%s"
   origin <- renv_retrieve_origin(host)
-  url <- sprintf(fmt, origin, user, repo, ref)
+  url <- sprintf(fmt, origin, user, repo, ref, descpath)
 
   destfile <- renv_scope_tempfile("renv-description-")
   download(url, destfile = destfile, type = "bitbucket", quiet = TRUE)

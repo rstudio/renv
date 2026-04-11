@@ -156,6 +156,7 @@ renv_update_find_remote_impl <- function(record, update) {
     host = record$RemoteHost,
     user = record$RemoteUsername,
     repo = record$RemoteRepo,
+    subdir = record$RemoteSubdir,
     ref = record$RemoteRef
   )
   current <- update(remote)
