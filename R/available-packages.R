@@ -1,3 +1,4 @@
+the$rejected_packages <- new.env(parent = emptyenv())
 
 # tools for querying information about packages available on CRAN.
 # note that this does _not_ merge package entries from multiple repositories;
@@ -419,6 +420,9 @@ renv_available_packages_latest <- function(package,
   # if both entries are null, error
   if (all(map_lgl(entries, is.null))) {
     map(errors$data(), warning)
+    entry <- the$rejected_packages[[package]]
+    if (!is.null(entry))
+      stopf("package '%s' is not available\n- %s", package, entry$reason)
     stopf("package '%s' is not available", package)
   } else if (is.null(entries[[2L]])) {
     return(entries[[1L]])
@@ -887,6 +891,21 @@ renv_available_packages_filter_version <- function(db) {
   ok <- map_lgl(splat, function(requirements) {
     all(ok[requirements])
   })
+
+  # record packages rejected due to R version incompatibility
+  rejected <- which(!ok)
+  if (length(rejected)) {
+    packages <- db$Package[rejected]
+    versions <- db$Version[rejected]
+    rdeps <- map_chr(splat[rejected], paste, collapse = ", ")
+    for (i in seq_along(packages)) {
+      fmt <- "%s %s requires %s, but R %s is being used"
+      the$rejected_packages[[packages[[i]]]] <- list(
+        package = packages[[i]],
+        reason  = sprintf(fmt, packages[[i]], versions[[i]], rdeps[[i]], rversion)
+      )
+    }
+  }
 
   rows(db, ok)
 
