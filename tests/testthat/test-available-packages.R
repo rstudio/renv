@@ -177,7 +177,6 @@ test_that("we can query the R universe", {
   # reduce risk of false positive test failures
   rownames(lhs) <- rownames(rhs) <- NULL
   lhs$MD5sum <- rhs$MD5sum <- NULL
-  rhs$MD5sum <- NULL
   lhs$Remotes <- rhs$Remotes <- NULL
 
   # R-devel may add new columns to available.packages();
