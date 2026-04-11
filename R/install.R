@@ -180,6 +180,12 @@ install <- function(packages = NULL,
   # figure out which packages we should install
   packages <- names(remotes) %||% renv_snapshot_dependencies(project, dev = TRUE)
 
+  # apply ignored.packages setting when auto-discovering
+  if (is.null(remotes)) {
+    ignored <- renv_project_ignored_packages(project)
+    packages <- setdiff(packages, ignored)
+  }
+
   # apply exclude parameter
   if (length(exclude))
     packages <- setdiff(packages, exclude)
