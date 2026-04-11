@@ -1,6 +1,46 @@
 
 # renv (development version)
 
+* `RENV_PATHS_LOCKFILE` now resolves relative paths against the project
+  directory rather than the working directory. Previously, the effective
+  lockfile path could change as the working directory changed within an R
+  session. (#2238)
+
+* `renv::install()` no longer upgrades transitive dependencies when the
+  installed version already satisfies all dependency requirements. Previously,
+  transitive dependencies were always upgraded to the latest available version,
+  even when the existing library version was compatible. (#2232)
+
+* Fixed an issue where `renv::update()` and `renv::install()` did not handle
+  `RemoteSubdir` correctly for Bitbucket and GitLab packages. The subdirectory
+  was not passed through during remote resolution, causing DESCRIPTION lookups
+  to fail for packages that live in a repository subdirectory. (#2229)
+
+* Fixed an issue where repository URLs from the lockfile could have
+  `/src/contrib` appended twice, producing download URLs like
+  `.../src/contrib/src/contrib/PACKAGES`.
+
+* Fixed an issue where `renv::install(..., type = "binary")` was not
+  respected during dependency graph resolution, causing renv to resolve
+  source-only versions even when binaries were requested. (#2264, #2266)
+
+* Fixed an infinite recursion in the JSON writer when encountering
+  `numeric_version` objects.
+
+* Packages installed from local sources can now fall back to repository
+  sources when the local source is no longer available.
+
+* `renv::install()` and `renv::restore()` now display progress when
+  installing binary packages.
+
+* `renv::use(repos = NULL)` now correctly resolves and installs transitive
+  dependencies from the cache. Previously, only explicitly requested packages
+  were installed. (#2254)
+
+* The slow-dependency-discovery message during `renv::snapshot()` now accounts
+  for whether an `.renvignore` file already exists, and adjusts the suggested
+  action accordingly. (#2193, #2261)
+
 * Fixed an error during `restore()` when a package from a custom repository
   could not be found in available packages, and the lockfile used the v2
   format. (#2263)
