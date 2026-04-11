@@ -248,7 +248,9 @@ renv_available_packages_entry <- function(package,
     names(prefer) <- nms
 
     # include any 'prefer' repositories that were supplied as URLs
+    # normalize first, as these may already include a contrib url suffix
     isurl <- grep("^\\w+://", prefer)
+    prefer[isurl] <- renv_repos_baseurl(prefer[isurl])
     repos <- c(prefer[isurl], repos)
 
   }
