@@ -594,15 +594,28 @@ renv_graph_roots <- function(records, fields) {
 
 renv_graph_needs_update <- function(pkg, record, requirements) {
 
-  # check whether the resolved version differs from installed
+  # check whether the resolved version is already installed
   path <- renv_restore_find(pkg, record)
-  if (!nzchar(path))
-    return(TRUE)
+  if (nzchar(path))
+    return(FALSE)
 
-  # check whether the installed version satisfies dependency requirements
-  reqs <- requirements[[pkg]]
-  installed <- renv_package_version(pkg)
-  !renv_graph_compatible(installed, reqs)
+  # for transitive dependencies that are already installed, check
+  # whether the installed version satisfies dependency requirements;
+  # this avoids upgrading dependencies during install() when the
+  # existing library version is already compatible.
+  # explicitly-requested packages (in state$packages) always get
+  # installed, so skip this check for those.
+  state <- renv_restore_state()
+  if (!(pkg %in% state$packages)) {
+    installed <- renv_package_version(pkg)
+    if (!is.null(installed)) {
+      reqs <- requirements[[pkg]]
+      if (renv_graph_compatible(installed, reqs))
+        return(FALSE)
+    }
+  }
+
+  TRUE
 
 }
 
