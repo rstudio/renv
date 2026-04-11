@@ -63,6 +63,11 @@ renv_paths_lockfile <- function(project = NULL) {
     last <- substr(override, nchar(override), nchar(override))
     if (last %in% c("/", "\\"))
       override <- paste0(override, "renv.lock")
+    # resolve relative paths against the project directory
+    if (!renv_path_absolute(override)) {
+      project <- renv_project_resolve(project)
+      override <- file.path(project, override)
+    }
     return(override)
   }
 

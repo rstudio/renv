@@ -80,3 +80,37 @@ test_that("path environment variables can use ';' as separator", {
   paths <- renv_paths_local()
   expect_equal(paths, c("a", "b", "c"))
 })
+
+test_that("RENV_PATHS_LOCKFILE resolves relative paths against project", {
+
+  renv_tests_scope()
+  project <- getwd()
+
+  # relative path should be resolved against the project directory
+  renv_scope_envvars(RENV_PATHS_LOCKFILE = "custom/renv.lock")
+  result <- renv_paths_lockfile(project = project)
+  expect_equal(result, file.path(project, "custom/renv.lock"))
+
+})
+
+test_that("RENV_PATHS_LOCKFILE preserves absolute paths", {
+
+  renv_tests_scope()
+
+  abspath <- file.path(tempdir(), "my-renv.lock")
+  renv_scope_envvars(RENV_PATHS_LOCKFILE = abspath)
+  result <- renv_paths_lockfile(project = getwd())
+  expect_equal(result, abspath)
+
+})
+
+test_that("RENV_PATHS_LOCKFILE appends renv.lock for trailing slash", {
+
+  renv_tests_scope()
+  project <- getwd()
+
+  renv_scope_envvars(RENV_PATHS_LOCKFILE = "custom/")
+  result <- renv_paths_lockfile(project = project)
+  expect_equal(result, file.path(project, "custom/renv.lock"))
+
+})
