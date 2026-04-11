@@ -72,9 +72,7 @@ renv_repos_validate <- function(repos = getOption("repos")) {
 renv_repos_baseurl <- function(url) {
   pattern <- "/(?:bin|src)/"
   index <- regexpr(pattern, url, perl = TRUE)
-  if (index == -1L)
-    return(url)
-  substring(url, 1L, index - 1L)
+  ifelse(index == -1L, url, substring(url, 1L, index - 1L))
 }
 
 renv_repos_info <- function(url) {
