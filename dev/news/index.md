@@ -2,6 +2,8 @@
 
 ## renv (development version)
 
+## renv 1.2.1
+
 - `RENV_PATHS_LOCKFILE` now resolves relative paths against the project
   directory rather than the working directory. Previously, the effective
   lockfile path could change as the working directory changed within an
