@@ -1,5 +1,102 @@
 # Changelog
 
+## renv 1.2.1
+
+- `RENV_PATHS_LOCKFILE` now resolves relative paths against the project
+  directory rather than the working directory. Previously, the effective
+  lockfile path could change as the working directory changed within an
+  R session. ([\#2238](https://github.com/rstudio/renv/issues/2238))
+
+- [`renv::install()`](https://rstudio.github.io/renv/reference/install.md)
+  no longer upgrades transitive dependencies when the installed version
+  already satisfies all dependency requirements. Previously, transitive
+  dependencies were always upgraded to the latest available version,
+  even when the existing library version was compatible.
+  ([\#2232](https://github.com/rstudio/renv/issues/2232))
+
+- Fixed an issue where
+  [`renv::update()`](https://rstudio.github.io/renv/reference/update.md)
+  and
+  [`renv::install()`](https://rstudio.github.io/renv/reference/install.md)
+  did not handle `RemoteSubdir` correctly for Bitbucket and GitLab
+  packages. The subdirectory was not passed through during remote
+  resolution, causing DESCRIPTION lookups to fail for packages that live
+  in a repository subdirectory.
+  ([\#2229](https://github.com/rstudio/renv/issues/2229))
+
+- Fixed an issue where repository URLs from the lockfile could have
+  `/src/contrib` appended twice, producing download URLs like
+  `.../src/contrib/src/contrib/PACKAGES`.
+
+- Fixed an issue where `renv::install(..., type = "binary")` was not
+  respected during dependency graph resolution, causing renv to resolve
+  source-only versions even when binaries were requested.
+  ([\#2264](https://github.com/rstudio/renv/issues/2264),
+  [\#2266](https://github.com/rstudio/renv/issues/2266))
+
+- Fixed an infinite recursion in the JSON writer when encountering
+  `numeric_version` objects.
+
+- Packages installed from local sources can now fall back to repository
+  sources when the local source is no longer available.
+
+- [`renv::install()`](https://rstudio.github.io/renv/reference/install.md)
+  and
+  [`renv::restore()`](https://rstudio.github.io/renv/reference/restore.md)
+  now display progress when installing binary packages.
+
+- `renv::use(repos = NULL)` now correctly resolves and installs
+  transitive dependencies from the cache. Previously, only explicitly
+  requested packages were installed.
+  ([\#2254](https://github.com/rstudio/renv/issues/2254))
+
+- The slow-dependency-discovery message during
+  [`renv::snapshot()`](https://rstudio.github.io/renv/reference/snapshot.md)
+  now accounts for whether an `.renvignore` file already exists, and
+  adjusts the suggested action accordingly.
+  ([\#2193](https://github.com/rstudio/renv/issues/2193),
+  [\#2261](https://github.com/rstudio/renv/issues/2261))
+
+- Fixed an error during
+  [`restore()`](https://rstudio.github.io/renv/reference/restore.md)
+  when a package from a custom repository could not be found in
+  available packages, and the lockfile used the v2 format.
+  ([\#2263](https://github.com/rstudio/renv/issues/2263))
+
+- The new `lockfile.sanitize` project setting controls whether renv
+  strips embedded credentials from repository URLs when writing the
+  lockfile. Set to `FALSE` to preserve credentials in the lockfile. See
+  [`?renv::settings`](https://rstudio.github.io/renv/reference/settings.md)
+  for more details.
+  ([\#2262](https://github.com/rstudio/renv/issues/2262))
+
+- Fixed an error when calling
+  [`renv::use()`](https://rstudio.github.io/renv/reference/embed.md)
+  multiple times in a single session.
+  ([\#2248](https://github.com/rstudio/renv/issues/2248))
+
+- Fixed an issue where GitLab packages with an empty `RemoteSubdir`
+  field caused restore and install failures.
+  ([\#2249](https://github.com/rstudio/renv/issues/2249))
+
+- Fixed an error in the install report when a package record had no
+  version, e.g. when a dependency could not be found in any configured
+  repository. ([\#2251](https://github.com/rstudio/renv/issues/2251))
+
+- Fixed an issue where `renv_record_source()` returned `"unknown"` for
+  lockfile records that had a `Repository` field but no `Source` field.
+
+- Fixed an issue where
+  [`renv::checkout()`](https://rstudio.github.io/renv/reference/checkout.md)
+  could produce a broken `activate.R` script
+  (e.g. `object '..md5..' not found` on session restart) when upgrading
+  `renv` itself during checkout.
+  ([\#2257](https://github.com/rstudio/renv/issues/2257))
+
+- Fixed an issue where `renv::restore(packages = ...)` did not install
+  transitive dependencies of the requested packages.
+  ([\#2259](https://github.com/rstudio/renv/issues/2259))
+
 ## renv 1.2.0
 
 CRAN release: 2026-03-25
