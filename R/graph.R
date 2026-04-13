@@ -1297,7 +1297,7 @@ renv_graph_install <- function(descriptions) {
 
   showstatus <- !testing() && !verbose && !ci()
 
-  # ── Phase 2a: Install all packages in dependency order ──────
+  # ── Phase 3: Install all packages in dependency order ───────
   # All packages (binary and source) are installed via R CMD INSTALL
   # in worker subprocesses, ordered by the dependency graph so that
   # load tests succeed.  On R >= 4.0, a ready-queue event loop
