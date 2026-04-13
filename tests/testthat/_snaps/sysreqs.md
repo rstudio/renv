@@ -8,7 +8,7 @@
       The R packages depending on these system packages may fail to install.
       
       An administrator can install these packages with:
-      - sudo apt install blender
+      - sudo <installer> install blender
       
 
 # system requirements for alternate distributions are reported

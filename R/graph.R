@@ -1318,10 +1318,19 @@ renv_graph_install <- function(descriptions) {
     installpath <- file.path(installdir, pkg)
 
     if (result$success && file.exists(installpath)) {
-      message <- if (identical(entry$type, "binary")) "installed binary" else "built from source"
-      renv_install_step_ok(message, entry$record, elapsed = result$elapsed)
-      renv_graph_install_finalize(entry$record, entry$prepared, installdir, project, linkable)
-      all[[pkg]] <<- entry$record
+      finalized <- catch(
+        renv_graph_install_finalize(entry$record, entry$prepared, installdir, project, linkable)
+      )
+      if (inherits(finalized, "error")) {
+        msg <- conditionMessage(finalized)
+        renv_install_step_error(entry$record)
+        errors$push(list(package = pkg, message = msg))
+        failed$push(pkg)
+      } else {
+        message <- if (identical(entry$type, "binary")) "installed binary" else "built from source"
+        renv_install_step_ok(message, entry$record, elapsed = result$elapsed)
+        all[[pkg]] <<- entry$record
+      }
     } else {
       unlink(installpath, recursive = TRUE)
       renv_install_step_error(entry$record)
@@ -1771,11 +1780,13 @@ renv_graph_install_prepare <- function(record, path, library, type, isarchive) {
   # R CMD INSTALL handles both source and binary packages
   # (archives and directories); for source packages we pass
   # additional flags for pre-cleaning and keeping source refs.
-  # We always pass --no-test-load so that the test-load step
-  # is handled uniformly by renv_install_test() after install.
+  # R CMD INSTALL performs its own test-load for source packages;
+  # for binaries we pass --no-test-load and run renv_install_test()
+  # ourselves in renv_graph_install_finalize().
   args <- c(
     "--vanilla",
-    "CMD", "INSTALL", "--no-test-load",
+    "CMD", "INSTALL",
+    if (identical(type, "binary")) "--no-test-load",
     if (identical(type, "source")) c("--preclean", "--no-multiarch", "--with-keep.source"),
     if (identical(type, "source")) r_cmd_install_option(package, "configure.args", TRUE),
     if (identical(type, "source")) r_cmd_install_option(package, "configure.vars", TRUE),
@@ -1942,15 +1953,18 @@ renv_graph_install_finalize <- function(record, prepared, library, project, link
   package <- record$Package
   installpath <- file.path(library, package)
 
-  # test-load the package; R CMD INSTALL is invoked with
-  # --no-test-load so all packages go through the same path here
-  tryCatch(
-    renv_install_test(package),
-    error = function(err) {
-      unlink(installpath, recursive = TRUE)
-      stop(err)
-    }
-  )
+  # test-load binary packages; R CMD INSTALL already tests source
+  # packages, so we only need this for binaries (installed with
+  # --no-test-load since R CMD INSTALL doesn't test-load them)
+  if (identical(prepared$type, "binary")) {
+    tryCatch(
+      renv_install_test(package),
+      error = function(err) {
+        unlink(installpath, recursive = TRUE)
+        stop(err)
+      }
+    )
+  }
 
   # augment package metadata
   renv_package_augment(installpath, record)
