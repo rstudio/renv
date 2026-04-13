@@ -1,5 +1,10 @@
 # renv (development version)
 
+* Fixed an issue where binary packages could be installed before their
+  dependencies during `renv::restore()`, causing load-test failures.
+  Binary and source packages now participate in the same dependency-ordered
+  installation. (#2268)
+
 
 # renv 1.2.1
 
