@@ -643,6 +643,84 @@ test_that("renv_graph_install_needs_unpack returns FALSE for simple tar.gz sourc
 
 })
 
+test_that("renv_graph_install_needs_unpack returns TRUE for .zip archives", {
+
+  archive <- renv_scope_tempfile("renv-test-", fileext = ".zip")
+  file.create(archive)
+
+  record <- list(Package = "mypkg", Path = archive)
+  expect_true(renv_graph_install_needs_unpack(record, "binary"))
+
+})
+
+test_that("renv_graph_install_needs_unpack returns FALSE for binary tar.gz", {
+
+  archive <- renv_scope_tempfile("renv-test-", fileext = ".tar.gz")
+  file.create(archive)
+
+  record <- list(Package = "mypkg", Path = archive)
+  # install.build should not force unpack for binary packages
+  renv_scope_options(renv.config.install.build = TRUE)
+  expect_false(renv_graph_install_needs_unpack(record, "binary"))
+
+})
+
+# install prepare ----
+
+test_that("renv_graph_install_prepare includes source flags for source packages", {
+
+  prepared <- renv_graph_install_prepare(
+    record    = list(Package = "mypkg"),
+    path      = "/tmp/mypkg_1.0.0.tar.gz",
+    library   = "/tmp/lib",
+    type      = "source",
+    isarchive = TRUE
+  )
+
+  expect_equal(prepared$type, "source")
+  expect_equal(prepared$method, "install")
+  expect_true(grepl("--preclean", prepared$command))
+  expect_true(grepl("--no-multiarch", prepared$command))
+  expect_true(grepl("--with-keep.source", prepared$command))
+
+})
+
+test_that("renv_graph_install_prepare omits source flags for binary packages", {
+
+  prepared <- renv_graph_install_prepare(
+    record    = list(Package = "mypkg"),
+    path      = "/tmp/mypkg_1.0.0.tgz",
+    library   = "/tmp/lib",
+    type      = "binary",
+    isarchive = TRUE
+  )
+
+  expect_equal(prepared$type, "binary")
+  expect_equal(prepared$method, "install")
+  expect_false(grepl("--preclean", prepared$command))
+  expect_false(grepl("--no-multiarch", prepared$command))
+  expect_false(grepl("--with-keep.source", prepared$command))
+
+})
+
+test_that("renv_graph_install_prepare always uses R CMD INSTALL", {
+
+  # both source and binary packages should go through R CMD INSTALL
+  for (type in c("source", "binary")) {
+    prepared <- renv_graph_install_prepare(
+      record    = list(Package = "mypkg"),
+      path      = "/tmp/mypkg_1.0.0.tar.gz",
+      library   = "/tmp/lib",
+      type      = type,
+      isarchive = TRUE
+    )
+    expect_equal(prepared$method, "install", info = type)
+    expect_true(grepl("CMD INSTALL", prepared$command), info = type)
+    expect_true(grepl("-l", prepared$command), info = type)
+  }
+
+})
+
 # install error reporting ----
 
 test_that("renv_graph_install_errors reports direct failures", {
