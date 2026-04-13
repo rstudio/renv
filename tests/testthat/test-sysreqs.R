@@ -60,7 +60,7 @@ test_that("system requirements are reported as expected", {
   expect_snapshot(
     . <- renv_sysreqs_check(sysreqs, FALSE),
     transform = function(x) {
-      sub("sudo \\S+ install", "sudo <installer> install", x)
+      sub("sudo \\S+ \\S+", "sudo <install>", x)
     }
   )
 

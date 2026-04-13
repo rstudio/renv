@@ -1339,7 +1339,7 @@ renv_graph_install <- function(descriptions) {
       failed$push(pkg)
     }
 
-    callbacks[[pkg]]()
+    tryCatch(callbacks[[pkg]](), error = warnify)
   }
 
   if (getRversion() >= "4.0") {
