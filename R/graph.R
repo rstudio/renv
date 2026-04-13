@@ -1400,12 +1400,12 @@ renv_graph_install <- function(descriptions) {
           elapsed <- difftime(
             Sys.time(), active[[pkg]]$start, units = "auto"
           )
+          renv_graph_install_worker_cleanup(active[[pkg]])
           handle(pkg, list(
             success = FALSE,
             output  = "worker process timed out",
             elapsed = elapsed
           ))
-          renv_graph_install_worker_cleanup(active[[pkg]])
         }
         active <- list()
         break
@@ -1430,13 +1430,13 @@ renv_graph_install <- function(descriptions) {
               progress$clear()
               progress$tick()
             }
+            renv_graph_install_worker_cleanup(active[[pkg]])
+            active[[pkg]] <- NULL
             handle(pkg, list(
               success = FALSE,
               output  = "worker failed to start",
               elapsed = as.difftime(elapsed, units = "secs")
             ))
-            renv_graph_install_worker_cleanup(active[[pkg]])
-            active[[pkg]] <- NULL
             if (showstatus && length(active) > 0L)
               progress$update(names(active))
           }
@@ -1493,9 +1493,12 @@ renv_graph_install <- function(descriptions) {
 
         result <- renv_graph_install_parse_result(data, elapsed)
 
-        handle(pkg, result)
+        # clean up worker connection before handle(), which can
+        # throw (e.g. if the post-install load test fails)
         renv_graph_install_worker_cleanup(active[[pkg]])
         active[[pkg]] <- NULL
+
+        handle(pkg, result)
 
         # decrement dependents' indegree and enqueue newly ready
         if (result$success) {
