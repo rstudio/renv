@@ -703,9 +703,10 @@ test_that("renv_graph_install_prepare omits source flags for binary packages", {
 
 })
 
-test_that("renv_graph_install_prepare always uses R CMD INSTALL", {
+test_that("renv_graph_install_prepare always uses R CMD INSTALL with --no-test-load", {
 
   # both source and binary packages should go through R CMD INSTALL
+  # with --no-test-load, since renv handles test-loading separately
   for (type in c("source", "binary")) {
     prepared <- renv_graph_install_prepare(
       record    = list(Package = "mypkg"),
@@ -716,6 +717,7 @@ test_that("renv_graph_install_prepare always uses R CMD INSTALL", {
     )
     expect_equal(prepared$method, "install", info = type)
     expect_true(grepl("CMD INSTALL", prepared$command), info = type)
+    expect_true(grepl("--no-test-load", prepared$command), info = type)
     expect_true(grepl("-l", prepared$command), info = type)
   }
 
