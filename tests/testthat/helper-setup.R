@@ -249,6 +249,64 @@ renv_tests_setup_repos <- function(scope = parent.frame()) {
     latestOnly = FALSE
   )
 
+  # ── Binary packages ──────────────────────────────────────────
+  # Build binary versions of all test packages so tests can
+  # exercise the binary installation code path.
+  # Skipped on Linux where .Platform$pkgType is "source".
+  if (!identical(.Platform$pkgType, "source")) {
+
+    # platform-appropriate binary contrib path
+    bincontrib <- paste0(repopath, contrib.url("", type = "binary"))
+    ensure_directory(bincontrib)
+
+    # temporary library for building binary packages;
+    # R CMD INSTALL --build installs into this library then packs
+    # the result as a binary archive in the working directory
+    tmplib <- renv_scope_tempfile("renv-binlib-", scope = scope)
+    dir.create(tmplib)
+
+    # ensure the temp library is on the search path so
+    # R CMD INSTALL can resolve dependencies across builds
+    renv_scope_envvars(R_LIBS = tmplib)
+
+    # latest-version source tarballs (test packages are all 1.0.0)
+    srcfiles <- list.files(
+      contrib,
+      pattern = "_1\\.0\\.0\\.tar\\.gz$",
+      full.names = TRUE
+    )
+
+    # build from bincontrib so binary output lands there directly
+    owd <- setwd(bincontrib)
+
+    # build in dependency order via retry: try each tarball,
+    # retry failures until all succeed or no further progress
+    remaining <- srcfiles
+    while (length(remaining) > 0L) {
+      built <- character()
+      for (src in remaining) {
+        status <- system2(
+          file.path(R.home("bin"), "R"),
+          args = c("CMD", "INSTALL", "--build",
+                   "-l", shQuote(tmplib),
+                   shQuote(src)),
+          stdout = FALSE, stderr = FALSE
+        )
+        if (identical(status, 0L))
+          built <- c(built, src)
+      }
+      if (length(built) == 0L) break
+      remaining <- setdiff(remaining, built)
+    }
+
+    setwd(owd)
+
+    # write PACKAGES index for the binary arm
+    wptype <- if (renv_platform_windows()) "win.binary" else "mac.binary"
+    tools::write_PACKAGES(bincontrib, type = wptype)
+
+  }
+
   # return path to on-disk repository
   repopath
 
