@@ -53,9 +53,10 @@
 
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="development version" id="renv-development-version">renv (development version)<a class="anchor" aria-label="anchor" href="#renv-development-version"></a></h2>
-</div>
+<ul><li>Fixed an issue where binary packages could be installed before their dependencies during <code><a href="../reference/restore.html">renv::restore()</a></code>, causing load-test failures. Binary and source packages now participate in the same dependency-ordered installation. (<a href="https://github.com/rstudio/renv/issues/2268" class="external-link">#2268</a>)</li>
+</ul></div>
     <div class="section level2">
-<h2 class="pkg-version" data-toc-text="1.2.1" id="renv-121">renv 1.2.1<a class="anchor" aria-label="anchor" href="#renv-121"></a></h2>
+<h2 class="pkg-version" data-toc-text="1.2.1" id="renv-121">renv 1.2.1<a class="anchor" aria-label="anchor" href="#renv-121"></a></h2><p class="text-muted">CRAN release: 2026-04-12</p>
 <ul><li><p><code>RENV_PATHS_LOCKFILE</code> now resolves relative paths against the project directory rather than the working directory. Previously, the effective lockfile path could change as the working directory changed within an R session. (<a href="https://github.com/rstudio/renv/issues/2238" class="external-link">#2238</a>)</p></li>
 <li><p><code><a href="../reference/install.html">renv::install()</a></code> no longer upgrades transitive dependencies when the installed version already satisfies all dependency requirements. Previously, transitive dependencies were always upgraded to the latest available version, even when the existing library version was compatible. (<a href="https://github.com/rstudio/renv/issues/2232" class="external-link">#2232</a>)</p></li>
 <li><p>Fixed an issue where <code><a href="../reference/update.html">renv::update()</a></code> and <code><a href="../reference/install.html">renv::install()</a></code> did not handle <code>RemoteSubdir</code> correctly for Bitbucket and GitLab packages. The subdirectory was not passed through during remote resolution, causing DESCRIPTION lookups to fail for packages that live in a repository subdirectory. (<a href="https://github.com/rstudio/renv/issues/2229" class="external-link">#2229</a>)</p></li>

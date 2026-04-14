@@ -2,7 +2,16 @@
 
 ## renv (development version)
 
+- Fixed an issue where binary packages could be installed before their
+  dependencies during
+  [`renv::restore()`](https://rstudio.github.io/renv/dev/reference/restore.md),
+  causing load-test failures. Binary and source packages now participate
+  in the same dependency-ordered installation.
+  ([\#2268](https://github.com/rstudio/renv/issues/2268))
+
 ## renv 1.2.1
+
+CRAN release: 2026-04-12
 
 - `RENV_PATHS_LOCKFILE` now resolves relative paths against the project
   directory rather than the working directory. Previously, the effective
