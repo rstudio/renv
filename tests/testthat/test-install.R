@@ -721,6 +721,28 @@ test_that("install() lazily resolves project remotes", {
 
 })
 
+# https://github.com/rstudio/renv/issues/2271
+test_that("install() resolves named remotes in DESCRIPTION", {
+
+  skip_on_cran()
+  skip_if_no_github_auth()
+
+  renv_tests_scope()
+
+  desc <- c(
+    "Type: Package",
+    "Package: test",
+    "Imports: skeleton",
+    "Remotes: skeleton=kevinushey/skeleton"
+  )
+  writeLines(desc, con = "DESCRIPTION")
+
+  init(bare = TRUE)
+  install()
+  expect_true(renv_package_installed("skeleton"))
+
+})
+
 test_that("install() records the repository used to retrieve a package", {
 
   project <- renv_tests_scope(isolated = TRUE)

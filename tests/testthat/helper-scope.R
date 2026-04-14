@@ -41,6 +41,11 @@ renv_tests_scope <- function(packages = character(),
   code <- sprintf("library(%s)", packages)
   writeLines(code, "dependencies.R")
 
+  # use a temporary user directory so that package-type projects
+  # don't write into the persistent user library directory
+  userdir <- renv_scope_tempfile("renv-userdir-", scope = scope)
+  renv_scope_options(renv.userdir.override = userdir, scope = scope)
+
   # use temporary library
   library <- renv_scope_tempfile("renv-library-", scope = scope)
   ensure_directory(library)

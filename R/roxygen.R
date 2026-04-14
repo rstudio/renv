@@ -54,16 +54,22 @@
 #'
 #'  * `pkg`: install latest version of `pkg` from CRAN.
 #'  * `pkg@version`: install specified version of `pkg` from CRAN.
-#'  * `username/repo`: install package from GitHub
+#'  * `username/repo`: install package from GitHub.
+#'  * `username/repo@ref`: install from a specific git ref (branch, tag, or SHA).
+#'  * `username/repo:subdir`: install from a subdirectory of a GitHub repo.
 #'  * `bioc::pkg`: install `pkg` from Bioconductor.
 #'
 #'  See <https://remotes.r-lib.org/articles/dependencies.html> and the examples
 #'  below for more details.
 #'
-#'  renv deviates from the remotes spec in one important way: subdirectories
-#'  are separated from the main repository specification with a `:`, not `/`.
-#'  So to install from the `subdir` subdirectory of GitHub package
-#'  `username/repo` you'd use `"username/repo:subdir`.
+#'  Note that renv deviates from the remotes spec in one important way:
+#'  subdirectories are separated from the repository specification with a `:`
+#'  rather than `/`. For example, to install from the `subdir` subdirectory
+#'  of GitHub package `username/repo`, you would use:
+#'
+#'  ```
+#'  renv::install("username/repo:subdir")
+#'  ```
 #'
 #' @return The project directory, invisibly. Note that this function is normally
 #'   called for its side effects.

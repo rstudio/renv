@@ -156,8 +156,12 @@ renv_project_remotes <- function(project, filter = NULL, resolve = FALSE) {
     function() {
 
       # use remote if supplied
-      if (!is.null(remotes[[package]]))
-        return(remotes[[package]])
+      remote <- remotes[[package]]
+      if (!is.null(remote)) {
+        if (is.function(remote))
+          remote <- remote()
+        return(remote)
+      }
 
       # check for explicit version requirement
       explicit <- spec[spec$Require == "==", ]

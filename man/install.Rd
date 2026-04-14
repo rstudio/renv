@@ -29,17 +29,22 @@ e.g:
 \itemize{
 \item \code{pkg}: install latest version of \code{pkg} from CRAN.
 \item \code{pkg@version}: install specified version of \code{pkg} from CRAN.
-\item \code{username/repo}: install package from GitHub
+\item \code{username/repo}: install package from GitHub.
+\item \code{username/repo@ref}: install from a specific git ref (branch, tag, or SHA).
+\item \code{username/repo:subdir}: install from a subdirectory of a GitHub repo.
 \item \code{bioc::pkg}: install \code{pkg} from Bioconductor.
 }
 
 See \url{https://remotes.r-lib.org/articles/dependencies.html} and the examples
 below for more details.
 
-renv deviates from the remotes spec in one important way: subdirectories
-are separated from the main repository specification with a \code{:}, not \code{/}.
-So to install from the \code{subdir} subdirectory of GitHub package
-\code{username/repo} you'd use \verb{"username/repo:subdir}.}
+Note that renv deviates from the remotes spec in one important way:
+subdirectories are separated from the repository specification with a \code{:}
+rather than \code{/}. For example, to install from the \code{subdir} subdirectory
+of GitHub package \code{username/repo}, you would use:
+
+\if{html}{\out{<div class="sourceCode">}}\preformatted{renv::install("username/repo:subdir")
+}\if{html}{\out{</div>}}}
 
 \item{...}{Unused arguments, reserved for future expansion. If any arguments
 are matched to \code{...}, renv will signal an error.}
@@ -115,6 +120,16 @@ See \code{vignette("package-install")} for more details.
 of the \code{DESCRIPTION} file (if present). This allows you to specify places
 to install a package other than the latest version from CRAN.
 See \url{https://remotes.r-lib.org/articles/dependencies.html} for details.
+
+Remotes can optionally be prefixed with a package name and \code{=}, to
+explicitly associate a package name with a remote specification. For
+example:
+
+\if{html}{\out{<div class="sourceCode">}}\preformatted{Remotes: mypkg=user/repo
+}\if{html}{\out{</div>}}
+
+This is most useful when the package name cannot be inferred from the
+remote (e.g. when the repository name differs from the package name).
 }
 
 \section{Bioconductor}{
@@ -150,6 +165,9 @@ renv::install("eddelbuettel/digest@df55b00bff33e945246eff2586717452e635032f")
 # install a package from Bioconductor
 # (note: requires the BiocManager package)
 renv::install("bioc::Biobase")
+
+# install a package from a subdirectory of a GitHub repo
+renv::install("username/repo:subdir")
 
 # install a package, specifying path explicitly
 renv::install("~/path/to/package")
