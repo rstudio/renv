@@ -99,6 +99,9 @@ the$install_step_width <- 40L
 #' # (note: requires the BiocManager package)
 #' renv::install("bioc::Biobase")
 #'
+#' # install a package from a subdirectory of a GitHub repo
+#' renv::install("username/repo:subdir")
+#'
 #' # install a package, specifying path explicitly
 #' renv::install("~/path/to/package")
 #'
