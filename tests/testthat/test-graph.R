@@ -866,6 +866,53 @@ test_that("renv_graph_install respects dependency ordering", {
 
 })
 
+test_that("binary packages respect dependency ordering", {
+
+  skip_on_cran()
+  skip_if(identical(.Platform$pkgType, "source"),
+          "binary packages not supported on this platform")
+
+  renv_tests_scope(isolated = TRUE)
+
+  # use binary packages from the test repository
+  renv_scope_options(pkgType = .Platform$pkgType)
+  renv_scope_binding(the, "install_pkg_type", "binary")
+
+  # disable cache so all packages go through binary install
+  renv_scope_options(renv.config.cache.enabled = FALSE)
+
+  # track the order packages are finalized via a tracer
+  env <- new.env(parent = emptyenv())
+  env$order <- character()
+
+  renv_scope_trace(
+    what = renv:::renv_graph_install_finalize,
+    tracer = bquote({
+      .env <- .(env)
+      .env$order <- c(.env$order, record$Package)
+    })
+  )
+
+  descriptions <- renv_graph_init("breakfast")
+  records <- renv_graph_install(descriptions)
+
+  # all packages should be installed and loadable
+  for (pkg in names(records))
+    expect_true(renv_package_installed(pkg), info = pkg)
+
+  # bread must be finalized before toast, toast before breakfast
+  bread_idx <- match("bread", env$order)
+  toast_idx <- match("toast", env$order)
+  breakfast_idx <- match("breakfast", env$order)
+
+  expect_true(!is.na(bread_idx))
+  expect_true(!is.na(toast_idx))
+  expect_true(!is.na(breakfast_idx))
+  expect_true(bread_idx < toast_idx)
+  expect_true(toast_idx < breakfast_idx)
+
+})
+
 # graph sort edge cases ----
 
 test_that("renv_graph_sort handles empty input", {

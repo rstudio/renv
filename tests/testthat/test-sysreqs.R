@@ -54,7 +54,10 @@ test_that("system requirements are reported as expected", {
   skip_if(status == 0L)
 
   sysreqs <- list("<unknown>" = "blender")
-  expect_snapshot(. <- renv_sysreqs_check(sysreqs, FALSE))
+  expect_snapshot(
+    . <- renv_sysreqs_check(sysreqs, FALSE),
+    transform = function(x) gsub("sudo \\S+ \\S+", "sudo <install>", x)
+  )
 
 })
 
