@@ -72,7 +72,6 @@ test_that("renv_infrastructure_write_activate is skipped during checkout", {
 test_that("we can check out packages from the package manager instance", {
 
   skip_on_cran()
-  skip_if(Sys.info()[["machine"]] == "aarch64")
   skip_if(getRversion() >= "4.6.0")
 
   renv_tests_scope()
@@ -81,11 +80,11 @@ test_that("we can check out packages from the package manager instance", {
   # ensure we reset repos on exit
   renv_scope_options(repos = getOption("repos"))
 
-  # install rlang from an old snapshot
-  checkout(date = "2023-01-02", packages = "rlang")
+  # install renv from an old snapshot (pure R, no compiled code)
+  checkout(date = "2023-01-02", packages = "renv")
 
   # check that we installed the requested version
-  expect_true(renv_package_installed("rlang"))
-  expect_true(renv_package_version("rlang") == "1.0.6")
+  expect_true(renv_package_installed("renv"))
+  expect_true(renv_package_version("renv") == "0.16.0")
 
 })

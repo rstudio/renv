@@ -190,12 +190,13 @@ test_that("ACLs set on packages in project library are reset", {
   # but before cache sync runs (which may reset them); we trace
   # renv_graph_install_finalize with an entry tracer so that ACLs are
   # modified before renv_cache_synchronize is called inside it
-  trace("renv_graph_install_finalize", tracer = quote({
-    installpath <- file.path(library, record$Package)
-    system(paste("setfacl -m g::-", renv_shell_path(installpath)))
-  }), where = renv_envir_self(), print = FALSE)
-
-  defer(untrace("renv_graph_install_finalize", where = renv_envir_self()))
+  renv_scope_trace(
+    what = renv:::renv_graph_install_finalize,
+    tracer = quote({
+      installpath <- file.path(library, record$Package)
+      system(paste("setfacl -m g::-", renv_shell_path(installpath)))
+    })
+  )
 
   # use a custom cache
   cachedir <- renv_scope_tempfile("renv-cache-")
