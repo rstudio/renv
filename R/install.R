@@ -25,6 +25,17 @@ the$install_step_width <- 40L
 #' to install a package other than the latest version from CRAN.
 #' See <https://remotes.r-lib.org/articles/dependencies.html> for details.
 #'
+#' Remotes can optionally be prefixed with a package name and `=`, to
+#' explicitly associate a package name with a remote specification. For
+#' example:
+#'
+#' ```
+#' Remotes: mypkg=user/repo
+#' ```
+#'
+#' This is most useful when the package name cannot be inferred from the
+#' remote (e.g. when the repository name differs from the package name).
+#'
 #' # Bioconductor
 #'
 #' Packages from Bioconductor can be installed by using the `bioc::` prefix.

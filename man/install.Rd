@@ -115,6 +115,16 @@ See \code{vignette("package-install")} for more details.
 of the \code{DESCRIPTION} file (if present). This allows you to specify places
 to install a package other than the latest version from CRAN.
 See \url{https://remotes.r-lib.org/articles/dependencies.html} for details.
+
+Remotes can optionally be prefixed with a package name and \code{=}, to
+explicitly associate a package name with a remote specification. For
+example:
+
+\if{html}{\out{<div class="sourceCode">}}\preformatted{Remotes: mypkg=user/repo
+}\if{html}{\out{</div>}}
+
+This is most useful when the package name cannot be inferred from the
+remote (e.g. when the repository name differs from the package name).
 }
 
 \section{Bioconductor}{
