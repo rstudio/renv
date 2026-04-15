@@ -2,6 +2,14 @@
 
 ## renv (development version)
 
+- Fixed an issue where
+  [`renv::install()`](https://rstudio.github.io/renv/dev/reference/install.md)
+  failed with named remotes in `DESCRIPTION`
+  (e.g. `skeleton=kevinushey/skeleton`). The lazy remote resolution was
+  not fully unwrapped, causing “object of type ‘closure’ is not
+  subsettable” errors during dependency graph resolution.
+  ([\#2272](https://github.com/rstudio/renv/issues/2272))
+
 - Fixed an issue where binary packages could be installed before their
   dependencies during
   [`renv::restore()`](https://rstudio.github.io/renv/dev/reference/restore.md),
