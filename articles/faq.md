@@ -173,7 +173,7 @@ the two extremes:
 ## How can I check my packages for known vulnerabilities?
 
 If you use [Posit Package
-Manager](https://posit.co/products/enterprise/package-manager/) as a
+Manager](https://posit.co/products/enterprise/package-manager) as a
 repository, you can use
 [`renv::vulns()`](https://rstudio.github.io/renv/reference/vulns.md) to
 check for known vulnerabilities in your project’s dependencies:

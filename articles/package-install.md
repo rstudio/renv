@@ -221,7 +221,7 @@ If you want to distribute vignettes for your own packages, we suggest
 creating your own repository of binaries, either with [R
 Universe](https://r-universe.dev/) (for publicly hosted packages on
 GitHub), with [Posit Package
-Manager](https://posit.co/products/enterprise/package-manager/), or with
+Manager](https://posit.co/products/enterprise/package-manager), or with
 [drat](https://eddelbuettel.github.io/drat/).
 
 ## Downloads
