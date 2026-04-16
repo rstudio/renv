@@ -2,6 +2,10 @@
 
 ## renv (development version)
 
+## renv 1.2.2
+
+CRAN release: 2026-04-16
+
 - Fixed an issue where
   [`renv::install()`](https://rstudio.github.io/renv/dev/reference/install.md)
   failed with named remotes in `DESCRIPTION`

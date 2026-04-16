@@ -1,6 +1,6 @@
 # Using renv with Posit Connect
 
-[Posit Connect](https://posit.co/products/enterprise/connect/) is a
+[Posit Connect](https://posit.co/products/enterprise/connect) is a
 publication platform for deploying content built in R and Python to
 share with a broad audience. R users may want to develop content (like
 [Shiny applications](https://shiny.posit.co/) or [RMarkdown
