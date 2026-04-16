@@ -126,7 +126,7 @@ You can also take a more managed approach, that's somewhat in between the two ex
 
 ## How can I check my packages for known vulnerabilities?
 
-If you use [Posit Package Manager](https://posit.co/products/enterprise/package-manager/) as a repository, you can use `renv::vulns()` to check for known vulnerabilities in your project's dependencies:
+If you use [Posit Package Manager](https://posit.co/products/enterprise/package-manager) as a repository, you can use `renv::vulns()` to check for known vulnerabilities in your project's dependencies:
 
 ```{r}
 # check all packages recorded in the lockfile

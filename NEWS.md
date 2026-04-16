@@ -1,4 +1,5 @@
-# renv (development version)
+
+# renv 1.2.2
 
 * Fixed an issue where `renv::install()` failed with named remotes in
   `DESCRIPTION` (e.g. `skeleton=kevinushey/skeleton`). The lazy remote
