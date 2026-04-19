@@ -1,6 +1,11 @@
 
 # renv (development version)
 
+* Fixed an issue where setting `options(pkgType = "both")` on Linux could
+  cause `renv::restore()` to extract a source tarball into the library as
+  if it were a pre-built binary, skipping `R CMD INSTALL` and producing
+  "has no 'package.rds' in Meta/" load-test failures. (#2275)
+
 # renv 1.2.2
 
 * Fixed an issue where `renv::install()` failed with named remotes in

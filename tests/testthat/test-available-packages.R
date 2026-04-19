@@ -73,6 +73,19 @@ test_that("renv_available_packages_latest() respects pkgType option", {
 
 })
 
+test_that("pkgType = 'both' on source-only platforms yields a source record (#2275)", {
+
+  skip_on_cran()
+  skip_if_not(.Platform$pkgType == "source")
+
+  renv_tests_scope()
+
+  renv_scope_options(pkgType = "both")
+  record <- renv_available_packages_latest("breakfast")
+  expect_identical(attr(record, "type"), "source")
+
+})
+
 test_that("local sources are preferred when available", {
 
   skip_on_cran()

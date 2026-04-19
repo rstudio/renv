@@ -716,6 +716,14 @@ renv_available_packages_latest_repos <- function(package,
   type <- type %||% getOption("pkgType")
   repos <- repos %||% getOption("repos")
 
+  # on platforms where only source packages are supported, `type = "both"` has
+  # no meaningful distinction from source: base R rejects it outright, and
+  # `contrib.url(repos, "binary")` simply collapses to the source URL. treating
+  # it as "both" here would tag a source tarball as binary and cause the
+  # installer to skip `R CMD INSTALL` (#2275).
+  if (identical(.Platform$pkgType, "source") && identical(type, "both"))
+    type <- "source"
+
   # detect requests for only source packages
   if (identical(type, "source"))
     return(renv_available_packages_latest_repos_impl(package, "source", repos))
