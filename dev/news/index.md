@@ -2,6 +2,14 @@
 
 ## renv (development version)
 
+- Fixed an issue where setting `options(pkgType = "both")` on Linux
+  could cause
+  [`renv::restore()`](https://rstudio.github.io/renv/dev/reference/restore.md)
+  to extract a source tarball into the library as if it were a pre-built
+  binary, skipping `R CMD INSTALL` and producing “has no ‘package.rds’
+  in Meta/” load-test failures.
+  ([\#2275](https://github.com/rstudio/renv/issues/2275))
+
 ## renv 1.2.2
 
 CRAN release: 2026-04-16
