@@ -2,6 +2,15 @@
 
 ## renv (development version)
 
+- Fixed an issue where
+  [`renv::install()`](https://rstudio.github.io/renv/dev/reference/install.md)
+  could misreport packages as “built from source” when they were
+  actually pre-built binaries served from a Posit Package Manager
+  “binary” repository. The graph installer now classifies packages by
+  inspecting the downloaded archive, rather than trusting the `type`
+  passed to
+  [`available.packages()`](https://rdrr.io/r/utils/available.packages.html).
+
 - Fixed an issue where setting `options(pkgType = "both")` on Linux
   could cause
   [`renv::restore()`](https://rstudio.github.io/renv/dev/reference/restore.md)
