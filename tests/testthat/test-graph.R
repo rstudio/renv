@@ -608,13 +608,18 @@ test_that("renv_graph_install_parse_result handles output with no status attr", 
 
 # install classification ----
 
-test_that("renv_graph_install_classify uses type attribute when present", {
+test_that("renv_graph_install_classify inspects archive contents", {
 
-  record <- list(Package = "bread", Path = "/tmp/bread_1.0.0.tar.gz")
+  # the classifier must not trust the record's "type" attribute;
+  # for PPM "binary" repositories, the attribute reflects the
+  # requested type, not the real contents of the archive.
+  path <- renv_tests_path("local/skeleton/skeleton_1.0.1.tar.gz")
+
+  record <- list(Package = "skeleton", Path = path)
+  expect_equal(renv_graph_install_classify(record), "source")
+
+  # a misleading "binary" tag must not override the real type
   attr(record, "type") <- "binary"
-  expect_equal(renv_graph_install_classify(record), "binary")
-
-  attr(record, "type") <- "source"
   expect_equal(renv_graph_install_classify(record), "source")
 
 })

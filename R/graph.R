@@ -1782,13 +1782,11 @@ renv_graph_install_errors <- function(errors, failed, descriptions) {
 
 renv_graph_install_classify <- function(record) {
 
-  # use type metadata from the download phase if available
-  type <- attr(record, "type", exact = TRUE)
-  if (!is.null(type))
-    return(type)
-
-  # otherwise, inspect the archive or directory directly;
-  # for archives this lists contents without extracting
+  # always inspect the archive or directory directly. The type attr
+  # on a repository record reflects the `type` argument passed to
+  # `available.packages()`, not the real contents of the downloaded
+  # file -- which is wrong for Posit Package Manager "binary"
+  # repositories, which serve binary packages at source-style URLs.
   renv_package_type(record$Path, quiet = TRUE)
 
 }

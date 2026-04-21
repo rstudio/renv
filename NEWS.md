@@ -1,6 +1,13 @@
 
 # renv (development version)
 
+* Fixed an issue where `renv::install()` could misreport packages as
+  "built from source" when they were actually pre-built binaries
+  served from a Posit Package Manager "binary" repository. The graph
+  installer now classifies packages by inspecting the downloaded
+  archive, rather than trusting the `type` passed to
+  `available.packages()`.
+
 * Fixed an issue where setting `options(pkgType = "both")` on Linux could
   cause `renv::restore()` to extract a source tarball into the library as
   if it were a pre-built binary, skipping `R CMD INSTALL` and producing
