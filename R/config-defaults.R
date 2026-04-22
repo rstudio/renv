@@ -186,6 +186,15 @@ config <- list(
     )
   },
 
+  install.keep.source = function(..., default = TRUE) {
+    renv_config_get(
+      name    = "install.keep.source",
+      type    = "logical[1]",
+      default = default,
+      args    = list(...)
+    )
+  },
+
   install.remotes = function(..., default = TRUE) {
     renv_config_get(
       name    = "install.remotes",

@@ -1868,7 +1868,8 @@ renv_graph_install_prepare <- function(record, path, library, type, isarchive) {
     # R CMD INSTALL handles both archives and directories
     args <- c(
       "--vanilla",
-      "CMD", "INSTALL", "--preclean", "--no-multiarch", "--with-keep.source",
+      "CMD", "INSTALL", "--preclean", "--no-multiarch",
+      if (config$install.keep.source()) "--with-keep.source" else "--without-keep.source",
       r_cmd_install_option(package, "configure.args", TRUE),
       r_cmd_install_option(package, "configure.vars", TRUE),
       r_cmd_install_option(package, c("install.opts", "INSTALL_opts"), FALSE),

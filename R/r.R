@@ -234,7 +234,8 @@ r_cmd_install <- function(package, path, ...) {
   # could be changed by, for example, site-specific profiles
   args <- c(
     "--vanilla",
-    "CMD", "INSTALL", "--preclean", "--no-multiarch", "--with-keep.source",
+    "CMD", "INSTALL", "--preclean", "--no-multiarch",
+    if (config$install.keep.source()) "--with-keep.source" else "--without-keep.source",
     r_cmd_install_option(package, "configure.args", TRUE),
     r_cmd_install_option(package, "configure.vars", TRUE),
     r_cmd_install_option(package, c("install.opts", "INSTALL_opts"), FALSE),

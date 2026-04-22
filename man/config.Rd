@@ -89,6 +89,8 @@ Defaults to \code{"gitlab.com"}.}
 Defaults to \code{NULL}.}
 \subsection{renv.config.install.build}{Should downloaded package archives be built (via \verb{R CMD build}) before installation? When TRUE, package vignettes will also be built as part of package installation. Because building packages before installation may require packages within 'Suggests' to be available, this option is not enabled by default.
 Defaults to \code{FALSE}.}
+\subsection{renv.config.install.keep.source}{Should \verb{R CMD INSTALL} be invoked with \code{--with-keep.source} when installing packages from source? When \code{TRUE} (the default), renv preserves source references on installed functions, which can be useful for debugging. Set to \code{FALSE} to install packages with \code{--without-keep.source}; this can significantly reduce the serialized size of functions defined by installed packages.
+Defaults to \code{TRUE}.}
 \subsection{renv.config.install.remotes}{Should renv read a package's \verb{Remotes:} field when determining how package dependencies should be installed?
 Defaults to \code{TRUE}.}
 \subsection{renv.config.install.shortcuts}{Allow for a set of 'shortcuts' when installing packages with renv? When enabled, if renv discovers that a package to be installed is already available within the user or site libraries, then it will install a local copy of that package.
