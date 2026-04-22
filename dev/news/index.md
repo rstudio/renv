@@ -2,6 +2,13 @@
 
 ## renv (development version)
 
+- New `install.keep.source` configuration option controls whether renv
+  invokes `R CMD INSTALL` with `--with-keep.source`. Defaults to `TRUE`,
+  matching existing behaviour; set to `FALSE` to install with
+  `--without-keep.source`, which can significantly reduce the serialized
+  size of functions defined by installed packages.
+  ([\#1713](https://github.com/rstudio/renv/issues/1713))
+
 - Fixed an issue where
   [`renv::install()`](https://rstudio.github.io/renv/dev/reference/install.md)
   could misreport packages as “built from source” when they were

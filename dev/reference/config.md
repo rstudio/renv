@@ -220,6 +220,15 @@ package installation. Because building packages before installation may
 require packages within 'Suggests' to be available, this option is not
 enabled by default. Defaults to `FALSE`.
 
+### renv.config.install.keep.source
+
+Should `R CMD INSTALL` be invoked with `--with-keep.source` when
+installing packages from source? When `TRUE` (the default), renv
+preserves source references on installed functions, which can be useful
+for debugging. Set to `FALSE` to install packages with
+`--without-keep.source`; this can significantly reduce the serialized
+size of functions defined by installed packages. Defaults to `TRUE`.
+
 ### renv.config.install.remotes
 
 Should renv read a package's `Remotes:` field when determining how

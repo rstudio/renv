@@ -193,6 +193,11 @@ Defaults to <code>NULL</code>.</p>
 Defaults to <code>FALSE</code>.</p>
 </div>
 <div class="section">
+<h3 id="renv-config-install-keep-source">renv.config.install.keep.source<a class="anchor" aria-label="anchor" href="#renv-config-install-keep-source"></a></h3>
+<p>Should <code>R CMD INSTALL</code> be invoked with <code>--with-keep.source</code> when installing packages from source? When <code>TRUE</code> (the default), renv preserves source references on installed functions, which can be useful for debugging. Set to <code>FALSE</code> to install packages with <code>--without-keep.source</code>; this can significantly reduce the serialized size of functions defined by installed packages.
+Defaults to <code>TRUE</code>.</p>
+</div>
+<div class="section">
 <h3 id="renv-config-install-remotes">renv.config.install.remotes<a class="anchor" aria-label="anchor" href="#renv-config-install-remotes"></a></h3>
 <p>Should renv read a package's <code>Remotes:</code> field when determining how package dependencies should be installed?
 Defaults to <code>TRUE</code>.</p>
