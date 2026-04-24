@@ -8,6 +8,10 @@ renv_tests_scope <- function(packages = character(),
   # use private repositories in this scope
   renv_tests_scope_repos(scope = scope)
 
+  # disable network-backed crandb lookups; test fixture packages
+  # (e.g. "breakfast") collide with real CRAN package names
+  renv_tests_scope_crandb(enabled = FALSE, scope = scope)
+
   # use sandbox in this scope, to guard against packages like 'bread'
   # being installed into the system library
   renv_scope_sandbox(scope = scope)
@@ -68,6 +72,22 @@ renv_tests_scope_repos <- function(scope = parent.frame()) {
     pkgType = "source",
     repos   = repos,
     scope   = scope
+  )
+
+}
+
+renv_tests_scope_crandb <- function(enabled = FALSE, scope = parent.frame()) {
+
+  if (enabled)
+    return(invisible())
+
+  renv_scope_binding(
+    envir       = asNamespace("renv"),
+    symbol      = "renv_graph_description_crandb",
+    replacement = function(package, version) {
+      stop("crandb disabled in renv_tests_scope")
+    },
+    scope       = scope
   )
 
 }
