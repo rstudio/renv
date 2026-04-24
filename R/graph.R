@@ -245,9 +245,20 @@ renv_graph_description_repository <- function(record) {
       return(as.list(latest))
   }
 
-  # if the package exists in configured repos at a different version, use
-  # the full-field entry with overridden version; renv_available_packages_entry
-  # without filter returns complete dependency fields unlike latest
+  # the requested version wasn't found in configured repos; try crandb for the
+  # specific version's dependency fields. this must come before any fallback
+  # that reuses the latest entry's fields with an overridden version, since
+  # dependency constraints can change between versions (e.g. #2278)
+  if (!is.null(version)) {
+    crandb <- catch(renv_graph_description_crandb(package, version))
+    if (!inherits(crandb, "error"))
+      return(as.list(crandb))
+  }
+
+  # last-resort fallback when crandb is unreachable: use the latest entry's
+  # full fields with the requested version substituted. this may return stale
+  # dependency constraints if they changed between versions, but is better
+  # than failing outright.
   if (!is.null(version) && !inherits(latest, "error")) {
     full <- catch(renv_available_packages_entry(package, type = type))
     if (!inherits(full, "error")) {
@@ -255,13 +266,6 @@ renv_graph_description_repository <- function(record) {
       desc$Version <- version
       return(desc)
     }
-  }
-
-  # fall back to crandb for archived versions not in any configured repo
-  if (!is.null(version)) {
-    crandb <- catch(renv_graph_description_crandb(package, version))
-    if (!inherits(crandb, "error"))
-      return(as.list(crandb))
   }
 
   # if we found any entry at all (e.g. version filter excluded it),

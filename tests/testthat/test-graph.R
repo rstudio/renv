@@ -1069,6 +1069,36 @@ test_that("renv_graph_description_repository respects install_pkg_type", {
 
 })
 
+# https://github.com/rstudio/renv/issues/2278
+test_that("repository graph prefers crandb over latest-with-overridden-version", {
+
+  renv_tests_scope()
+
+  # stub crandb lookup so we don't touch the network, and so we can verify
+  # which path was taken: the stub returns a marker Depends field that
+  # differs from anything in the test repository
+  crandb_called <- FALSE
+  renv_scope_binding(
+    envir = asNamespace("renv"),
+    symbol = "renv_graph_description_crandb",
+    replacement = function(package, version) {
+      crandb_called <<- TRUE
+      list(Package = package, Version = version, Depends = "crandb-marker")
+    }
+  )
+
+  # ask for bread at a version that isn't in the test repository (which has
+  # 1.0.0); step 1 (version-filtered entry) and step 2 (latest matching) will
+  # both fail, so resolution must fall through to crandb
+  record <- list(Package = "bread", Version = "0.1.0", Source = "Repository")
+  desc <- renv_graph_description_repository(record)
+
+  expect_true(crandb_called)
+  expect_equal(desc$Version, "0.1.0")
+  expect_equal(desc$Depends, "crandb-marker")
+
+})
+
 # https://github.com/rstudio/renv/issues/2249
 test_that("gitlab DESCRIPTION path handles empty RemoteSubdir", {
 
