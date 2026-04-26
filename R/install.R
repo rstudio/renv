@@ -175,6 +175,8 @@ install <- function(packages = NULL,
     return(
       renv_pak_install(
         packages = packages,
+        include  = include,
+        exclude  = exclude,
         library  = libpaths,
         type     = type,
         rebuild  = rebuild,

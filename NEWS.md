@@ -1,6 +1,13 @@
 
 # renv (development version)
 
+* Fixed an issue where `renv::snapshot()` would fail to install missing
+  packages when `pak` was enabled and the user selected the "Install the
+  packages, then snapshot" option at the prompt. `renv::install()` now
+  forwards its `include` and `exclude` arguments to the pak backend, so
+  `install(include = missing)` reliably installs the requested packages
+  rather than falling through to a no-op project update. (#2281)
+
 * New `install.keep.source` configuration option controls whether renv
   invokes `R CMD INSTALL` with `--with-keep.source`. Defaults to `TRUE`,
   matching existing behaviour; set to `FALSE` to install with

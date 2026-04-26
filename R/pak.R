@@ -105,7 +105,9 @@ renv_pak_install <- function(packages,
                              type,
                              rebuild,
                              prompt,
-                             project)
+                             project,
+                             include = NULL,
+                             exclude = NULL)
 {
   pak <- renv_namespace_load("pak")
 
@@ -126,6 +128,15 @@ renv_pak_install <- function(packages,
      names(packages)
   else
     as.character(packages)
+
+  # if no packages were specified but the caller restricted installation
+  # to an explicit include set, install those (e.g. install(include = ...))
+  # https://github.com/rstudio/renv/issues/2281
+  if (length(packages) == 0L && length(include))
+    packages <- as.character(include)
+
+  if (length(exclude))
+    packages <- setdiff(packages, exclude)
 
   # if no packages were specified, treat this as a request to
   # install / update packages used in the project
