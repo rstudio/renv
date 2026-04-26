@@ -165,3 +165,21 @@ test_that("hydrate() propagates pak install errors", {
   expect_error(quietly(hydrate(prompt = FALSE, report = FALSE)), "pak failed")
 
 })
+
+test_that("restore(clean = TRUE) removes unused packages with pak enabled", {
+
+  skip_on_cran()
+  skip_on_windows()
+  skip_if_not_installed("pak")
+  renv_scope_options(renv.config.pak.enabled = TRUE)
+  renv_tests_scope("oatmeal")
+  init()
+
+  renv_scope_options(renv.config.auto.snapshot = FALSE)
+  install("bread")
+  expect_true(renv_package_installed("bread"))
+
+  quietly(restore(clean = TRUE))
+  expect_false(renv_package_installed("bread"))
+
+})
