@@ -237,3 +237,59 @@ renv_pak_restore <- function(lockfile,
 
 }
 
+renv_pak_restore_clean <- function(lockfile,
+                                   libpaths,
+                                   library,
+                                   project,
+                                   packages,
+                                   exclude,
+                                   prompt)
+{
+  current <- snapshot(
+    project  = project,
+    library  = libpaths,
+    lockfile = NULL,
+    type     = "all"
+  )
+
+  diff <- renv_lockfile_diff_packages(current, lockfile)
+  removes <- diff[diff == "remove"]
+  if (!length(removes))
+    return(invisible(NULL))
+
+  # only remove packages from the project library
+  ispkg <- map_lgl(names(removes), function(package) {
+    path <- find.package(package, lib.loc = libpaths, quiet = TRUE)
+    identical(dirname(path), library)
+  })
+  removes <- removes[ispkg]
+
+  # don't remove ignored packages
+  ignored <- renv_project_ignored_packages(project = project)
+  removes <- removes[renv_vector_diff(names(removes), ignored)]
+
+  # restrict to user-requested packages. unlike the main restore() path we
+  # don't expand `packages` via renv_graph_init() here, since the install
+  # graph's transitive deps come from the lockfile and so won't appear in
+  # the remove diff anyway.
+  selected <- if (is.null(packages))
+    setdiff(names(removes), exclude)
+  else
+    setdiff(packages, exclude)
+  removes <- removes[intersect(names(removes), selected)]
+
+  if (!length(removes))
+    return(invisible(NULL))
+
+  # report planned removals and confirm before mutating the library
+  if (prompt || renv_verbose()) {
+    renv_restore_report_actions(removes, current, lockfile)
+    cancel_if(prompt && !proceed())
+  }
+
+  enumerate(removes, function(package, action) {
+    renv_restore_remove(project, package, current)
+  })
+
+  invisible(removes)
+}

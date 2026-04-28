@@ -135,6 +135,13 @@ restore <- function(project = NULL,
   if (config$pak.enabled() && !recursing()) {
 
     renv_pak_init()
+
+    # pak doesn't handle package removals, so when clean = TRUE we drop
+    # unused packages from the project library ourselves before delegating
+    # the install to pak
+    if (clean)
+      renv_pak_restore_clean(lockfile, libpaths, library, project, packages, exclude, prompt)
+
     records <- renv_pak_restore(
       lockfile = lockfile,
       packages = packages,
