@@ -181,5 +181,6 @@ test_that("restore(clean = TRUE) removes unused packages with pak enabled", {
 
   quietly(restore(clean = TRUE))
   expect_false(renv_package_installed("bread"))
+  expect_true(renv_package_installed("oatmeal"))
 
 })
