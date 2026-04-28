@@ -20,6 +20,13 @@
   to pak when it is enabled.
   ([\#2282](https://github.com/rstudio/renv/issues/2282))
 
+- Fixed an issue where `renv::restore(clean = TRUE)` did not remove
+  unused packages when `RENV_CONFIG_PAK_ENABLED=TRUE` (or
+  `config$pak.enabled()` was otherwise set). The pak code path now
+  honors `clean = TRUE` and drops packages from the project library that
+  are not recorded in the lockfile, before delegating installs to pak.
+  ([\#2280](https://github.com/rstudio/renv/issues/2280))
+
 - New `install.keep.source` configuration option controls whether renv
   invokes `R CMD INSTALL` with `--with-keep.source`. Defaults to `TRUE`,
   matching existing behaviour; set to `FALSE` to install with
