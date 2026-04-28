@@ -8,6 +8,10 @@
   `install(include = missing)` reliably installs the requested packages
   rather than falling through to a no-op project update. (#2281)
 
+* Fixed an issue where `renv::init()` did not use pak to install missing
+  dependencies, even when `pak.enabled = TRUE`. The install path used
+  during init now delegates to pak when it is enabled. (#2282)
+
 * New `install.keep.source` configuration option controls whether renv
   invokes `R CMD INSTALL` with `--with-keep.source`. Defaults to `TRUE`,
   matching existing behaviour; set to `FALSE` to install with
