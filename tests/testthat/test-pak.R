@@ -184,3 +184,63 @@ test_that("restore(clean = TRUE) removes unused packages with pak enabled", {
   expect_true(renv_package_installed("oatmeal"))
 
 })
+
+test_that("restore(clean = TRUE) aborts when prompt is declined on pak path", {
+
+  skip_on_cran()
+  skip_on_windows()
+  skip_if_not_installed("pak")
+  renv_scope_options(renv.config.pak.enabled = TRUE)
+  renv_tests_scope("oatmeal")
+  init()
+
+  renv_scope_options(renv.config.auto.snapshot = FALSE)
+  install("bread")
+  expect_true(renv_package_installed("bread"))
+
+  local_mocked_bindings(proceed = function(...) FALSE)
+  expect_error(quietly(restore(clean = TRUE, prompt = TRUE)))
+  expect_true(renv_package_installed("bread"))
+  expect_true(renv_package_installed("oatmeal"))
+
+})
+
+test_that("restore(clean = TRUE) honors `exclude` on pak path", {
+
+  skip_on_cran()
+  skip_on_windows()
+  skip_if_not_installed("pak")
+  renv_scope_options(renv.config.pak.enabled = TRUE)
+  renv_tests_scope("oatmeal")
+  init()
+
+  renv_scope_options(renv.config.auto.snapshot = FALSE)
+  install("bread")
+  expect_true(renv_package_installed("bread"))
+
+  quietly(restore(clean = TRUE, exclude = "bread"))
+  expect_true(renv_package_installed("bread"))
+  expect_true(renv_package_installed("oatmeal"))
+
+})
+
+test_that("restore(clean = TRUE) honors `packages` on pak path", {
+
+  skip_on_cran()
+  skip_on_windows()
+  skip_if_not_installed("pak")
+  renv_scope_options(renv.config.pak.enabled = TRUE)
+  renv_tests_scope("oatmeal")
+  init()
+
+  renv_scope_options(renv.config.auto.snapshot = FALSE)
+  install("bread")
+  expect_true(renv_package_installed("bread"))
+
+  # cleanup is scoped to the named packages; bread is unused but not named,
+  # so it should survive.
+  quietly(restore(clean = TRUE, packages = "oatmeal"))
+  expect_true(renv_package_installed("bread"))
+  expect_true(renv_package_installed("oatmeal"))
+
+})
