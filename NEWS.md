@@ -25,6 +25,16 @@
   archive, rather than trusting the `type` passed to
   `available.packages()`.
 
+* Fixed an issue where `renv::restore()` and `renv::install()` could resolve
+  dependency constraints against the wrong version's `DESCRIPTION`. When a
+  lockfile-pinned version was not available from the configured repositories
+  (e.g. only the latest version is indexed, as on
+  `packagemanager.posit.co/cran/latest`), the graph resolver substituted the
+  latest version's `Depends`/`Imports`/`LinkingTo` fields in place of the
+  pinned version's, which could force spurious upgrades of unrelated
+  dependencies. The resolver now consults crandb for the pinned version's
+  actual requirements before falling back to the latest entry. (#2278)
+
 * Fixed an issue where setting `options(pkgType = "both")` on Linux could
   cause `renv::restore()` to extract a source tarball into the library as
   if it were a pre-built binary, skipping `R CMD INSTALL` and producing
