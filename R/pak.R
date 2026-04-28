@@ -105,7 +105,9 @@ renv_pak_install <- function(packages,
                              type,
                              rebuild,
                              prompt,
-                             project)
+                             project,
+                             include = NULL,
+                             exclude = NULL)
 {
   pak <- renv_namespace_load("pak")
 
@@ -127,10 +129,35 @@ renv_pak_install <- function(packages,
   else
     as.character(packages)
 
-  # if no packages were specified, treat this as a request to
-  # install / update packages used in the project
-  if (length(packages) == 0L)
+  # remember whether the caller explicitly scoped this install so we can
+  # distinguish "no scope at all" (let pak update the project) from "explicit
+  # scope filtered to empty" (no-op, matching the non-pak path)
+  explicit <- length(packages) > 0L || length(include) > 0L || length(exclude) > 0L
+
+  # apply include / exclude consistently with the non-pak install path,
+  # so the semantics of these arguments don't depend on the installer.
+  # if no packages were specified positionally but include was, treat it
+  # as the request set (e.g. install(include = ...))
+  # https://github.com/rstudio/renv/issues/2281
+  if (length(packages) == 0L && length(include))
+    packages <- as.character(include)
+
+  if (length(exclude))
+    packages <- setdiff(packages, exclude)
+
+  if (length(include))
+    packages <- intersect(packages, include)
+
+  # if no packages remain, fall through to a project-wide update only when
+  # the caller did not provide an explicit scope; otherwise treat this as
+  # a no-op so we don't surprise the user with an unintended update
+  if (length(packages) == 0L) {
+    if (explicit) {
+      writef("- There are no packages to install.")
+      return(invisible(list()))
+    }
     return(renv_pak_update(project, library, prompt))
+  }
   
   # pak doesn't support ':' as a sub-directory separator, so try to
   # repair that here

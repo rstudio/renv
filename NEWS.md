@@ -1,6 +1,13 @@
 
 # renv (development version)
 
+* Fixed an issue where `renv::snapshot()` would fail to install missing
+  packages when `pak` was enabled and the user selected the "Install the
+  packages, then snapshot" option at the prompt. `renv::install()` now
+  forwards its `include` and `exclude` arguments to the pak backend, so
+  `install(include = missing)` reliably installs the requested packages
+  rather than falling through to a no-op project update. (#2281)
+
 * Fixed an issue where `renv::init()` did not use pak to install missing
   dependencies, even when `pak.enabled = TRUE`. The install path used
   during init now delegates to pak when it is enabled. (#2282)
