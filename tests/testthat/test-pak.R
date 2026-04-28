@@ -61,3 +61,35 @@ test_that("renv::init() routes through pak when pak.enabled = TRUE", {
   expect_true("bread" %in% pak_install_packages)
 
 })
+
+test_that("hydrate() preserves its return contract when pak handles install", {
+
+  renv_tests_scope("bread")
+  renv_scope_options(renv.config.pak.enabled = TRUE)
+
+  local_mocked_bindings(
+    renv_pak_init = function(...) invisible(NULL),
+    # simulate a pak install: return a data.frame, as pak::pkg_install() does
+    renv_pak_install = function(...) data.frame(package = "bread")
+  )
+
+  result <- quietly(hydrate(prompt = FALSE, report = FALSE))
+
+  # 'missing' should be NULL on success, not the raw pak install result
+  expect_null(result$missing)
+
+})
+
+test_that("hydrate() propagates pak install errors", {
+
+  renv_tests_scope("bread")
+  renv_scope_options(renv.config.pak.enabled = TRUE)
+
+  local_mocked_bindings(
+    renv_pak_init = function(...) invisible(NULL),
+    renv_pak_install = function(...) stop("pak failed")
+  )
+
+  expect_error(quietly(hydrate(prompt = FALSE, report = FALSE)), "pak failed")
+
+})

@@ -350,14 +350,15 @@ renv_hydrate_resolve_missing <- function(project, library, remotes, missing) {
       else
         renv_record_format_remote(record, pak = TRUE)
     })
-    return(renv_pak_install(
+    renv_pak_install(
       packages = unname(specs),
       library  = library,
       type     = NULL,
       rebuild  = FALSE,
       prompt   = FALSE,
       project  = project
-    ))
+    )
+    return(invisible())
   }
 
   # set up restore state for graph resolution
