@@ -339,6 +339,27 @@ renv_hydrate_resolve_missing <- function(project, library, remotes, missing) {
 
   writef("- Resolving missing dependencies ... ")
 
+  # if pak is enabled, delegate installation to it
+  # https://github.com/rstudio/renv/issues/2282
+  if (config$pak.enabled() && !recursing()) {
+    renv_pak_init()
+    specs <- map_chr(packages, function(package) {
+      record <- remotes[[package]]
+      if (is.null(record))
+        package
+      else
+        renv_record_format_remote(record, pak = TRUE)
+    })
+    return(renv_pak_install(
+      packages = unname(specs),
+      library  = library,
+      type     = NULL,
+      rebuild  = FALSE,
+      prompt   = FALSE,
+      project  = project
+    ))
+  }
+
   # set up restore state for graph resolution
   renv_scope_restore(
     project  = project,
