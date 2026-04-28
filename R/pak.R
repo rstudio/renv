@@ -129,14 +129,19 @@ renv_pak_install <- function(packages,
   else
     as.character(packages)
 
-  # if no packages were specified but the caller restricted installation
-  # to an explicit include set, install those (e.g. install(include = ...))
+  # apply include / exclude consistently with the non-pak install path,
+  # so the semantics of these arguments don't depend on the installer.
+  # if no packages were specified positionally but include was, treat it
+  # as the request set (e.g. install(include = ...))
   # https://github.com/rstudio/renv/issues/2281
   if (length(packages) == 0L && length(include))
     packages <- as.character(include)
 
   if (length(exclude))
     packages <- setdiff(packages, exclude)
+
+  if (length(include))
+    packages <- intersect(packages, include)
 
   # if no packages were specified, treat this as a request to
   # install / update packages used in the project
