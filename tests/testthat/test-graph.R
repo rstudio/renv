@@ -1099,6 +1099,30 @@ test_that("repository graph prefers crandb over latest-with-overridden-version",
 
 })
 
+# https://github.com/rstudio/renv/issues/2278
+test_that("repository graph falls back to latest-with-overridden-version when crandb fails", {
+
+  renv_tests_scope()
+
+  # stub crandb to error so resolution must reach the last-resort fallback;
+  # the fallback uses the latest entry's full DESCRIPTION fields with the
+  # requested version substituted in
+  renv_scope_binding(
+    envir = asNamespace("renv"),
+    symbol = "renv_graph_description_crandb",
+    replacement = function(package, version) {
+      stop("crandb unreachable")
+    }
+  )
+
+  record <- list(Package = "bread", Version = "0.1.0", Source = "Repository")
+  desc <- renv_graph_description_repository(record)
+
+  expect_equal(desc$Package, "bread")
+  expect_equal(desc$Version, "0.1.0")
+
+})
+
 # https://github.com/rstudio/renv/issues/2249
 test_that("gitlab DESCRIPTION path handles empty RemoteSubdir", {
 

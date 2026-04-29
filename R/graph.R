@@ -297,6 +297,12 @@ renv_graph_description_bioconductor <- function(record) {
 
 renv_graph_description_crandb <- function(package, version) {
 
+  # intentionally not gated on config$crandb.enabled(): that flag controls
+  # whether crandb is consulted for *version discovery* (finding the latest
+  # available version of a package). here the version is already pinned by
+  # the lockfile, and we only need its DESCRIPTION fields to resolve the
+  # dependency graph; without crandb the fallback uses the wrong version's
+  # constraints (#2278).
   url <- sprintf("https://crandb.r-pkg.org/%s/%s", package, version)
   destfile <- renv_scope_tempfile("renv-crandb-")
   download(url, destfile = destfile, quiet = TRUE)
