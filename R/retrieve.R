@@ -626,12 +626,12 @@ renv_retrieve_libpaths_impl <- function(record, libpath) {
     return(FALSE)
 
   # check that it was built for a compatible version of R
-  built <- desc[["Built"]]
-  if (is.null(built))
+  version <- catch(renv_description_built_version(desc))
+  if (inherits(version, "error") || is.na(version))
     return(FALSE)
 
-  ok <- catch(renv_description_built_version(desc))
-  if (!identical(ok, TRUE))
+  ok <- catch(renv_version_compare(version, getRversion(), 2L) == 0)
+  if (!isTRUE(ok))
     return(FALSE)
 
   # check that this package has a known source

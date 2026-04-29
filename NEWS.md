@@ -1,6 +1,10 @@
 
 # renv (development version)
 
+* Fixed a regression where `renv::restore()` and `renv::install()` would
+  re-download packages that were already installed in the user or site
+  library, instead of reusing the existing installation. (#2288)
+
 * Fixed an issue where `renv::snapshot()` would fail to install missing
   packages when `pak` was enabled and the user selected the "Install the
   packages, then snapshot" option at the prompt. `renv::install()` now

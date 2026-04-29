@@ -418,3 +418,84 @@ test_that("we can use retrieve() to download packages without installing", {
   expect_equal(result, c(bread = "./bread_1.0.0.tar.gz"))
 
 })
+
+test_that("renv_retrieve_libpaths_impl reuses a compatible installed package", {
+
+  # https://github.com/rstudio/renv/issues/2288 — the built-version check used
+  # to compare a version string to TRUE, which always failed, so the user /
+  # site library shortcut never fired and renv would needlessly download.
+  renv_tests_scope()
+
+  # install bread 1.0.0 into a temporary "user library"
+  userlib <- renv_scope_tempfile("renv-userlib-")
+  ensure_directory(userlib)
+  install("bread", library = userlib)
+
+  # set up restore state so renv_retrieve_successful() has somewhere to record
+  templib <- renv_scope_tempfile("renv-library-")
+  ensure_directory(templib)
+  renv_scope_libpaths(c(templib, .libPaths()))
+
+  record <- list(
+    Package    = "bread",
+    Version    = "1.0.0",
+    Source     = "Repository",
+    Repository = "CRAN"
+  )
+
+  renv_scope_restore(
+    project   = getwd(),
+    library   = templib,
+    records   = list(bread = record),
+    packages  = "bread",
+    recursive = TRUE
+  )
+
+  expect_true(renv_retrieve_libpaths_impl(record, userlib))
+
+  state <- renv_restore_state()
+  expect_true(state$install$contains("bread"))
+  expect_equal(state$install$get("bread")$Path, file.path(userlib, "bread"))
+
+})
+
+test_that("renv_retrieve_libpaths_impl rejects packages built for a different R version", {
+
+  renv_tests_scope()
+
+  # the file-backed DESCRIPTION cache would otherwise return the original
+  # Built field after we mutate the file below
+  renv_scope_options(renv.config.filebacked.cache = FALSE)
+
+  userlib <- renv_scope_tempfile("renv-userlib-")
+  ensure_directory(userlib)
+  install("bread", library = userlib)
+
+  # rewrite the Built field to claim an R version we definitely aren't using
+  descpath <- file.path(userlib, "bread", "DESCRIPTION")
+  text <- readLines(descpath)
+  text <- sub("^Built: R [0-9.]+", "Built: R 0.0.0", text)
+  writeLines(text, descpath)
+
+  templib <- renv_scope_tempfile("renv-library-")
+  ensure_directory(templib)
+  renv_scope_libpaths(c(templib, .libPaths()))
+
+  record <- list(
+    Package    = "bread",
+    Version    = "1.0.0",
+    Source     = "Repository",
+    Repository = "CRAN"
+  )
+
+  renv_scope_restore(
+    project   = getwd(),
+    library   = templib,
+    records   = list(bread = record),
+    packages  = "bread",
+    recursive = TRUE
+  )
+
+  expect_false(renv_retrieve_libpaths_impl(record, userlib))
+
+})
