@@ -2,6 +2,14 @@
 
 ## renv (development version)
 
+- Fixed a regression where
+  [`renv::restore()`](https://rstudio.github.io/renv/dev/reference/restore.md)
+  and
+  [`renv::install()`](https://rstudio.github.io/renv/dev/reference/install.md)
+  would re-download packages that were already installed in the user or
+  site library, instead of reusing the existing installation.
+  ([\#2288](https://github.com/rstudio/renv/issues/2288))
+
 - Fixed an issue where
   [`renv::snapshot()`](https://rstudio.github.io/renv/dev/reference/snapshot.md)
   would fail to install missing packages when `pak` was enabled and the
