@@ -34,8 +34,11 @@ be used. If no project is currently active, then the current working
 directory is used instead.}
 }
 \value{
-An \R list of vulnerability information. Only packages which
-have known vulnerabilities will be included in the resulting data object.
+An \R list with one entry per requested package. Each entry
+contains metadata returned by Posit Package Manager (e.g. \code{name},
+\code{version}, \code{licenses}, \code{blocked}), plus a \code{vulns} field. The \code{vulns}
+field is an empty list when the package has no known vulnerabilities,
+and otherwise holds one or more vulnerability records.
 }
 \description{
 This function acts as an interface to Posit Package Manager's vulnerability

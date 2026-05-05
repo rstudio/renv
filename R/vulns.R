@@ -21,8 +21,11 @@
 #' @param verbose Boolean; when `TRUE`, verbose information from the `curl`
 #'   web request will be printed to the console.
 #'
-#' @returns An \R list of vulnerability information. Only packages which
-#'   have known vulnerabilities will be included in the resulting data object.
+#' @returns An \R list with one entry per requested package. Each entry
+#'   contains metadata returned by Posit Package Manager (e.g. `name`,
+#'   `version`, `licenses`, `blocked`), plus a `vulns` field. The `vulns`
+#'   field is an empty list when the package has no known vulnerabilities,
+#'   and otherwise holds one or more vulnerability records.
 #'
 #' @keywords internal
 #' @export
@@ -119,6 +122,11 @@ vulns <- function(packages = NULL,
     msg <- sprintf(fmt, error, as.character(code))
     stop(msg, call. = FALSE)
   }
+
+  # PPM omits the vulns field when a package has no known vulnerabilities;
+  # normalize so callers can uniformly inspect record[["vulns"]].
+  for (i in seq_along(data))
+    data[[i]][["vulns"]] <- data[[i]][["vulns"]] %||% list()
 
   data
 }
