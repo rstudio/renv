@@ -174,13 +174,13 @@ Properties related to the version of R associated with this project.
 R package records, capturing the packages used or required by a project
 at the time when the lockfile was generated.
 
-|                |                                                                            |
-|----------------|----------------------------------------------------------------------------|
-| **Package**    | The package name.                                                          |
-| **Version**    | The package version.                                                       |
-| **Source**     | The location from which this package was retrieved.                        |
+|  |  |
+|----|----|
+| **Package** | The package name. |
+| **Version** | The package version. |
+| **Source** | The location from which this package was retrieved. |
 | **Repository** | The name of the repository (if any) from which this package was retrieved. |
-| **Hash**       | (Optional) A unique hash for this package, used for package caching.       |
+| **Hash** | (Optional) A unique hash for this package, used for package caching. |
 
 Additional remote fields, further describing how the package can be
 retrieved from its corresponding source, will also be included as
@@ -191,11 +191,11 @@ appropriate (e.g. for packages installed from GitHub).
 Metadata related to the version of Python used with this project (if
 any).
 
-|             |                                                                             |
-|-------------|-----------------------------------------------------------------------------|
-| **Version** | The version of Python being used.                                           |
-| **Type**    | The type of Python environment being used ("virtualenv", "conda", "system") |
-| **Name**    | The (optional) name of the environment being used.                          |
+|  |  |
+|----|----|
+| **Version** | The version of Python being used. |
+| **Type** | The type of Python environment being used ("virtualenv", "conda", "system") |
+| **Name** | The (optional) name of the environment being used. |
 
 Note that the `Name` field may be empty. In that case, a project-local
 Python environment will be used instead (when not directly using a

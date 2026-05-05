@@ -100,6 +100,7 @@ whose installation would satisfy the `libcurl` dependency.
 ## Examples
 
 ``` r
+
 if (FALSE) { # \dontrun{
 
 # report the required system packages for this system

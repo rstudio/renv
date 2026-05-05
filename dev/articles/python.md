@@ -28,6 +28,7 @@ If you’d like to deactivate Python integration for a project, you can do
 so with:
 
 ``` r
+
 renv::use_python(python = FALSE)
 ```
 

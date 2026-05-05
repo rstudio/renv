@@ -111,8 +111,11 @@ directory is used instead.</p></dd>
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
-    <p>An <span style="R">R</span> list of vulnerability information. Only packages which
-have known vulnerabilities will be included in the resulting data object.</p>
+    <p>An <span style="R">R</span> list with one entry per requested package. Each entry
+contains metadata returned by Posit Package Manager (e.g. <code>name</code>,
+<code>version</code>, <code>licenses</code>, <code>blocked</code>), plus a <code>vulns</code> field. The <code>vulns</code>
+field is an empty list when the package has no known vulnerabilities,
+and otherwise holds one or more vulnerability records.</p>
     </div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>

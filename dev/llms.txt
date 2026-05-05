@@ -2,9 +2,9 @@
 
 ## Overview
 
-The renv package[¹](#fn1) helps you create **r**eproducible
-**env**ironments for your R projects. Use renv to make your R projects
-more isolated, portable and reproducible.
+The renv package[^1] helps you create **r**eproducible **env**ironments
+for your R projects. Use renv to make your R projects more isolated,
+portable and reproducible.
 
 - **Isolated**: Installing a new or updated package for one project
   won’t break your other projects, and vice versa. That’s because renv
@@ -21,6 +21,7 @@ more isolated, portable and reproducible.
 Install the latest version of renv from CRAN with:
 
 ``` r
+
 install.packages("renv")
 ```
 
@@ -28,6 +29,7 @@ Alternatively, install the development version from
 [r-universe](https://rstudio.r-universe.dev/renv) with:
 
 ``` r
+
 install.packages("renv", repos = "https://rstudio.r-universe.dev")
 ```
 
@@ -84,9 +86,7 @@ If you believe you’ve found a bug in renv, please file a bug (and, if
 possible, a [reproducible example](https://reprex.tidyverse.org)) at
 <https://github.com/rstudio/renv/issues>.
 
-------------------------------------------------------------------------
-
-1.  Pronounced “R” “env”
+[^1]: Pronounced “R” “env”
 
 # Package index
 

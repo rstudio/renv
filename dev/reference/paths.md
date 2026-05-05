@@ -27,23 +27,23 @@ so desired (e.g. you'd prefer to keep the cache of package installations
 on a separate volume). The various environment variables that can be set
 are enumerated below:
 
-|                              |                                                                                                         |
-|------------------------------|---------------------------------------------------------------------------------------------------------|
-| **Environment Variable**     | **Description**                                                                                         |
-| `RENV_PATHS_ROOT`            | The root path used for global state storage.                                                            |
-| `RENV_PATHS_LIBRARY`         | The path to the project library.                                                                        |
-| `RENV_PATHS_LIBRARY_ROOT`    | The parent path for project libraries.                                                                  |
-| `RENV_PATHS_LIBRARY_STAGING` | The parent path used for staged package installs.                                                       |
-| `RENV_PATHS_SANDBOX`         | The path to the sandboxed R system library.                                                             |
-| `RENV_PATHS_LOCKFILE`        | The path to the [lockfile](https://rstudio.github.io/renv/dev/reference/lockfile-api.md).               |
-| `RENV_PATHS_CELLAR`          | The path to the cellar, containing local package binaries and sources.                                  |
-| `RENV_PATHS_SOURCE`          | The path containing downloaded package sources.                                                         |
-| `RENV_PATHS_BINARY`          | The path containing downloaded package binaries.                                                        |
-| `RENV_PATHS_CACHE`           | The path containing cached package installations.                                                       |
-| `RENV_PATHS_PREFIX`          | An optional prefix to prepend to the constructed library / cache paths.                                 |
-| `RENV_PATHS_RENV`            | The path to the project's renv folder. For advanced users only.                                         |
-| `RENV_PATHS_RTOOLS`          | (Windows only) The path to [Rtools](https://cran.r-project.org/bin/windows/Rtools/).                    |
-| `RENV_PATHS_EXTSOFT`         | (Windows only) The path containing external software needed for compilation of Windows source packages. |
+|  |  |
+|----|----|
+| **Environment Variable** | **Description** |
+| `RENV_PATHS_ROOT` | The root path used for global state storage. |
+| `RENV_PATHS_LIBRARY` | The path to the project library. |
+| `RENV_PATHS_LIBRARY_ROOT` | The parent path for project libraries. |
+| `RENV_PATHS_LIBRARY_STAGING` | The parent path used for staged package installs. |
+| `RENV_PATHS_SANDBOX` | The path to the sandboxed R system library. |
+| `RENV_PATHS_LOCKFILE` | The path to the [lockfile](https://rstudio.github.io/renv/dev/reference/lockfile-api.md). |
+| `RENV_PATHS_CELLAR` | The path to the cellar, containing local package binaries and sources. |
+| `RENV_PATHS_SOURCE` | The path containing downloaded package sources. |
+| `RENV_PATHS_BINARY` | The path containing downloaded package binaries. |
+| `RENV_PATHS_CACHE` | The path containing cached package installations. |
+| `RENV_PATHS_PREFIX` | An optional prefix to prepend to the constructed library / cache paths. |
+| `RENV_PATHS_RENV` | The path to the project's renv folder. For advanced users only. |
+| `RENV_PATHS_RTOOLS` | (Windows only) The path to [Rtools](https://cran.r-project.org/bin/windows/Rtools/). |
+| `RENV_PATHS_EXTSOFT` | (Windows only) The path containing external software needed for compilation of Windows source packages. |
 
 (If you want these settings to persist in your project, it is
 recommended that you add these to an appropriate R startup file. For

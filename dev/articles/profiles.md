@@ -23,6 +23,7 @@ library and lockfile paths are set in the typical way. To activate a
 particular profile, use:
 
 ``` r
+
 renv::activate(profile = "dev")
 ```
 
@@ -37,6 +38,7 @@ session without setting it as the default for new R sessions, you can
 use:
 
 ``` r
+
 Sys.setenv(RENV_PROFILE = "dev")
 ```
 
@@ -55,6 +57,7 @@ newly-launched R sessions within renv projects.
 To activate the “default” profile used by a project, use:
 
 ``` r
+
 renv::activate(profile = "default")
 ```
 
@@ -91,6 +94,7 @@ used, you can opt-in to using `"explicit"` snapshots, and leave the
 `Imports`, `Depends` and `Suggests` fields blank:
 
 ``` r
+
 renv::settings$snapshot.type("explicit")
 ```
 

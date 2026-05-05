@@ -40,6 +40,7 @@ successfully removed.
 ## Examples
 
 ``` r
+
 if (FALSE) { # \dontrun{
 
 # disable automatic snapshots

@@ -1,6 +1,7 @@
 # Package sources
 
 ``` r
+
 library(renv)
 ```
 
@@ -75,6 +76,7 @@ option, and that these repositories are named. For example, you might
 use:
 
 ``` r
+
 repos <- c(CRAN = "https://cloud.r-project.org", WORK = "https://work.example.org")
 options(repos = repos)
 ```
@@ -92,6 +94,7 @@ to switch your project to a specific snapshot date. This installs the
 versions of all packages that were available on that date:
 
 ``` r
+
 # use packages as they were on 2024-01-15
 renv::checkout(date = "2024-01-15")
 ```
@@ -100,6 +103,7 @@ You can also generate a lockfile from a snapshot date without installing
 anything, by using `actions = "snapshot"`:
 
 ``` r
+
 renv::checkout(date = "2024-01-15", actions = "snapshot")
 ```
 
@@ -121,6 +125,7 @@ To initialize renv in a project using Bioconductor, you can pass the
 [`renv::init()`](https://rstudio.github.io/renv/dev/reference/init.md):
 
 ``` r
+
 # use the latest-available Bioconductor release
 renv::init(bioconductor = TRUE)
 
@@ -144,6 +149,7 @@ Bioconductor releases are made available for newer versions of R.
 To set the version of Bioconductor used in a project, you can use:
 
 ``` r
+
 renv::settings$bioconductor.version("3.20")
 ```
 
@@ -154,6 +160,7 @@ If you want to override the Bioconductor repositories used by renv, you
 can also explicitly set the following option:
 
 ``` r
+
 options(renv.bioconductor.repos = c(...))
 ```
 
@@ -208,6 +215,7 @@ version available from CRAN.
 If you want to see what paths renv is using for the cellar, you can use:
 
 ``` r
+
 renv:::renv_paths_cellar()
 ```
 
@@ -268,6 +276,7 @@ R packages might occasionally (and unintentionally) take a build-time
 dependency on another R package – for example, a package with the code:
 
 ``` r
+
 # please don't do this!
 `%>%` <- magrittr::`%>%`
 ```

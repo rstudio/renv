@@ -18,9 +18,9 @@ benefits:
     to contain it’s own copy of every package.
 
 When installing a package, renv installs into the global cache and then
-adds a symlink[¹](#fn1) to that directory in the project library. That
-way each renv project remains isolated from other projects on your
-system, but they can still re-use the same installed packages.
+adds a symlink[^1] to that directory in the project library. That way
+each renv project remains isolated from other projects on your system,
+but they can still re-use the same installed packages.
 
 The process by which packages enter the cache is roughly as follows:
 
@@ -134,6 +134,7 @@ You can also force a package to be re-installed and re-cached with the
 following functions:
 
 ``` r
+
 # restore packages from the lockfile, bypassing the cache
 renv::restore(rebuild = TRUE)
 
@@ -179,6 +180,7 @@ be used to map package names to their appropriate configuration. For
 example:
 
 ``` r
+
 # installation of RNetCDF may require us to set include paths for netcdf
 configure.args = c(RNetCDF = "--with-netcdf-include=/usr/include/udunits2")
 options(configure.args = configure.args)
@@ -188,6 +190,7 @@ renv::install("RNetCDF")
 This could also be specified as, for example,
 
 ``` r
+
 options(
   configure.args.RNetCDF = "--with-netcdf-include=/usr/include/udunits2"
 )
@@ -200,6 +203,7 @@ Similarly, additional flags that should be passed to `R CMD INSTALL` can
 be set via the `install.opts` `R` option:
 
 ``` r
+
 # installation of R packages using the Windows Subsystem for Linux
 # may require the `--no-lock` flag to be set during install
 options(install.opts = "--no-lock")
@@ -257,6 +261,7 @@ renv’s attempts to use `curl`, you can use the R option
 `renv.download.override`. For example, executing:
 
 ``` r
+
 options(renv.download.override = utils::download.file)
 ```
 
@@ -271,6 +276,7 @@ You can also instruct renv to use a different download method by setting
 the `RENV_DOWNLOAD_METHOD` environment variable. For example:
 
 ``` r
+
 # use Windows' internal download machinery
 Sys.setenv(RENV_DOWNLOAD_METHOD = "wininet")
 
@@ -284,18 +290,21 @@ method that R has been configured to use. You can check which download
 method R is currently configured to use with:
 
 ``` r
+
 getOption("download.file.method")
 ```
 
 And the downloader currently used by renv can be queried with:
 
 ``` r
+
 renv:::renv_download_method()
 ```
 
 You can force renv to use the same download method as R by setting:
 
 ``` r
+
 Sys.setenv(RENV_DOWNLOAD_METHOD = getOption("download.file.method"))
 ```
 
@@ -346,6 +355,7 @@ The [curl](https://cran.r-project.org/package=curl) R package also has a
 helper:
 
 ``` r
+
 curl::ie_get_proxy_for_url()
 ```
 
@@ -381,6 +391,7 @@ or a function accepting a package name + record, and returning a list of
 environment variables. For example:
 
 ``` r
+
 # define a function providing authentication
 options(renv.auth = function(package, record) {
   if (package == "MyPackage")
@@ -413,6 +424,7 @@ example, the igraph package on GitHub at
 <https://github.com/igraph/rigraph> could be installed with:
 
 ``` r
+
 renv::install("igraph=igraph/rigraph")
 ```
 
@@ -462,6 +474,7 @@ repository are stored in the `AUTH_HEADER` environment variable. You
 could define `renv.download.headers` like so:
 
 ``` r
+
 options(renv.download.headers = function(url) {
   if (grepl("^https://my/repository", url))
     return(c(Authorization = Sys.getenv("AUTH_HEADER")))
@@ -478,12 +491,11 @@ If having problems with downloads, you can get more debugging
 information (including raw requests and responses) by setting:
 
 ``` r
+
 options(renv.download.trace = TRUE) 
 ```
 
-------------------------------------------------------------------------
-
-1.  Or junction points, on Windows. Junction points are unfortunately
+[^1]: Or junction points, on Windows. Junction points are unfortunately
     not supported on Windows network shares; see [Hard links and
     junctions](https://learn.microsoft.com/en-us/windows/win32/fileio/hard-links-and-junctions)
     for more details.

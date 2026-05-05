@@ -29,6 +29,7 @@ project library (and eschew dependency discovery altogether), you can do
 so with:
 
 ``` r
+
 renv::settings$snapshot.type("all")
 ```
 
@@ -36,6 +37,7 @@ Packages can also be explicitly ignored through a project setting,
 e.g. with:
 
 ``` r
+
 renv::settings$ignored.packages("<package>")
 ```
 
@@ -53,6 +55,7 @@ If you’d like to explicitly declare which packages your project depends
 on, you can do so by telling renv to form “explicit” snapshots:
 
 ``` r
+
 renv::settings$snapshot.type("explicit")
 ```
 
@@ -91,6 +94,7 @@ If you edit the lockfile by hand, you can use
 to check it against renv’s JSON schema:
 
 ``` r
+
 renv::lockfile_validate()
 ```
 
@@ -107,6 +111,7 @@ DESCRIPTION file; typically, within the `Suggests:` field. Then, you can
 execute:
 
 ``` r
+
 renv::install()
 ```
 
@@ -119,6 +124,7 @@ If you’d like development dependencies to be included in the lockfile by
 default, you can set:
 
 ``` r
+
 renv::settings$snapshot.dev(TRUE)
 ```
 
@@ -179,6 +185,7 @@ repository, you can use
 to check for known vulnerabilities in your project’s dependencies:
 
 ``` r
+
 # check all packages recorded in the lockfile
 renv::vulns()
 

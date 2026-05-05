@@ -39,6 +39,7 @@ for a description of the structure of an `renv` lockfile.
 ## Examples
 
 ``` r
+
 if (FALSE) { # \dontrun{
 
 lock <- lockfile("renv.lock")

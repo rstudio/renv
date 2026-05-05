@@ -43,6 +43,7 @@ for more information on the structure of a package record.
 ## Examples
 
 ``` r
+
 if (FALSE) { # \dontrun{
 
 # use digest 0.6.22 from package repositories -- different ways

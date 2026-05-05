@@ -68,6 +68,7 @@ graphviz(
 ## Examples
 
 ``` r
+
 if (FALSE) { # \dontrun{
 # graph the relationship between devtools and rlang
 graphviz(root = "devtools", leaf = "rlang")

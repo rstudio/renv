@@ -448,13 +448,13 @@ method as appropriate.
 
 The following methods are supported:
 
-|            |                                                                               |
-|------------|-------------------------------------------------------------------------------|
-| `auto`     | Use `robocopy` on Windows, and `cp` on Unix-alikes.                           |
-| `R`        | Use R's built-in [`file.copy()`](https://rdrr.io/r/base/files.html) function. |
-| `cp`       | Use `cp` to copy files.                                                       |
-| `robocopy` | Use `robocopy` to copy files. (Only available on Windows.)                    |
-| `rsync`    | Use `rsync` to copy files.                                                    |
+|  |  |
+|----|----|
+| `auto` | Use `robocopy` on Windows, and `cp` on Unix-alikes. |
+| `R` | Use R's built-in [`file.copy()`](https://rdrr.io/r/base/files.html) function. |
+| `cp` | Use `cp` to copy files. |
+| `robocopy` | Use `robocopy` to copy files. (Only available on Windows.) |
+| `rsync` | Use `rsync` to copy files. |
 
 You can also provide a custom copy method if required; e.g.
 
@@ -478,6 +478,7 @@ be used.
 ## Examples
 
 ``` r
+
 # disable automatic snapshots
 options(renv.config.auto.snapshot = FALSE)
 
