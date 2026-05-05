@@ -39,9 +39,6 @@ contains metadata returned by Posit Package Manager (e.g. \code{name},
 \code{version}, \code{licenses}, \code{blocked}), plus a \code{vulns} field. The \code{vulns}
 field is an empty list when the package has no known vulnerabilities,
 and otherwise holds one or more vulnerability records.
-
-To restrict the result to packages with known vulnerabilities, filter
-on \code{length(x$vulns) > 0}.
 }
 \description{
 This function acts as an interface to Posit Package Manager's vulnerability

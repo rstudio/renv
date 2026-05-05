@@ -27,9 +27,6 @@
 #'   field is an empty list when the package has no known vulnerabilities,
 #'   and otherwise holds one or more vulnerability records.
 #'
-#'   To restrict the result to packages with known vulnerabilities, filter
-#'   on `length(x$vulns) > 0`.
-#'
 #' @keywords internal
 #' @export
 vulns <- function(packages = NULL,
