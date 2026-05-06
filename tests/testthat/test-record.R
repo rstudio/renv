@@ -53,3 +53,30 @@ test_that("record(<package>) also records version", {
   expect_identical(breakfast$Version, "1.0.0")
 
 })
+
+test_that("record() writes the same fields as snapshot() for an installed package", {
+
+  # https://github.com/rstudio/rsconnect/issues/1319
+  # record() resolves a remote (Package/Version/Source/Repository) but does not
+  # read the installed DESCRIPTION, so it produces a thinner record than
+  # snapshot() does for the same package -- missing Hash, Requirements, and
+  # the dependency fields that downstream tools (e.g. rsconnect) rely on.
+
+  renv_tests_scope("breakfast")
+  init()
+
+  # capture the record snapshot() (via init) wrote
+  lockfile <- renv_lockfile_read("renv.lock")
+  snap_record <- renv_lockfile_records(lockfile)$breakfast
+
+  # overwrite the same package via record()
+  record("breakfast")
+
+  lockfile <- renv_lockfile_read("renv.lock")
+  rec_record <- renv_lockfile_records(lockfile)$breakfast
+
+  # both records describe the same installed package, so they should carry
+  # the same fields
+  expect_setequal(names(rec_record), names(snap_record))
+
+})
