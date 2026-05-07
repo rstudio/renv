@@ -17,7 +17,8 @@ snapshot(
   prompt = interactive(),
   update = FALSE,
   force = FALSE,
-  reprex = FALSE
+  reprex = FALSE,
+  description = NULL
 )
 }
 \arguments{
@@ -81,10 +82,18 @@ validation checks have failed?}
 
 \item{reprex}{Boolean; generate output appropriate for embedding the lockfile
 as part of a \href{https://tidyverse.org/help/#reprex}{reprex}?}
+
+\item{description}{A package DESCRIPTION, provided either as a named list
+of DESCRIPTION fields, or a path to a package directory or DESCRIPTION
+file. When set, all other arguments are ignored, and a single lockfile
+record for that package is returned.}
 }
 \value{
 The generated lockfile, as an \R object (invisibly). Note that
 this function is normally called for its side effects.
+
+When \code{description} is provided, a single lockfile record (a named list)
+is returned instead.
 }
 \description{
 Call \code{renv::snapshot()} to update a \link{lockfile} with the current state of
