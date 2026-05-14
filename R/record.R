@@ -19,11 +19,25 @@
 #' @param records A list of named records, mapping package names to a definition
 #'   of their source. See **Records** for more details.
 #'
+#' @param enrich Should resolved records be enriched with the DESCRIPTION
+#'   fields that `snapshot()` would write (`Depends`, `Imports`, `Suggests`,
+#'   `LinkingTo`, `License`, etc.)? Defaults to `TRUE`. When `TRUE`,
+#'   `record()` consults the active package repositories (and crandb, when
+#'   enabled, for CRAN packages) to fill in the additional fields, erroring
+#'   if the remote source is unreachable. The `Hash` field is not computed
+#'   for enriched records. Additional DESCRIPTION-only fields (`Title`,
+#'   `Description`, `Author`, `Maintainer`) are only included when the
+#'   source can supply them -- typically when crandb is reachable for CRAN
+#'   packages, or when the source is a Git host (GitHub, GitLab, Bitbucket).
+#'   Set to `FALSE` to keep the minimal record (`Package`, `Version`,
+#'   `Source`, `Repository`) produced by remote resolution.
+#'
 #' @example examples/examples-record.R
 #' @export
 record <- function(records,
                    lockfile = NULL,
-                   project  = NULL)
+                   project  = NULL,
+                   enrich   = TRUE)
 {
   renv_scope_error_handler()
 
@@ -37,6 +51,12 @@ record <- function(records,
     is.list(records)      ~ renv_records_resolve(records, latest = TRUE),
     ~ stopf("unexpected records format '%s'", typeof(records))
   )
+
+  if (enrich) {
+    records <- lapply(records, function(record) {
+      if (is.null(record)) record else renv_record_enrich(record)
+    })
+  }
 
   names(records) <- enum_chr(records, function(package, record) {
     if (is.null(package) || is.na(package) || !nzchar(package))
@@ -122,4 +142,71 @@ renv_record_placeholder <- function() {
 renv_record_cranlike <- function(record) {
   type <- record[["RemoteType"]]
   is.null(type) || tolower(type) %in% c("cran", "repository", "standard")
+}
+
+# enrich a resolved record with DESCRIPTION-level fields so the record
+# matches what snapshot() would write. delegates the actual DESCRIPTION
+# fetch to renv_graph_description(), which reuses the same infrastructure
+# the restore graph uses (available.packages metadata + crandb fallback,
+# Git host APIs, etc.). enrichment never reads the local library: we
+# always trust the remote description. Hash is not computed.
+renv_record_enrich <- function(record) {
+
+  source <- renv_record_source(record, normalize = TRUE)
+
+  enrichable <- c(
+    "repository", "bioconductor",
+    "github", "gitlab", "bitbucket", "git"
+  )
+
+  if (!source %in% enrichable)
+    return(record)
+
+  key <- paste(
+    record[["Package"]]    %||% "",
+    record[["Version"]]    %||% "",
+    record[["Repository"]] %||% "",
+    record[["RemoteSha"]]  %||% "",
+    sep = "|"
+  )
+
+  memoize(
+    key   = key,
+    value = renv_record_enrich_impl(record),
+    scope = "record-enrich"
+  )
+
+}
+
+renv_record_enrich_impl <- function(record) {
+
+  package <- record[["Package"]]
+  if (is.null(package) || !nzchar(package))
+    stopf("cannot enrich record: missing 'Package' field")
+
+  # delegate to the graph description fetcher; it handles every source
+  # type we recognize and errors loudly when the source is unreachable
+  desc <- renv_graph_description(record)
+
+  # carry forward fields from the resolved record (Source, Repository,
+  # Remote*) so they aren't lost if the description-fetcher didn't set them
+  for (field in names(record))
+    if (is.null(desc[[field]]))
+      desc[[field]] <- record[[field]]
+
+  # apply the v2 snapshot transform so output matches what snapshot() writes
+  enriched <- renv_snapshot_description_impl_v2(desc, path = NULL)
+
+  # restore Source / Repository from the input record. for repository-sourced
+  # records the description fetcher reports Repository as a URL; we want the
+  # repository name from the original record (e.g. "CRAN").
+  enriched[["Source"]] <- record[["Source"]] %||% enriched[["Source"]]
+  if (!is.null(record[["Repository"]]))
+    enriched[["Repository"]] <- record[["Repository"]]
+
+  # Hash is not computed for enriched records; see ?record
+  enriched[["Hash"]] <- NULL
+
+  enriched
+
 }

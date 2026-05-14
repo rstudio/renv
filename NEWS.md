@@ -1,6 +1,16 @@
 
 # renv (development version)
 
+* `renv::record()` now enriches each resolved record with the same
+  DESCRIPTION-derived fields that `renv::snapshot()` writes (e.g.
+  `Depends`, `Imports`, `Suggests`, `LinkingTo`, `License`), instead of
+  producing a minimal record with only `Package`, `Version`, `Source`,
+  and `Repository`. The metadata is fetched from the active package
+  repositories (and crandb, when enabled, for CRAN packages) without
+  reading the local library. Set `enrich = FALSE` to opt out and keep
+  the previous minimal-record behavior. The `Hash` field is not computed
+  for enriched records. (#2294)
+
 * Fixed a regression where `renv::restore()` and `renv::install()` would
   re-download packages that were already installed in the user or site
   library, instead of reusing the existing installation. (#2288)
