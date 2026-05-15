@@ -58,7 +58,7 @@
 
     <div class="section level2">
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">record</span><span class="op">(</span><span class="va">records</span>, lockfile <span class="op">=</span> <span class="cn">NULL</span>, project <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span></span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">record</span><span class="op">(</span><span class="va">records</span>, lockfile <span class="op">=</span> <span class="cn">NULL</span>, project <span class="op">=</span> <span class="cn">NULL</span>, enrich <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div class="section level2">
@@ -79,6 +79,21 @@ of their source. See <strong>Records</strong> for more details.</p></dd>
 <dd><p>The project directory. If <code>NULL</code>, then the active project will
 be used. If no project is currently active, then the current working
 directory is used instead.</p></dd>
+
+
+<dt id="arg-enrich">enrich<a class="anchor" aria-label="anchor" href="#arg-enrich"></a></dt>
+<dd><p>Should resolved records be enriched with the DESCRIPTION
+fields that <code><a href="snapshot.html">snapshot()</a></code> would write (<code>Depends</code>, <code>Imports</code>, <code>Suggests</code>,
+<code>LinkingTo</code>, <code>License</code>, etc.)? Defaults to <code>TRUE</code>. When <code>TRUE</code>,
+<code>record()</code> consults the active package repositories (and crandb, when
+enabled, for CRAN packages) to fill in the additional fields, erroring
+if the remote source is unreachable. The <code>Hash</code> field is not computed
+for enriched records. Additional DESCRIPTION-only fields (<code>Title</code>,
+<code>Description</code>, <code>Author</code>, <code>Maintainer</code>) are only included when the
+source can supply them – typically when crandb is reachable for CRAN
+packages, or when the source is a Git host (GitHub, GitLab, Bitbucket).
+Set to <code>FALSE</code> to keep the minimal record (<code>Package</code>, <code>Version</code>,
+<code>Source</code>, <code>Repository</code>) produced by remote resolution.</p></dd>
 
 </dl></div>
     <div class="section level2">

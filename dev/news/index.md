@@ -2,6 +2,28 @@
 
 ## renv (development version)
 
+- [`renv::record()`](https://rstudio.github.io/renv/dev/reference/record.md)
+  now enriches each resolved record with the same DESCRIPTION-derived
+  fields that
+  [`renv::snapshot()`](https://rstudio.github.io/renv/dev/reference/snapshot.md)
+  writes (e.g. `Depends`, `Imports`, `Suggests`, `LinkingTo`,
+  `License`), instead of producing a minimal record with only `Package`,
+  `Version`, `Source`, and `Repository`. The metadata is fetched from
+  the active package repositories (and crandb, when enabled, for CRAN
+  packages) without reading the local library. Set `enrich = FALSE` to
+  opt out and keep the previous minimal-record behavior. The `Hash`
+  field is not computed for enriched records. Enriched records also
+  store `Repository` as the named form (e.g. `CRAN`) that
+  [`renv::snapshot()`](https://rstudio.github.io/renv/dev/reference/snapshot.md)
+  writes, rather than the contrib URL returned by
+  [`available.packages()`](https://rdrr.io/r/utils/available.packages.html),
+  so
+  [`renv::status()`](https://rstudio.github.io/renv/dev/reference/status.md)
+  no longer reports a spurious repository mismatch after a
+  version-pinned
+  [`record()`](https://rstudio.github.io/renv/dev/reference/record.md)
+  call. ([\#2294](https://github.com/rstudio/renv/issues/2294))
+
 - Fixed a regression where
   [`renv::restore()`](https://rstudio.github.io/renv/dev/reference/restore.md)
   and

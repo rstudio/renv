@@ -5,7 +5,7 @@ Use `record()` to record a new entry within an existing renv lockfile.
 ## Usage
 
 ``` r
-record(records, lockfile = NULL, project = NULL)
+record(records, lockfile = NULL, project = NULL, enrich = TRUE)
 ```
 
 ## Arguments
@@ -25,6 +25,22 @@ record(records, lockfile = NULL, project = NULL)
   The project directory. If `NULL`, then the active project will be
   used. If no project is currently active, then the current working
   directory is used instead.
+
+- enrich:
+
+  Should resolved records be enriched with the DESCRIPTION fields that
+  [`snapshot()`](https://rstudio.github.io/renv/dev/reference/snapshot.md)
+  would write (`Depends`, `Imports`, `Suggests`, `LinkingTo`, `License`,
+  etc.)? Defaults to `TRUE`. When `TRUE`, `record()` consults the active
+  package repositories (and crandb, when enabled, for CRAN packages) to
+  fill in the additional fields, erroring if the remote source is
+  unreachable. The `Hash` field is not computed for enriched records.
+  Additional DESCRIPTION-only fields (`Title`, `Description`, `Author`,
+  `Maintainer`) are only included when the source can supply them –
+  typically when crandb is reachable for CRAN packages, or when the
+  source is a Git host (GitHub, GitLab, Bitbucket). Set to `FALSE` to
+  keep the minimal record (`Package`, `Version`, `Source`, `Repository`)
+  produced by remote resolution.
 
 ## Details
 
