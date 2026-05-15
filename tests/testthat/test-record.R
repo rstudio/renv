@@ -100,3 +100,22 @@ test_that("record(enrich = FALSE) keeps minimal records", {
   )
 
 })
+
+test_that("record() stores Repository as the named form, not the URL", {
+
+  # version-pinned specs skip the 'latest' branch in
+  # renv_remotes_resolve_repository(), so the resolved record has no
+  # Repository field. enrichment must still produce the named form (e.g.
+  # 'CRAN') that snapshot() writes -- otherwise status() will report a
+  # spurious repo mismatch against an installed library.
+  renv_tests_scope("egg")
+  init()
+  record("egg@2.0.0")
+
+  lockfile <- renv_lockfile_read("renv.lock")
+  rec_record <- renv_lockfile_records(lockfile)$egg
+
+  expect_identical(rec_record$Repository, "CRAN")
+  expect_null(rec_record$Name)
+
+})

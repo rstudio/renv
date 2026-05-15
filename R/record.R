@@ -197,12 +197,19 @@ renv_record_enrich_impl <- function(record) {
   # apply the v2 snapshot transform so output matches what snapshot() writes
   enriched <- renv_snapshot_description_impl_v2(desc, path = NULL)
 
-  # restore Source / Repository from the input record. for repository-sourced
-  # records the description fetcher reports Repository as a URL; we want the
-  # repository name from the original record (e.g. "CRAN").
+  # prefer the named form of Repository (e.g. "CRAN") that snapshot() writes
+  # when reading an installed DESCRIPTION. the description fetcher leaves
+  # Repository as the contrib URL from available.packages(); use the input
+  # record's value if set, else the Name stamped onto the entry by
+  # renv_available_packages_entry().
   enriched[["Source"]] <- record[["Source"]] %||% enriched[["Source"]]
-  if (!is.null(record[["Repository"]]))
-    enriched[["Repository"]] <- record[["Repository"]]
+  enriched[["Repository"]] <-
+    record[["Repository"]] %||%
+    desc[["Name"]] %||%
+    enriched[["Repository"]]
+
+  # Name is a remnant of the available.packages entry, not a lockfile field
+  enriched[["Name"]] <- NULL
 
   # Hash is not computed for enriched records; see ?record
   enriched[["Hash"]] <- NULL
