@@ -101,6 +101,33 @@ test_that("record(enrich = FALSE) keeps minimal records", {
 
 })
 
+test_that("record() does not enrich caller-supplied list records", {
+
+  # a fully-resolved list record should pass through untouched: no
+  # network access, no field rewrite. this matches the documented "record
+  # this entry as provided" behavior and lets users seed unusual entries
+  # (custom fields, sources renv doesn't understand) without round-tripping
+  # through the snapshot transform.
+  renv_tests_scope()
+  snapshot()
+
+  custom <- list(
+    Package    = "fictional",
+    Version    = "9.9.9",
+    Source     = "Repository",
+    Repository = "CRAN",
+    Custom     = "preserved"
+  )
+  record(list(fictional = custom))
+
+  lockfile <- renv_lockfile_read("renv.lock")
+  fictional <- renv_lockfile_records(lockfile)$fictional
+
+  expect_identical(fictional$Version, "9.9.9")
+  expect_identical(fictional$Custom, "preserved")
+
+})
+
 test_that("record() stores Repository as the named form, not the URL", {
 
   # version-pinned specs skip the 'latest' branch in

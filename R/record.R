@@ -46,16 +46,24 @@ record <- function(records,
 
   lockfile <- lockfile %||% renv_lockfile_path(project)
 
-  records <- case(
-    is.character(records) ~ lapply(records, renv_remotes_resolve, latest = TRUE),
-    is.list(records)      ~ renv_records_resolve(records, latest = TRUE),
-    ~ stopf("unexpected records format '%s'", typeof(records))
-  )
+  # track which entries came from a character spec; only those entries
+  # are enriched, so caller-supplied list records pass through unchanged
+  # (and offline, since enrichment otherwise requires a reachable source)
+  if (is.character(records)) {
+    enrichable <- rep_len(TRUE, length(records))
+    records <- lapply(records, renv_remotes_resolve, latest = TRUE)
+  } else if (is.list(records)) {
+    enrichable <- map_lgl(records, is.character)
+    records <- renv_records_resolve(records, latest = TRUE)
+  } else {
+    stopf("unexpected records format '%s'", typeof(records))
+  }
 
   if (enrich) {
-    records <- lapply(records, function(record) {
-      if (is.null(record)) record else renv_record_enrich(record)
-    })
+    for (i in seq_along(records)) {
+      if (enrichable[[i]] && !is.null(records[[i]]))
+        records[[i]] <- renv_record_enrich(records[[i]])
+    }
   }
 
   names(records) <- enum_chr(records, function(package, record) {
@@ -162,12 +170,17 @@ renv_record_enrich <- function(record) {
   if (!source %in% enrichable)
     return(record)
 
+  # include every field that contributes to source identity. plain git
+  # remotes (Source = "git") have no RemoteSha, so distinct URLs would
+  # otherwise alias to the same cache slot.
+  key_fields <- c(
+    "Package", "Version", "Source", "Repository",
+    "RemoteType", "RemoteHost", "RemoteUrl", "RemoteUsername",
+    "RemoteRepo", "RemoteRef", "RemoteSha", "RemoteSubdir"
+  )
   key <- paste(
-    record[["Package"]]    %||% "",
-    record[["Version"]]    %||% "",
-    record[["Repository"]] %||% "",
-    record[["RemoteSha"]]  %||% "",
-    sep = "|"
+    map_chr(key_fields, function(field) record[[field]] %||% ""),
+    collapse = "|"
   )
 
   memoize(
