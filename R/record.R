@@ -170,24 +170,41 @@ renv_record_enrich <- function(record) {
   if (!source %in% enrichable)
     return(record)
 
+  memoize(
+    key   = renv_record_enrich_key(record, source = source),
+    value = renv_record_enrich_impl(record),
+    scope = "record-enrich"
+  )
+
+}
+
+renv_record_enrich_key <- function(record, source = NULL) {
+
+  source <- source %||% renv_record_source(record, normalize = TRUE)
+
   # include every field that contributes to source identity. plain git
   # remotes (Source = "git") have no RemoteSha, so distinct URLs would
   # otherwise alias to the same cache slot.
-  key_fields <- c(
+  fields <- c(
     "Package", "Version", "Source", "Repository",
     "RemoteType", "RemoteHost", "RemoteUrl", "RemoteUsername",
     "RemoteRepo", "RemoteRef", "RemoteSha", "RemoteSubdir"
   )
-  key <- paste(
-    map_chr(key_fields, function(field) record[[field]] %||% ""),
-    collapse = "|"
-  )
+  parts <- map_chr(fields, function(field) record[[field]] %||% "")
 
-  memoize(
-    key   = key,
-    value = renv_record_enrich_impl(record),
-    scope = "record-enrich"
-  )
+  # for repository / bioconductor sources, the description fetcher reads
+  # from options('repos'); include that in the key so the cache invalidates
+  # when repos change mid-session. version-pinned specs in particular have
+  # no Repository field, so without this the key collapses across repos.
+  if (source %in% c("repository", "bioconductor")) {
+    repos <- getOption("repos")
+    parts <- c(
+      parts,
+      paste(names(repos) %||% "", repos, sep = "=", collapse = ",")
+    )
+  }
+
+  paste(parts, collapse = "|")
 
 }
 

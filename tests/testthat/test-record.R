@@ -101,6 +101,41 @@ test_that("record(enrich = FALSE) keeps minimal records", {
 
 })
 
+test_that("enrich cache key varies with options('repos')", {
+
+  # the description fetcher reads from options('repos'), so the memoize
+  # key must too. version-pinned repository specs have no Repository
+  # field, so without this guard a record('pkg@1.0.0') call would return
+  # cached data fetched against a different repos config.
+  cranlike <- list(
+    Package = "foo", Version = "1.0.0", Source = "Repository"
+  )
+
+  withr::local_options(repos = c(CRAN = "https://cran.example/a"))
+  before <- renv_record_enrich_key(cranlike)
+
+  withr::local_options(repos = c(CRAN = "https://cran.example/b"))
+  after <- renv_record_enrich_key(cranlike)
+
+  expect_false(identical(before, after))
+
+  # github (and other non-repository sources) carry full source identity
+  # on the record itself; their key should not depend on options('repos')
+  github <- list(
+    Package = "foo", Version = "1.0.0", Source = "GitHub",
+    RemoteUsername = "user", RemoteRepo = "repo", RemoteSha = "abc"
+  )
+
+  withr::local_options(repos = c(CRAN = "https://cran.example/a"))
+  before <- renv_record_enrich_key(github)
+
+  withr::local_options(repos = c(CRAN = "https://cran.example/b"))
+  after <- renv_record_enrich_key(github)
+
+  expect_identical(before, after)
+
+})
+
 test_that("record() does not enrich caller-supplied list records", {
 
   # a fully-resolved list record should pass through untouched: no
@@ -140,9 +175,9 @@ test_that("record() stores Repository as the named form, not the URL", {
   record("egg@2.0.0")
 
   lockfile <- renv_lockfile_read("renv.lock")
-  rec_record <- renv_lockfile_records(lockfile)$egg
+  egg <- renv_lockfile_records(lockfile)$egg
 
-  expect_identical(rec_record$Repository, "CRAN")
-  expect_null(rec_record$Name)
+  expect_identical(egg$Repository, "CRAN")
+  expect_null(egg$Name)
 
 })
