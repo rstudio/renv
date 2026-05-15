@@ -111,10 +111,10 @@ test_that("enrich cache key varies with options('repos')", {
     Package = "foo", Version = "1.0.0", Source = "Repository"
   )
 
-  withr::local_options(repos = c(CRAN = "https://cran.example/a"))
+  renv_scope_options(repos = c(CRAN = "https://cran.example/a"))
   before <- renv_record_enrich_key(cranlike)
 
-  withr::local_options(repos = c(CRAN = "https://cran.example/b"))
+  renv_scope_options(repos = c(CRAN = "https://cran.example/b"))
   after <- renv_record_enrich_key(cranlike)
 
   expect_false(identical(before, after))
@@ -126,10 +126,10 @@ test_that("enrich cache key varies with options('repos')", {
     RemoteUsername = "user", RemoteRepo = "repo", RemoteSha = "abc"
   )
 
-  withr::local_options(repos = c(CRAN = "https://cran.example/a"))
+  renv_scope_options(repos = c(CRAN = "https://cran.example/a"))
   before <- renv_record_enrich_key(github)
 
-  withr::local_options(repos = c(CRAN = "https://cran.example/b"))
+  renv_scope_options(repos = c(CRAN = "https://cran.example/b"))
   after <- renv_record_enrich_key(github)
 
   expect_identical(before, after)
