@@ -15,6 +15,11 @@
   no longer reports a spurious repository mismatch after a version-pinned
   `record()` call. (#2294)
 
+* `renv::vulns()` now returns one record per requested package, with a
+  `vulns` field that is an empty list when the package has no known
+  vulnerabilities. Previously the `vulns` field was only present for
+  vulnerable packages. (#2292)
+
 * Fixed a regression where `renv::restore()` and `renv::install()` would
   re-download packages that were already installed in the user or site
   library, instead of reusing the existing installation. (#2288)
@@ -29,6 +34,10 @@
 * Fixed an issue where `renv::init()` did not use pak to install missing
   dependencies, even when `pak.enabled = TRUE`. The install path used
   during init now delegates to pak when it is enabled. (#2282)
+
+* Fixed an issue where `renv::hydrate()` could leak the raw pak return
+  value into its `missing` field on the pak install path, instead of
+  preserving the documented `NULL`-on-success contract.
 
 * Fixed an issue where `renv::restore(clean = TRUE)` did not remove
   unused packages when `RENV_CONFIG_PAK_ENABLED=TRUE` (or
