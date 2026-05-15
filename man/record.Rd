@@ -4,7 +4,7 @@
 \alias{record}
 \title{Update package records in a lockfile}
 \usage{
-record(records, lockfile = NULL, project = NULL)
+record(records, lockfile = NULL, project = NULL, enrich = TRUE)
 }
 \arguments{
 \item{records}{A list of named records, mapping package names to a definition
@@ -16,6 +16,19 @@ of their source. See \strong{Records} for more details.}
 \item{project}{The project directory. If \code{NULL}, then the active project will
 be used. If no project is currently active, then the current working
 directory is used instead.}
+
+\item{enrich}{Should resolved records be enriched with the DESCRIPTION
+fields that \code{snapshot()} would write (\code{Depends}, \code{Imports}, \code{Suggests},
+\code{LinkingTo}, \code{License}, etc.)? Defaults to \code{TRUE}. When \code{TRUE},
+\code{record()} consults the active package repositories (and crandb, when
+enabled, for CRAN packages) to fill in the additional fields, erroring
+if the remote source is unreachable. The \code{Hash} field is not computed
+for enriched records. Additional DESCRIPTION-only fields (\code{Title},
+\code{Description}, \code{Author}, \code{Maintainer}) are only included when the
+source can supply them -- typically when crandb is reachable for CRAN
+packages, or when the source is a Git host (GitHub, GitLab, Bitbucket).
+Set to \code{FALSE} to keep the minimal record (\code{Package}, \code{Version},
+\code{Source}, \code{Repository}) produced by remote resolution.}
 }
 \description{
 Use \code{record()} to record a new entry within an existing renv lockfile.
