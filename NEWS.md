@@ -1,6 +1,12 @@
 
 # renv (development version)
 
+* The presence of an `rsconnect/` folder in a project is now treated as a
+  development dependency on the `rsconnect` package, rather than a runtime
+  dependency. This means `rsconnect` will no longer be automatically
+  recorded by `renv::snapshot()` unless the project actually uses it at
+  run time (or `settings$snapshot.dev(TRUE)` is set). (#2290)
+
 * `renv::record()` now enriches each resolved record with the same
   DESCRIPTION-derived fields that `renv::snapshot()` writes (e.g.
   `Depends`, `Imports`, `Suggests`, `LinkingTo`, `License`), instead of
