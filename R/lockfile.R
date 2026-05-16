@@ -137,7 +137,7 @@ renv_lockfile_load <- function(project, strict = FALSE) {
   manifest <- file.path(project, "manifest.json")
   if (file.exists(manifest)) {
     caution("No lockfile found; creating from `manifest.json`.")
-    renv_lockfile_from_manifest(manifest, path)
+    lockfile_from_manifest(manifest, path)
     return(renv_lockfile_read(path))
   }
 

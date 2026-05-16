@@ -42,7 +42,7 @@ test_that("we can serialize lockfiles using unnamed repositories", {
 test_that("we can create lockfiles from manifests", {
 
   skip_on_cran()
-  lock <- renv_lockfile_from_manifest("resources/manifest.json")
+  lock <- lockfile_from_manifest("resources/manifest.json")
 
   expect_equal(lock$R$Version, "4.2.1")
   expect_equal(lock$R$Repositories, list(CRAN = "https://cloud.r-project.org"))
@@ -57,7 +57,7 @@ test_that("we create lockfile from a manifest automatically when no lockfile fou
   dir.create(project)
 
   path <- renv_tests_path("resources/manifest.json")
-  expected <- renv_lockfile_from_manifest(path)
+  expected <- lockfile_from_manifest(path)
   file.copy(path, file.path(project, "manifest.json"))
 
   # when called with `strict = TRUE` does not create manifest
