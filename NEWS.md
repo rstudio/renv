@@ -1,5 +1,5 @@
 
-# renv (development version)
+# renv 1.2.3
 
 * `renv::record()` now enriches each resolved record with the same
   DESCRIPTION-derived fields that `renv::snapshot()` writes (e.g.
