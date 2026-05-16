@@ -2,6 +2,10 @@
 
 ## renv (development version)
 
+## renv 1.2.3
+
+CRAN release: 2026-05-16
+
 - [`renv::record()`](https://rstudio.github.io/renv/dev/reference/record.md)
   now enriches each resolved record with the same DESCRIPTION-derived
   fields that
@@ -23,6 +27,12 @@
   version-pinned
   [`record()`](https://rstudio.github.io/renv/dev/reference/record.md)
   call. ([\#2294](https://github.com/rstudio/renv/issues/2294))
+
+- [`renv::vulns()`](https://rstudio.github.io/renv/dev/reference/vulns.md)
+  now returns one record per requested package, with a `vulns` field
+  that is an empty list when the package has no known vulnerabilities.
+  Previously the `vulns` field was only present for vulnerable packages.
+  ([\#2292](https://github.com/rstudio/renv/issues/2292))
 
 - Fixed a regression where
   [`renv::restore()`](https://rstudio.github.io/renv/dev/reference/restore.md)
@@ -49,6 +59,12 @@
   `pak.enabled = TRUE`. The install path used during init now delegates
   to pak when it is enabled.
   ([\#2282](https://github.com/rstudio/renv/issues/2282))
+
+- Fixed an issue where
+  [`renv::hydrate()`](https://rstudio.github.io/renv/dev/reference/hydrate.md)
+  could leak the raw pak return value into its `missing` field on the
+  pak install path, instead of preserving the documented
+  `NULL`-on-success contract.
 
 - Fixed an issue where `renv::restore(clean = TRUE)` did not remove
   unused packages when `RENV_CONFIG_PAK_ENABLED=TRUE` (or
