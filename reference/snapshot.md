@@ -203,6 +203,7 @@ Other reproducibility:
 ## Examples
 
 ``` r
+
 if (FALSE) { # \dontrun{
 
 # disable automatic snapshots

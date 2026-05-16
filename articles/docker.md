@@ -260,6 +260,7 @@ runs. You can use \[renv::sysreqs()\] to compute the system packages
 required by your project:
 
 ``` r
+
 renv::sysreqs(distro = "ubuntu:24.04", report = TRUE, collapse = TRUE)
 ```
 

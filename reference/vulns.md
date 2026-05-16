@@ -52,8 +52,11 @@ vulns(
 
 ## Value
 
-An R list of vulnerability information. Only packages which have known
-vulnerabilities will be included in the resulting data object.
+An R list with one entry per requested package. Each entry contains
+metadata returned by Posit Package Manager (e.g. `name`, `version`,
+`licenses`, `blocked`), plus a `vulns` field. The `vulns` field is an
+empty list when the package has no known vulnerabilities, and otherwise
+holds one or more vulnerability records.
 
 ## Details
 

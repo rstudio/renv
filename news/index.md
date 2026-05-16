@@ -1,5 +1,115 @@
 # Changelog
 
+## renv 1.2.3
+
+CRAN release: 2026-05-16
+
+- [`renv::record()`](https://rstudio.github.io/renv/reference/record.md)
+  now enriches each resolved record with the same DESCRIPTION-derived
+  fields that
+  [`renv::snapshot()`](https://rstudio.github.io/renv/reference/snapshot.md)
+  writes (e.g. `Depends`, `Imports`, `Suggests`, `LinkingTo`,
+  `License`), instead of producing a minimal record with only `Package`,
+  `Version`, `Source`, and `Repository`. The metadata is fetched from
+  the active package repositories (and crandb, when enabled, for CRAN
+  packages) without reading the local library. Set `enrich = FALSE` to
+  opt out and keep the previous minimal-record behavior. The `Hash`
+  field is not computed for enriched records. Enriched records also
+  store `Repository` as the named form (e.g. `CRAN`) that
+  [`renv::snapshot()`](https://rstudio.github.io/renv/reference/snapshot.md)
+  writes, rather than the contrib URL returned by
+  [`available.packages()`](https://rdrr.io/r/utils/available.packages.html),
+  so
+  [`renv::status()`](https://rstudio.github.io/renv/reference/status.md)
+  no longer reports a spurious repository mismatch after a
+  version-pinned
+  [`record()`](https://rstudio.github.io/renv/reference/record.md) call.
+  ([\#2294](https://github.com/rstudio/renv/issues/2294))
+
+- [`renv::vulns()`](https://rstudio.github.io/renv/reference/vulns.md)
+  now returns one record per requested package, with a `vulns` field
+  that is an empty list when the package has no known vulnerabilities.
+  Previously the `vulns` field was only present for vulnerable packages.
+  ([\#2292](https://github.com/rstudio/renv/issues/2292))
+
+- Fixed a regression where
+  [`renv::restore()`](https://rstudio.github.io/renv/reference/restore.md)
+  and
+  [`renv::install()`](https://rstudio.github.io/renv/reference/install.md)
+  would re-download packages that were already installed in the user or
+  site library, instead of reusing the existing installation.
+  ([\#2288](https://github.com/rstudio/renv/issues/2288))
+
+- Fixed an issue where
+  [`renv::snapshot()`](https://rstudio.github.io/renv/reference/snapshot.md)
+  would fail to install missing packages when `pak` was enabled and the
+  user selected the “Install the packages, then snapshot” option at the
+  prompt.
+  [`renv::install()`](https://rstudio.github.io/renv/reference/install.md)
+  now forwards its `include` and `exclude` arguments to the pak backend,
+  so `install(include = missing)` reliably installs the requested
+  packages rather than falling through to a no-op project update.
+  ([\#2281](https://github.com/rstudio/renv/issues/2281))
+
+- Fixed an issue where
+  [`renv::init()`](https://rstudio.github.io/renv/reference/init.md) did
+  not use pak to install missing dependencies, even when
+  `pak.enabled = TRUE`. The install path used during init now delegates
+  to pak when it is enabled.
+  ([\#2282](https://github.com/rstudio/renv/issues/2282))
+
+- Fixed an issue where
+  [`renv::hydrate()`](https://rstudio.github.io/renv/reference/hydrate.md)
+  could leak the raw pak return value into its `missing` field on the
+  pak install path, instead of preserving the documented
+  `NULL`-on-success contract.
+
+- Fixed an issue where `renv::restore(clean = TRUE)` did not remove
+  unused packages when `RENV_CONFIG_PAK_ENABLED=TRUE` (or
+  `config$pak.enabled()` was otherwise set). The pak code path now
+  honors `clean = TRUE` and drops packages from the project library that
+  are not recorded in the lockfile, before delegating installs to pak.
+  ([\#2280](https://github.com/rstudio/renv/issues/2280))
+
+- New `install.keep.source` configuration option controls whether renv
+  invokes `R CMD INSTALL` with `--with-keep.source`. Defaults to `TRUE`,
+  matching existing behaviour; set to `FALSE` to install with
+  `--without-keep.source`, which can significantly reduce the serialized
+  size of functions defined by installed packages.
+  ([\#1713](https://github.com/rstudio/renv/issues/1713))
+
+- Fixed an issue where
+  [`renv::install()`](https://rstudio.github.io/renv/reference/install.md)
+  could misreport packages as “built from source” when they were
+  actually pre-built binaries served from a Posit Package Manager
+  “binary” repository. The graph installer now classifies packages by
+  inspecting the downloaded archive, rather than trusting the `type`
+  passed to
+  [`available.packages()`](https://rdrr.io/r/utils/available.packages.html).
+
+- Fixed an issue where
+  [`renv::restore()`](https://rstudio.github.io/renv/reference/restore.md)
+  and
+  [`renv::install()`](https://rstudio.github.io/renv/reference/install.md)
+  could resolve dependency constraints against the wrong version’s
+  `DESCRIPTION`. When a lockfile-pinned version was not available from
+  the configured repositories (e.g. only the latest version is indexed,
+  as on `packagemanager.posit.co/cran/latest`), the graph resolver
+  substituted the latest version’s `Depends`/`Imports`/`LinkingTo`
+  fields in place of the pinned version’s, which could force spurious
+  upgrades of unrelated dependencies. The resolver now consults crandb
+  for the pinned version’s actual requirements before falling back to
+  the latest entry.
+  ([\#2278](https://github.com/rstudio/renv/issues/2278))
+
+- Fixed an issue where setting `options(pkgType = "both")` on Linux
+  could cause
+  [`renv::restore()`](https://rstudio.github.io/renv/reference/restore.md)
+  to extract a source tarball into the library as if it were a pre-built
+  binary, skipping `R CMD INSTALL` and producing “has no ‘package.rds’
+  in Meta/” load-test failures.
+  ([\#2275](https://github.com/rstudio/renv/issues/2275))
+
 ## renv 1.2.2
 
 CRAN release: 2026-04-16

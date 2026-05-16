@@ -161,6 +161,7 @@ appropriate startup profile, e.g. `~/.Rprofile` or similar.
 ## Examples
 
 ``` r
+
 if (FALSE) { # \dontrun{
 
 # view currently-ignored packaged

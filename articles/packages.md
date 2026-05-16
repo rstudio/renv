@@ -8,6 +8,7 @@ one must declare their R package dependencies within the package
 development, you can use:
 
 ``` r
+
 renv::install()
 ```
 
@@ -21,6 +22,7 @@ versions of your dependencies as available on CRAN. For this, you should
 consider using:
 
 ``` r
+
 renv::update()
 ```
 

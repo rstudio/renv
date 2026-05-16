@@ -196,6 +196,7 @@ more details.
 ## Examples
 
 ``` r
+
 if (FALSE) { # \dontrun{
 
 # disable automatic snapshots

@@ -107,6 +107,7 @@ resolves the packages required by a project and writes a lockfile,
 without installing anything:
 
 ``` r
+
 # resolve all project dependencies and write renv.lock
 renv::plan()
 
@@ -128,6 +129,7 @@ downloads the packages required by a project (or a lockfile) without
 installing them:
 
 ``` r
+
 # download all packages required by the lockfile
 renv::retrieve()
 

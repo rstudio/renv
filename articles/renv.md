@@ -30,10 +30,10 @@ confusing because you write (e.g.)
 [`library(dplyr)`](https://dplyr.tidyverse.org), making it easy to think
 that you’re loading the dplyr library, not the dplyr package. That
 confusion doesn’t usually matter because you don’t have to think about
-libraries, simply installing all packages into a **system
-library**[¹](#fn1) that’s shared across all projects. With renv, you’ll
-start using **project libraries,** giving each project its own
-independent collection of packages.
+libraries, simply installing all packages into a **system library**[^1]
+that’s shared across all projects. With renv, you’ll start using
+**project libraries,** giving each project its own independent
+collection of packages.
 
 You can see your current libraries with
 [`.libPaths()`](https://rdrr.io/r/base/libPaths.html) and see which
@@ -62,13 +62,13 @@ To convert a project to use renv, call
 adds three new files and directories to your project:
 
 - The project library, `renv/library`, is a library that contains all
-  packages currently used by your project[²](#fn2). This is the key
-  magic that makes renv work: instead of having one library containing
-  the packages used in every project, renv gives you a separate library
-  for each project. This gives you the benefits of **isolation**:
-  different projects can use different versions of packages, and
-  installing, updating, or removing packages in one project doesn’t
-  affect any other project.
+  packages currently used by your project[^2]. This is the key magic
+  that makes renv work: instead of having one library containing the
+  packages used in every project, renv gives you a separate library for
+  each project. This gives you the benefits of **isolation**: different
+  projects can use different versions of packages, and installing,
+  updating, or removing packages in one project doesn’t affect any other
+  project.
 - The **lockfile**, `renv.lock`, records enough metadata about every
   package that it can be re-installed on a new machine. We’ll come back
   to the lockfile shortly when we talk about
@@ -111,7 +111,7 @@ You’ll then need to commit `renv.lock`, `.Rprofile`,
 `renv/settings.json` and `renv/activate.R` to version control, ensuring
 that others can recreate your project environment. If you’re using git,
 this is particularly simple because renv will create a `.gitignore` for
-you, and you can just commit all suggested files[³](#fn3).
+you, and you can just commit all suggested files[^3].
 
 Now when one of your collaborators opens this project, renv will
 automatically bootstrap itself, downloading and installing the
@@ -124,7 +124,7 @@ download and install all the packages it needs by running
 Over time, your project will need more packages. One of the philosophies
 of renv is that your existing package management workflows should
 continue to work, so you can continue to use familiar tools like
-[`install.packages()`](https://rdrr.io/r/utils/install.packages.html)[⁴](#fn4).
+[`install.packages()`](https://rdrr.io/r/utils/install.packages.html)[^4].
 But you can also use
 [`renv::install()`](https://rstudio.github.io/renv/reference/install.md):
 it’s a little less typing and can install packages from GitHub,
@@ -154,7 +154,7 @@ It’s worth noting that there’s a small risk associated with isolation:
 while your code will never break due to a change in another package, it
 will also never benefit from bug fixes. So for packages under active
 development, we recommend that you regularly (at least once a year) use
-[`renv::update()`](https://rstudio.github.io/renv/reference/update.md)[⁵](#fn5)
+[`renv::update()`](https://rstudio.github.io/renv/reference/update.md)[^5]
 to get the latest versions of all dependencies. Similarly, if you’re
 making major changes to a project that you haven’t worked on for a
 while, it’s often a good idea to start with an
@@ -198,7 +198,7 @@ from CRAN and the mime package installed from GitHub:
 ``` json
 {
   "R": {
-    "Version": "4.5.3",
+    "Version": "4.6.0",
     "Repositories": [
       {
         "Name": "CRAN",
@@ -301,10 +301,10 @@ uninstalling it is easy.
   this project, you’ll need to start from scratch with `renv::init().`
 
 If you want to stop using renv for all your projects, you’ll also want
-to remove `renv'`s global infrastructure with the following R
-code[⁶](#fn6):
+to remove `renv'`s global infrastructure with the following R code[^6]:
 
 ``` r
+
 root <- renv::paths$root()
 unlink(root, recursive = TRUE)
 ```
@@ -312,26 +312,24 @@ unlink(root, recursive = TRUE)
 You can then uninstall the renv package with
 `utils::remove.packages("renv")`.
 
-------------------------------------------------------------------------
-
-1.  More precisely, there can be up to three system libraries: an
+[^1]: More precisely, there can be up to three system libraries: an
     (optional) **user** library, an (optional) **site** library, and a
     **default** library (where base R packages are installed).
 
-2.  If you’d like to skip dependency discovery, you can call
+[^2]: If you’d like to skip dependency discovery, you can call
     `renv::init(bare = TRUE)` to initialize a project with an empty
     project library.
 
-3.  If you’re using another version control system, you’ll need to
+[^3]: If you’re using another version control system, you’ll need to
     manually ignore `renv/library` and any other directories in `renv/`.
 
-4.  Behind the scene, renv shims
+[^4]: Behind the scene, renv shims
     [`install.packages()`](https://rdrr.io/r/utils/install.packages.html),
     `update.packages(),` and
     [`remove.packages()`](https://rdrr.io/r/utils/remove.packages.html)
     to call the renv equivalents. Learn more in `?renv::load.`
 
-5.  You can also use
+[^5]: You can also use
     [`update.packages()`](https://rdrr.io/r/utils/update.packages.html),
     but
     [`renv::update()`](https://rstudio.github.io/renv/reference/update.md)
@@ -339,8 +337,8 @@ You can then uninstall the renv package with
     [`renv::install()`](https://rstudio.github.io/renv/reference/install.md)
     supports.
 
-6.  If you’ve customized any of renv’s infrastructure paths as described
-    in
+[^6]: If you’ve customized any of renv’s infrastructure paths as
+    described in
     [`?renv::paths`](https://rstudio.github.io/renv/reference/paths.md),
     then you’ll need to find and remove those customized folders as
     well.

@@ -58,6 +58,7 @@ scaffold(
 ## Examples
 
 ``` r
+
 if (FALSE) { # \dontrun{
 # create scaffolding with 'devtools' ignored
 renv::scaffold(settings = list(ignored.packages = "devtools"))

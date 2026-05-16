@@ -36,14 +36,14 @@ When migrating Packrat projects to renv, the set of components migrated
 can be customized using the `packrat` argument. The set of components
 that can be migrated are as follows:
 
-|            |                                                                                                                                                                                                         |
-|------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| **Name**   | **Description**                                                                                                                                                                                         |
-| `lockfile` | Migrate the Packrat lockfile (`packrat/packrat.lock`) to the renv lockfile (`renv.lock`).                                                                                                               |
-| `sources`  | Migrate package sources from the `packrat/src` folder to the renv sources folder. Currently, only CRAN packages are migrated to renv – packages retrieved from other sources (e.g. GitHub) are ignored. |
-| `library`  | Migrate installed packages from the Packrat library to the renv project library.                                                                                                                        |
-| `options`  | Migrate compatible Packrat options to the renv project.                                                                                                                                                 |
-| `cache`    | Migrate packages from the Packrat cache to the renv cache.                                                                                                                                              |
+|  |  |
+|----|----|
+| **Name** | **Description** |
+| `lockfile` | Migrate the Packrat lockfile (`packrat/packrat.lock`) to the renv lockfile (`renv.lock`). |
+| `sources` | Migrate package sources from the `packrat/src` folder to the renv sources folder. Currently, only CRAN packages are migrated to renv – packages retrieved from other sources (e.g. GitHub) are ignored. |
+| `library` | Migrate installed packages from the Packrat library to the renv project library. |
+| `options` | Migrate compatible Packrat options to the renv project. |
+| `cache` | Migrate packages from the Packrat cache to the renv cache. |
 
 ## Examples
 
