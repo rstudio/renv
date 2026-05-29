@@ -254,6 +254,17 @@
   description: >
     DEPRECATED: MRAN is no longer maintained by Microsoft.
 
+- name: "namespaces.check"
+  type: "logical[1]"
+  default: true
+  description: >
+    Check, on project load, whether any namespaces have already been loaded
+    from a path outside the project's active library paths? Packages loaded
+    before renv activates are not managed by renv and can cause
+    `renv::status()` and `renv::snapshot()` to report inconsistencies. When
+    enabled, renv emits a warning listing the offending packages and the
+    paths they were loaded from.
+
 - name: "pak.enabled"
   type: "logical[1]"
   default: false

@@ -751,6 +751,59 @@ renv_load_cache <- function(project) {
 
 renv_load_check <- function(project) {
   renv_load_check_description(project)
+
+  # only check when the autoloader is driving this load -- this is the
+  # only case where loaded namespaces represent packages that snuck in
+  # before renv activated. manual `renv::load()` calls and renv's own
+  # tests routinely have unrelated namespaces loaded.
+  autoloading <- identical(getOption("renv.autoloader.running"), TRUE)
+  if (autoloading && config$namespaces.check())
+    renv_load_check_namespaces(project)
+}
+
+# Warn if any non-base namespaces are loaded from a path that's not on
+# the active .libPaths() -- these packages were loaded before renv
+# activated this project (see #2300) and are not managed by renv, so
+# status()/snapshot() can report inconsistencies for them.
+renv_load_check_namespaces <- function(project) {
+
+  libpaths <- renv_libpaths_all()
+  ignored <- c(renv_packages_base(), "renv")
+  candidates <- setdiff(loadedNamespaces(), ignored)
+  if (empty(candidates))
+    return(invisible(TRUE))
+
+  external <- list()
+  for (pkg in candidates) {
+    nspath <- catch(renv_namespace_path(pkg))
+    if (inherits(nspath, "error") || !nzchar(nspath))
+      next
+    if (dirname(nspath) %in% libpaths)
+      next
+    external[[pkg]] <- renv_path_aliased(nspath)
+  }
+
+  if (empty(external))
+    return(invisible(TRUE))
+
+  values <- sprintf("%s [%s]", format(names(external)), unlist(external))
+
+  bulletin(
+    preamble = c(
+      "The following package(s) were loaded before renv activated this project:"
+    ),
+    values    = values,
+    postamble = c(
+      "These packages are not managed by renv and may cause `renv::status()`",
+      "and `renv::snapshot()` to report inconsistencies. Restart R in a clean",
+      "session to recover. The paths above may help identify where each",
+      "package was loaded from.",
+      "Set `RENV_CONFIG_NAMESPACES_CHECK=FALSE` to silence this check."
+    )
+  )
+
+  invisible(FALSE)
+
 }
 
 renv_load_check_description <- function(project) {

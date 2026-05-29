@@ -1,6 +1,20 @@
 
 # renv (development version)
 
+* `renv::install()` no longer treats a package as already installed when
+  its namespace is loaded from a path that is no longer on `.libPaths()`
+  (e.g. when a global `~/.Rprofile` loads the package before renv
+  activates). Previously, `install()` would silently skip these packages
+  and `snapshot()` could not record them, leaving the project stuck.
+  (#2300)
+
+* On project load, renv now warns when one or more package namespaces
+  have already been loaded from a path outside the active library
+  paths. Such packages are not managed by renv and can cause
+  `renv::status()` and `renv::snapshot()` to report inconsistencies.
+  The check can be disabled via the `namespaces.check` config option
+  (or the `RENV_CONFIG_NAMESPACES_CHECK` environment variable). (#2300)
+
 # renv 1.2.3
 
 * `renv::record()` now enriches each resolved record with the same
