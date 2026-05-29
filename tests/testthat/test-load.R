@@ -95,9 +95,12 @@ test_that("renv_load_check_namespaces flags packages loaded from outside libpath
   ensure_directory(userlib)
   install("bread", library = userlib)
 
+  # indirect the package name through a variable so R CMD check doesn't
+  # flag bread as an undeclared dependency
+  pkg <- "bread"
   renv_scope_libpaths(c(userlib, .libPaths()))
-  loadNamespace("bread")
-  defer(unloadNamespace("bread"))
+  loadNamespace(pkg)
+  defer(unloadNamespace(pkg))
 
   # restrict .libPaths() to just the project lib and .Library; bread is
   # still loaded but its location is no longer visible

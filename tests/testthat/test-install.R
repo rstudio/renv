@@ -905,10 +905,12 @@ test_that("install() reinstalls packages loaded from outside the active libpaths
 
   # load bread's namespace from the user library, then drop that library
   # from .libPaths() -- the namespace stays loaded but its location is
-  # no longer visible to renv
+  # no longer visible to renv. indirect the package name through a
+  # variable so R CMD check doesn't flag bread as an undeclared dependency
+  pkg <- "bread"
   renv_scope_libpaths(c(userlib, .libPaths()))
-  loadNamespace("bread")
-  defer(unloadNamespace("bread"))
+  loadNamespace(pkg)
+  defer(unloadNamespace(pkg))
 
   projlib <- renv_scope_tempfile("renv-projlib-")
   ensure_directory(projlib)
