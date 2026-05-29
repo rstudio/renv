@@ -2,6 +2,29 @@
 
 ## renv (development version)
 
+- [`renv::install()`](https://rstudio.github.io/renv/dev/reference/install.md)
+  no longer treats a package as already installed when its namespace is
+  loaded from a path that is no longer on
+  [`.libPaths()`](https://rdrr.io/r/base/libPaths.html) (e.g. when a
+  global `~/.Rprofile` loads the package before renv activates).
+  Previously,
+  [`install()`](https://rstudio.github.io/renv/dev/reference/install.md)
+  would silently skip these packages and
+  [`snapshot()`](https://rstudio.github.io/renv/dev/reference/snapshot.md)
+  could not record them, leaving the project stuck.
+  ([\#2300](https://github.com/rstudio/renv/issues/2300))
+
+- On project load, renv now warns when one or more package namespaces
+  have already been loaded from a path outside the active library paths.
+  Such packages are not managed by renv and can cause
+  [`renv::status()`](https://rstudio.github.io/renv/dev/reference/status.md)
+  and
+  [`renv::snapshot()`](https://rstudio.github.io/renv/dev/reference/snapshot.md)
+  to report inconsistencies. The check can be disabled via the
+  `namespaces.check` config option (or the
+  `RENV_CONFIG_NAMESPACES_CHECK` environment variable).
+  ([\#2300](https://github.com/rstudio/renv/issues/2300))
+
 ## renv 1.2.3
 
 CRAN release: 2026-05-16
