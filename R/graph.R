@@ -1,6 +1,12 @@
 
 renv_graph_init <- function(remotes, records = list(), project = NULL, scope = parent.frame()) {
 
+  # set up the repository environment (repos, PPM transform, user agent) before
+  # resolving descriptions; otherwise resolution queries the un-transformed
+  # repositories and may pin packages to a binary PPM URL even when the user
+  # requested type = "source" (#2303)
+  renv_graph_scope_setup(scope = scope)
+
   # create an environment to track resolved descriptions (avoids cycles/dupes)
   project <- project %||% renv_project_resolve()
   envir <- new.env(parent = emptyenv())
@@ -986,10 +992,11 @@ renv_graph_url_cellar <- function(desc) {
 
 }
 
-renv_graph_scope_retrieve <- function(scope = parent.frame()) {
+renv_graph_scope_setup <- function(scope = parent.frame()) {
 
-  # prepare retrieve environment (repos, PPM, user agent);
-  # this setup is normally done inside renv_retrieve_impl —
+  # prepare the repository environment (repos, PPM, user agent) used when
+  # querying package repositories during both resolution and retrieval;
+  # this setup is also done inside renv_retrieve_impl --
   # we replicate it here so parallel / forked processes inherit these options
   repos <- renv_repos_normalize()
   if (renv_ppm_enabled())
@@ -1022,7 +1029,7 @@ renv_graph_install <- function(descriptions) {
     recursive = FALSE
   )
 
-  renv_graph_scope_retrieve()
+  renv_graph_scope_setup()
 
   # prepare install environment (inherited by subprocesses)
   rlibs <- paste(renv_libpaths_all(), collapse = .Platform$path.sep)
