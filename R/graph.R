@@ -1,6 +1,12 @@
 
 renv_graph_init <- function(remotes, records = list(), project = NULL, scope = parent.frame()) {
 
+  # set up the retrieve environment (repos, PPM transform, user agent) before
+  # resolving descriptions; otherwise resolution queries the un-transformed
+  # repositories and may pin packages to a binary PPM URL even when the user
+  # requested type = "source" (#2303)
+  renv_graph_scope_retrieve(scope = scope)
+
   # create an environment to track resolved descriptions (avoids cycles/dupes)
   project <- project %||% renv_project_resolve()
   envir <- new.env(parent = emptyenv())

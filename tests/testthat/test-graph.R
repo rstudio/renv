@@ -1069,6 +1069,49 @@ test_that("renv_graph_description_repository respects install_pkg_type", {
 
 })
 
+# https://github.com/rstudio/renv/issues/2303
+test_that("renv_graph_init normalizes PPM URLs when installing from source", {
+
+  skip_on_cran()
+
+  renv_tests_scope()
+
+  # pretend to be Ubuntu so PPM transformation kicks in
+  renv_scope_envvars(
+    RENV_PPM_OS = "__linux__",
+    RENV_PPM_PLATFORM = "jammy"
+  )
+
+  # use a binary PPM URL as the active repository
+  binurl <- "https://packagemanager.posit.co/cran/__linux__/jammy/latest"
+  renv_scope_options(repos = c(CRAN = binurl))
+
+  # simulate install(..., type = "source")
+  renv_scope_binding(the, "install_pkg_type", "source")
+
+  # capture the repositories seen during description resolution
+  env <- new.env(parent = emptyenv())
+  env$repos <- character()
+
+  renv_scope_trace(
+    what   = renv:::renv_available_packages_entry,
+    tracer = bquote({
+      .env <- .(env)
+      .env$repos <- c(.env$repos, repos %||% getOption("repos"))
+    })
+  )
+
+  # resolution will fail (the URL isn't reachable in tests); we only care
+  # about the repositories that were queried during graph resolution
+  catch(renv_graph_init("bread", project = tempfile()))
+
+  # the binary segment should have been stripped before resolution, so a
+  # source package is resolved rather than a binary one
+  expect_true(length(env$repos) > 0L)
+  expect_false(any(grepl("__linux__", env$repos)))
+
+})
+
 # https://github.com/rstudio/renv/issues/2278
 test_that("repository graph prefers crandb over latest-with-overridden-version", {
 

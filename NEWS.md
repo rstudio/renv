@@ -1,6 +1,12 @@
 
 # renv (development version)
 
+* `renv::install(<package>, type = "source")` once again installs from
+  source when a binary Posit Package Manager (PPM) repository is
+  configured. Previously, the dependency graph was resolved against the
+  un-transformed (binary) repository URL, so a binary package could be
+  installed even though source was requested. (#2303)
+
 * `renv::install()` no longer treats a package as already installed when
   its namespace is loaded from a path that is no longer on `.libPaths()`
   (e.g. when a global `~/.Rprofile` loads the package before renv
