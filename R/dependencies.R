@@ -725,7 +725,7 @@ renv_dependencies_discover_plumber_server <- function(path) {
 }
 
 renv_dependencies_discover_rsconnect <- function(path) {
-  renv_dependencies_list(path, "rsconnect")
+  renv_dependencies_list(path, "rsconnect", dev = TRUE)
 }
 
 renv_dependencies_discover_multimode <- function(path, mode) {
