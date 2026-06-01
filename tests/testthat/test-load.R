@@ -80,3 +80,56 @@ test_that("load() delegates to base::load() when appropriate", {
   expect_equal(envir$value, 42)
 
 })
+
+test_that("renv_load_check_namespaces flags packages loaded from outside libpaths", {
+
+  # https://github.com/rstudio/renv/issues/2300 -- packages loaded
+  # from a library that isn't part of the project's active .libPaths()
+  # break renv's encapsulation; warn about them on project load.
+
+  renv_tests_scope()
+  renv_scope_options(renv.caution.verbose = TRUE)
+
+  # install bread into a "user" library and load its namespace from there
+  userlib <- renv_scope_tempfile("renv-userlib-")
+  ensure_directory(userlib)
+  install("bread", library = userlib)
+
+  # indirect the package name through a variable so R CMD check doesn't
+  # flag bread as an undeclared dependency
+  pkg <- "bread"
+  renv_scope_libpaths(c(userlib, .libPaths()))
+  loadNamespace(pkg)
+  defer(unloadNamespace(pkg))
+
+  # restrict .libPaths() to just the project lib and .Library; bread is
+  # still loaded but its location is no longer visible
+  projlib <- renv_scope_tempfile("renv-projlib-")
+  ensure_directory(projlib)
+  renv_scope_libpaths(c(projlib, .Library))
+
+  # we test the helper directly; renv_load_check() only wires it up
+  # during autoloader-driven startup, which doesn't fire in tests
+  expect_output(
+    result <- renv_load_check_namespaces(getwd()),
+    "bread"
+  )
+  expect_false(result)
+
+})
+
+test_that("renv_load_check_namespaces is silent when all loaded packages are on libpaths", {
+
+  renv_tests_scope()
+  renv_scope_options(renv.caution.verbose = TRUE)
+
+  # extend .libPaths() to include every location from which a non-base
+  # namespace was loaded; the check should then find no externals
+  loaded <- setdiff(loadedNamespaces(), c(renv_packages_base(), "renv"))
+  paths <- vapply(loaded, function(p) dirname(renv_namespace_path(p)), character(1))
+  renv_scope_libpaths(unique(c(paths, .libPaths())))
+
+  expect_silent(result <- renv_load_check_namespaces(getwd()))
+  expect_true(result)
+
+})

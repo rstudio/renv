@@ -7,6 +7,22 @@
   recorded by `renv::snapshot()` unless the project actually uses it at
   run time (or `settings$snapshot.dev(TRUE)` is set). (#2290)
 
+* `renv::install()` no longer treats a package as already installed when
+  its namespace is loaded from a path that is no longer on `.libPaths()`
+  (e.g. when a global `~/.Rprofile` loads the package before renv
+  activates). Previously, `install()` would silently skip these packages
+  and `snapshot()` could not record them, leaving the project stuck.
+  (#2300)
+
+* On project load, renv now warns when one or more package namespaces
+  have already been loaded from a path outside the active library
+  paths. Such packages are not managed by renv and can cause
+  `renv::status()` and `renv::snapshot()` to report inconsistencies.
+  The check can be disabled via the `namespaces.check` config option
+  (or the `RENV_CONFIG_NAMESPACES_CHECK` environment variable). (#2300)
+
+# renv 1.2.3
+
 * `renv::record()` now enriches each resolved record with the same
   DESCRIPTION-derived fields that `renv::snapshot()` writes (e.g.
   `Depends`, `Imports`, `Suggests`, `LinkingTo`, `License`), instead of
@@ -20,6 +36,11 @@
   the contrib URL returned by `available.packages()`, so `renv::status()`
   no longer reports a spurious repository mismatch after a version-pinned
   `record()` call. (#2294)
+
+* `renv::vulns()` now returns one record per requested package, with a
+  `vulns` field that is an empty list when the package has no known
+  vulnerabilities. Previously the `vulns` field was only present for
+  vulnerable packages. (#2292)
 
 * Fixed a regression where `renv::restore()` and `renv::install()` would
   re-download packages that were already installed in the user or site
@@ -35,6 +56,10 @@
 * Fixed an issue where `renv::init()` did not use pak to install missing
   dependencies, even when `pak.enabled = TRUE`. The install path used
   during init now delegates to pak when it is enabled. (#2282)
+
+* Fixed an issue where `renv::hydrate()` could leak the raw pak return
+  value into its `missing` field on the pak install path, instead of
+  preserving the documented `NULL`-on-success contract.
 
 * Fixed an issue where `renv::restore(clean = TRUE)` did not remove
   unused packages when `RENV_CONFIG_PAK_ENABLED=TRUE` (or

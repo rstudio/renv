@@ -886,3 +886,60 @@ test_that("install from local sources shows progress", {
   expect_snapshot(install(path))
 
 })
+
+test_that("install() reinstalls packages loaded from outside the active libpaths", {
+
+  # https://github.com/rstudio/renv/issues/2300 -- when a transitive
+  # dependency was loaded from a library that's no longer on .libPaths()
+  # (e.g. the user's HOME .Rprofile loaded it before renv activated),
+  # renv_graph_needs_update used to fall back to loadedNamespaces() and
+  # report the package as already installed. snapshot() then couldn't
+  # record it, leaving the project stuck.
+
+  renv_tests_scope()
+
+  # install bread into a "user" library
+  userlib <- renv_scope_tempfile("renv-userlib-")
+  ensure_directory(userlib)
+  install("bread", library = userlib)
+
+  # load bread's namespace from the user library, then drop that library
+  # from .libPaths() -- the namespace stays loaded but its location is
+  # no longer visible to renv. indirect the package name through a
+  # variable so R CMD check doesn't flag bread as an undeclared dependency
+  pkg <- "bread"
+  renv_scope_libpaths(c(userlib, .libPaths()))
+  loadNamespace(pkg)
+  defer(unloadNamespace(pkg))
+
+  projlib <- renv_scope_tempfile("renv-projlib-")
+  ensure_directory(projlib)
+  renv_scope_libpaths(projlib)
+
+  expect_true("bread" %in% loadedNamespaces())
+  expect_false(file.exists(file.path(projlib, "bread", "DESCRIPTION")))
+
+  # libpath-restricted lookup does not see the loaded-but-not-installed
+  # package, even though the namespace-fallback lookup still does
+  expect_null(renv_package_libpath_version("bread"))
+  expect_equal(renv_package_version("bread"), "1.0.0")
+
+  # the graph filter correctly reports that bread needs to be installed
+  record <- list(
+    Package    = "bread",
+    Version    = "1.0.0",
+    Source     = "Repository",
+    Repository = "CRAN"
+  )
+
+  renv_scope_restore(
+    project   = getwd(),
+    library   = projlib,
+    records   = list(bread = record),
+    packages  = character(),
+    recursive = TRUE
+  )
+
+  expect_true(renv_graph_needs_update("bread", record, list()))
+
+})

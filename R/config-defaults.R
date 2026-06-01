@@ -267,6 +267,15 @@ config <- list(
     )
   },
 
+  namespaces.check = function(..., default = TRUE) {
+    renv_config_get(
+      name    = "namespaces.check",
+      type    = "logical[1]",
+      default = default,
+      args    = list(...)
+    )
+  },
+
   pak.enabled = function(..., default = FALSE) {
     renv_config_get(
       name    = "pak.enabled",

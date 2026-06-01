@@ -606,15 +606,15 @@ renv_graph_needs_update <- function(pkg, record, requirements) {
   if (nzchar(path))
     return(FALSE)
 
-  # for transitive dependencies that are already installed, check
-  # whether the installed version satisfies dependency requirements;
-  # this avoids upgrading dependencies during install() when the
-  # existing library version is already compatible.
-  # explicitly-requested packages (in state$packages) always get
-  # installed, so skip this check for those.
+  # for transitive dependencies that are already installed in an active
+  # library path, check whether the installed version satisfies dependency
+  # requirements; this avoids upgrading dependencies during install() when
+  # the existing library version is already compatible.
+  # explicitly-requested packages (in state$packages) always get installed,
+  # so skip this check for those.
   state <- renv_restore_state()
   if (!(pkg %in% state$packages)) {
-    installed <- renv_package_version(pkg)
+    installed <- renv_package_libpath_version(pkg)
     if (!is.null(installed)) {
       reqs <- requirements[[pkg]]
       if (renv_graph_compatible(installed, reqs))

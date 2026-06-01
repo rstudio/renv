@@ -57,6 +57,35 @@ renv_package_version <- function(package) {
   renv_package_description_field(package, "Version")
 }
 
+# returns the version of `package` if it is installed in one of the
+# active library paths, otherwise NULL. unlike renv_package_version(),
+# this does not fall back to loadedNamespaces() -- a package loaded from
+# a path no longer on .libPaths() (e.g. loaded by the user .Rprofile
+# before renv activated, https://github.com/rstudio/renv/issues/2300)
+# must not be treated as installed for purposes of skipping installation.
+renv_package_libpath_version <- function(package) {
+
+  libpaths <- renv_libpaths_all()
+
+  # fast path: if the namespace is loaded from one of the active library
+  # paths, trust the loaded version and skip the DESCRIPTION read
+  if (isNamespaceLoaded(package)) {
+    nspath <- renv_namespace_path(package)
+    if (dirname(nspath) %in% libpaths)
+      return(renv_namespace_version(package))
+  }
+
+  # otherwise, look for the package in the active library paths.
+  # passing a non-NULL lib.loc disables the namespace fallback inside
+  # renv_package_find_impl()
+  pkgpath <- renv_package_find(package, lib.loc = libpaths)
+  if (!nzchar(pkgpath))
+    return(NULL)
+
+  renv_description_read(pkgpath)[["Version"]]
+
+}
+
 renv_package_description_field <- function(package, field) {
 
   path <- renv_package_find(package)
