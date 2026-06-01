@@ -2,6 +2,13 @@
 
 ## renv (development version)
 
+- `renv::install(<package>, type = "source")` once again installs from
+  source when a binary Posit Package Manager (PPM) repository is
+  configured. Previously, the dependency graph was resolved against the
+  un-transformed (binary) repository URL, so a binary package could be
+  installed even though source was requested.
+  ([\#2303](https://github.com/rstudio/renv/issues/2303))
+
 - The presence of an `rsconnect/` folder in a project is now treated as
   a development dependency on the `rsconnect` package, rather than a
   runtime dependency. This means `rsconnect` will no longer be
