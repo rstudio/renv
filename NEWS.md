@@ -6,6 +6,12 @@
   configured. Previously, the dependency graph was resolved against the
   un-transformed (binary) repository URL, so a binary package could be
   installed even though source was requested. (#2303)
+  
+* The presence of an `rsconnect/` folder in a project is now treated as a
+  development dependency on the `rsconnect` package, rather than a runtime
+  dependency. This means `rsconnect` will no longer be automatically
+  recorded by `renv::snapshot()` unless the project actually uses it at
+  run time (or `settings$snapshot.dev(TRUE)` is set). (#2290)
 
 * `renv::install()` no longer treats a package as already installed when
   its namespace is loaded from a path that is no longer on `.libPaths()`
@@ -20,6 +26,7 @@
   `renv::status()` and `renv::snapshot()` to report inconsistencies.
   The check can be disabled via the `namespaces.check` config option
   (or the `RENV_CONFIG_NAMESPACES_CHECK` environment variable). (#2300)
+
 
 # renv 1.2.3
 

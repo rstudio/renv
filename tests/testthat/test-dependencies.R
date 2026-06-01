@@ -121,11 +121,19 @@ test_that("renv_dependencies_requires warns once", {
   expect_false(renv_dependencies_require("nosuchpackage", "test"))
 })
 
-test_that("the presence of an rsconnect folder forces dependency on rsconnect", {
+test_that("an rsconnect folder infers a dev dependency on rsconnect", {
   renv_tests_scope()
   dir.create("rsconnect")
+
+  # rsconnect is treated as a dev dependency, so it is not picked up by
+  # default
   deps <- dependencies()
+  expect_false("rsconnect" %in% deps$Package)
+
+  # but it is picked up when dev dependencies are requested
+  deps <- dependencies(dev = TRUE)
   expect_true("rsconnect" %in% deps$Package)
+  expect_true(deps$Dev[deps$Package == "rsconnect"])
 })
 
 test_that("dependencies can accept multiple files", {
