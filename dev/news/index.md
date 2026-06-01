@@ -2,6 +2,15 @@
 
 ## renv (development version)
 
+- The presence of an `rsconnect/` folder in a project is now treated as
+  a development dependency on the `rsconnect` package, rather than a
+  runtime dependency. This means `rsconnect` will no longer be
+  automatically recorded by
+  [`renv::snapshot()`](https://rstudio.github.io/renv/dev/reference/snapshot.md)
+  unless the project actually uses it at run time (or
+  `settings$snapshot.dev(TRUE)` is set).
+  ([\#2290](https://github.com/rstudio/renv/issues/2290))
+
 - [`renv::install()`](https://rstudio.github.io/renv/dev/reference/install.md)
   no longer treats a package as already installed when its namespace is
   loaded from a path that is no longer on
