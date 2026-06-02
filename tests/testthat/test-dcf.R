@@ -38,6 +38,18 @@ test_that("we can read a latin-1 DESCRIPTION file", {
 
 })
 
+test_that("we can read latin-1 content passed via 'text'", {
+
+  # a caller may pass non-UTF-8 'text' directly; make sure we preserve its
+  # encoding rather than forcing UTF-8 (which would mis-mark the bytes)
+  contents <- "Dessert: crème brûlée"
+  latin1 <- iconv(enc2utf8(contents), from = "UTF-8", to = "latin1")
+
+  dcf <- renv_dcf_read(text = latin1)
+  expect_equal(dcf$Dessert, "crème brûlée")
+
+})
+
 test_that("we can read a custom encoded DESCRIPTION file", {
 
   skip_if(!"CP936" %in% iconvlist())
