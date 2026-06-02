@@ -1,6 +1,13 @@
 
 # renv (development version)
 
+* renv's internal DCF and properties readers now match their (ASCII)
+  regular expressions with `useBytes = TRUE`. This avoids forcing PCRE
+  into UTF mode, which could fail with "this version of PCRE is compiled
+  without UTF support" -- in some environments preventing renv from even
+  loading -- when R is linked against a PCRE library lacking UTF support
+  or left in a state where it believes UTF is unsupported.
+
 * `renv::install(<package>, type = "source")` once again installs from
   source when a binary Posit Package Manager (PPM) repository is
   configured. Previously, the dependency graph was resolved against the

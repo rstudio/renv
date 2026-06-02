@@ -9,10 +9,18 @@ renv_dcf_read <- function(file, text = NULL, ...) {
   contents <- text %||% renv_dcf_read_impl(file, ...)
 
   # split on newlines
-  parts <- strsplit(contents, "\\r?\\n(?=\\S)", perl = TRUE)[[1L]]
+  #
+  # NOTE: we use 'useBytes = TRUE' here to avoid forcing PCRE into UTF mode,
+  # which can fail when R is linked against a PCRE library compiled without
+  # UTF support (or left in a bad state where it believes this is the case).
+  # the patterns are pure ASCII, and operating on bytes is safe for UTF-8
+  # content (continuation bytes are non-whitespace), so we just re-declare
+  # the encoding afterwards.
+  parts <- strsplit(contents, "\\r?\\n(?=\\S)", perl = TRUE, useBytes = TRUE)[[1L]]
 
   # remove embedded newlines
-  parts <- gsub("\\r?\\n\\s*", " ", parts, perl = TRUE)
+  parts <- gsub("\\r?\\n\\s*", " ", parts, perl = TRUE, useBytes = TRUE)
+  Encoding(parts) <- "UTF-8"
 
   # split into key / value pairs
   index <- regexpr(":", parts, fixed = TRUE)
