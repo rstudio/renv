@@ -156,12 +156,66 @@ renv::settings$bioconductor.version("3.20")
 If you later choose to upgrade R, you may need to upgrade the version of
 Bioconductor used as well.
 
-If you want to override the Bioconductor repositories used by renv, you
-can also explicitly set the following option:
+#### Bioconductor mirrors
+
+renv does not hard-code the Bioconductor repository URLs. Instead, it
+asks `BiocManager` for the repositories associated with the active
+Bioconductor release, and `BiocManager` in turn honors the `BioC_mirror`
+option (`getOption("BioC_mirror")`). This means a mirror – for example,
+one provided by [Posit Package Manager](https://docs.posit.co/rspm/) –
+is used automatically, provided it has been configured in the session.
+
+There are two different options that influence the repositories renv
+uses, and they operate at different levels:
+
+- `BioC_mirror` sets the **base URL** of the mirror (for example,
+  `options(BioC_mirror = "https://my.ppm.example/bioconductor")`). renv
+  still asks `BiocManager` to expand this into the full set of
+  repositories for the project’s Bioconductor release, so the version
+  you have pinned with `bioconductor.version` continues to apply. This
+  is the right option to reach for when you simply want to point renv at
+  a different mirror.
+
+- `renv.bioconductor.repos` sets the **fully-expanded, named repository
+  vector** directly (for example,
+  `options(renv.bioconductor.repos = c(BioCsoft = "...", BioCann = "..."))`).
+  When this option is set, renv uses it verbatim and skips
+  `BiocManager`, `BioC_mirror`, and its own release inference entirely –
+  so you become responsible for ensuring those URLs (including the
+  Bioconductor release encoded in them) are correct. Reach for this only
+  when you need to fully override what renv would otherwise compute.
+
+If you use a Bioconductor mirror and want that choice to be
+reproducible, you have a couple of options:
+
+- Set `BioC_mirror` (or, if you need a full override,
+  `renv.bioconductor.repos`) in your project’s `.Rprofile`, so that it
+  is configured whenever the project is loaded; or
+
+- Use a CRAN-like repository that also serves Bioconductor packages –
+  for example, a Posit Package Manager “R repository”. Because these
+  repositories are part of the normal `repos` option, renv records them
+  in the lockfile (under `R$Repositories`) and restores them
+  automatically, with no extra configuration required.
+
+#### Disabling Bioconductor
+
+By default, renv treats a package tagged with a `biocViews` field (and
+stamped with Bioconductor provenance) as coming from Bioconductor. Some
+CRAN packages also declare `biocViews`, and a CRAN-like repository (such
+as a Posit Package Manager “R repository”) might serve Bioconductor
+packages alongside CRAN packages. In these cases renv uses the
+`Repository` field to decide where a package was obtained, so such
+packages are recorded as ordinary repository packages.
+
+If you would like to opt a project out of Bioconductor entirely – so
+that renv never infers a Bioconductor source, activates the Bioconductor
+repositories, or records a Bioconductor release in the lockfile – you
+can disable it with:
 
 ``` r
 
-options(renv.bioconductor.repos = c(...))
+renv::settings$bioconductor.enabled(FALSE)
 ```
 
 ### The package cellar

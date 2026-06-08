@@ -9,6 +9,22 @@ settings$snapshot.type(&quot;explicit&quot;).
 Settings are automatically persisted across project sessions by writing to
 renv/settings.json. You can also edit this file by hand, but you'll need
 to restart the session for those changes to take effect.
+bioconductor.enabled
+
+
+Should renv use Bioconductor with this project? When enabled (the default),
+renv will infer that packages tagged with a biocViews field (and stamped
+with Bioconductor provenance) come from Bioconductor, activate the
+Bioconductor repositories when required, and record the Bioconductor release
+in the lockfile. Set this to FALSE for projects that should be treated as
+repository-only – for example, when all packages (including any that happen
+to carry a biocViews field) are served from a single CRAN-like repository
+such as a Posit Package Manager &quot;R repository&quot;. When disabled, renv will
+never infer a Bioconductor source, activate Bioconductor repositories, or
+write a Bioconductor entry into the lockfile.
+
+
+
 bioconductor.version
 
 
@@ -170,6 +186,22 @@ settings$snapshot.type(&quot;explicit&quot;).
 Settings are automatically persisted across project sessions by writing to
 renv/settings.json. You can also edit this file by hand, but you'll need
 to restart the session for those changes to take effect.
+bioconductor.enabled
+
+
+Should renv use Bioconductor with this project? When enabled (the default),
+renv will infer that packages tagged with a biocViews field (and stamped
+with Bioconductor provenance) come from Bioconductor, activate the
+Bioconductor repositories when required, and record the Bioconductor release
+in the lockfile. Set this to FALSE for projects that should be treated as
+repository-only – for example, when all packages (including any that happen
+to carry a biocViews field) are served from a single CRAN-like repository
+such as a Posit Package Manager &quot;R repository&quot;. When disabled, renv will
+never infer a Bioconductor source, activate Bioconductor repositories, or
+write a Bioconductor entry into the lockfile.
+
+
+
 bioconductor.version
 
 
@@ -382,6 +414,22 @@ renv with your particular project.</p><ul><li><p>Get the current value of a sett
 </ul><p>Settings are automatically persisted across project sessions by writing to
 <code>renv/settings.json</code>. You can also edit this file by hand, but you'll need
 to restart the session for those changes to take effect.</p><div class="section">
+<h3 id="bioconductor-enabled"><code>bioconductor.enabled</code><a class="anchor" aria-label="anchor" href="#bioconductor-enabled"></a></h3>
+
+
+<p>Should renv use Bioconductor with this project? When enabled (the default),
+renv will infer that packages tagged with a <code>biocViews</code> field (and stamped
+with Bioconductor provenance) come from Bioconductor, activate the
+Bioconductor repositories when required, and record the Bioconductor release
+in the lockfile. Set this to <code>FALSE</code> for projects that should be treated as
+repository-only – for example, when all packages (including any that happen
+to carry a <code>biocViews</code> field) are served from a single CRAN-like repository
+such as a Posit Package Manager "R repository". When disabled, renv will
+never infer a Bioconductor source, activate Bioconductor repositories, or
+write a Bioconductor entry into the lockfile.</p>
+</div>
+
+<div class="section">
 <h3 id="bioconductor-version"><code>bioconductor.version</code><a class="anchor" aria-label="anchor" href="#bioconductor-version"></a></h3>
 
 
