@@ -43,6 +43,18 @@ renv_description_bioconductor <- function(dcf) {
     if (grepl("Bioconductor", repository, ignore.case = TRUE))
       return(TRUE)
 
+    # otherwise, a 'Repository' that names CRAN, a known CRAN mirror, or one of
+    # the active repositories means the package came from there rather than from
+    # Bioconductor.
+    #
+    # NOTE: this repository-recognition logic parallels the matching done in
+    # renv_snapshot_description_source_custom(); the two are intentionally kept
+    # separate because they disagree on the bare name "CRAN". here we *trust*
+    # 'Repository: CRAN' as proof of CRAN origin, whereas _source_custom()
+    # deliberately *distrusts* a "CRAN" RemoteReposName (older renv versions
+    # mislabelled non-CRAN repositories as 'CRAN'; see #2104). if these ever
+    # need to share an implementation, extract a helper parameterised on whether
+    # the "CRAN" name should be honoured, rather than collapsing them outright.
     if (identical(repository, "CRAN"))
       return(FALSE)
 
