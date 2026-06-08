@@ -19,6 +19,7 @@ restore(
   clean = FALSE,
   strict = FALSE,
   transactional = NULL,
+  retry = NULL,
   prompt = interactive()
 )
 ```
@@ -102,6 +103,16 @@ restore(
   the `install.transactional`
   [`config`](https://rstudio.github.io/renv/dev/reference/config.md)
   option will be used.
+
+- retry:
+
+  Whether to retry packages that fail to install by attempting to
+  install the latest available versions instead. This is helpful when
+  restoring after an R upgrade, where the older versions recorded in the
+  lockfile may no longer install successfully. When `NULL` (the
+  default), renv will prompt in interactive sessions and otherwise leave
+  the failures unresolved. Use `retry = TRUE` to retry without prompting
+  (e.g. in CI), or `retry = FALSE` to disable the retry entirely.
 
 - prompt:
 

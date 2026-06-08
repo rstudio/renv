@@ -2,6 +2,14 @@
 
 ## renv (development version)
 
+- [`renv::restore()`](https://rstudio.github.io/renv/dev/reference/restore.md)
+  gains a `retry` argument, controlling whether packages that fail to
+  install successfully are retried with their latest available versions.
+  This recovery was previously only offered via an interactive prompt;
+  `retry = TRUE` now enables it without prompting (useful in
+  non-interactive sessions such as CI), while `retry = FALSE` disables
+  it entirely. ([\#1893](https://github.com/rstudio/renv/issues/1893))
+
 - renv no longer treats the mere presence of a `biocViews` field in a
   package’s `DESCRIPTION` as proof that the package came from
   Bioconductor. Some CRAN packages declare `biocViews`, and Posit

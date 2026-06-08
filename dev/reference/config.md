@@ -286,6 +286,18 @@ manually remove a stale lock you can do so via
 DEPRECATED: MRAN is no longer maintained by Microsoft. Defaults to
 `FALSE`.
 
+### renv.config.namespaces.check
+
+Check, on project load, whether any namespaces have already been loaded
+from a path outside the project's active library paths? Packages loaded
+before renv activates are not managed by renv and can cause
+[`renv::status()`](https://rstudio.github.io/renv/dev/reference/status.md)
+and
+[`renv::snapshot()`](https://rstudio.github.io/renv/dev/reference/snapshot.md)
+to report inconsistencies. When enabled, renv emits a warning listing
+the offending packages and the paths they were loaded from. Defaults to
+`TRUE`.
+
 ### renv.config.pak.enabled
 
 Use the [pak](https://pak.r-lib.org/) package to install packages?

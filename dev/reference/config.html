@@ -238,6 +238,11 @@ Defaults to <code>FALSE</code>.</p>
 Defaults to <code>FALSE</code>.</p>
 </div>
 <div class="section">
+<h3 id="renv-config-namespaces-check">renv.config.namespaces.check<a class="anchor" aria-label="anchor" href="#renv-config-namespaces-check"></a></h3>
+<p>Check, on project load, whether any namespaces have already been loaded from a path outside the project's active library paths? Packages loaded before renv activates are not managed by renv and can cause <code><a href="status.html">renv::status()</a></code> and <code><a href="snapshot.html">renv::snapshot()</a></code> to report inconsistencies. When enabled, renv emits a warning listing the offending packages and the paths they were loaded from.
+Defaults to <code>TRUE</code>.</p>
+</div>
+<div class="section">
 <h3 id="renv-config-pak-enabled">renv.config.pak.enabled<a class="anchor" aria-label="anchor" href="#renv-config-pak-enabled"></a></h3>
 <p>Use the <a href="https://pak.r-lib.org/" class="external-link">pak</a> package to install packages?
 Defaults to <code>FALSE</code>.</p>
