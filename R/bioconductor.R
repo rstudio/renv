@@ -6,6 +6,81 @@ renv_bioconductor_manager <- function() {
     "BiocInstaller"
 }
 
+# whether Bioconductor integration is enabled for this project; when disabled,
+# renv will not infer a Bioconductor source, activate Bioconductor repositories,
+# or write a Bioconductor entry into the lockfile
+# https://github.com/rstudio/renv/issues/2128
+renv_bioconductor_enabled <- function(project = NULL) {
+  settings$bioconductor.enabled(project = project)
+}
+
+# determine whether a package's DESCRIPTION genuinely indicates a Bioconductor
+# origin. historically renv treated the mere presence of a 'biocViews' field as
+# proof, but some CRAN packages also declare 'biocViews', and Posit Package
+# Manager can serve Bioconductor packages from a CRAN-like "R repository". what
+# matters for restore is where the package was *obtained* (the 'Repository'
+# field), not where it originally came from (its git provenance).
+# https://github.com/rstudio/renv/issues/2128
+renv_description_bioconductor <- function(dcf) {
+
+  # packages from Bioconductor are normally tagged with a 'biocViews' entry;
+  # without one, this cannot be a Bioconductor package
+  if (!nzchar(dcf[["biocViews"]] %||% ""))
+    return(FALSE)
+
+  # the 'Repository' field records where the package was obtained, and so takes
+  # precedence over git provenance. Bioconductor stamps 'Bioconductor <ver>'; a
+  # CRAN-like repository (CRAN, a known mirror, or one of the active repos --
+  # including PPM "R repositories" that serve Bioconductor in a CRAN-like
+  # layout) means the package should be restored from that repository instead.
+  repository <- dcf[["Repository"]] %||% ""
+  if (nzchar(repository)) {
+
+    # Bioconductor stamps the release into the 'Repository' field (e.g.
+    # 'Bioconductor 3.18'); Posit Package Manager Bioconductor repositories
+    # likewise include 'Bioconductor' in the stamp, possibly alongside a custom
+    # repository name, so match it anywhere in the field
+    if (grepl("Bioconductor", repository, ignore.case = TRUE))
+      return(TRUE)
+
+    # otherwise, a 'Repository' that names CRAN, a known CRAN mirror, or one of
+    # the active repositories means the package came from there rather than from
+    # Bioconductor.
+    #
+    # NOTE: this repository-recognition logic parallels the matching done in
+    # renv_snapshot_description_source_custom(); the two are intentionally kept
+    # separate because they disagree on the bare name "CRAN". here we *trust*
+    # 'Repository: CRAN' as proof of CRAN origin, whereas _source_custom()
+    # deliberately *distrusts* a "CRAN" RemoteReposName (older renv versions
+    # mislabelled non-CRAN repositories as 'CRAN'; see #2104). if these ever
+    # need to share an implementation, extract a helper parameterised on whether
+    # the "CRAN" name should be honoured, rather than collapsing them outright.
+    if (identical(repository, "CRAN"))
+      return(FALSE)
+
+    mirrors <- renv_cran_mirrors()
+    if (any(renv_repos_matches(repository, mirrors)))
+      return(FALSE)
+
+    repos <- as.list(getOption("repos"))
+    if (repository %in% names(repos) || any(renv_repos_matches(repository, repos)))
+      return(FALSE)
+
+  }
+
+  # no informative 'Repository'; fall back to Bioconductor git provenance, which
+  # Bioconductor-built tarballs carry pointing at the Bioconductor git server
+  git_url <- dcf[["git_url"]] %||% ""
+  if (grepl("bioconductor", git_url, ignore.case = TRUE))
+    return(TRUE)
+
+  # 'biocViews' present with no contradicting signal; preserve the historical
+  # behaviour of trusting it (e.g. a sources install of a real Bioconductor
+  # package that was never stamped with provenance fields)
+  TRUE
+
+}
+
 renv_bioconductor_versions <- function() {
 
   # map versions of Bioconductor to the versions of R they can be used with
@@ -141,6 +216,40 @@ renv_bioconductor_version <- function(project, refresh = FALSE) {
     }
 
   )
+
+}
+
+# does Bioconductor support the version of R currently running?
+#
+# BiocManager maps each version of R to one or more Bioconductor releases, each
+# with a status ('release', 'devel', 'out-of-date', or 'future'). when R is
+# newer than any usable Bioconductor release -- for example, on R-devel before
+# Bioconductor has caught up -- the only entry for that version of R is a
+# 'future' release, which has no installable packages yet.
+renv_bioconductor_supported <- function() {
+
+  if (!renv_package_available("BiocManager"))
+    return(FALSE)
+
+  # read BiocManager's R-to-Bioconductor version map
+  map <- catch({
+    BiocManager <- renv_scope_biocmanager()
+    BiocManager$.version_map()
+  })
+
+  ok <-
+    !inherits(map, "error") &&
+    is.data.frame(map) &&
+    all(c("R", "BiocStatus") %in% names(map))
+
+  if (!ok)
+    return(FALSE)
+
+  # require an entry for the running version of R whose Bioconductor release has
+  # a usable status (anything other than 'future', which has no packages yet)
+  rversion <- paste(getRversion()[1L, 1L:2L])
+  matches <- as.character(map$R) == rversion & as.character(map$BiocStatus) != "future"
+  any(matches)
 
 }
 

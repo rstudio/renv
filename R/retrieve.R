@@ -1208,7 +1208,7 @@ renv_retrieve_successful <- function(record, path, install = TRUE) {
   if (state$recursive && nrow(strongdeps)) local({
 
     # make sure bioconductor repositories are active before install if necessary
-    if (nzchar(desc[["biocViews"]] %||% "")) {
+    if (renv_bioconductor_enabled() && renv_description_bioconductor(desc)) {
       repos <- renv_bioconductor_repos()
       renv_scope_options(repos = repos)
     }
@@ -1226,7 +1226,7 @@ renv_retrieve_successful <- function(record, path, install = TRUE) {
   if (state$recursive && nrow(weakdeps)) local({
 
     # make sure bioconductor repositories are active before install if necessary
-    if (nzchar(desc[["biocViews"]] %||% "")) {
+    if (renv_bioconductor_enabled() && renv_description_bioconductor(desc)) {
       repos <- renv_bioconductor_repos()
       renv_scope_options(repos = repos)
     }

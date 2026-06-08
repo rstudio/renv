@@ -217,7 +217,7 @@ install <- function(packages = NULL,
 
   # add bioconductor packages if necessary; scope bioconductor repos
   # so they're available for transitive dependency resolution in graph_init
-  if (renv_bioconductor_required(remotes)) {
+  if (renv_bioconductor_enabled(project = project) && renv_bioconductor_required(remotes)) {
     renv_scope_bioconductor(project = project)
     bioc <- c(renv_bioconductor_manager(), "BiocVersion")
     packages <- unique(c(packages, bioc))

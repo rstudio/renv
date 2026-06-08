@@ -1,6 +1,19 @@
 
 # renv (development version)
 
+* renv no longer treats the mere presence of a `biocViews` field in a
+  package's `DESCRIPTION` as proof that the package came from Bioconductor.
+  Some CRAN packages declare `biocViews`, and Posit Package Manager can serve
+  Bioconductor packages from a CRAN-like "R repository"; in both cases renv
+  now uses the `Repository` field (and Bioconductor git provenance) to decide
+  where a package was obtained, so such packages are recorded as repository
+  packages and restored from the repository they came from. (#2128)
+
+* A new project setting, `settings$bioconductor.enabled()`, can be set to
+  `FALSE` to opt a project out of Bioconductor entirely. When disabled, renv
+  will not infer a Bioconductor source, activate Bioconductor repositories, or
+  write a Bioconductor entry into the lockfile. (#2128)
+
 * renv's internal DCF and properties readers now match their (ASCII)
   regular expressions with `useBytes = TRUE`. This avoids forcing PCRE
   into UTF mode, which could fail with "this version of PCRE is compiled

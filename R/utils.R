@@ -632,3 +632,30 @@ exclude <- function(value, exclude) {
   value[match(value, exclude, 0L) == 0L]
 }
 
+# create a minimal but complete R package at 'path', suitable for building and
+# installing (e.g. in tests). additional DESCRIPTION fields may be supplied via
+# '...'. returns the package directory, invisibly.
+#
+# the skeleton is intentionally complete rather than e.g. a lone DESCRIPTION:
+# R CMD build in R-devel (>= r90095, PR#17549) fails to build a package whose
+# source tree contains only top-level files (the build directory is created
+# solely from the package's subdirectories), and R CMD INSTALL requires a
+# NAMESPACE once R code is present.
+renv_package_skeleton <- function(package, path, ...) {
+
+  ensure_directory(path)
+
+  fields <- modifyList(
+    list(Package = package, Type = "Package", Version = "0.1.0"),
+    list(...)
+  )
+  renv_dcf_write(fields, file = file.path(path, "DESCRIPTION"))
+
+  ensure_directory(file.path(path, "R"))
+  writeLines("f <- function() 1", con = file.path(path, "R", "sample.R"))
+  writeLines("export(f)", con = file.path(path, "NAMESPACE"))
+
+  invisible(path)
+
+}
+

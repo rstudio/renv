@@ -369,6 +369,10 @@ renv_snapshot_validate_bioconductor <- function(project, lockfile, libpaths) {
 
   ok <- TRUE
 
+  # nothing to validate when Bioconductor is disabled for this project
+  if (!renv_bioconductor_enabled(project = project))
+    return(ok)
+
   # check whether any packages are installed from Bioconductor
   records <- renv_lockfile_records(lockfile)
   sources <- extract_chr(records, "Source")
@@ -757,7 +761,7 @@ renv_snapshot_description_impl_v1 <- function(dcf, path = NULL) {
   # if this is a standard remote for a bioconductor package,
   # remove the other remote fields
   bioc <-
-    nzchar(dcf[["biocViews"]] %||% "") &&
+    renv_description_bioconductor(dcf) &&
     identical(dcf[["RemoteType"]], "standard")
 
   if (bioc) {
@@ -829,7 +833,7 @@ renv_snapshot_description_impl_v2 <- function(dcf, path) {
   # if this is a standard remote for a bioconductor package,
   # remove the other remote fields
   bioc <-
-    nzchar(dcf[["biocViews"]] %||% "") &&
+    renv_description_bioconductor(dcf) &&
     identical(dcf[["RemoteType"]], "standard")
 
   if (bioc) {
@@ -885,7 +889,7 @@ renv_snapshot_description_source_custom <- function(dcf) {
     return(NULL)
 
   # if this package appears to be installed from Bioconductor, skip
-  if (nzchar(dcf[["biocViews"]] %||% ""))
+  if (renv_description_bioconductor(dcf))
     return(NULL)
 
   # if the declared repository appears to be a CRAN mirror, skip it
@@ -908,6 +912,10 @@ renv_snapshot_description_source_custom <- function(dcf) {
   # other package repositories as 'CRAN'
   #
   # https://github.com/rstudio/renv/issues/2104
+  #
+  # NOTE: renv_description_bioconductor() performs similar repository
+  # recognition but instead *trusts* the 'CRAN' name; keep the two in sync if
+  # this logic changes.
   name <- dcf[["RemoteReposName"]]
   declared <- if (is.null(name) || identical(name, "CRAN"))
     renv_repos_matches(remoterepos, repos)
@@ -936,8 +944,10 @@ renv_snapshot_description_source <- function(dcf) {
   }
 
   # packages from Bioconductor are normally tagged with a 'biocViews' entry;
-  # use that to infer a Bioconductor source
-  if (nzchar(dcf[["biocViews"]] %||% ""))
+  # use that (together with stronger provenance signals) to infer a
+  # Bioconductor source, unless Bioconductor is disabled for this project
+  # https://github.com/rstudio/renv/issues/2128
+  if (renv_bioconductor_enabled() && renv_description_bioconductor(dcf))
     return(list(Source = "Bioconductor"))
 
   # check for a declared repository
