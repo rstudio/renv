@@ -211,6 +211,114 @@ test_that("snapshot prefers RemoteType to biocViews", {
 
 })
 
+test_that("a CRAN package with biocViews is recorded as a Repository package", {
+
+  # some CRAN packages declare 'biocViews'; the CRAN 'Repository' stamp should
+  # take precedence over the biocViews heuristic
+  # https://github.com/rstudio/renv/issues/2128
+  desc <- list(
+    Package = "test",
+    Version = "1.0",
+    biocViews = "Biology",
+    Repository = "CRAN"
+  )
+
+  descfile <- renv_scope_tempfile()
+  renv_dcf_write(desc, file = descfile)
+  record <- renv_snapshot_description(descfile)
+  expect_identical(record$Source, "Repository")
+  expect_identical(record$Repository, "CRAN")
+
+})
+
+test_that("biocViews packages from a CRAN-like repository are not Bioconductor", {
+
+  # Posit Package Manager can serve Bioconductor packages from a CRAN-like
+  # "R repository"; such a package may still carry Bioconductor git provenance,
+  # but should be restored from the repository it was obtained from
+  # https://github.com/rstudio/renv/issues/2128
+  renv_scope_options(repos = c(MYREPO = "https://ppm.example.org/cran/latest"))
+
+  desc <- list(
+    Package    = "test",
+    Version    = "1.0",
+    biocViews  = "Biology",
+    Repository = "MYREPO",
+    git_url    = "https://git.bioconductor.org/packages/test"
+  )
+
+  descfile <- renv_scope_tempfile()
+  renv_dcf_write(desc, file = descfile)
+  record <- renv_snapshot_description(descfile)
+  expect_identical(record$Source, "Repository")
+  expect_identical(record$Repository, "MYREPO")
+
+})
+
+test_that("genuine Bioconductor packages are still recorded as Bioconductor", {
+
+  desc <- list(
+    Package    = "test",
+    Version    = "1.0",
+    biocViews  = "Infrastructure",
+    Repository = "Bioconductor 3.18",
+    git_url    = "https://git.bioconductor.org/packages/test"
+  )
+
+  descfile <- renv_scope_tempfile()
+  renv_dcf_write(desc, file = descfile)
+  record <- renv_snapshot_description(descfile)
+  expect_identical(record$Source, "Bioconductor")
+
+})
+
+test_that("a custom-named PPM Bioconductor repository is still Bioconductor", {
+
+  # Posit Package Manager Bioconductor repositories may use a custom name, but
+  # normally include 'Bioconductor' in the stamped 'Repository' field
+  desc <- list(
+    Package    = "test",
+    Version    = "1.0",
+    biocViews  = "Infrastructure",
+    Repository = "my-mirror Bioconductor 3.18"
+  )
+
+  descfile <- renv_scope_tempfile()
+  renv_dcf_write(desc, file = descfile)
+  record <- renv_snapshot_description(descfile)
+  expect_identical(record$Source, "Bioconductor")
+
+})
+
+test_that("bioconductor.enabled = FALSE disables Bioconductor inference", {
+
+  renv_tests_scope()
+  settings$bioconductor.enabled(FALSE, persist = FALSE)
+
+  # a package that would otherwise be inferred as Bioconductor is instead
+  # recorded against the repository it declares
+  # https://github.com/rstudio/renv/issues/2128
+  desc <- list(
+    Package    = "test",
+    Version    = "1.0",
+    biocViews  = "Infrastructure",
+    Repository = "Bioconductor 3.18",
+    git_url    = "https://git.bioconductor.org/packages/test"
+  )
+
+  descfile <- renv_scope_tempfile()
+  renv_dcf_write(desc, file = descfile)
+  record <- renv_snapshot_description(descfile)
+  expect_identical(record$Source, "Repository")
+
+  # and no Bioconductor entry is written into the lockfile
+  lockfile <- renv_lockfile_init(project = getwd())
+  lockfile$Packages <- list(test = record)
+  bioc <- renv_lockfile_fini_bioconductor(lockfile, project = getwd())
+  expect_null(bioc)
+
+})
+
 test_that("parse errors cause snapshot to abort", {
 
   renv_tests_scope()

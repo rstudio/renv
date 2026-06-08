@@ -89,6 +89,11 @@ renv_lockfile_fini <- function(lockfile, project) {
 
 renv_lockfile_fini_bioconductor <- function(lockfile, project) {
 
+  # nothing to record when Bioconductor is disabled for this project
+  # https://github.com/rstudio/renv/issues/2128
+  if (!renv_bioconductor_enabled(project = project))
+    return(NULL)
+
   # check for explicit version in settings
   version <- settings$bioconductor.version(project = project)
   if (length(version))

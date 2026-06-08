@@ -40,18 +40,17 @@ renv_graph_init <- function(remotes, records = list(), project = NULL, scope = p
   }
 
   # if any resolved description indicates Bioconductor is needed (via Source
-  # or biocViews), activate Bioconductor repos for the rest of resolution
+  # or Bioconductor provenance), activate Bioconductor repos for the rest of
+  # resolution -- unless Bioconductor is disabled for this project
+  project <- renv_restore_state(key = "project") %||% renv_project_resolve()
   resolved <- as.list(envir)
-  bioc <- map_lgl(resolved, function(desc) {
+  bioc <- renv_bioconductor_enabled(project = project) && any(map_lgl(resolved, function(desc) {
     source <- renv_record_source(desc, normalize = TRUE)
-    biocviews <- desc[["biocViews"]] %||% ""
-    identical(source, "bioconductor") || nzchar(biocviews)
-  })
+    identical(source, "bioconductor") || renv_description_bioconductor(desc)
+  }))
 
-  if (any(bioc)) {
-    project <- renv_restore_state(key = "project") %||% renv_project_resolve()
+  if (bioc)
     renv_scope_bioconductor(project = project, scope = scope)
-  }
 
   # phase 2: resolve transitive dependencies with default fields
   idx <- 1L
