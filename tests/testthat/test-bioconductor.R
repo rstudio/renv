@@ -23,6 +23,7 @@ test_that("packages can be installed, restored from Bioconductor", {
   skip_on_os("windows")
   skip_if(getRversion() < "3.5.0")
   skip_if(R.version$nickname == "Unsuffered Consequences")
+  skip_if_no_bioconductor()
 
   renv_tests_scope("Biobase")
   local({
@@ -72,7 +73,7 @@ test_that("install(<bioc>, rebuild = TRUE) works", {
   skip_on_os("windows")
   skip_if(getRversion() < "3.5.0")
   skip_if(R.version$nickname == "Unsuffered Consequences")
-  skip_if_not_installed("BiocManager")
+  skip_if_no_bioconductor()
 
   renv_tests_scope()
   defer(unloadNamespace("BiocManager"))
@@ -122,6 +123,8 @@ test_that("we can restore a lockfile using multiple Bioconductor releases", {
 
 test_that("Bioconductor packages add BiocManager as a dependency", {
 
+  skip_if_no_bioconductor()
+
   renv_tests_scope()
   defer(unloadNamespace("BiocManager"))
 
@@ -148,6 +151,7 @@ test_that("Bioconductor packages add BiocManager as a dependency", {
 
 test_that("remotes which depend on Bioconductor packages can be installed", {
   skip_on_cran()
+  skip_if_no_bioconductor()
 
   renv_tests_scope()
   renv_scope_options(repos = c(CRAN = "https://cloud.r-project.org"))
@@ -181,6 +185,7 @@ test_that("auto-bioc install happens silently", {
 
   # https://github.com/rstudio/renv/actions/runs/5326472190/jobs/9648557761#step:6:295
   skip_if(renv_platform_windows())
+  skip_if_no_bioconductor()
 
   renv_tests_scope()
   renv_tests_scope_system_cache()

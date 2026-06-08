@@ -219,6 +219,40 @@ renv_bioconductor_version <- function(project, refresh = FALSE) {
 
 }
 
+# does Bioconductor support the version of R currently running?
+#
+# BiocManager maps each version of R to one or more Bioconductor releases, each
+# with a status ('release', 'devel', 'out-of-date', or 'future'). when R is
+# newer than any usable Bioconductor release -- for example, on R-devel before
+# Bioconductor has caught up -- the only entry for that version of R is a
+# 'future' release, which has no installable packages yet.
+renv_bioconductor_supported <- function() {
+
+  if (!renv_package_available("BiocManager"))
+    return(FALSE)
+
+  # read BiocManager's R-to-Bioconductor version map
+  map <- catch({
+    BiocManager <- renv_scope_biocmanager()
+    BiocManager$.version_map()
+  })
+
+  ok <-
+    !inherits(map, "error") &&
+    is.data.frame(map) &&
+    all(c("R", "BiocStatus") %in% names(map))
+
+  if (!ok)
+    return(FALSE)
+
+  # require an entry for the running version of R whose Bioconductor release has
+  # a usable status (anything other than 'future', which has no packages yet)
+  rversion <- paste(getRversion()[1L, 1L:2L])
+  matches <- as.character(map$R) == rversion & as.character(map$BiocStatus) != "future"
+  any(matches)
+
+}
+
 # Returns the union of the inferred Bioconductor repositories, together with the
 # current value of the 'repos' R option. The Bioconductor repositories are
 # placed first in the repository list.

@@ -4,6 +4,14 @@ skip_if_no_github_auth <- function() {
   skip_if(empty(token), "GITHUB_PAT is not set")
 }
 
+skip_if_no_bioconductor <- function() {
+  skip_if_not_installed("BiocManager")
+  skip_if_not(
+    renv_bioconductor_supported(),
+    "Bioconductor does not support this version of R"
+  )
+}
+
 skip_if_no_python <- function() {
   has_python <- Sys.which("python3") != "" || Sys.which("python") != ""
   skip_if_not(has_python, "python is not installed")
