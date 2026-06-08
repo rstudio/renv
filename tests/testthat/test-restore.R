@@ -671,3 +671,30 @@ test_that("renv_restore_recover installs latest versions of failed packages", {
   expect_true("bread" %in% names(recovered))
   expect_true(renv_package_installed("bread"))
 })
+
+test_that("renv_restore_recover honors an explicit 'retry' request", {
+  skip_on_cran()
+  renv_tests_scope("bread")
+  init()
+
+  # remove bread to simulate a failed first pass
+  remove.packages("bread", lib = renv_libpaths_active())
+  expect_false(renv_package_installed("bread"))
+
+  # set up restore state as restore() would
+  renv_scope_restore(
+    project  = getwd(),
+    library  = renv_libpaths_active(),
+    records  = list(bread = list(Package = "bread", Version = "1.0.0", Source = "Repository")),
+    packages = "bread"
+  )
+
+  # retry = FALSE should skip recovery, even though ask() would say yes
+  expect_null(renv_restore_recover("bread", getwd(), retry = FALSE))
+  expect_false(renv_package_installed("bread"))
+
+  # retry = TRUE should install the latest version without prompting
+  recovered <- renv_restore_recover("bread", getwd(), retry = TRUE)
+  expect_true("bread" %in% names(recovered))
+  expect_true(renv_package_installed("bread"))
+})

@@ -182,8 +182,8 @@ creating and using lockfiles.
 }
 
 \seealso{
-Other reproducibility: 
-\code{\link{restore}()},
-\code{\link{snapshot}()}
+Other reproducibility:
+\code{\link[=restore]{restore()}},
+\code{\link[=snapshot]{snapshot()}}
 }
 \concept{reproducibility}

@@ -186,8 +186,8 @@ options(renv.config.auto.snapshot = auto.snapshot)
 \seealso{
 More on handling package \code{\link[=dependencies]{dependencies()}}
 
-Other reproducibility: 
+Other reproducibility:
 \code{\link{lockfiles}},
-\code{\link{restore}()}
+\code{\link[=restore]{restore()}}
 }
 \concept{reproducibility}

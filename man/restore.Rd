@@ -16,6 +16,7 @@ restore(
   clean = FALSE,
   strict = FALSE,
   transactional = NULL,
+  retry = NULL,
   prompt = interactive()
 )
 }
@@ -71,6 +72,15 @@ are installed from a specific source (e.g. an internal package repository).}
 \item{transactional}{Whether or not to use a 'transactional' restore.
 See \strong{Transactional Restore} for more details. When \code{NULL} (the default),
 the value of the \code{install.transactional} \code{\link{config}} option will be used.}
+
+\item{retry}{Whether to retry packages that fail to install by attempting to
+install the latest available versions instead. This is helpful when
+restoring after an R upgrade, where the older versions recorded in the
+lockfile may no longer install successfully. When \code{NULL} (the default),
+renv will prompt in interactive sessions and otherwise leave the failures
+unresolved. Use
+\code{retry = TRUE} to retry without prompting (e.g. in CI), or \code{retry = FALSE}
+to disable the retry entirely.}
 
 \item{prompt}{Boolean; prompt the user before taking any action? For backwards
 compatibility, \code{confirm} is accepted as an alias for \code{prompt}.}
@@ -139,8 +149,8 @@ options(renv.config.auto.snapshot = auto.snapshot)
 }
 }
 \seealso{
-Other reproducibility: 
+Other reproducibility:
 \code{\link{lockfiles}},
-\code{\link{snapshot}()}
+\code{\link[=snapshot]{snapshot()}}
 }
 \concept{reproducibility}

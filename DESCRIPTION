@@ -22,10 +22,10 @@ Suggests: BiocManager, cli, compiler, covr, cpp11, curl, devtools, generics,
     remotes, reticulate, rmarkdown, rstudioapi, shiny, testthat, uuid, waldo,
     yaml, webfakes
 Encoding: UTF-8
-RoxygenNote: 7.3.3
 Roxygen: list(markdown = TRUE)
 VignetteBuilder: knitr
 Config/Needs/website: tidyverse/tidytemplate
 Config/testthat/edition: 3
 Config/testthat/parallel: true
 Config/testthat/start-first: bioconductor,python,install,restore,snapshot,retrieve,remotes
+Config/roxygen2/version: 8.0.0
