@@ -671,3 +671,59 @@ test_that("renv_restore_recover installs latest versions of failed packages", {
   expect_true("bread" %in% names(recovered))
   expect_true(renv_package_installed("bread"))
 })
+
+test_that("renv_restore_recover honors an explicit 'retry' request", {
+  skip_on_cran()
+  renv_tests_scope("bread")
+  init()
+
+  # remove bread to simulate a failed first pass
+  remove.packages("bread", lib = renv_libpaths_active())
+  expect_false(renv_package_installed("bread"))
+
+  # set up restore state as restore() would
+  renv_scope_restore(
+    project  = getwd(),
+    library  = renv_libpaths_active(),
+    records  = list(bread = list(Package = "bread", Version = "1.0.0", Source = "Repository")),
+    packages = "bread"
+  )
+
+  # retry = FALSE should skip recovery, even though ask() would say yes
+  expect_null(renv_restore_recover("bread", getwd(), retry = FALSE))
+  expect_false(renv_package_installed("bread"))
+
+  # retry = TRUE should install the latest version without prompting
+  recovered <- renv_restore_recover("bread", getwd(), retry = TRUE)
+  expect_true("bread" %in% names(recovered))
+  expect_true(renv_package_installed("bread"))
+})
+
+test_that("restore(retry = TRUE) recovers failed packages end-to-end", {
+  skip_on_cran()
+  renv_tests_scope("bread")
+  init()
+
+  # record a non-existent version of bread that cannot be installed
+  snapshot()
+  lockfile <- renv_lockfile_load(project = getwd())
+  lockfile$Packages$bread$Version <- "9.9.9"
+  renv_lockfile_save(lockfile, project = getwd())
+
+  # remove bread so restore() must (try to) reinstall it
+  remove.packages("bread", lib = renv_libpaths_active())
+  expect_false(renv_package_installed("bread"))
+
+  # with retry = FALSE, recovery is skipped and restore() fails outright.
+  # this is the discriminating case: under tests ask() returns TRUE, so a
+  # failure here can only happen if 'retry' was threaded through to the
+  # recover step (otherwise the prompt path would recover and succeed)
+  expect_error(restore(retry = FALSE))
+  expect_false(renv_package_installed("bread"))
+
+  # with retry = TRUE, restore should fail to install bread 9.9.9, then
+  # fall back to the latest available version (1.0.0) without prompting
+  restore(retry = TRUE)
+  expect_true(renv_package_installed("bread"))
+  expect_equal(renv_package_version("bread"), "1.0.0")
+})

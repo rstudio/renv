@@ -28,6 +28,7 @@ Useful links:
 
 Authors:
 \itemize{
+  \item Kevin Ushey \email{kevin@rstudio.com} (\href{https://orcid.org/0000-0003-2880-7407}{ORCID})
   \item Hadley Wickham \email{hadley@rstudio.com} (\href{https://orcid.org/0000-0003-4757-117X}{ORCID})
 }
 

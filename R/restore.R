@@ -55,6 +55,15 @@ the$restore_state <- NULL
 #'   repositories. This can be useful when you need to ensure that packages
 #'   are installed from a specific source (e.g. an internal package repository).
 #'
+#' @param retry Whether to retry packages that fail to install by attempting to
+#'   install the latest available versions instead. This is helpful when
+#'   restoring after an R upgrade, where the older versions recorded in the
+#'   lockfile may no longer install successfully. When `NULL` (the default),
+#'   renv will prompt in interactive sessions and otherwise leave the failures
+#'   unresolved. Use
+#'   `retry = TRUE` to retry without prompting (e.g. in CI), or `retry = FALSE`
+#'   to disable the retry entirely.
+#'
 #' @return A named list of package records which were installed by renv.
 #'
 #' @family reproducibility
@@ -73,6 +82,7 @@ restore <- function(project = NULL,
                     clean         = FALSE,
                     strict        = FALSE,
                     transactional = NULL,
+                    retry         = NULL,
                     prompt        = interactive())
 {
   renv_consent_check()
@@ -224,11 +234,11 @@ restore <- function(project = NULL,
   }
 
   # perform the restore
-  records <- renv_restore_run_actions(project, diff, current, lockfile, rebuild, strict, descriptions)
+  records <- renv_restore_run_actions(project, diff, current, lockfile, rebuild, strict, descriptions, retry)
   renv_restore_successful(records, prompt, project)
 }
 
-renv_restore_run_actions <- function(project, actions, current, lockfile, rebuild, strict = FALSE, descriptions = NULL) {
+renv_restore_run_actions <- function(project, actions, current, lockfile, rebuild, strict = FALSE, descriptions = NULL, retry = NULL) {
 
   packages <- names(actions)
 
@@ -262,7 +272,7 @@ renv_restore_run_actions <- function(project, actions, current, lockfile, rebuil
   # check for failed packages; offer to retry with latest versions
   failed <- setdiff(packages, names(records))
   if (length(failed)) {
-    recovered <- renv_restore_recover(failed, project)
+    recovered <- renv_restore_recover(failed, project, retry)
     if (length(recovered)) {
       records <- c(records, recovered)
       failed <- setdiff(packages, names(records))
@@ -296,15 +306,21 @@ renv_restore_run_actions <- function(project, actions, current, lockfile, rebuil
 
 }
 
-renv_restore_recover <- function(failed, project) {
+renv_restore_recover <- function(failed, project, retry = NULL) {
 
-  ok <- ask(
+  # when 'retry' is unset, prompt the user (interactive sessions only);
+  # otherwise, honor the caller's explicit request
+  ok <- retry %||% ask(
     "Would you like to try installing the latest available versions of these packages?",
     default = FALSE
   )
 
   if (!ok)
     return(NULL)
+
+  # when retrying without a prompt, report what we're about to do
+  if (!is.null(retry))
+    writef("Retrying with the latest available versions of: %s", paste(failed, collapse = ", "))
 
   writef("")
 
