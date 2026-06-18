@@ -912,10 +912,6 @@ renv_snapshot_description_source_custom <- function(dcf) {
   # other package repositories as 'CRAN'
   #
   # https://github.com/rstudio/renv/issues/2104
-  #
-  # NOTE: renv_description_bioconductor() performs similar repository
-  # recognition but instead *trusts* the 'CRAN' name; keep the two in sync if
-  # this logic changes.
   name <- dcf[["RemoteReposName"]]
   declared <- if (is.null(name) || identical(name, "CRAN"))
     renv_repos_matches(remoterepos, repos)

@@ -14,70 +14,38 @@ renv_bioconductor_enabled <- function(project = NULL) {
   settings$bioconductor.enabled(project = project)
 }
 
-# determine whether a package's DESCRIPTION genuinely indicates a Bioconductor
-# origin. historically renv treated the mere presence of a 'biocViews' field as
-# proof, but some CRAN packages also declare 'biocViews', and Posit Package
-# Manager can serve Bioconductor packages from a CRAN-like "R repository". what
-# matters for restore is where the package was *obtained* (the 'Repository'
-# field), not where it originally came from (its git provenance).
+# determine whether a package's DESCRIPTION indicates it should be retrieved
+# from Bioconductor -- that is, from the "auxiliary" Bioconductor repositories
+# rather than from the user's regular (CRAN-like) repositories.
+#
+# this is deliberately a question about where the package was *obtained*, not
+# about where it originated. a genuine Bioconductor package can also be served
+# from a CRAN-like repository (e.g. a Posit Package Manager "R repository" that
+# mixes CRAN and Bioconductor packages); when it is, renv should restore it from
+# that repository, so we must answer FALSE. the result drives whether renv
+# activates the Bioconductor repositories during restore.
 # https://github.com/rstudio/renv/issues/2128
 renv_description_bioconductor <- function(dcf) {
 
-  # packages from Bioconductor are normally tagged with a 'biocViews' entry;
-  # without one, this cannot be a Bioconductor package
+  # 'biocViews' is necessary but not sufficient: some CRAN packages declare it
+  # too, so on its own it cannot prove the package came from Bioconductor
   if (!nzchar(dcf[["biocViews"]] %||% ""))
     return(FALSE)
 
-  # the 'Repository' field records where the package was obtained, and so takes
-  # precedence over git provenance. Bioconductor stamps 'Bioconductor <ver>'; a
-  # CRAN-like repository (CRAN, a known mirror, or one of the active repos --
-  # including PPM "R repositories" that serve Bioconductor in a CRAN-like
-  # layout) means the package should be restored from that repository instead.
+  # the 'Repository' field records where the package was obtained. packages
+  # retrieved from a Bioconductor repository are stamped 'Bioconductor
+  # <version>', and Posit Package Manager Bioconductor repositories likewise
+  # include 'Bioconductor' in the stamp (possibly alongside a custom repository
+  # name), so match it anywhere in the field. any other 'Repository' value
+  # (CRAN, RSPM, a custom repo name, ...) means the package should be restored
+  # from there instead.
+  #
+  # note that git provenance ('git_url' pointing at the Bioconductor git server)
+  # is deliberately NOT treated as proof here: it records where the package's
+  # source lives, not where this copy was obtained, so a Bioconductor package
+  # served from a CRAN-like repository carries it too.
   repository <- dcf[["Repository"]] %||% ""
-  if (nzchar(repository)) {
-
-    # Bioconductor stamps the release into the 'Repository' field (e.g.
-    # 'Bioconductor 3.18'); Posit Package Manager Bioconductor repositories
-    # likewise include 'Bioconductor' in the stamp, possibly alongside a custom
-    # repository name, so match it anywhere in the field
-    if (grepl("Bioconductor", repository, ignore.case = TRUE))
-      return(TRUE)
-
-    # otherwise, a 'Repository' that names CRAN, a known CRAN mirror, or one of
-    # the active repositories means the package came from there rather than from
-    # Bioconductor.
-    #
-    # NOTE: this repository-recognition logic parallels the matching done in
-    # renv_snapshot_description_source_custom(); the two are intentionally kept
-    # separate because they disagree on the bare name "CRAN". here we *trust*
-    # 'Repository: CRAN' as proof of CRAN origin, whereas _source_custom()
-    # deliberately *distrusts* a "CRAN" RemoteReposName (older renv versions
-    # mislabelled non-CRAN repositories as 'CRAN'; see #2104). if these ever
-    # need to share an implementation, extract a helper parameterised on whether
-    # the "CRAN" name should be honoured, rather than collapsing them outright.
-    if (identical(repository, "CRAN"))
-      return(FALSE)
-
-    mirrors <- renv_cran_mirrors()
-    if (any(renv_repos_matches(repository, mirrors)))
-      return(FALSE)
-
-    repos <- as.list(getOption("repos"))
-    if (repository %in% names(repos) || any(renv_repos_matches(repository, repos)))
-      return(FALSE)
-
-  }
-
-  # no informative 'Repository'; fall back to Bioconductor git provenance, which
-  # Bioconductor-built tarballs carry pointing at the Bioconductor git server
-  git_url <- dcf[["git_url"]] %||% ""
-  if (grepl("bioconductor", git_url, ignore.case = TRUE))
-    return(TRUE)
-
-  # 'biocViews' present with no contradicting signal; preserve the historical
-  # behaviour of trusting it (e.g. a sources install of a real Bioconductor
-  # package that was never stamped with provenance fields)
-  TRUE
+  grepl("Bioconductor", repository, ignore.case = TRUE)
 
 }
 

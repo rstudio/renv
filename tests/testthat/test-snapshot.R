@@ -255,6 +255,31 @@ test_that("biocViews packages from a CRAN-like repository are not Bioconductor",
 
 })
 
+test_that("a Bioconductor package served from PPM as 'RSPM' is not Bioconductor", {
+
+  # Posit Package Manager stamps 'Repository: RSPM' on packages served from a
+  # CRAN-like "R repository", regardless of that repository's configured name
+  # (here 'CRAN'); the stamp matches neither the repo name nor its URL, so older
+  # renv versions fell back to treating it as Bioconductor. it must instead be
+  # restored from the repository it was obtained from.
+  # https://github.com/rstudio/renv/issues/2128
+  renv_scope_options(repos = c(CRAN = "https://packagemanager.posit.co/cran/latest"))
+
+  desc <- list(
+    Package    = "metaRNASeq",
+    Version    = "1.0.8",
+    biocViews  = "HighThroughputSequencing, RNAseq, DifferentialExpression",
+    Repository = "RSPM"
+  )
+
+  descfile <- renv_scope_tempfile()
+  renv_dcf_write(desc, file = descfile)
+  record <- renv_snapshot_description(descfile)
+  expect_identical(record$Source, "Repository")
+  expect_identical(record$Repository, "RSPM")
+
+})
+
 test_that("genuine Bioconductor packages are still recorded as Bioconductor", {
 
   desc <- list(
