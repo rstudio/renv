@@ -2,6 +2,15 @@
 
 ## renv (development version)
 
+- renv now infers some “implied” dependencies that cannot be discovered
+  via static analysis because they are loaded indirectly at runtime by
+  another package. For example, dplyr lazily loads dbplyr when working
+  with a database backend, so dbplyr is now recorded when a project uses
+  both dplyr and a DBI backend (e.g. RSQLite, RPostgres, duckdb). The
+  rules are configurable via the `renv.dependencies.implied` R option;
+  set it to an empty list to disable this inference entirely.
+  ([\#2308](https://github.com/rstudio/renv/issues/2308))
+
 - [`renv::restore()`](https://rstudio.github.io/renv/dev/reference/restore.md)
   gains a `retry` argument, controlling whether packages that fail to
   install successfully are retried with their latest available versions.
