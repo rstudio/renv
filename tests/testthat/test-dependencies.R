@@ -575,6 +575,57 @@ test_that("dependencies() can infer an svglite dependency from ggsave", {
 
 })
 
+test_that("dependencies() infers dbplyr from dplyr used with a DBI backend", {
+
+  # https://github.com/rstudio/renv/issues/2308
+  document <- heredoc('
+    library(dplyr, warn.conflicts = FALSE)
+    con <- DBI::dbConnect(RSQLite::SQLite(), ":memory:")
+    copy_to(con, mtcars)
+    mtcars2 <- tbl(con, "mtcars")
+  ')
+
+  file <- renv_scope_tempfile("renv-test-", fileext = ".R")
+  writeLines(document, con = file)
+
+  deps <- dependencies(file, quiet = TRUE)
+  expect_contains(deps$Package, "dbplyr")
+
+})
+
+test_that("dependencies() does not infer dbplyr from dplyr alone", {
+
+  document <- heredoc('
+    library(dplyr, warn.conflicts = FALSE)
+    mtcars |> filter(mpg > 20)
+  ')
+
+  file <- renv_scope_tempfile("renv-test-", fileext = ".R")
+  writeLines(document, con = file)
+
+  deps <- dependencies(file, quiet = TRUE)
+  expect_false("dbplyr" %in% deps$Package)
+
+})
+
+test_that("implied dependency inference can be disabled", {
+
+  renv_scope_options(renv.dependencies.implied = list())
+
+  document <- heredoc('
+    library(dplyr, warn.conflicts = FALSE)
+    con <- DBI::dbConnect(RSQLite::SQLite(), ":memory:")
+    mtcars2 <- tbl(con, "mtcars")
+  ')
+
+  file <- renv_scope_tempfile("renv-test-", fileext = ".R")
+  writeLines(document, con = file)
+
+  deps <- dependencies(file, quiet = TRUE)
+  expect_false("dbplyr" %in% deps$Package)
+
+})
+
 test_that("dependencies() can handle calls", {
 
   document <- heredoc('

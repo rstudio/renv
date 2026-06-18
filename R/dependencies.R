@@ -36,6 +36,14 @@
 #' function requires the `stringr` package, but `stringr` is only suggested,
 #' not required, by `tidyr`.
 #'
+#' For a small number of common cases, renv infers these indirect dependencies
+#' from the combination of packages in use. For example, a project that uses
+#' `dplyr` together with a database backend (such as `DBI` and `RSQLite`) is
+#' assumed to also require `dbplyr`, which `dplyr` loads at runtime when working
+#' with databases. These rules are defined by the `renv.dependencies.implied`
+#' \R option; set it to an empty list (`options(renv.dependencies.implied =
+#' list())`) to disable this inference entirely.
+#'
 #' If you find that renv's dependency discovery misses one or more packages
 #' that you actually use in your project, one escape hatch is to include a file
 #' called `_dependencies.R` that includes straightforward library calls:
@@ -255,6 +263,9 @@ renv_dependencies_impl <- function(
 
   renv_condition_signal("renv.dependencies.elapsed_time", elapsed)
   renv_dependencies_report(errors)
+
+  # augment with packages that are only required indirectly
+  deps <- renv_dependencies_infer_implied(deps)
 
   if (empty(deps) || nrow(deps) == 0L) {
     result <- renv_dependencies_list_empty()
@@ -1909,6 +1920,66 @@ renv_dependencies_database <- function() {
     db$testthat$JunitReporter <- "xml2"
     db
   }
+}
+
+# rules describing packages that are required only indirectly, and so cannot
+# be discovered by static analysis of user code. each entry maps an implied
+# package to the set of packages whose joint presence implies it: every
+# package in 'all' must be used, plus at least one of the packages in 'any'
+# (when 'any' is non-empty).
+#
+# for example, dplyr loads dbplyr at runtime when used together with a
+# database backend, but neither dplyr nor the user's code ever references
+# dbplyr explicitly.
+renv_dependencies_implied <- function() {
+  getOption("renv.dependencies.implied", default = list(
+    dbplyr = list(
+      all = "dplyr",
+      any = c(
+        "DBI", "RSQLite", "RPostgres", "RPostgreSQL", "RMariaDB",
+        "RMySQL", "odbc", "bigrquery", "duckdb", "RJDBC"
+      )
+    )
+  ))
+}
+
+# given the set of dependencies discovered via static analysis, augment it
+# with any packages that are implied by the combination of packages in use.
+# see renv_dependencies_implied() for the rule format.
+renv_dependencies_infer_implied <- function(deps) {
+
+  if (empty(deps) || nrow(deps) == 0L)
+    return(deps)
+
+  rules <- renv_dependencies_implied()
+  packages <- unique(deps$Package)
+
+  implied <- character()
+  for (package in names(rules)) {
+
+    rule <- rules[[package]]
+
+    # skip packages we've already discovered (or just inferred)
+    if (package %in% c(packages, implied))
+      next
+
+    # require every 'all' package, plus at least one 'any' package
+    if (!all(rule$all %in% packages))
+      next
+
+    if (length(rule$any) && !any(rule$any %in% packages))
+      next
+
+    implied[[length(implied) + 1L]] <- package
+
+  }
+
+  if (empty(implied))
+    return(deps)
+
+  extra <- renv_dependencies_list(source = NA_character_, packages = implied)
+  bind(list(deps, extra))
+
 }
 
 renv_dependencies_list <- function(source,
