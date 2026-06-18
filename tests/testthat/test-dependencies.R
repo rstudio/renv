@@ -660,6 +660,24 @@ test_that("dependencies() does not detect ragg without ragg_ device", {
 
 })
 
+test_that("dependencies() detects ragg in a vector of formats", {
+
+  # YAML header with multi-device vector
+  file <- renv_scope_tempfile("renv-test-", fileext = ".Rmd")
+  document <- heredoc('
+    ---
+    knitr:
+      opts_chunk:
+        dev: [png, ragg_png]
+    ---
+  ')
+  writeLines(document, con = file)
+
+  deps <- dependencies(file, quiet = TRUE)
+  expect_contains(deps$Package, "ragg")
+
+})
+
 test_that("dependencies() does not create 'object' in parent environment", {
   result <- dependencies("resources/code.R", quiet = TRUE)
   expect_false(exists("object", envir = environment(), inherits = FALSE))

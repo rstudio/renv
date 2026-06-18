@@ -823,8 +823,9 @@ renv_dependencies_discover_rmd_yaml_header <- function(path, mode) {
     opts_chunk <- knitr[["opts_chunk"]]
     if (is.list(opts_chunk)) {
       dev <- opts_chunk[["dev"]]
-      if (is.character(dev) && any(grepl("^ragg_", dev)))
-        deps$push("ragg")
+      for (d in dev)
+        if (is.character(d) && grepl("^ragg_", d))
+          deps$push("ragg")
     }
   }
 
