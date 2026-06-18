@@ -67,8 +67,9 @@
       Consider updating the required dependencies as appropriate.
       
     Condition
-      Error in `renv_snapshot_validate_report()`:
+      Error:
       ! aborting snapshot due to pre-flight validation failure
+      - unsatisfied dependencies: bread
 
 # renv reports missing packages in explicit snapshots
 
@@ -128,8 +129,9 @@
       Consider reinstalling these packages before snapshotting the lockfile.
       
     Condition
-      Error in `renv_snapshot_validate_report()`:
+      Error:
       ! aborting snapshot due to pre-flight validation failure
+      - required package(s) not installed: toast
 
 # snapshot always reports on R version changes
 

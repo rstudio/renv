@@ -1,6 +1,12 @@
 
 # renv (development version)
 
+* When `renv::snapshot()` aborts due to a pre-flight validation failure, the
+  error now includes a summary of the problems that were detected (for example,
+  the missing packages or unsatisfied dependencies). Previously these details
+  were only printed to the console, so they could be lost when that output was
+  not visible (such as when stdout is captured).
+
 * `renv::restore()` gains a `retry` argument, controlling whether packages
   that fail to install successfully are retried with their latest available
   versions. This recovery was previously only offered via an interactive

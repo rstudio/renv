@@ -8,6 +8,7 @@
       Consider reinstalling these packages before snapshotting the lockfile.
       
     Condition
-      Error in `renv_snapshot_validate_report()`:
+      Error:
       ! aborting snapshot due to pre-flight validation failure
+      - required package(s) not installed: oatmeal
 

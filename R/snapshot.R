@@ -197,8 +197,8 @@ snapshot <- function(project  = NULL,
   # check for missing dependencies and warn if any are discovered
   # (note: use 'new' rather than 'alt' here as we don't want to attempt
   # validation on uninstalled packages)
-  valid <- renv_snapshot_validate(project, new, libpaths)
-  renv_snapshot_validate_report(valid, prompt, force)
+  problems <- renv_snapshot_validate(project, new, libpaths)
+  renv_snapshot_validate_report(problems, prompt, force)
 
   # get prior lockfile state; be robust against invalid lockfiles
   old <- tryCatch(
@@ -307,12 +307,18 @@ renv_snapshot_preflight_library_exists <- function(project, library) {
 
 }
 
+# run the pre-flight validation checks, returning a character vector of
+# problems discovered (empty when everything validates). each check also emits
+# a detailed report to the console for interactive use; the returned messages
+# are concise summaries that are carried into the error raised on failure, so
+# that the reason survives even when that console output isn't visible (e.g.
+# when stdout is captured, as in testthat).
 renv_snapshot_validate <- function(project, lockfile, libpaths) {
 
   # allow user to disable snapshot validation, just in case
   enabled <- config$snapshot.validate()
   if (!enabled)
-    return(TRUE)
+    return(character())
 
   methods <- list(
     renv_snapshot_validate_bioconductor,
@@ -321,21 +327,19 @@ renv_snapshot_validate <- function(project, lockfile, libpaths) {
     renv_snapshot_validate_sources
   )
 
-  ok <- map_lgl(methods, function(method) {
+  uapply(methods, function(method) {
     tryCatch(
       method(project, lockfile, libpaths),
-      error = function(e) { warning(e); FALSE }
+      error = function(e) { warning(e); conditionMessage(e) }
     )
   })
 
-  all(ok)
-
 }
 
-renv_snapshot_validate_report <- function(valid, prompt, force) {
+renv_snapshot_validate_report <- function(problems, prompt, force) {
 
   # nothing to do if everything is valid
-  if (valid) {
+  if (empty(problems)) {
     dlog("snapshot", "passed pre-flight validation checks")
     return(TRUE)
   }
@@ -359,25 +363,30 @@ renv_snapshot_validate_report <- function(valid, prompt, force) {
     return(TRUE)
   }
 
-  # otherwise, bail on error (need to use 'force = TRUE')
-  stop("aborting snapshot due to pre-flight validation failure")
+  # otherwise, bail on error (need to use 'force = TRUE'). carry the discovered
+  # problems in the error body so the reason is visible even when the detailed
+  # console output above isn't (e.g. when stdout is captured, as in testthat)
+  abort(
+    "aborting snapshot due to pre-flight validation failure",
+    body = paste("-", problems)
+  )
 
 }
 
 # nocov start
 renv_snapshot_validate_bioconductor <- function(project, lockfile, libpaths) {
 
-  ok <- TRUE
+  problems <- character()
 
   # nothing to validate when Bioconductor is disabled for this project
   if (!renv_bioconductor_enabled(project = project))
-    return(ok)
+    return(problems)
 
   # check whether any packages are installed from Bioconductor
   records <- renv_lockfile_records(lockfile)
   sources <- extract_chr(records, "Source")
   if (!"Bioconductor" %in% sources)
-    return(ok)
+    return(problems)
 
   # check for BiocManager or BiocInstaller
   package <- renv_bioconductor_manager()
@@ -392,7 +401,7 @@ renv_snapshot_validate_bioconductor <- function(project, lockfile, libpaths) {
     )
     caution(text, package)
 
-    ok <- FALSE
+    problems <- c(problems, sprintf("the %s package is required, but not available", package))
   }
 
   # check that Bioconductor packages are from correct release
@@ -443,10 +452,11 @@ renv_snapshot_validate_bioconductor <- function(project, lockfile, libpaths) {
       )
     )
 
-    ok <- FALSE
+    fmt <- "the following package(s) appear to be from a different Bioconductor release: %s"
+    problems <- c(problems, sprintf(fmt, paste(bad$Package, collapse = ", ")))
   }
 
-  ok
+  problems
 
 }
 # nocov end
@@ -459,7 +469,7 @@ renv_snapshot_validate_dependencies_available <- function(project, lockfile, lib
   locs <- find.package(packages, lib.loc = libpaths, quiet = TRUE)
   deps <- bapply(locs, renv_dependencies_discover_description)
   if (empty(deps))
-    return(TRUE)
+    return(character())
 
   splat <- split(deps, deps$Package)
 
@@ -470,12 +480,12 @@ renv_snapshot_validate_dependencies_available <- function(project, lockfile, lib
   requested <- names(splat)
   missing <- renv_vector_diff(requested, packages)
   if (empty(missing))
-    return(TRUE)
+    return(character())
 
   # exclude ignored packages
   missing <- renv_vector_diff(missing, settings$ignored.packages(project = project))
   if (empty(missing))
-    return(TRUE)
+    return(character())
 
   usedby <- map_chr(missing, function(package) {
 
@@ -498,7 +508,7 @@ renv_snapshot_validate_dependencies_available <- function(project, lockfile, lib
     "Consider reinstalling these packages before snapshotting the lockfile."
   )
 
-  FALSE
+  sprintf("required package(s) not installed: %s", paste(missing, collapse = ", "))
 
 }
 
@@ -510,7 +520,7 @@ renv_snapshot_validate_dependencies_compatible <- function(project, lockfile, li
   locs <- find.package(packages, lib.loc = libpaths, quiet = TRUE)
   deps <- bapply(locs, renv_dependencies_discover_description)
   if (empty(deps))
-    return(TRUE)
+    return(character())
 
   splat <- split(deps, deps$Package)
 
@@ -548,7 +558,7 @@ renv_snapshot_validate_dependencies_compatible <- function(project, lockfile, li
 
   bad <- bind(bad)
   if (empty(bad))
-    return(TRUE)
+    return(character())
 
   package  <- basename(bad$Source)
   requires <- sprintf("%s (%s %s)", bad$Package, bad$Require, bad$Version)
@@ -562,13 +572,15 @@ renv_snapshot_validate_dependencies_compatible <- function(project, lockfile, li
     "Consider updating the required dependencies as appropriate."
   )
 
-  FALSE
+  sprintf("unsatisfied dependencies: %s", paste(unique(bad$Package), collapse = ", "))
 
 }
 
 renv_snapshot_validate_sources <- function(project, lockfile, libpaths) {
   records <- renv_lockfile_records(lockfile)
-  renv_check_unknown_source(records, project)
+  if (renv_check_unknown_source(records, project))
+    return(character())
+  "one or more packages were installed from an unknown source"
 }
 
 # NOTE: if packages are found in multiple libraries,
