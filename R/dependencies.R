@@ -816,6 +816,18 @@ renv_dependencies_discover_rmd_yaml_header <- function(path, mode) {
   if (!inherits(theme, "error") && is.list(theme))
     deps$push("bslib")
 
+  # check for knitr opts_chunk dev in the YAML header
+  # e.g. knitr: opts_chunk: dev: "ragg_png" => ragg dependency
+  knitr <- yaml[["knitr"]]
+  if (is.list(knitr)) {
+    opts_chunk <- knitr[["opts_chunk"]]
+    if (is.list(opts_chunk)) {
+      dev <- opts_chunk[["dev"]]
+      if (is.character(dev) && nzchar(dev) && grepl("^ragg_", dev))
+        deps$push("ragg")
+    }
+  }
+
   # check for parameterized documents
   status <- catch(renv_dependencies_discover_rmd_yaml_header_params(yaml, deps))
   if (inherits(status, "error"))
@@ -1693,7 +1705,8 @@ renv_dependencies_discover_r_knitr <- function(node, envir) {
     return(FALSE)
 
   args <- as.list(node)
-  if (identical(args[["dev"]], "ragg_png")) {
+  dev <- args[["dev"]]
+  if (is.character(dev) && nzchar(dev) && grepl("^ragg_", dev)) {
     envir[["ragg"]] <- TRUE
     return(TRUE)
   }
