@@ -22,8 +22,16 @@ renv_bioconductor_enabled <- function(project = NULL) {
 # about where it originated. a genuine Bioconductor package can also be served
 # from a CRAN-like repository (e.g. a Posit Package Manager "R repository" that
 # mixes CRAN and Bioconductor packages); when it is, renv should restore it from
-# that repository, so we must answer FALSE. the result drives whether renv
-# activates the Bioconductor repositories during restore.
+# that repository, so we must answer FALSE.
+#
+# the result governs both directions of the same decision:
+#   - on snapshot/restore, whether the package's Source is "Bioconductor"
+#   - on install, whether to activate the Bioconductor repositories before
+#     resolving its dependencies (see renv_retrieve_*, renv_graph_*)
+# both want the same answer because both turn on the same fact: was this copy
+# obtained from Bioconductor? if not, the repository it came from supplies its
+# Bioconductor dependencies too, so the Bioconductor repositories must stay out
+# of the way.
 # https://github.com/rstudio/renv/issues/2128
 renv_description_bioconductor <- function(dcf) {
 
@@ -43,7 +51,10 @@ renv_description_bioconductor <- function(dcf) {
   # note that git provenance ('git_url' pointing at the Bioconductor git server)
   # is deliberately NOT treated as proof here: it records where the package's
   # source lives, not where this copy was obtained, so a Bioconductor package
-  # served from a CRAN-like repository carries it too.
+  # served from a CRAN-like repository carries it too. for example, 'a4' served
+  # from Posit Package Manager carries 'biocViews' and a Bioconductor 'git_url'
+  # yet is stamped 'Repository: RSPM' -- it must be restored from RSPM, not from
+  # Bioconductor, so only the 'Repository' stamp is decisive.
   repository <- dcf[["Repository"]] %||% ""
   grepl("Bioconductor", repository, ignore.case = TRUE)
 
