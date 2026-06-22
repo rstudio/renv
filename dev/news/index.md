@@ -2,6 +2,17 @@
 
 ## renv (development version)
 
+- Fixed a regression introduced in renv 1.2.0 where installing a package
+  from the cellar (via
+  [`install()`](https://rstudio.github.io/renv/dev/reference/install.md)
+  or [`use()`](https://rstudio.github.io/renv/dev/reference/embed.md))
+  failed to install that package’s dependencies. The graph-based
+  installer resolved cellar packages from metadata that omitted their
+  `Depends` / `Imports` / `LinkingTo` fields; renv now reads the
+  package’s `DESCRIPTION` from the cellar archive so that its
+  dependencies are discovered and installed.
+  ([\#2313](https://github.com/rstudio/renv/issues/2313))
+
 - renv now infers some “implied” dependencies that cannot be discovered
   via static analysis because they are loaded indirectly at runtime by
   another package. For example, dplyr lazily loads dbplyr when working
