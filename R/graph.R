@@ -303,14 +303,7 @@ renv_graph_description_cellar <- function(record) {
 
   # the url points to the cellar directory; convert the file URI to a
   # local path and form the path to the package archive
-  dir <- case(
-    startsWith(url, "file:///") ~ substring(url, 8L),
-    startsWith(url, "file://")  ~ substring(url, 6L),
-    startsWith(url, "file:")    ~ substring(url, 6L),
-    TRUE                        ~ url
-  )
-
-  path <- file.path(dir, name)
+  path <- file.path(renv_url_local_path(url), name)
   if (!file.exists(path))
     return(record)
 
