@@ -1168,7 +1168,7 @@ renv_download_local <- function(url, destfile, headers) {
 
 }
 
-renv_download_local_copy <- function(url, destfile, headers) {
+renv_url_local_path <- function(url) {
 
   # remove file prefix (to get path to local / server file)
   url <- case(
@@ -1184,6 +1184,15 @@ renv_download_local_copy <- function(url, destfile, headers) {
     if (badpath)
       url <- substring(url, 2L)
   }
+
+  url
+
+}
+
+renv_download_local_copy <- function(url, destfile, headers) {
+
+  # convert the file URI to a local path
+  url <- renv_url_local_path(url)
 
   # attempt to copy
   ensure_parent_directory(destfile)
