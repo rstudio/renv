@@ -1,6 +1,13 @@
 
 # renv (development version)
 
+* When the graph resolver cannot determine the dependencies for a pinned
+  package version (because the version is absent from the configured
+  repositories and crandb is unreachable or has no record of it), it falls back
+  to the latest version's dependencies. renv now warns when this happens, since
+  those dependencies may differ from the pinned version's and could lead to an
+  incorrect install order. (#2315)
+
 * Fixed a regression introduced in renv 1.2.0 where installing a package from
   the cellar (via `install()` or `use()`) failed to install that package's
   dependencies. The graph-based installer resolved cellar packages from
