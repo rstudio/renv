@@ -196,9 +196,13 @@ test_that("ensure_directory() works even under contention", {
 
   file.create(waitfile)
 
+  # allow more time on CI, where spawning + loading renv in the child
+  # processes can take longer than it does locally
+  timeout <- if (ci()) 10 else 3
+
   responses <- stack()
   for (i in 1:n) local({
-    conn <- renv_socket_accept(server$socket, open = "rb", timeout = 3)
+    conn <- renv_socket_accept(server$socket, open = "rb", timeout = timeout)
     defer(close(conn))
     responses$push(unserialize(conn))
   })
