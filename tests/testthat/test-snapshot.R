@@ -318,6 +318,27 @@ test_that("genuine Bioconductor packages are still recorded as Bioconductor", {
 
 })
 
+test_that("a bioconductor.org binary with no Repository stamp is Bioconductor", {
+
+  # bioconductor.org binaries arrive with no 'Repository' field at all; their
+  # only Bioconductor signal is git provenance (a 'git_url' on the Bioconductor
+  # git server). that must still be recognized.
+  # https://github.com/rstudio/renv/issues/2128
+  desc <- list(
+    Package    = "BiocGenerics",
+    Version    = "0.40.0",
+    biocViews  = "Infrastructure",
+    git_url    = "https://git.bioconductor.org/packages/BiocGenerics",
+    git_branch = "RELEASE_3_14"
+  )
+
+  descfile <- renv_scope_tempfile()
+  renv_dcf_write(desc, file = descfile)
+  record <- renv_snapshot_description(descfile)
+  expect_identical(record$Source, "Bioconductor")
+
+})
+
 test_that("a Bioconductor binary served via r-universe is still Bioconductor", {
 
   # Bioconductor now ships Windows/macOS binaries through r-universe; those

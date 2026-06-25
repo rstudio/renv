@@ -40,34 +40,43 @@ renv_description_bioconductor <- function(dcf) {
   if (!nzchar(dcf[["biocViews"]] %||% ""))
     return(FALSE)
 
-  # the 'Repository' field records where the package was obtained. the
-  # definitive stamp is 'Bioconductor <version>': bioconductor.org uses it, and
-  # Posit Package Manager Bioconductor repositories include 'Bioconductor' in
-  # the stamp too (possibly alongside a custom repository name). any other
-  # 'Repository' value (CRAN, RSPM, a custom repo name, ...) means the package
-  # should be restored from there instead.
+  # the 'Repository' field records where the package was obtained, and when
+  # present it is decisive. the definitive Bioconductor stamp is 'Bioconductor
+  # <version>': bioconductor.org uses it, and Posit Package Manager Bioconductor
+  # repositories include 'Bioconductor' in the stamp too (possibly alongside a
+  # custom repository name).
   repository <- dcf[["Repository"]] %||% ""
   if (grepl("Bioconductor", repository, ignore.case = TRUE))
     return(TRUE)
 
   # Bioconductor also ships binaries via r-universe, where the 'Repository'
   # stamp is a 'https://bioc-*.r-universe.dev' URL that carries no
-  # 'Bioconductor' in it. accept that specific shape as a fallback -- but
-  # nothing broader: a bare 'bioc' could appear in an unrelated repository name,
-  # and a non-Bioconductor r-universe is not Bioconductor, so both signals are
+  # 'Bioconductor' in it. accept that specific shape -- but nothing broader: a
+  # bare 'bioc' could appear in an unrelated repository name, and a
+  # non-Bioconductor r-universe is not Bioconductor, so both signals are
   # required.
   if (grepl("bioc", repository, ignore.case = TRUE) &&
       grepl("r-universe[.]dev", repository, ignore.case = TRUE))
     return(TRUE)
 
-  # note that git provenance ('git_url' pointing at the Bioconductor git server)
-  # is deliberately NOT treated as proof here: it records where the package's
-  # source lives, not where this copy was obtained, so a Bioconductor package
-  # served from a CRAN-like repository carries it too. for example, 'a4' served
-  # from Posit Package Manager carries 'biocViews' and a Bioconductor 'git_url'
-  # yet is stamped 'Repository: RSPM' -- it must be restored from RSPM, not from
-  # Bioconductor, so only the 'Repository' stamp is decisive.
-  FALSE
+  # any other non-empty 'Repository' value (CRAN, RSPM, a custom repo name, a
+  # non-Bioconductor r-universe, ...) means the package was obtained from there,
+  # so it is not Bioconductor and should be restored from that repository. this
+  # is what separates a genuine Bioconductor install from a Bioconductor package
+  # re-served by a CRAN-like repository: Posit Package Manager stamps
+  # 'Repository: RSPM' on the latter even though it still carries Bioconductor
+  # git provenance.
+  # https://github.com/rstudio/renv/issues/2128
+  if (nzchar(repository))
+    return(FALSE)
+
+  # no 'Repository' stamp at all: this is how bioconductor.org binaries arrive
+  # (they record only Bioconductor git provenance, e.g. a 'git_url' pointing at
+  # the Bioconductor git server), so fall back to that. this fallback is only
+  # reached when 'Repository' is absent, so it cannot misclassify an RSPM-served
+  # package -- that carries a 'Repository' stamp and was rejected above.
+  git_url <- dcf[["git_url"]] %||% ""
+  grepl("bioconductor", git_url, ignore.case = TRUE)
 
 }
 

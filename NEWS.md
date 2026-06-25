@@ -51,7 +51,9 @@
   such packages are recorded as repository packages and restored from the
   repository they came from. Genuine Bioconductor packages are still recognized
   by their `Repository` stamp, including binaries served via r-universe
-  (stamped with a `https://bioc-*.r-universe.dev` URL). (#2128)
+  (stamped with a `https://bioc-*.r-universe.dev` URL); and when a package has
+  no `Repository` stamp at all (as for bioconductor.org binaries), renv falls
+  back to its Bioconductor git provenance. (#2128)
 
 * A new project setting, `settings$bioconductor.enabled()`, can be set to
   `FALSE` to opt a project out of Bioconductor entirely. When disabled, renv
