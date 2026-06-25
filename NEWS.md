@@ -7,6 +7,13 @@
   were only printed to the console, so they could be lost when that output was
   not visible (such as when stdout is captured).
 
+* The new `lockfile()` function provides a generic entry point for creating an
+  renv lockfile from a variety of sources. For example,
+  `lockfile(from = "manifest.json")` converts a Posit Connect `manifest.json`
+  file into a lockfile. Supply `to` to also write the result to disk, as in
+  `lockfile(from = "manifest.json", to = "renv.lock")`. The set of supported
+  sources may be expanded in future releases. (#2245)
+
 * When the graph resolver cannot determine the dependencies for a pinned
   package version (because the version is absent from the configured
   repositories and crandb is unreachable or has no record of it), it falls back
