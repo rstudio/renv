@@ -49,6 +49,41 @@ test_that("we can create lockfiles from manifests", {
 
 })
 
+test_that("lockfile(from = ) converts a manifest into a lockfile", {
+
+  skip_on_cran()
+
+  path <- renv_tests_path("resources/manifest.json")
+
+  # accepts a path to a manifest.json file
+  lock <- lockfile(from = path)
+  expect_s3_class(lock, "renv_lockfile")
+  expect_equal(lock$R$Version, "4.2.1")
+
+  # accepts an already-read manifest as a list
+  manifest <- renv_json_read(path)
+  expect_identical(lockfile(from = manifest), lock)
+
+})
+
+test_that("lockfile(to = ) writes the lockfile to disk", {
+
+  skip_on_cran()
+
+  path <- renv_tests_path("resources/manifest.json")
+  target <- renv_scope_tempfile("renv-lockfile-", fileext = ".lock")
+
+  result <- lockfile(from = path, to = target)
+
+  expect_true(file.exists(target))
+  expect_identical(renv_lockfile_read(target), result)
+
+})
+
+test_that("lockfile() errors on an unrecognized source", {
+  expect_error(lockfile(from = list(foo = "bar")))
+})
+
 test_that("we create lockfile from a manifest automatically when no lockfile found", {
 
   skip_on_cran()

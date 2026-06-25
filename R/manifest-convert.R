@@ -1,30 +1,15 @@
 
-#' Generate `renv.lock` from an Posit Connect `manifest.json`
-#'
-#' @description
-#' Use `renv_lockfile_from_manifest()` to convert a `manifest.json` file from
-#' an Posit Connect content bundle into an `renv.lock` lockfile.
-#'
-#' This function can be useful when you need to recreate the package environment
-#' of a piece of content that is deployed to Posit Connect. The content bundle
-#' contains a `manifest.json` file that is used to recreate the package
-#' environment. This function will let you convert that manifest file to an
-#' `renv.lock` file. Run `renv::restore()` after you've converted the file to
-#' restore the package environment.
-#'
-#' @param manifest
-#'   The path to a `manifest.json` file.
-#'
-#' @param lockfile
-#'   The path to the lockfile to be generated and / or updated.
-#'   When `NA` (the default), the generated lockfile is returned as an \R
-#'   object; otherwise, the lockfile will be written to the path specified by
-#'   `lockfile`.
-#'
-#' @return
-#' An renv lockfile.
-#'
-#' @keywords internal
+# Is 'data' (a parsed JSON object) a Posit Connect manifest? Connect manifests
+# carry lowercase 'metadata' and 'packages' fields, which lets us distinguish
+# them from an renv lockfile (which uses capitalized 'R', 'Packages', etc.).
+renv_manifest_is <- function(data) {
+  is.list(data) &&
+    is.list(data[["metadata"]]) &&
+    is.list(data[["packages"]])
+}
+
+# Convert a Posit Connect 'manifest.json' (either a path, or an already-read
+# manifest as an R list) into an renv lockfile. Driven by `lockfile()`.
 renv_lockfile_from_manifest <- function(manifest = "manifest.json",
                                         lockfile = NA,
                                         project = NULL)

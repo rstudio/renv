@@ -46,6 +46,7 @@ reference:
 - title: Lockfile Management
   contents:
   - lockfiles
+  - lockfile
   - lockfile_validate
   - record
   - remote
