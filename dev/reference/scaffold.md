@@ -17,7 +17,7 @@ Create the renv project infrastructure. This will:
   `R CMD build` to ignore the renv infrastructure,
 
 - Write a (bare)
-  [lockfile](https://rstudio.github.io/renv/dev/reference/lockfile-api.md),
+  [lockfile](https://rstudio.github.io/renv/dev/reference/lockfile.md),
   `renv.lock`.
 
 ## Usage

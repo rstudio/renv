@@ -35,7 +35,7 @@ are enumerated below:
 | `RENV_PATHS_LIBRARY_ROOT` | The parent path for project libraries. |
 | `RENV_PATHS_LIBRARY_STAGING` | The parent path used for staged package installs. |
 | `RENV_PATHS_SANDBOX` | The path to the sandboxed R system library. |
-| `RENV_PATHS_LOCKFILE` | The path to the [lockfile](https://rstudio.github.io/renv/dev/reference/lockfile-api.md). |
+| `RENV_PATHS_LOCKFILE` | The path to the [lockfile](https://rstudio.github.io/renv/dev/reference/lockfile.md). |
 | `RENV_PATHS_CELLAR` | The path to the cellar, containing local package binaries and sources. |
 | `RENV_PATHS_SOURCE` | The path containing downloaded package sources. |
 | `RENV_PATHS_BINARY` | The path containing downloaded package binaries. |

@@ -1,7 +1,7 @@
 # Record current state of the project library in the lockfile
 
 Call `renv::snapshot()` to update a
-[lockfile](https://rstudio.github.io/renv/dev/reference/lockfile-api.md)
+[lockfile](https://rstudio.github.io/renv/dev/reference/lockfile.md)
 with the current state of dependencies in the project library. The
 lockfile can be used to later
 [restore](https://rstudio.github.io/renv/dev/reference/restore.md) these

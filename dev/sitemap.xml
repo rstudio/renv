@@ -34,7 +34,7 @@
 <url><loc>https://rstudio.github.io/renv/dev/reference/install.html</loc></url>
 <url><loc>https://rstudio.github.io/renv/dev/reference/isolate.html</loc></url>
 <url><loc>https://rstudio.github.io/renv/dev/reference/load.html</loc></url>
-<url><loc>https://rstudio.github.io/renv/dev/reference/lockfile-api.html</loc></url>
+<url><loc>https://rstudio.github.io/renv/dev/reference/lockfile.html</loc></url>
 <url><loc>https://rstudio.github.io/renv/dev/reference/lockfile_validate.html</loc></url>
 <url><loc>https://rstudio.github.io/renv/dev/reference/lockfiles.html</loc></url>
 <url><loc>https://rstudio.github.io/renv/dev/reference/migrate.html</loc></url>
@@ -50,7 +50,6 @@
 <url><loc>https://rstudio.github.io/renv/dev/reference/remote.html</loc></url>
 <url><loc>https://rstudio.github.io/renv/dev/reference/remove.html</loc></url>
 <url><loc>https://rstudio.github.io/renv/dev/reference/renv-package.html</loc></url>
-<url><loc>https://rstudio.github.io/renv/dev/reference/renv_lockfile_from_manifest.html</loc></url>
 <url><loc>https://rstudio.github.io/renv/dev/reference/repair.html</loc></url>
 <url><loc>https://rstudio.github.io/renv/dev/reference/restore.html</loc></url>
 <url><loc>https://rstudio.github.io/renv/dev/reference/retrieve.html</loc></url>

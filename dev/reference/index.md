@@ -64,6 +64,8 @@ bulk of day-to-day renv usage.
   [`lockfile_write()`](https://rstudio.github.io/renv/dev/reference/lockfiles.md)
   [`lockfile_modify()`](https://rstudio.github.io/renv/dev/reference/lockfiles.md)
   : Lockfiles
+- [`lockfile()`](https://rstudio.github.io/renv/dev/reference/lockfile.md)
+  : Create a lockfile
 - [`lockfile_validate()`](https://rstudio.github.io/renv/dev/reference/lockfile_validate.md)
   : Validate an renv lockfile against a schema
 - [`record()`](https://rstudio.github.io/renv/dev/reference/record.md) :
