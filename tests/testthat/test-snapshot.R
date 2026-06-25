@@ -318,6 +318,27 @@ test_that("genuine Bioconductor packages are still recorded as Bioconductor", {
 
 })
 
+test_that("a Bioconductor binary served via r-universe is still Bioconductor", {
+
+  # Bioconductor now ships Windows/macOS binaries through r-universe; those
+  # carry 'biocViews' but stamp 'Repository' with the r-universe URL rather than
+  # 'Bioconductor <version>'. the 'bioc' in that URL must still mark the package
+  # as Bioconductor.
+  # https://github.com/rstudio/renv/issues/2128
+  desc <- list(
+    Package    = "BiocGenerics",
+    Version    = "0.58.1",
+    biocViews  = "Infrastructure",
+    Repository = "https://bioc-release.r-universe.dev"
+  )
+
+  descfile <- renv_scope_tempfile()
+  renv_dcf_write(desc, file = descfile)
+  record <- renv_snapshot_description(descfile)
+  expect_identical(record$Source, "Bioconductor")
+
+})
+
 test_that("a custom-named PPM Bioconductor repository is still Bioconductor", {
 
   # Posit Package Manager Bioconductor repositories may use a custom name, but

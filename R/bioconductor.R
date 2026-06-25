@@ -40,14 +40,26 @@ renv_description_bioconductor <- function(dcf) {
   if (!nzchar(dcf[["biocViews"]] %||% ""))
     return(FALSE)
 
-  # the 'Repository' field records where the package was obtained. packages
-  # retrieved from a Bioconductor repository are stamped 'Bioconductor
-  # <version>', and Posit Package Manager Bioconductor repositories likewise
-  # include 'Bioconductor' in the stamp (possibly alongside a custom repository
-  # name), so match it anywhere in the field. any other 'Repository' value
-  # (CRAN, RSPM, a custom repo name, ...) means the package should be restored
-  # from there instead.
-  #
+  # the 'Repository' field records where the package was obtained. the
+  # definitive stamp is 'Bioconductor <version>': bioconductor.org uses it, and
+  # Posit Package Manager Bioconductor repositories include 'Bioconductor' in
+  # the stamp too (possibly alongside a custom repository name). any other
+  # 'Repository' value (CRAN, RSPM, a custom repo name, ...) means the package
+  # should be restored from there instead.
+  repository <- dcf[["Repository"]] %||% ""
+  if (grepl("Bioconductor", repository, ignore.case = TRUE))
+    return(TRUE)
+
+  # Bioconductor also ships binaries via r-universe, where the 'Repository'
+  # stamp is a 'https://bioc-*.r-universe.dev' URL that carries no
+  # 'Bioconductor' in it. accept that specific shape as a fallback -- but
+  # nothing broader: a bare 'bioc' could appear in an unrelated repository name,
+  # and a non-Bioconductor r-universe is not Bioconductor, so both signals are
+  # required.
+  if (grepl("bioc", repository, ignore.case = TRUE) &&
+      grepl("r-universe[.]dev", repository, ignore.case = TRUE))
+    return(TRUE)
+
   # note that git provenance ('git_url' pointing at the Bioconductor git server)
   # is deliberately NOT treated as proof here: it records where the package's
   # source lives, not where this copy was obtained, so a Bioconductor package
@@ -55,8 +67,7 @@ renv_description_bioconductor <- function(dcf) {
   # from Posit Package Manager carries 'biocViews' and a Bioconductor 'git_url'
   # yet is stamped 'Repository: RSPM' -- it must be restored from RSPM, not from
   # Bioconductor, so only the 'Repository' stamp is decisive.
-  repository <- dcf[["Repository"]] %||% ""
-  grepl("Bioconductor", repository, ignore.case = TRUE)
+  FALSE
 
 }
 

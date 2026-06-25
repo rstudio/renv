@@ -42,7 +42,9 @@
   Bioconductor packages from a CRAN-like "R repository"; in both cases renv
   now uses the `Repository` field to decide where a package was obtained, so
   such packages are recorded as repository packages and restored from the
-  repository they came from. (#2128)
+  repository they came from. Genuine Bioconductor packages are still recognized
+  by their `Repository` stamp, including binaries served via r-universe
+  (stamped with a `https://bioc-*.r-universe.dev` URL). (#2128)
 
 * A new project setting, `settings$bioconductor.enabled()`, can be set to
   `FALSE` to opt a project out of Bioconductor entirely. When disabled, renv
