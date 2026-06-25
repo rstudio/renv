@@ -195,6 +195,27 @@ test_that("snapshot records packages discovered in cellar", {
 
 })
 
+test_that("source validation names the unknown-source packages", {
+
+  lockfile <- list(
+    Packages = list(
+      alpha = list(Package = "alpha", Version = "1.0", Source = "unknown"),
+      beta  = list(Package = "beta",  Version = "2.0", Source = "Repository", Repository = "CRAN"),
+      gamma = list(Package = "gamma", Version = "3.0", Source = "unknown")
+    )
+  )
+
+  problem <- renv_snapshot_validate_sources(NULL, lockfile, NULL)
+  expect_match(problem, "alpha")
+  expect_match(problem, "gamma")
+  expect_no_match(problem, "beta")
+
+  # an all-known lockfile reports no problem
+  ok <- list(Packages = list(beta = lockfile$Packages$beta))
+  expect_identical(renv_snapshot_validate_sources(NULL, ok, NULL), character())
+
+})
+
 test_that("snapshot prefers RemoteType to biocViews", {
 
   desc <- list(
