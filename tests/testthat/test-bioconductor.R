@@ -135,6 +135,12 @@ test_that("Bioconductor packages add BiocManager as a dependency", {
     install("bioc::BiocGenerics")
   })
 
+  # debugging: dump the installed DESCRIPTION so CI surfaces the exact fields
+  # renv sees for this binary (in particular, whether 'Repository' is present,
+  # and what 'RemoteType' / 'RemoteRef' get stamped)
+  descpath <- file.path(find.package("BiocGenerics"), "DESCRIPTION")
+  writeLines(c("==== BiocGenerics DESCRIPTION ====", readLines(descpath), "===="))
+
   snapshot()
   writeLines("library(BiocGenerics)", "dependencies.R")
 
