@@ -95,7 +95,8 @@ set <code>config$config$auto.snapshot(TRUE)</code> – see <code><a href="config
 <span>  prompt <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/interactive.html" class="external-link">interactive</a></span><span class="op">(</span><span class="op">)</span>,</span>
 <span>  update <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  force <span class="op">=</span> <span class="cn">FALSE</span>,</span>
-<span>  reprex <span class="op">=</span> <span class="cn">FALSE</span></span>
+<span>  reprex <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  description <span class="op">=</span> <span class="cn">NULL</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
 
@@ -184,11 +185,20 @@ validation checks have failed?</p></dd>
 <dd><p>Boolean; generate output appropriate for embedding the lockfile
 as part of a <a href="https://tidyverse.org/help/#reprex" class="external-link">reprex</a>?</p></dd>
 
+
+<dt id="arg-description">description<a class="anchor" aria-label="anchor" href="#arg-description"></a></dt>
+<dd><p>A package DESCRIPTION, provided either as a named list
+of DESCRIPTION fields, or a path to a package directory or DESCRIPTION
+file. When set, all other arguments are ignored, and a single lockfile
+record for that package is returned.</p></dd>
+
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
     <p>The generated lockfile, as an <span style="R">R</span> object (invisibly). Note that
 this function is normally called for its side effects.</p>
+<p>When <code>description</code> is provided, a single lockfile record (a named list)
+is returned instead.</p>
     </div>
     <div class="section level2">
     <h2 id="snapshot-types">Snapshot types<a class="anchor" aria-label="anchor" href="#snapshot-types"></a></h2>
