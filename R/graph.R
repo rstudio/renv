@@ -264,13 +264,15 @@ renv_graph_description_repository <- function(record) {
       return(as.list(crandb))
   }
 
-  # last-resort fallback when crandb is unreachable: use the latest entry's
-  # full fields with the requested version substituted. this may return stale
-  # dependency constraints if they changed between versions, but is better
-  # than failing outright.
+  # last-resort fallback when crandb is unreachable or lacks the version: use
+  # the latest entry's full fields with the requested version substituted. this
+  # may report stale dependency constraints if they changed between versions,
+  # so warn that the resolved dependencies may be inaccurate.
   if (!is.null(version) && !inherits(latest, "error")) {
     full <- catch(renv_available_packages_entry(package, type = type))
     if (!inherits(full, "error")) {
+      fmt <- "could not resolve dependencies for %s %s; using dependencies from the latest version (%s) instead"
+      warningf(fmt, package, version, full$Version)
       desc <- as.list(full)
       desc$Version <- version
       return(desc)
