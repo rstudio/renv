@@ -77,68 +77,94 @@ renv_lockfile_api <- function(lockfile = NULL) {
 
 }
 
-#' Programmatically Create and Modify a Lockfile
+#' Create a lockfile
 #'
-#' **NOTE: `lockfile()` is now internal, please use the \link{lockfiles} 
-#' API.**
-#' 
-#' This function provides an API for creating and modifying `renv` lockfiles.
-#' This can be useful when you'd like to programmatically generate or modify
-#' a lockfile -- for example, because you want to update or change a package
-#' record in an existing lockfile.
+#' Create an `renv` lockfile from a variety of sources.
+#'
+#' `lockfile()` provides a generic entry point for producing an `renv`
+#' lockfile. The kind of lockfile produced depends on the value supplied as
+#' `from`; for example, given the path to a Posit Connect `manifest.json`
+#' file, `lockfile()` will convert that manifest into a lockfile.
+#'
+#' By default the lockfile is returned as an \R object. Supply `to` to also
+#' write it to disk, after which [restore()] can be used to restore the
+#' associated project library.
 #'
 #' @inheritParams renv-params
 #'
-#' @param file The path to an existing lockfile. When no lockfile is provided,
-#'   a new one will be created based on the current project context. If you
-#'   want to create a blank lockfile, use `file = NA` instead.
+#' @param from
+#'   The source from which the lockfile should be created. This can be:
+#'
+#'   - `NULL` (the default), in which case the lockfile is created from the
+#'     state of the active project's library;
+#'
+#'   - The path to a Posit Connect `manifest.json` file, or a manifest that
+#'     has already been read in as an \R list, in which case the manifest is
+#'     converted into a lockfile.
+#'
+#'   The set of supported sources may be expanded in future releases of
+#'   `renv`.
+#'
+#' @param to
+#'   The path to a lockfile to be written. When `NULL` (the default), the
+#'   lockfile is returned as an \R object and not written to disk; otherwise,
+#'   the lockfile is written to `to` and returned invisibly.
+#'
+#' @return
+#'   An `renv` lockfile, as an \R object of class `renv_lockfile`. When `to`
+#'   is supplied, the lockfile is returned invisibly.
 #'
 #' @seealso \code{\link{lockfiles}}, for a description of the structure of an
 #'   `renv` lockfile.
+#'
+#' @export
 #'
 #' @examples
 #'
 #' \dontrun{
 #'
-#' lock <- lockfile("renv.lock")
+#' # create a lockfile from a Posit Connect 'manifest.json' file
+#' lock <- lockfile(from = "manifest.json")
 #'
-#' # set the repositories for a lockfile
-#' lock$repos(CRAN = "https://cran.r-project.org")
-#'
-#' # depend on digest 0.6.22
-#' lock$add(digest = "digest@@0.6.22")
-#'
-#' # write to file
-#' lock$write("renv.lock")
+#' # convert a 'manifest.json' file and write 'renv.lock' in a single call
+#' lockfile(from = "manifest.json", to = "renv.lock")
 #'
 #' }
-#'
-#' @keywords internal
-#' @rdname lockfile-api
-#' @name lockfile-api
-#'
-lockfile <- function(file = NULL, project = NULL) {
-  project <- renv_project_resolve(project)
+lockfile <- function(from = NULL, to = NULL, project = NULL) {
   renv_scope_error_handler()
+  project <- renv_project_resolve(project)
 
-  lock <- if (is.null(file)) {
+  lock <- renv_lockfile_from(from, project = project)
 
-    renv_lockfile_create(
+  if (is.null(to))
+    return(lock)
+
+  renv_lockfile_write(lock, file = to)
+  invisible(lock)
+}
+
+renv_lockfile_from <- function(from = NULL, project = NULL) {
+
+  # with no explicit source, build a lockfile from the current project library
+  if (is.null(from)) {
+    return(renv_lockfile_create(
       project  = project,
       libpaths = renv_libpaths_all(),
       type     = settings$snapshot.type(project = project)
-    )
-
-  } else if (is.na(file)) {
-
-    renv_lockfile_init(project)
-
-  } else {
-
-    renv_lockfile_read(file = file)
-
+    ))
   }
 
-  renv_lockfile_api(lock)
+  # read file paths into an R object; accept an already-read list as-is
+  data <- case(
+    is.character(from) ~ renv_json_read(from),
+    is.list(from)      ~ from,
+    TRUE               ~ renv_type_unexpected(from)
+  )
+
+  # detect the kind of source we were given, and convert appropriately
+  if (renv_manifest_is(data))
+    return(renv_lockfile_from_manifest(data, project = project))
+
+  stopf("don't know how to create a lockfile from an object of class '%s'", class(data)[[1L]])
 
 }
