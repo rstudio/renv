@@ -1,6 +1,12 @@
 
 # renv (development version)
 
+* When `renv::snapshot()` aborts due to a pre-flight validation failure, the
+  error now includes a summary of the problems that were detected (for example,
+  the missing packages or unsatisfied dependencies). Previously these details
+  were only printed to the console, so they could be lost when that output was
+  not visible (such as when stdout is captured).
+
 * The new `lockfile()` function provides a generic entry point for creating an
   renv lockfile from a variety of sources. For example,
   `lockfile(from = "manifest.json")` converts a Posit Connect `manifest.json`
@@ -41,9 +47,13 @@
   package's `DESCRIPTION` as proof that the package came from Bioconductor.
   Some CRAN packages declare `biocViews`, and Posit Package Manager can serve
   Bioconductor packages from a CRAN-like "R repository"; in both cases renv
-  now uses the `Repository` field (and Bioconductor git provenance) to decide
-  where a package was obtained, so such packages are recorded as repository
-  packages and restored from the repository they came from. (#2128)
+  now uses the `Repository` field to decide where a package was obtained, so
+  such packages are recorded as repository packages and restored from the
+  repository they came from. Genuine Bioconductor packages are still recognized
+  by their `Repository` stamp, including binaries served via r-universe
+  (stamped with a `https://bioc-*.r-universe.dev` URL); and when a package has
+  no `Repository` stamp at all (as for bioconductor.org binaries, or very old
+  or source-installed packages), renv trusts the `biocViews` field. (#2128)
 
 * A new project setting, `settings$bioconductor.enabled()`, can be set to
   `FALSE` to opt a project out of Bioconductor entirely. When disabled, renv

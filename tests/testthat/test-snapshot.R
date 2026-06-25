@@ -195,6 +195,27 @@ test_that("snapshot records packages discovered in cellar", {
 
 })
 
+test_that("source validation names the unknown-source packages", {
+
+  lockfile <- list(
+    Packages = list(
+      alpha = list(Package = "alpha", Version = "1.0", Source = "unknown"),
+      beta  = list(Package = "beta",  Version = "2.0", Source = "Repository", Repository = "CRAN"),
+      gamma = list(Package = "gamma", Version = "3.0", Source = "unknown")
+    )
+  )
+
+  problem <- renv_snapshot_validate_sources(NULL, lockfile, NULL)
+  expect_match(problem, "alpha")
+  expect_match(problem, "gamma")
+  expect_no_match(problem, "beta")
+
+  # an all-known lockfile reports no problem
+  ok <- list(Packages = list(beta = lockfile$Packages$beta))
+  expect_identical(renv_snapshot_validate_sources(NULL, ok, NULL), character())
+
+})
+
 test_that("snapshot prefers RemoteType to biocViews", {
 
   desc <- list(
@@ -255,6 +276,31 @@ test_that("biocViews packages from a CRAN-like repository are not Bioconductor",
 
 })
 
+test_that("a Bioconductor package served from PPM as 'RSPM' is not Bioconductor", {
+
+  # Posit Package Manager stamps 'Repository: RSPM' on packages served from a
+  # CRAN-like "R repository", regardless of that repository's configured name
+  # (here 'CRAN'); the stamp matches neither the repo name nor its URL, so older
+  # renv versions fell back to treating it as Bioconductor. it must instead be
+  # restored from the repository it was obtained from.
+  # https://github.com/rstudio/renv/issues/2128
+  renv_scope_options(repos = c(CRAN = "https://packagemanager.posit.co/cran/latest"))
+
+  desc <- list(
+    Package    = "metaRNASeq",
+    Version    = "1.0.8",
+    biocViews  = "HighThroughputSequencing, RNAseq, DifferentialExpression",
+    Repository = "RSPM"
+  )
+
+  descfile <- renv_scope_tempfile()
+  renv_dcf_write(desc, file = descfile)
+  record <- renv_snapshot_description(descfile)
+  expect_identical(record$Source, "Repository")
+  expect_identical(record$Repository, "RSPM")
+
+})
+
 test_that("genuine Bioconductor packages are still recorded as Bioconductor", {
 
   desc <- list(
@@ -263,6 +309,67 @@ test_that("genuine Bioconductor packages are still recorded as Bioconductor", {
     biocViews  = "Infrastructure",
     Repository = "Bioconductor 3.18",
     git_url    = "https://git.bioconductor.org/packages/test"
+  )
+
+  descfile <- renv_scope_tempfile()
+  renv_dcf_write(desc, file = descfile)
+  record <- renv_snapshot_description(descfile)
+  expect_identical(record$Source, "Bioconductor")
+
+})
+
+test_that("a bioconductor.org binary with no Repository stamp is Bioconductor", {
+
+  # bioconductor.org binaries arrive with no 'Repository' field at all; their
+  # only Bioconductor signal is git provenance (a 'git_url' on the Bioconductor
+  # git server). that must still be recognized.
+  # https://github.com/rstudio/renv/issues/2128
+  desc <- list(
+    Package    = "BiocGenerics",
+    Version    = "0.40.0",
+    biocViews  = "Infrastructure",
+    git_url    = "https://git.bioconductor.org/packages/BiocGenerics",
+    git_branch = "RELEASE_3_14"
+  )
+
+  descfile <- renv_scope_tempfile()
+  renv_dcf_write(desc, file = descfile)
+  record <- renv_snapshot_description(descfile)
+  expect_identical(record$Source, "Bioconductor")
+
+})
+
+test_that("a biocViews package with no Repository or provenance is Bioconductor", {
+
+  # very old or source-installed Bioconductor packages may carry neither a
+  # 'Repository' stamp nor any git provenance; with no signal of where the copy
+  # was obtained, renv trusts 'biocViews'.
+  # https://github.com/rstudio/renv/issues/2128
+  desc <- list(
+    Package   = "BiocGenerics",
+    Version   = "0.6.0",
+    biocViews = "Infrastructure"
+  )
+
+  descfile <- renv_scope_tempfile()
+  renv_dcf_write(desc, file = descfile)
+  record <- renv_snapshot_description(descfile)
+  expect_identical(record$Source, "Bioconductor")
+
+})
+
+test_that("a Bioconductor binary served via r-universe is still Bioconductor", {
+
+  # Bioconductor now ships Windows/macOS binaries through r-universe; those
+  # carry 'biocViews' but stamp 'Repository' with the r-universe URL rather than
+  # 'Bioconductor <version>'. the 'bioc' in that URL must still mark the package
+  # as Bioconductor.
+  # https://github.com/rstudio/renv/issues/2128
+  desc <- list(
+    Package    = "BiocGenerics",
+    Version    = "0.58.1",
+    biocViews  = "Infrastructure",
+    Repository = "https://bioc-release.r-universe.dev"
   )
 
   descfile <- renv_scope_tempfile()
