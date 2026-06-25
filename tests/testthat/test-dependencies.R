@@ -575,6 +575,57 @@ test_that("dependencies() can infer an svglite dependency from ggsave", {
 
 })
 
+test_that("dependencies() infers dbplyr from dplyr used with a DBI backend", {
+
+  # https://github.com/rstudio/renv/issues/2308
+  document <- heredoc('
+    library(dplyr, warn.conflicts = FALSE)
+    con <- DBI::dbConnect(RSQLite::SQLite(), ":memory:")
+    copy_to(con, mtcars)
+    mtcars2 <- tbl(con, "mtcars")
+  ')
+
+  file <- renv_scope_tempfile("renv-test-", fileext = ".R")
+  writeLines(document, con = file)
+
+  deps <- dependencies(file, quiet = TRUE)
+  expect_contains(deps$Package, "dbplyr")
+
+})
+
+test_that("dependencies() does not infer dbplyr from dplyr alone", {
+
+  document <- heredoc('
+    library(dplyr, warn.conflicts = FALSE)
+    mtcars |> filter(mpg > 20)
+  ')
+
+  file <- renv_scope_tempfile("renv-test-", fileext = ".R")
+  writeLines(document, con = file)
+
+  deps <- dependencies(file, quiet = TRUE)
+  expect_false("dbplyr" %in% deps$Package)
+
+})
+
+test_that("implied dependency inference can be disabled", {
+
+  renv_scope_options(renv.dependencies.implied = list())
+
+  document <- heredoc('
+    library(dplyr, warn.conflicts = FALSE)
+    con <- DBI::dbConnect(RSQLite::SQLite(), ":memory:")
+    mtcars2 <- tbl(con, "mtcars")
+  ')
+
+  file <- renv_scope_tempfile("renv-test-", fileext = ".R")
+  writeLines(document, con = file)
+
+  deps <- dependencies(file, quiet = TRUE)
+  expect_false("dbplyr" %in% deps$Package)
+
+})
+
 test_that("dependencies() can handle calls", {
 
   document <- heredoc('
@@ -608,9 +659,10 @@ test_that("dependencies() detects usages of Junit test reporters", {
 
 })
 
-test_that("dependencies() detects usage of ragg_png device", {
+test_that("dependencies() detects usage of ragg device via opts_chunk", {
 
-  check <- function(document) {
+  # check R code with opts_chunk$set
+  check_r <- function(document) {
 
     file <- renv_scope_tempfile("renv-test-", fileext = ".R")
     writeLines(document, con = file)
@@ -619,8 +671,61 @@ test_that("dependencies() detects usage of ragg_png device", {
     expect_contains(deps$Package, "ragg")
   }
 
-  check("opts_chunk$set(dev = \"ragg_png\")")
-  check("knitr::opts_chunk$set(dev = \"ragg_png\")")
+  check_r("opts_chunk$set(dev = \"ragg_png\")")
+  check_r("knitr::opts_chunk$set(dev = \"ragg_png\")")
+  check_r("opts_chunk$set(dev = \"ragg_pdf\")")
+
+})
+
+test_that("dependencies() detects ragg from knitr opts_chunk in YAML header", {
+
+  file <- renv_scope_tempfile("renv-test-", fileext = ".Rmd")
+  document <- heredoc('
+    ---
+    knitr:
+      opts_chunk:
+        dev: "ragg_png"
+    ---
+  ')
+  writeLines(document, con = file)
+
+  deps <- dependencies(file, quiet = TRUE)
+  expect_contains(deps$Package, "ragg")
+
+})
+
+test_that("dependencies() does not detect ragg without ragg_ device", {
+
+  file <- renv_scope_tempfile("renv-test-", fileext = ".Rmd")
+  document <- heredoc('
+    ---
+    knitr:
+      opts_chunk:
+        dev: "png"
+    ---
+  ')
+  writeLines(document, con = file)
+
+  deps <- dependencies(file, quiet = TRUE)
+  expect_false("ragg" %in% deps$Package)
+
+})
+
+test_that("dependencies() detects ragg in a vector of formats", {
+
+  # YAML header with multi-device vector
+  file <- renv_scope_tempfile("renv-test-", fileext = ".Rmd")
+  document <- heredoc('
+    ---
+    knitr:
+      opts_chunk:
+        dev: [png, ragg_png]
+    ---
+  ')
+  writeLines(document, con = file)
+
+  deps <- dependencies(file, quiet = TRUE)
+  expect_contains(deps$Package, "ragg")
 
 })
 

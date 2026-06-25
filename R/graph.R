@@ -243,11 +243,15 @@ renv_graph_description_repository <- function(record) {
   # try cellar via renv_available_packages_latest (includes cellar = TRUE);
   # cellar packages won't be found by renv_available_packages_entry.
   # NOTE: renv_available_packages_latest only returns limited fields
-  # (Package, Version, etc.) — no Depends/Imports/LinkingTo
+  # (Package, Version, etc.) -- no Depends/Imports/LinkingTo, so cellar
+  # records are supplemented from the archive DESCRIPTION below (#2313)
   latest <- catch(renv_available_packages_latest(package, type = type))
   if (!inherits(latest, "error")) {
-    if (is.null(version) || identical(latest$Version, version))
+    if (is.null(version) || identical(latest$Version, version)) {
+      if (identical(renv_record_source(latest, normalize = TRUE), "cellar"))
+        latest <- renv_graph_description_cellar(latest)
       return(as.list(latest))
+    }
   }
 
   # the requested version wasn't found in configured repos; try crandb for the
@@ -260,13 +264,15 @@ renv_graph_description_repository <- function(record) {
       return(as.list(crandb))
   }
 
-  # last-resort fallback when crandb is unreachable: use the latest entry's
-  # full fields with the requested version substituted. this may return stale
-  # dependency constraints if they changed between versions, but is better
-  # than failing outright.
+  # last-resort fallback when crandb is unreachable or lacks the version: use
+  # the latest entry's full fields with the requested version substituted. this
+  # may report stale dependency constraints if they changed between versions,
+  # so warn that the resolved dependencies may be inaccurate.
   if (!is.null(version) && !inherits(latest, "error")) {
     full <- catch(renv_available_packages_entry(package, type = type))
     if (!inherits(full, "error")) {
+      fmt <- "could not resolve dependencies for %s %s; using dependencies from the latest version (%s) instead"
+      warningf(fmt, package, version, full$Version)
       desc <- as.list(full)
       desc$Version <- version
       return(desc)
@@ -280,6 +286,41 @@ renv_graph_description_repository <- function(record) {
 
   # all lookups failed; signal an error so the caller can warn
   stopf("package '%s' is not available", package)
+
+}
+
+renv_graph_description_cellar <- function(record) {
+
+  # cellar metadata from available_packages only carries Package / Version,
+  # so locate the package archive in the cellar and read its DESCRIPTION to
+  # recover the dependency fields (Depends, Imports, LinkingTo) required for
+  # graph resolution. without this, packages installed from the cellar have
+  # their dependencies silently dropped (#2313)
+  url <- attr(record, "url", exact = TRUE)
+  if (is.null(url))
+    return(record)
+
+  type <- attr(record, "type", exact = TRUE) %||% "source"
+  name <- renv_retrieve_repos_archive_name(as.list(record), type)
+
+  # the url points to the cellar directory; convert the file URI to a
+  # local path and form the path to the package archive
+  path <- file.path(renv_url_local_path(url), name)
+  if (!file.exists(path))
+    return(record)
+
+  desc <- catch(renv_description_read(path))
+  if (inherits(desc, "error"))
+    return(record)
+
+  # merge dependency (and any other) fields from the DESCRIPTION into the
+  # resolved record, keeping the record's Source and cellar tags so the
+  # package continues to be installed from the cellar
+  for (field in names(desc))
+    if (is.null(record[[field]]))
+      record[[field]] <- desc[[field]]
+
+  record
 
 }
 

@@ -7,6 +7,28 @@
   were only printed to the console, so they could be lost when that output was
   not visible (such as when stdout is captured).
 
+* When the graph resolver cannot determine the dependencies for a pinned
+  package version (because the version is absent from the configured
+  repositories and crandb is unreachable or has no record of it), it falls back
+  to the latest version's dependencies. renv now warns when this happens, since
+  those dependencies may differ from the pinned version's and could lead to an
+  incorrect install order. (#2315)
+
+* Fixed a regression introduced in renv 1.2.0 where installing a package from
+  the cellar (via `install()` or `use()`) failed to install that package's
+  dependencies. The graph-based installer resolved cellar packages from
+  metadata that omitted their `Depends` / `Imports` / `LinkingTo` fields; renv
+  now reads the package's `DESCRIPTION` from the cellar archive so that its
+  dependencies are discovered and installed. (#2313)
+
+* renv now infers some "implied" dependencies that cannot be discovered via
+  static analysis because they are loaded indirectly at runtime by another
+  package. For example, dplyr lazily loads dbplyr when working with a database
+  backend, so dbplyr is now recorded when a project uses both dplyr and a DBI
+  backend (e.g. RSQLite, RPostgres, duckdb). The rules are configurable via the
+  `renv.dependencies.implied` R option; set it to an empty list to disable this
+  inference entirely. (#2308)
+
 * `renv::restore()` gains a `retry` argument, controlling whether packages
   that fail to install successfully are retried with their latest available
   versions. This recovery was previously only offered via an interactive
