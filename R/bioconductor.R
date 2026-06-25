@@ -70,13 +70,19 @@ renv_description_bioconductor <- function(dcf) {
   if (nzchar(repository))
     return(FALSE)
 
-  # no 'Repository' stamp at all: this is how bioconductor.org binaries arrive
-  # (they record only Bioconductor git provenance, e.g. a 'git_url' pointing at
-  # the Bioconductor git server), so fall back to that. this fallback is only
-  # reached when 'Repository' is absent, so it cannot misclassify an RSPM-served
-  # package -- that carries a 'Repository' stamp and was rejected above.
-  git_url <- dcf[["git_url"]] %||% ""
-  grepl("bioconductor", git_url, ignore.case = TRUE)
+  # no 'Repository' stamp at all: nothing records where this copy was obtained,
+  # so trust 'biocViews'. this is how bioconductor.org binaries arrive (they
+  # carry only Bioconductor git provenance, e.g. a 'git_url' on the Bioconductor
+  # git server), and it also covers very old or source-installed Bioconductor
+  # packages that were never stamped with any provenance fields at all. this is
+  # renv's long-standing behaviour, and it is only reached when 'Repository' is
+  # absent, so it cannot misclassify an RSPM-served package -- that carries a
+  # 'Repository' stamp and was rejected above. (a non-Bioconductor package that
+  # declares 'biocViews' and is installed with no 'Repository' stamp -- e.g. via
+  # 'R CMD INSTALL' of a source tarball -- would be treated as Bioconductor
+  # here, but such installs are rare; the common ones, GitHub and local, declare
+  # a 'RemoteType' and are classified before this function is consulted.)
+  TRUE
 
 }
 

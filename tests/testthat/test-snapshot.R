@@ -339,6 +339,25 @@ test_that("a bioconductor.org binary with no Repository stamp is Bioconductor", 
 
 })
 
+test_that("a biocViews package with no Repository or provenance is Bioconductor", {
+
+  # very old or source-installed Bioconductor packages may carry neither a
+  # 'Repository' stamp nor any git provenance; with no signal of where the copy
+  # was obtained, renv trusts 'biocViews'.
+  # https://github.com/rstudio/renv/issues/2128
+  desc <- list(
+    Package   = "BiocGenerics",
+    Version   = "0.6.0",
+    biocViews = "Infrastructure"
+  )
+
+  descfile <- renv_scope_tempfile()
+  renv_dcf_write(desc, file = descfile)
+  record <- renv_snapshot_description(descfile)
+  expect_identical(record$Source, "Bioconductor")
+
+})
+
 test_that("a Bioconductor binary served via r-universe is still Bioconductor", {
 
   # Bioconductor now ships Windows/macOS binaries through r-universe; those
