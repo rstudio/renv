@@ -304,12 +304,12 @@ install <- function(packages = NULL,
     reasons <- vapply(failed, function(pkg) {
       attr(descriptions[[pkg]], "resolution_error") %||% ""
     }, character(1L))
-    labels <- ifelse(
+    lines <- ifelse(
       nzchar(reasons),
-      sprintf("%s (%s)", dQuote(failed), reasons),
-      dQuote(failed)
+      sprintf("- %s: %s", failed, reasons),
+      sprintf("- %s", failed)
     )
-    stopf("failed to install %s", paste(labels, collapse = ", "))
+    stop(paste(c("package installation failed", lines), collapse = "\n"))
   }
 
   # check loaded packages and inform user if out-of-sync

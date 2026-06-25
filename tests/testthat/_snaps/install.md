@@ -82,8 +82,9 @@
       You may need to manually download and install these packages.
       
     Condition
-      Error:
-      ! failed to install "missing" (package 'missing' is not available)
+      Error in `install()`:
+      ! package installation failed
+      - missing: package 'missing' is not available
 
 # install from local sources shows progress
 
