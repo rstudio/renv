@@ -1,16 +1,19 @@
 
-renv_check_unknown_source <- function(records, project = NULL) {
+# return the subset of 'records' whose package source is unknown -- that is,
+# packages renv would be unable to restore. a record installed from the cellar
+# is considered known even when its Source is "unknown".
+renv_records_unknown_source <- function(records, project = NULL) {
 
   # nothing to do if we have no records
   if (empty(records))
-    return(TRUE)
+    return(records)
 
   # for testing, we ignore renv
   if (renv_tests_running())
     records$renv <- NULL
 
   # keep only records which have unknown source
-  unknown <- filter(records, function(record) {
+  filter(records, function(record) {
 
     source <- renv_record_source(record)
     if (source != "unknown")
@@ -27,6 +30,12 @@ renv_check_unknown_source <- function(records, project = NULL) {
     TRUE
 
   })
+
+}
+
+renv_check_unknown_source <- function(records, project = NULL) {
+
+  unknown <- renv_records_unknown_source(records, project)
 
   # if all records have a known source, return TRUE
   if (empty(unknown))

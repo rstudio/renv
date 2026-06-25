@@ -577,10 +577,24 @@ renv_snapshot_validate_dependencies_compatible <- function(project, lockfile, li
 }
 
 renv_snapshot_validate_sources <- function(project, lockfile, libpaths) {
+
   records <- renv_lockfile_records(lockfile)
-  if (renv_check_unknown_source(records, project))
+  unknown <- renv_records_unknown_source(records, project)
+  if (empty(unknown))
     return(character())
-  "one or more packages were installed from an unknown source"
+
+  # emit the detailed warning (lists the packages plus guidance on how to fix)
+  if (!renv_tests_running())
+    renv_warnings_unknown_sources(unknown)
+
+  # name the offending packages in the problem itself, so the reason stays
+  # visible even when the warning above isn't (e.g. when stdout is captured)
+  packages <- names(unknown)
+  sprintf(
+    "packages installed from an unknown source: %s",
+    paste(packages, collapse = ", ")
+  )
+
 }
 
 # NOTE: if packages are found in multiple libraries,
