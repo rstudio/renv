@@ -16,6 +16,11 @@ test_that("repository URLs are properly transformed for different platforms", {
   skip_on_os("windows")
 
   renv_scope_envvars(RENV_RSPM_OS = "__linux__", RENV_RSPM_PLATFORM = "bionic")
+
+  # treat the repository as a known PPM instance, so that the transform is
+  # resolved locally rather than via a (flaky) network query to the server
+  renv_scope_options(renv.ppm.repos = "https://cluster.rstudiopm.com")
+
   repos <- c(RSPM = "https://cluster.rstudiopm.com/cran/latest")
   expected <- c(RSPM = "https://cluster.rstudiopm.com/cran/__linux__/bionic/latest")
   actual <- renv_ppm_transform(repos)

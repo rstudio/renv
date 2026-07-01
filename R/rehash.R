@@ -6,9 +6,13 @@
 #' renv. This can be useful if the cache scheme has changed in a new version
 #' of renv, but you'd like to preserve your previously-cached packages.
 #'
-#' Any packages which are re-hashed will retain links to the location of the
-#' newly-hashed package, ensuring that prior installations of renv can still
-#' function as expected.
+#' When re-hashing, packages are relocated to the cache location appropriate
+#' for the active version of renv: they are copied when migrating from a
+#' previous cache version, and moved when re-hashing within the active cache.
+#' Because a package's previous cache location is not retained, project
+#' libraries that still link to that old location will be left with broken
+#' links after a re-hash. Use [repair()] (or, equivalently, [restore()])
+#' within those projects to reinstall and re-link the affected packages.
 #'
 #' @inheritParams renv-params
 #'
@@ -77,6 +81,12 @@ renv_rehash_cache <- function(cache, prompt, action, label) {
   fmt <- "Successfully re-cached %s."
   writef(fmt, nplural("package", n))
   renv_cache_clean_empty()
+
+  # moving a package vacates its previous cache location, so any project
+  # libraries still linking there are now broken; nudge the user toward
+  # repair() to restore them
+  if (identical(label, "moved"))
+    writef("- Use `renv::repair()` within a project to restore any now-broken links to the cache.")
 
   TRUE
 }

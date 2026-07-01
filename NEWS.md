@@ -15,6 +15,12 @@
   is not refreshing the lock). This reduces the chance of a lock being stolen
   from a live process, which could otherwise corrupt a shared cache. (#2322)
 
+* `renv::rehash()` now reminds you to run `renv::repair()` when it moves
+  packages within the active cache, since project libraries that still link to
+  a package's previous cache location are left with broken links. The
+  function's documentation has also been corrected: it no longer claims that
+  links to the old locations are retained.
+
 * When `renv::snapshot()` aborts due to a pre-flight validation failure, the
   error now includes a summary of the problems that were detected (for example,
   the missing packages or unsatisfied dependencies). Previously these details
