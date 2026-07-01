@@ -49,6 +49,10 @@ renv_platform_solaris <- function() {
   the$sysinfo[["sysname"]] == "SunOS"
 }
 
+renv_platform_nodename <- function() {
+  the$sysinfo[["nodename"]] %||% Sys.info()[["nodename"]]
+}
+
 renv_platform_wsl <- function() {
 
   pv <- "/proc/version"
