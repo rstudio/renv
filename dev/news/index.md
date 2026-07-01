@@ -2,6 +2,25 @@
 
 ## renv (development version)
 
+- renv now guards against corrupted cache entries that contain the wrong
+  package. Before installing a package from the cache, renv verifies
+  that the cache entry’s `DESCRIPTION` reports the expected package
+  name; if it does not (for example, due to a concurrent write race on a
+  shared cache), renv ignores the entry and reinstalls the package
+  instead of installing the wrong one.
+  [`renv::diagnostics()`](https://rstudio.github.io/renv/dev/reference/diagnostics.md)
+  also reports any such cache entries.
+  ([\#2322](https://github.com/rstudio/renv/issues/2322))
+
+- renv’s file locks now record the host and process that own them. A
+  lock held by a process that is still alive on the same machine is no
+  longer treated as orphaned, even if its timestamp is stale (for
+  example, when a large package copy onto a shared cache takes longer
+  than the lock timeout and the watchdog is not refreshing the lock).
+  This reduces the chance of a lock being stolen from a live process,
+  which could otherwise corrupt a shared cache.
+  ([\#2322](https://github.com/rstudio/renv/issues/2322))
+
 - [`renv::rehash()`](https://rstudio.github.io/renv/dev/reference/rehash.md)
   now reminds you to run
   [`renv::repair()`](https://rstudio.github.io/renv/dev/reference/repair.md)
