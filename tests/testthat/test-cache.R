@@ -181,6 +181,61 @@ test_that("invalid Built field is detected", {
 
 })
 
+test_that("a cache entry containing the wrong package is detected", {
+
+  skip_on_cran()
+  renv_tests_scope()
+
+  cachepath <- renv_scope_tempfile("renv-cache-")
+  renv_scope_envvars(RENV_PATHS_CACHE = cachepath)
+
+  init()
+  install("bread")
+
+  path <- renv_cache_find(list(Package = "bread", Version = "1.0.0"))
+  expect_true(nzchar(path) && file.exists(path))
+
+  # rewrite the DESCRIPTION so the slot claims to hold a different package,
+  # simulating a corrupted cache entry (e.g. from a concurrent write race)
+  descpath <- file.path(path, "DESCRIPTION")
+  desc <- renv_description_read(descpath)
+  desc$Package <- "toast"
+  renv_dcf_write(desc, file = descpath)
+
+  diagnostics <- renv_cache_diagnose(verbose = FALSE)
+
+  expect_true(is.data.frame(diagnostics))
+  expect_true(nrow(diagnostics) == 1)
+  expect_true(diagnostics$Package == "bread")
+  expect_true(diagnostics$Version == "1.0.0")
+
+})
+
+test_that("a cache entry containing the wrong package is not installed", {
+
+  skip_on_cran()
+  renv_tests_scope()
+
+  cachepath <- renv_scope_tempfile("renv-cache-")
+  renv_scope_envvars(RENV_PATHS_CACHE = cachepath)
+
+  init()
+  install("bread")
+
+  path <- renv_cache_find(list(Package = "bread", Version = "1.0.0"))
+  expect_true(renv_cache_package_validate(path))
+
+  # corrupt the slot so it holds a different package
+  descpath <- file.path(path, "DESCRIPTION")
+  desc <- renv_description_read(descpath)
+  desc$Package <- "toast"
+  renv_dcf_write(desc, file = descpath)
+
+  expect_warning(valid <- renv_cache_package_validate(path))
+  expect_false(valid)
+
+})
+
 test_that("ACLs set on packages in project library are reset", {
 
   skip_on_cran()

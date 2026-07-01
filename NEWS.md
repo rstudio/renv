@@ -1,6 +1,13 @@
 
 # renv (development version)
 
+* renv now guards against corrupted cache entries that contain the wrong
+  package. Before installing a package from the cache, renv verifies that the
+  cache entry's `DESCRIPTION` reports the expected package name; if it does not
+  (for example, due to a concurrent write race on a shared cache), renv ignores
+  the entry and reinstalls the package instead of installing the wrong one.
+  `renv::diagnostics()` also reports any such cache entries. (#2322)
+
 * When `renv::snapshot()` aborts due to a pre-flight validation failure, the
   error now includes a summary of the problems that were detected (for example,
   the missing packages or unsatisfied dependencies). Previously these details
