@@ -13,9 +13,7 @@
   orphaned, even if its timestamp is stale (for example, when a large package
   copy onto a shared cache takes longer than the lock timeout and the watchdog
   is not refreshing the lock). This reduces the chance of a lock being stolen
-  from a live process, which could otherwise corrupt a shared cache. A lock
-  whose owning process has exited is now reclaimed immediately rather than after
-  the timeout. (#2322)
+  from a live process, which could otherwise corrupt a shared cache. (#2322)
 
 * When `renv::snapshot()` aborts due to a pre-flight validation failure, the
   error now includes a summary of the problems that were detected (for example,

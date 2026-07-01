@@ -126,25 +126,27 @@ renv_lock_orphaned <- function(path) {
   if (is.na(info$isdir))
     return(FALSE)
 
-  # if the lock records an owner on this host, check whether that process is
-  # still alive. this lets us keep a live but slow lock holder (for example, a
-  # large package copy onto a shared network cache) from having its lock stolen
-  # when the watchdog isn't refreshing the lock's timestamp -- and lets us
-  # reclaim a dead owner's lock immediately, without waiting for the timeout.
+  # if the lock records an owner on this host and that process is still alive,
+  # the lock is not orphaned -- even if its timestamp is stale. this keeps a
+  # live but slow lock holder (for example, a large package copy onto a shared
+  # network cache) from having its lock stolen when the watchdog isn't
+  # refreshing the lock's timestamp.
   #
-  # NOTE: we intentionally trust a live pid here rather than also enforcing the
-  # timeout, since stealing a live holder's lock is what causes cache corruption
-  # in the first place. this could in theory be fooled by pid reuse, but that is
-  # far less likely (and less harmful) than the race it prevents.
+  # NOTE: we only trust a *positive* liveness result. renv_process_exists() can
+  # report FALSE for a live process we don't have permission to inspect (for
+  # example, another user's process on a shared machine), and treating that as
+  # orphaned would let us steal a live holder's lock -- the very race that
+  # corrupts a shared cache. so anything other than a definite "alive" falls
+  # through to the timeout below, which is no worse than the previous behavior.
   owner <- renv_lock_owner_read(path)
   if (!is.null(owner) && identical(owner$host, renv_platform_nodename())) {
     alive <- catch(renv_process_exists(owner$pid))
-    if (!inherits(alive, "error"))
-      return(!alive)
+    if (isTRUE(alive))
+      return(FALSE)
   }
 
-  # otherwise (no owner recorded, a lock held on another host, or we couldn't
-  # determine liveness) fall back to treating the lock as orphaned once its
+  # otherwise (no owner recorded, a lock held on another host, an owner we
+  # can't confirm is alive) fall back to treating the lock as orphaned once its
   # timestamp becomes stale
   diff <- difftime(Sys.time(), info$mtime, units = "secs")
   diff >= timeout

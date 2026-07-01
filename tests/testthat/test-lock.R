@@ -182,7 +182,7 @@ test_that("a lock held by a live process is not orphaned, even if stale", {
 
 })
 
-test_that("a lock owned by a dead process is orphaned immediately", {
+test_that("a lock owned by a dead process falls back to the timeout", {
 
   skip_on_cran()
 
@@ -202,7 +202,11 @@ test_that("a lock owned by a dead process is orphaned immediately", {
   )
   writeLines(contents, con = file.path(path, "owner"))
 
-  # even with a fresh timestamp, a dead owner means the lock is orphaned
+  # a dead owner does not make a fresh lock orphaned (we can't distinguish a
+  # dead pid from one we lack permission to inspect), but a stale one is
+  expect_false(renv_lock_orphaned(path))
+
+  Sys.setFileTime(path, Sys.time() - 3600)
   expect_true(renv_lock_orphaned(path))
 
 })
