@@ -2,9 +2,6 @@
 
     Code
       install("bread@0.1.0")
-    Condition
-      Warning:
-      could not resolve dependencies for bread 0.1.0; using dependencies from the latest version (1.0.0) instead
     Output
       The following package(s) will be installed:
       - bread [0.1.0]

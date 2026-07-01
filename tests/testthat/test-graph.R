@@ -1142,6 +1142,31 @@ test_that("repository graph prefers crandb over latest-with-overridden-version",
 
 })
 
+# https://github.com/rstudio/renv/issues/2315
+test_that("repository graph reads archived DESCRIPTION when crandb fails", {
+
+  renv_tests_scope()
+
+  # force crandb to fail, so resolution must fall through to the archive
+  renv_scope_binding(
+    envir = asNamespace("renv"),
+    symbol = "renv_graph_description_crandb",
+    replacement = function(package, version) {
+      stop("crandb unreachable")
+    }
+  )
+
+  # 'today' is 1.0.0 in the repository with 'Depends: R (>= 99.99.99)', while
+  # the archived 0.1.0 has 'Depends: R (>= 1.0.0)'. requesting 0.1.0 must use
+  # the archived version's dependencies, not those of the latest version.
+  record <- list(Package = "today", Version = "0.1.0", Source = "Repository")
+  desc <- renv_graph_description_repository(record)
+
+  expect_equal(desc$Version, "0.1.0")
+  expect_equal(desc$Depends, "R (>= 1.0.0)")
+
+})
+
 # https://github.com/rstudio/renv/issues/2249
 test_that("gitlab DESCRIPTION path handles empty RemoteSubdir", {
 
