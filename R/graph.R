@@ -154,14 +154,25 @@ renv_graph_resolve <- function(remote, envir, records = NULL, fields = NULL, ove
     if (is.null(desc[[field]]))
       desc[[field]] <- record[[field]]
 
-  # supplement with installed DESCRIPTION for non-standard dependency fields
-  # (e.g. Config/Needs/protein); PACKAGES metadata only has standard fields
-  if (!is.null(fields)) {
-    installed <- catch(renv_description_read(package = package))
-    if (!inherits(installed, "error")) {
-      for (field in fields)
-        if (is.null(desc[[field]]) && !is.null(installed[[field]]))
-          desc[[field]] <- installed[[field]]
+  # supplement with the installed package's DESCRIPTION for non-standard
+  # dependency fields (e.g. Config/Needs/protein); PACKAGES metadata and
+  # archived DESCRIPTIONs only carry the standard fields, and those are
+  # already authoritative from the resolution above -- so only the extra
+  # fields need supplementing, never Depends / Imports / LinkingTo.
+  #
+  # only read a package that is actually installed: renv_description_read()
+  # would otherwise resolve an empty path to the working directory and read
+  # the project's own DESCRIPTION, leaking its fields into this record.
+  extra <- setdiff(fields, c("Depends", "Imports", "LinkingTo", "Suggests", "Enhances"))
+  if (length(extra)) {
+    pkgpath <- renv_package_find(package)
+    if (nzchar(pkgpath)) {
+      installed <- catch(renv_description_read(pkgpath))
+      if (!inherits(installed, "error")) {
+        for (field in extra)
+          if (is.null(desc[[field]]) && !is.null(installed[[field]]))
+            desc[[field]] <- installed[[field]]
+      }
     }
   }
 
