@@ -264,6 +264,17 @@ renv_graph_description_repository <- function(record) {
       return(as.list(crandb))
   }
 
+  # crandb couldn't help -- e.g. we're offline, using an internal mirror that
+  # can't reach crandb.r-pkg.org, or the package isn't from CRAN. download the
+  # archived source tarball for the requested version and read its DESCRIPTION
+  # directly. this is authoritative and works wherever the package itself is
+  # reachable, and the tarball is reused by the later retrieve step (#2315)
+  if (!is.null(version)) {
+    archive <- catch(renv_graph_description_archive(record))
+    if (!inherits(archive, "error"))
+      return(as.list(archive))
+  }
+
   # last-resort fallback when crandb is unreachable or lacks the version: use
   # the latest entry's full fields with the requested version substituted. this
   # may report stale dependency constraints if they changed between versions,
@@ -321,6 +332,52 @@ renv_graph_description_cellar <- function(record) {
       record[[field]] <- desc[[field]]
 
   record
+
+}
+
+renv_graph_description_archive <- function(record) {
+
+  # resolve the source tarball name for this specific package + version
+  name <- renv_retrieve_repos_archive_name(record, type = "source")
+
+  # determine the repositories to search; prefer a recorded Repository,
+  # mirroring renv_retrieve_repos_archive() so we look where retrieve will
+  repos <- getOption("repos")
+  repository <- record[["Repository"]]
+  strict <- renv_restore_state(key = "strict") %||% FALSE
+  if (is.character(repository)) {
+    names(repository) <- names(repository) %||% repository
+    if (grepl("://", repository, fixed = TRUE)) {
+      repos <- when(strict, repository, c(repository, repos))
+    } else if (!strict && repository %in% names(repos)) {
+      matches <- names(repos) == repository
+      repos <- c(repos[matches], repos[!matches])
+    }
+  }
+
+  # download to the shared sources path so that the later retrieve of this
+  # same record reuses the tarball rather than downloading it a second time
+  destfile <- renv_retrieve_path(record, type = "source")
+  ensure_parent_directory(destfile)
+
+  for (repo in repos) {
+
+    root <- renv_retrieve_repos_archive_root(repo, record)
+    if (is.null(root))
+      next
+
+    url <- file.path(root, name)
+    status <- catch(download(url, destfile = destfile, type = "source", quiet = TRUE))
+    if (inherits(status, "error"))
+      next
+
+    desc <- catch(renv_description_read(destfile))
+    if (!inherits(desc, "error"))
+      return(as.list(desc))
+
+  }
+
+  stopf("could not read archived DESCRIPTION for package '%s'", record$Package)
 
 }
 
