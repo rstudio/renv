@@ -161,6 +161,76 @@ test_that("old locks are considered 'orphaned'", {
 
 })
 
+test_that("a lock held by a live process is not orphaned, even if stale", {
+
+  skip_on_cran()
+
+  renv_scope_options(renv.config.locking.enabled = TRUE)
+  renv_scope_envvars(RENV_WATCHDOG_ENABLED = "FALSE")
+  renv_scope_options(renv.lock.timeout = 60L)
+
+  path <- renv_lock_path(renv_scope_tempfile())
+  renv_lock_acquire(path)
+
+  # age the lock past the timeout; because it records this (live) process as
+  # its owner, it should still not be considered orphaned
+  Sys.setFileTime(path, Sys.time() - 3600)
+
+  expect_false(renv_lock_orphaned(path))
+
+  renv_lock_release(path)
+
+})
+
+test_that("a lock owned by a dead process is orphaned immediately", {
+
+  skip_on_cran()
+
+  renv_scope_options(renv.lock.timeout = 60L)
+
+  path <- renv_lock_path(renv_scope_tempfile())
+  dir.create(path)
+
+  # find a pid that isn't currently in use
+  deadpid <- 2147483646L
+  while (renv_process_exists(deadpid))
+    deadpid <- deadpid - 1L
+
+  contents <- c(
+    sprintf("Host: %s", renv_platform_nodename()),
+    sprintf("Pid: %i", deadpid)
+  )
+  writeLines(contents, con = file.path(path, "owner"))
+
+  # even with a fresh timestamp, a dead owner means the lock is orphaned
+  expect_true(renv_lock_orphaned(path))
+
+})
+
+test_that("a lock owned by another host falls back to the timeout", {
+
+  skip_on_cran()
+
+  renv_scope_options(renv.lock.timeout = 60L)
+
+  path <- renv_lock_path(renv_scope_tempfile())
+  dir.create(path)
+
+  contents <- c(
+    "Host: some-other-host-that-is-not-us",
+    sprintf("Pid: %i", Sys.getpid())
+  )
+  writeLines(contents, con = file.path(path, "owner"))
+
+  # a fresh lock on another host is not orphaned ...
+  expect_false(renv_lock_orphaned(path))
+
+  # ... but a stale one is
+  Sys.setFileTime(path, Sys.time() - 3600)
+  expect_true(renv_lock_orphaned(path))
+
+})
+
 test_that("multiple renv processes successfully acquire, release locks", {
 
   skip_on_cran()

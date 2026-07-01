@@ -48,7 +48,48 @@ renv_lock_acquire_impl <- function(path) {
   }
 
   # attempt to create the lock
-  dir.create(path, mode = "0755", showWarnings = FALSE)
+  created <- dir.create(path, mode = "0755", showWarnings = FALSE)
+
+  # if we created the lock, record its owner so that other processes can
+  # tell whether the lock is still held by a live process on this machine
+  if (created)
+    renv_lock_owner_write(path)
+
+  created
+
+}
+
+# record the host + process that owns a lock, so that renv_lock_orphaned()
+# can check whether the owning process is still alive rather than relying
+# solely on the lock's timestamp being kept fresh by the watchdog
+renv_lock_owner_write <- function(path) {
+
+  contents <- c(
+    sprintf("Host: %s", renv_platform_nodename()),
+    sprintf("Pid: %i", Sys.getpid())
+  )
+
+  owner <- file.path(path, "owner")
+  catchall(writeLines(contents, con = owner))
+
+}
+
+renv_lock_owner_read <- function(path) {
+
+  owner <- file.path(path, "owner")
+  if (!file.exists(owner))
+    return(NULL)
+
+  props <- catch(renv_properties_read(owner))
+  if (inherits(props, "error"))
+    return(NULL)
+
+  host <- props[["Host"]]
+  pid <- suppressWarnings(as.integer(props[["Pid"]]))
+  if (is.null(host) || is.na(pid))
+    return(NULL)
+
+  list(host = host, pid = pid)
 
 }
 
@@ -85,6 +126,26 @@ renv_lock_orphaned <- function(path) {
   if (is.na(info$isdir))
     return(FALSE)
 
+  # if the lock records an owner on this host, check whether that process is
+  # still alive. this lets us keep a live but slow lock holder (for example, a
+  # large package copy onto a shared network cache) from having its lock stolen
+  # when the watchdog isn't refreshing the lock's timestamp -- and lets us
+  # reclaim a dead owner's lock immediately, without waiting for the timeout.
+  #
+  # NOTE: we intentionally trust a live pid here rather than also enforcing the
+  # timeout, since stealing a live holder's lock is what causes cache corruption
+  # in the first place. this could in theory be fooled by pid reuse, but that is
+  # far less likely (and less harmful) than the race it prevents.
+  owner <- renv_lock_owner_read(path)
+  if (!is.null(owner) && identical(owner$host, renv_platform_nodename())) {
+    alive <- catch(renv_process_exists(owner$pid))
+    if (!inherits(alive, "error"))
+      return(!alive)
+  }
+
+  # otherwise (no owner recorded, a lock held on another host, or we couldn't
+  # determine liveness) fall back to treating the lock as orphaned once its
+  # timestamp becomes stale
   diff <- difftime(Sys.time(), info$mtime, units = "secs")
   diff >= timeout
 
