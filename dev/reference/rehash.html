@@ -86,9 +86,13 @@ are matched to <code>...</code>, renv will signal an error.</p></dd>
 </dl></div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
-    <p>Any packages which are re-hashed will retain links to the location of the
-newly-hashed package, ensuring that prior installations of renv can still
-function as expected.</p>
+    <p>When re-hashing, packages are relocated to the cache location appropriate
+for the active version of renv: they are copied when migrating from a
+previous cache version, and moved when re-hashing within the active cache.
+Because a package's previous cache location is not retained, project
+libraries that still link to that old location will be left with broken
+links after a re-hash. Use <code><a href="repair.html">repair()</a></code> (or, equivalently, <code><a href="restore.html">restore()</a></code>)
+within those projects to reinstall and re-link the affected packages.</p>
     </div>
 
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>

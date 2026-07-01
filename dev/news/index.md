@@ -2,6 +2,15 @@
 
 ## renv (development version)
 
+- [`renv::rehash()`](https://rstudio.github.io/renv/dev/reference/rehash.md)
+  now reminds you to run
+  [`renv::repair()`](https://rstudio.github.io/renv/dev/reference/repair.md)
+  when it moves packages within the active cache, since project
+  libraries that still link to a package’s previous cache location are
+  left with broken links. The function’s documentation has also been
+  corrected: it no longer claims that links to the old locations are
+  retained.
+
 - When
   [`renv::snapshot()`](https://rstudio.github.io/renv/dev/reference/snapshot.md)
   aborts due to a pre-flight validation failure, the error now includes

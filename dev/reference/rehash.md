@@ -26,6 +26,13 @@ rehash(prompt = interactive(), ...)
 
 ## Details
 
-Any packages which are re-hashed will retain links to the location of
-the newly-hashed package, ensuring that prior installations of renv can
-still function as expected.
+When re-hashing, packages are relocated to the cache location
+appropriate for the active version of renv: they are copied when
+migrating from a previous cache version, and moved when re-hashing
+within the active cache. Because a package's previous cache location is
+not retained, project libraries that still link to that old location
+will be left with broken links after a re-hash. Use
+[`repair()`](https://rstudio.github.io/renv/dev/reference/repair.md)
+(or, equivalently,
+[`restore()`](https://rstudio.github.io/renv/dev/reference/restore.md))
+within those projects to reinstall and re-link the affected packages.
