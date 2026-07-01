@@ -1,6 +1,10 @@
 
 # renv (development version)
 
+* Internal DESCRIPTION reads that request a package by name now error when that
+  package is not installed, rather than silently falling back to the DESCRIPTION
+  in the current working directory. (#2327)
+
 * When `renv::snapshot()` aborts due to a pre-flight validation failure, the
   error now includes a summary of the problems that were detected (for example,
   the missing packages or unsatisfied dependencies). Previously these details

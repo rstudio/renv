@@ -41,6 +41,19 @@ test_that("we read DESCRIPTION files correctly", {
 
 })
 
+test_that("reading a not-installed package errors rather than falling back to cwd", {
+
+  # ensure we have a project DESCRIPTION in the working directory, so that
+  # the old fallback behavior would have silently read it
+  renv_tests_scope()
+  writeLines("Package: project", con = "DESCRIPTION")
+
+  # requesting a package that isn't installed should error, not return the
+  # working-directory DESCRIPTION (https://github.com/rstudio/renv/issues/2327)
+  expect_error(renv_description_read(package = "this.package.does.not.exist"))
+
+})
+
 test_that("we can read a DESCRIPTION file with empty lines", {
 
   contents <- heredoc("
