@@ -5,6 +5,26 @@
   package is not installed, rather than silently falling back to the DESCRIPTION
   in the current working directory. (#2327)
 
+* renv now guards against corrupted cache entries that contain the wrong
+  package. Before installing a package from the cache, renv verifies that the
+  cache entry's `DESCRIPTION` reports the expected package name; if it does not
+  (for example, due to a concurrent write race on a shared cache), renv ignores
+  the entry and reinstalls the package instead of installing the wrong one.
+  `renv::diagnostics()` also reports any such cache entries. (#2322)
+
+* renv's file locks now record the host and process that own them. A lock held
+  by a process that is still alive on the same machine is no longer treated as
+  orphaned, even if its timestamp is stale (for example, when a large package
+  copy onto a shared cache takes longer than the lock timeout and the watchdog
+  is not refreshing the lock). This reduces the chance of a lock being stolen
+  from a live process, which could otherwise corrupt a shared cache. (#2322)
+
+* `renv::rehash()` now reminds you to run `renv::repair()` when it moves
+  packages within the active cache, since project libraries that still link to
+  a package's previous cache location are left with broken links. The
+  function's documentation has also been corrected: it no longer claims that
+  links to the old locations are retained.
+
 * When `renv::snapshot()` aborts due to a pre-flight validation failure, the
   error now includes a summary of the problems that were detected (for example,
   the missing packages or unsatisfied dependencies). Previously these details
@@ -18,12 +38,17 @@
   `lockfile(from = "manifest.json", to = "renv.lock")`. The set of supported
   sources may be expanded in future releases. (#2245)
 
-* When the graph resolver cannot determine the dependencies for a pinned
-  package version (because the version is absent from the configured
-  repositories and crandb is unreachable or has no record of it), it falls back
-  to the latest version's dependencies. renv now warns when this happens, since
-  those dependencies may differ from the pinned version's and could lead to an
-  incorrect install order. (#2315)
+* When resolving the dependencies of a pinned package version that is absent
+  from the configured repositories' `PACKAGES` metadata and cannot be found via
+  crandb (for example, when offline, when using an internal mirror that cannot
+  reach `crandb.r-pkg.org`, or for non-CRAN packages), renv now downloads the
+  archived source tarball for that version and reads its `DESCRIPTION` directly.
+  This is authoritative wherever the package itself is reachable, and the
+  downloaded tarball is reused by the subsequent retrieve step. As a last
+  resort, if the archived tarball also cannot be read, renv falls back to the
+  latest version's dependencies and warns, since those dependencies may differ
+  from the pinned version's and could lead to an incorrect install order.
+  (#2315)
 
 * Fixed a regression introduced in renv 1.2.0 where installing a package from
   the cellar (via `install()` or `use()`) failed to install that package's

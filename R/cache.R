@@ -356,6 +356,50 @@ renv_cache_diagnose_missing_descriptions <- function(paths, problems, verbose) {
 
 }
 
+renv_cache_diagnose_wrong_package <- function(paths, problems, verbose) {
+
+  # read the 'Package' field recorded in each cached DESCRIPTION file, and
+  # compare it against the package name implied by the cache entry's path.
+  # a mismatch means the slot has been corrupted and is holding the contents
+  # of a different package (for example, due to a concurrent write race on a
+  # shared cache); such an entry would cause renv to install the wrong package.
+  expected <- renv_path_component(paths, 1L)
+  actual <- map_chr(paths, function(path) {
+    dcf <- catch(renv_description_read(path))
+    if (inherits(dcf, "error"))
+      return(NA_character_)
+    dcf[["Package"]] %||% NA_character_
+  })
+
+  wrong <- !is.na(actual) & actual != expected
+  if (!any(wrong))
+    return(paths)
+
+  # nocov start
+  if (verbose) {
+
+    fmt <- "%s [contains: %s]"
+    entries <- sprintf(fmt, renv_cache_format_path(paths[wrong]), actual[wrong])
+
+    bulletin(
+      "The following packages in the cache contain the wrong package:",
+      entries,
+      "These packages should be purged and reinstalled."
+    )
+
+  }
+  # nocov end
+
+  data <- renv_cache_problems(
+    paths  = paths[wrong],
+    reason = "cache entry contains the wrong package"
+  )
+
+  problems$push(data)
+  paths[!wrong]
+
+}
+
 renv_cache_diagnose_bad_hash <- function(paths, problems, verbose) {
 
   expected <- map_chr(paths, renv_cache_path)
@@ -480,6 +524,7 @@ renv_cache_diagnose <- function(verbose = NULL) {
   paths <- renv_cache_list()
   paths <- renv_cache_diagnose_corrupt_metadata(paths, problems, verbose)
   paths <- renv_cache_diagnose_missing_descriptions(paths, problems, verbose)
+  paths <- renv_cache_diagnose_wrong_package(paths, problems, verbose)
   paths <- renv_cache_diagnose_bad_hash(paths, problems, verbose)
   paths <- renv_cache_diagnose_wrong_built_version(paths, problems, verbose)
 
@@ -543,7 +588,7 @@ renv_cache_clean_empty <- function(cache = NULL) {
 renv_cache_package_validate <- function(path) {
 
   if (renv_project_type(path) == "package")
-    return(TRUE)
+    return(renv_cache_package_validate_name(path))
 
   type <- renv_file_type(path, symlinks = FALSE)
   if (!nzchar(type))
@@ -552,6 +597,29 @@ renv_cache_package_validate <- function(path) {
   name <- if (type == "directory") "directory" else "file"
   fmt <- "%s %s exists but does not appear to be an R package"
   warningf(fmt, name, dQuote(path))
+
+  FALSE
+
+}
+
+# verify that a cache entry actually contains the package its path implies.
+# a mismatch indicates a corrupted cache slot (for example, from a concurrent
+# write race on a shared cache) that would otherwise cause renv to install the
+# wrong package; treat such an entry as unusable so the caller reinstalls.
+renv_cache_package_validate_name <- function(path) {
+
+  expected <- basename(path)
+
+  dcf <- catch(renv_description_read(path))
+  if (inherits(dcf, "error"))
+    return(TRUE)
+
+  actual <- dcf[["Package"]]
+  if (is.null(actual) || identical(actual, expected))
+    return(TRUE)
+
+  fmt <- "cache entry %s contains the wrong package ('%s'); ignoring it"
+  warningf(fmt, dQuote(path), actual)
 
   FALSE
 
