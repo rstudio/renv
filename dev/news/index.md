@@ -30,13 +30,18 @@
   supported sources may be expanded in future releases.
   ([\#2245](https://github.com/rstudio/renv/issues/2245))
 
-- When the graph resolver cannot determine the dependencies for a pinned
-  package version (because the version is absent from the configured
-  repositories and crandb is unreachable or has no record of it), it
-  falls back to the latest version’s dependencies. renv now warns when
-  this happens, since those dependencies may differ from the pinned
-  version’s and could lead to an incorrect install order.
-  ([\#2315](https://github.com/rstudio/renv/issues/2315))
+- When resolving the dependencies of a pinned package version that is
+  absent from the configured repositories’ `PACKAGES` metadata and
+  cannot be found via crandb (for example, when offline, when using an
+  internal mirror that cannot reach `crandb.r-pkg.org`, or for non-CRAN
+  packages), renv now downloads the archived source tarball for that
+  version and reads its `DESCRIPTION` directly. This is authoritative
+  wherever the package itself is reachable, and the downloaded tarball
+  is reused by the subsequent retrieve step. As a last resort, if the
+  archived tarball also cannot be read, renv falls back to the latest
+  version’s dependencies and warns, since those dependencies may differ
+  from the pinned version’s and could lead to an incorrect install
+  order. ([\#2315](https://github.com/rstudio/renv/issues/2315))
 
 - Fixed a regression introduced in renv 1.2.0 where installing a package
   from the cellar (via
