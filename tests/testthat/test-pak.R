@@ -92,6 +92,81 @@ test_that("install() with an explicit scope filtered to empty is a no-op with pa
 
 })
 
+test_that("install() forces reinstall of explicit requests, not deps (#2329)", {
+
+  skip_on_cran()
+  skip_on_windows()
+  skip_if_not_installed("pak")
+  pak <- renv_namespace_load("pak")
+  renv_scope_options(renv.config.pak.enabled = TRUE)
+  renv_tests_scope("bread")
+
+  args <- NULL
+  local_mocked_bindings(renv_pak_init = function(...) invisible(NULL))
+  local_mocked_bindings(
+    .package = "pak",
+    pkg_install = function(pkg, upgrade, ...) {
+      args <<- list(pkg = pkg, upgrade = upgrade)
+      invisible(data.frame(package = character()))
+    }
+  )
+
+  quietly(install("bread"))
+
+  # the explicitly-requested package is forced to (re)install, so it is
+  # installed even when already current; upgrade = FALSE leaves pak's
+  # transitively-resolved dependencies (e.g. recommended packages) alone
+  expect_equal(unname(args$pkg), "bread?reinstall")
+  expect_false(args$upgrade)
+
+})
+
+test_that("install() appends reinstall to specs that already carry a query", {
+
+  skip_on_cran()
+  skip_on_windows()
+  skip_if_not_installed("pak")
+  pak <- renv_namespace_load("pak")
+  renv_scope_options(renv.config.pak.enabled = TRUE)
+  renv_tests_scope("bread")
+
+  args <- NULL
+  local_mocked_bindings(renv_pak_init = function(...) invisible(NULL))
+  local_mocked_bindings(
+    .package = "pak",
+    pkg_install = function(pkg, ...) {
+      args <<- pkg
+      invisible(data.frame(package = character()))
+    }
+  )
+
+  # a spec that already has a '?query' must extend it with '&', not a second
+  # '?', so pkgdepends parses both parameters
+  quietly(install("bread?nocache"))
+  expect_equal(unname(args), "bread?nocache&reinstall")
+
+})
+
+test_that("install() does not upgrade transitively-pulled recommended packages (#2329)", {
+
+  skip_on_cran()
+  skip_on_windows()
+  skip_if_not_installed("pak")
+  pak <- renv_namespace_load("pak")
+  renv_scope_options(renv.config.pak.enabled = TRUE)
+  project <- renv_tests_scope()
+
+  # 'toast' depends on 'bread'; installing 'toast' must not upgrade an
+  # already-installed, dependency-satisfying 'bread'.
+  quietly(install("bread@0.1.0"))
+  expect_equal(renv_package_version("bread"), "0.1.0")
+
+  quietly(install("toast"))
+  expect_true(renv_package_installed("toast"))
+  expect_equal(renv_package_version("bread"), "0.1.0")
+
+})
+
 test_that("renv::update() works in projects using pak", {
 
   skip_on_cran()

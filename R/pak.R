@@ -165,18 +165,23 @@ renv_pak_install <- function(packages,
   pattern <- "(?<!:):([^/#@:]+)"
   packages <- gsub(pattern, "/\\1", packages, perl = TRUE)
   
-  # build parameters
+  # build parameters. explicitly-requested packages always get 'reinstall',
+  # so they are installed even when already current -- matching renv's non-pak
+  # installer, which always (re)installs explicitly-requested packages. with
+  # 'upgrade = FALSE', pak then leaves transitive dependencies (including
+  # recommended packages like 'cluster') at their installed version unless a
+  # dependency constraint requires otherwise. https://github.com/rstudio/renv/issues/2329
   packages <- map_chr(packages, function(package) {
 
     params <- c(
       if (identical(type, "source")) "source",
-      if (identical(rebuild, TRUE) || package %in% rebuild) "reinstall"
+      "reinstall"
     )
 
-    if (length(params))
-      paste(package, paste(params, collapse = "&"), sep = "?")
-    else
-      package
+    # pak (pkgdepends) reads everything after the first '?' as an '&'-separated
+    # query; append with '&' if the spec already carries a query, '?' otherwise
+    sep <- if (grepl("?", package, fixed = TRUE)) "&" else "?"
+    paste(package, paste(params, collapse = "&"), sep = sep)
 
   })
 
@@ -184,7 +189,7 @@ renv_pak_install <- function(packages,
     pkg     = packages,
     lib     = library[[1L]],
     ask     = prompt,
-    upgrade = TRUE
+    upgrade = FALSE
   )
 }
 
