@@ -6,7 +6,11 @@ renv_description_read <- function(path = NULL,
                                   ...)
 {
   # if given a package name, construct path to that package
-  path <- path %||% renv_package_find_impl(package, compat = TRUE)
+  if (is.null(path)) {
+    path <- renv_package_find_impl(package, compat = TRUE)
+    if (!nzchar(path))
+      stopf("package '%s' is not installed", package)
+  }
 
   # normalize non-absolute paths
   if (!renv_path_absolute(path))

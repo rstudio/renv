@@ -1,6 +1,10 @@
 
 # renv (development version)
 
+* Internal DESCRIPTION reads that request a package by name now error when that
+  package is not installed, rather than silently falling back to the DESCRIPTION
+  in the current working directory. (#2327)
+
 * renv now guards against corrupted cache entries that contain the wrong
   package. Before installing a package from the cache, renv verifies that the
   cache entry's `DESCRIPTION` reports the expected package name; if it does not
