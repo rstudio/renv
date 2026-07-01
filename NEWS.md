@@ -1,6 +1,13 @@
 
 # renv (development version)
 
+* `renv::install()` with pak enabled no longer upgrades already-installed
+  dependencies that are only pulled in transitively -- most visibly recommended
+  packages such as `cluster` or `Matrix`, which previously could be rebuilt when
+  installing an unrelated package. renv now passes `upgrade = FALSE` to pak,
+  matching renv's own installer, while still forcing a (re)install of the
+  packages you explicitly request. (#2329)
+
 * Internal DESCRIPTION reads that request a package by name now error when that
   package is not installed, rather than silently falling back to the DESCRIPTION
   in the current working directory. (#2327)
