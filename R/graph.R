@@ -160,12 +160,14 @@ renv_graph_resolve <- function(remote, envir, records = NULL, fields = NULL, ove
   # already authoritative from the resolution above -- so only the extra
   # fields need supplementing, never Depends / Imports / LinkingTo.
   #
-  # only read a package that is actually installed: renv_description_read()
-  # would otherwise resolve an empty path to the working directory and read
-  # the project's own DESCRIPTION, leaking its fields into this record.
+  # only read a package that is actually installed: passing an explicit
+  # lib.loc disables renv_package_find()'s loaded-namespace fallback (so a
+  # load_all() checkout or other non-installed source can't leak its fields),
+  # and avoids renv_description_read() resolving an empty path to the working
+  # directory and reading the project's own DESCRIPTION into this record.
   extra <- setdiff(fields, c("Depends", "Imports", "LinkingTo", "Suggests", "Enhances"))
   if (length(extra)) {
-    pkgpath <- renv_package_find(package)
+    pkgpath <- renv_package_find(package, lib.loc = renv_libpaths_all())
     if (nzchar(pkgpath)) {
       installed <- catch(renv_description_read(pkgpath))
       if (!inherits(installed, "error")) {
