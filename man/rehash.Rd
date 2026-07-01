@@ -20,7 +20,11 @@ renv. This can be useful if the cache scheme has changed in a new version
 of renv, but you'd like to preserve your previously-cached packages.
 }
 \details{
-Any packages which are re-hashed will retain links to the location of the
-newly-hashed package, ensuring that prior installations of renv can still
-function as expected.
+When re-hashing, packages are relocated to the cache location appropriate
+for the active version of renv: they are copied when migrating from a
+previous cache version, and moved when re-hashing within the active cache.
+Because a package's previous cache location is not retained, project
+libraries that still link to that old location will be left with broken
+links after a re-hash. Use \code{\link[=repair]{repair()}} (or, equivalently, \code{\link[=restore]{restore()}})
+within those projects to reinstall and re-link the affected packages.
 }
