@@ -721,22 +721,19 @@ renv_retrieve_repos <- function(record) {
 
   for (method in methods$data()) {
 
-    status <- catch(
-      withCallingHandlers(
-        method(record),
-        renv.retrieve.error = function(error) {
-          errors$push(error$data)
-        }
-      )
-    )
+    attempt <- renv_retrieve_repos_try(method, record)
+    for (error in attempt$errors)
+      errors$push(error)
 
-    if (inherits(status, "error")) {
-      errors$push(status)
+    status <- attempt$status
+
+    if (inherits(status, "error"))
       next
-    }
 
-    if (identical(status, TRUE))
+    if (identical(status, TRUE)) {
+      writeLines(attempt$output)
       return(TRUE)
+    }
 
     if (!is.logical(status)) {
       fmt <- "internal error: unexpected status code '%s'"
@@ -754,6 +751,32 @@ renv_retrieve_repos <- function(record) {
 
   remote <- renv_record_format_remote(record, compact = TRUE)
   stopf("failed to retrieve package '%s'", remote)
+
+}
+
+renv_retrieve_repos_try <- function(method, record) {
+
+  errors <- stack()
+
+  output <- utils::capture.output({
+    status <- catch(
+      withCallingHandlers(
+        method(record),
+        renv.retrieve.error = function(error) {
+          errors$push(error$data)
+        }
+      )
+    )
+  })
+
+  if (inherits(status, "error") && !length(errors$data()))
+    errors$push(status)
+
+  list(
+    status = status,
+    errors = errors$data(),
+    output = output
+  )
 
 }
 

@@ -310,6 +310,55 @@ test_that("we can retrieve packages from R repositories", {
 
 })
 
+test_that("failed binary retrieval is quiet when source fallback succeeds", {
+
+  skip_if(identical(.Platform$pkgType, "source"))
+
+  renv_tests_scope(isolated = TRUE)
+
+  repopath <- renv_scope_tempfile("renv-repository-")
+  srccontrib <- file.path(repopath, "src", "contrib")
+  ensure_directory(srccontrib)
+
+  tarball <- file.path(srccontrib, "bread_1.0.0.tar.gz")
+  local({
+    renv_scope_wd(renv_tests_path("packages"))
+    utils::tar(tarball, "bread", compression = "gzip", tar = "internal")
+  })
+  tools::write_PACKAGES(srccontrib, type = "source")
+
+  # Advertise a binary package without providing its archive.
+  bincontrib <- paste0(repopath, contrib.url("", type = .Platform$pkgType))
+  ensure_directory(bincontrib)
+  file.copy(file.path(srccontrib, "PACKAGES"), bincontrib)
+
+  fmt <- if (renv_platform_windows()) "file:///%s" else "file://%s"
+  repos <- c(CRAN = sprintf(fmt, repopath))
+  renv_scope_options(pkgType = "both", repos = repos)
+
+  record <- list(
+    Package = "bread",
+    Version = "1.0.0",
+    Source  = "Repository"
+  )
+
+  library <- renv_scope_tempfile("renv-library-")
+  ensure_directory(library)
+  renv_scope_restore(
+    project = getwd(),
+    library = library,
+    records = list(bread = record),
+    packages = "bread",
+    recursive = TRUE
+  )
+
+  output <- utils::capture.output(status <- renv_retrieve_repos(record))
+
+  expect_true(status)
+  expect_false(any(grepl("ERROR", output, fixed = TRUE)))
+
+})
+
 test_that("we can retrieve files using file URIs", {
 
   skip_on_cran()
