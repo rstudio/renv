@@ -8,7 +8,9 @@
 #' `require(package)`, `requireNamespace("package")`, and `package::method()`.
 #' renv also supports package loading with
 #' [box](https://cran.r-project.org/package=box) (`box::use(...)`) and
-#' [pacman](https://cran.r-project.org/package=pacman) (`pacman::p_load(...)`).
+#' [pacman](https://cran.r-project.org/package=pacman) (`pacman::p_load(...)`),
+#' as well as dependency checks of the form `rlang::check_installed("package")`
+#' and `rlang::is_installed("package")`.
 #'
 #' For \R package projects, `renv` will also detect dependencies expressed
 #' in the `DESCRIPTION` file. For projects using Python, \R dependencies within
@@ -1139,6 +1141,7 @@ renv_dependencies_discover_r <- function(path  = NULL,
     renv_dependencies_discover_r_xfun,
     renv_dependencies_discover_r_library_require,
     renv_dependencies_discover_r_require_namespace,
+    renv_dependencies_discover_r_rlang,
     renv_dependencies_discover_r_colon,
     renv_dependencies_discover_r_citation,
     renv_dependencies_discover_r_system_file,
@@ -1289,6 +1292,38 @@ renv_dependencies_discover_r_require_namespace <- function(node, envir) {
 
   FALSE
 
+
+}
+
+renv_dependencies_discover_r_rlang <- function(node, envir) {
+
+  node <- renv_call_expect(node, "rlang", c("check_installed", "is_installed"))
+  if (is.null(node))
+    return(FALSE)
+
+  matched <- catch(match.call(function(pkg, ...) NULL, node))
+  if (inherits(matched, "error"))
+    return(FALSE)
+
+  # packages might be provided as a vector, e.g. c("a", "b")
+  pkg <- matched$pkg
+  parts <- list(pkg)
+  if (renv_call_matches(pkg, "c"))
+    parts <- as.list(pkg[-1L])
+
+  for (part in parts) {
+
+    if (!is.character(part) || length(part) != 1L)
+      next
+
+    # entries can include version requirements, e.g. "pkg (>= 1.0.0)"
+    package <- sub("\\s*\\(.*", "", part)
+    if (nzchar(package))
+      envir[[package]] <- TRUE
+
+  }
+
+  TRUE
 
 }
 
@@ -1680,8 +1715,31 @@ renv_dependencies_discover_r_testthat <- function(node, envir) {
     return(TRUE)
   }
 
+  # check for usages of testthat functions requiring optional packages
+  implied <- list(
+    expect_known_hash = "digest",
+    expect_s7_class   = "S7",
+    expect_vector     = "vctrs",
+    run_cpp_tests     = "xml2",
+    skip_if_offline   = "curl",
+    snapshot_review   = c("shiny", "diffviewer")
+  )
+
+  call <- renv_call_expect(node, "testthat", names(implied))
+  if (!is.null(call)) {
+    packages <- implied[[as.character(call[[1L]])]]
+    for (package in packages)
+      envir[[package]] <- TRUE
+    return(TRUE)
+  }
+
   # check for calls to various test runners, which accept a reporter
-  node <- renv_call_expect(node, "testthat", c("test_package", "test_dir", "test_file"))
+  node <- renv_call_expect(
+    node,
+    "testthat",
+    c("test_package", "test_dir", "test_file", "test_check", "test_local")
+  )
+
   if (is.null(node))
     return(FALSE)
 

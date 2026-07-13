@@ -1,6 +1,15 @@
 
 # renv (development version)
 
+* `renv::dependencies()` now detects packages referenced via
+  `rlang::check_installed()` and `rlang::is_installed()`. (#1936)
+
+* `renv::dependencies()` now infers the optional packages required by certain
+  testthat functions; for example, `skip_if_offline()` implies a dependency on
+  curl, and `snapshot_review()` implies dependencies on shiny and diffviewer.
+  In addition, usage of the Junit reporter is now also detected in calls to
+  `test_check()` and `test_local()`. (#1936)
+
 * `renv::install()` with pak enabled no longer upgrades already-installed
   dependencies that are only pulled in transitively -- most visibly recommended
   packages such as `cluster` or `Matrix`, which previously could be rebuilt when
