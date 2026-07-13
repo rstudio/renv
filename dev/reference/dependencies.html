@@ -5,7 +5,9 @@ parsing the code and looking for calls of the form library(package),
 require(package), requireNamespace(&quot;package&quot;), and package::method().
 renv also supports package loading with
 box (box::use(...)) and
-pacman (pacman::p_load(...)).
+pacman (pacman::p_load(...)),
+as well as dependency checks of the form rlang::check_installed(&quot;package&quot;)
+and rlang::is_installed(&quot;package&quot;).
 For R package projects, renv will also detect dependencies expressed
 in the DESCRIPTION file. For projects using Python, R dependencies within
 the R code chunks of your project's .ipynb files will also be used.
@@ -16,7 +18,9 @@ parsing the code and looking for calls of the form library(package),
 require(package), requireNamespace(&quot;package&quot;), and package::method().
 renv also supports package loading with
 box (box::use(...)) and
-pacman (pacman::p_load(...)).
+pacman (pacman::p_load(...)),
+as well as dependency checks of the form rlang::check_installed(&quot;package&quot;)
+and rlang::is_installed(&quot;package&quot;).
 For R package projects, renv will also detect dependencies expressed
 in the DESCRIPTION file. For projects using Python, R dependencies within
 the R code chunks of your project's .ipynb files will also be used.
@@ -81,7 +85,9 @@ parsing the code and looking for calls of the form <code><a href="https://rdrr.i
 <code><a href="https://rdrr.io/r/base/library.html" class="external-link">require(package)</a></code>, <code><a href="https://rdrr.io/r/base/ns-load.html" class="external-link">requireNamespace("package")</a></code>, and <code>package::method()</code>.
 renv also supports package loading with
 <a href="https://cran.r-project.org/package=box" class="external-link">box</a> (<code>box::use(...)</code>) and
-<a href="https://cran.r-project.org/package=pacman" class="external-link">pacman</a> (<code>pacman::p_load(...)</code>).</p>
+<a href="https://cran.r-project.org/package=pacman" class="external-link">pacman</a> (<code>pacman::p_load(...)</code>),
+as well as dependency checks of the form <code>rlang::check_installed("package")</code>
+and <code>rlang::is_installed("package")</code>.</p>
 <p>For <span style="R">R</span> package projects, <code>renv</code> will also detect dependencies expressed
 in the <code>DESCRIPTION</code> file. For projects using Python, <span style="R">R</span> dependencies within
 the <span style="R">R</span> code chunks of your project's <code>.ipynb</code> files will also be used.</p>
@@ -176,6 +182,12 @@ example, <code>renv</code> is unable to detect this kind of usage:</p>
 its suggested packages. For example, the <code>tidyr::separate_wider_delim()</code>
 function requires the <code>stringr</code> package, but <code>stringr</code> is only suggested,
 not required, by <code>tidyr</code>.</p>
+<p>For a small number of common cases, renv infers these indirect dependencies
+from the combination of packages in use. For example, a project that uses
+<code>dplyr</code> together with a database backend (such as <code>DBI</code> and <code>RSQLite</code>) is
+assumed to also require <code>dbplyr</code>, which <code>dplyr</code> loads at runtime when working
+with databases. These rules are defined by the <code>renv.dependencies.implied</code>
+<span style="R">R</span> option; set it to an empty list (<code>options(renv.dependencies.implied = list())</code>) to disable this inference entirely.</p>
 <p>If you find that renv's dependency discovery misses one or more packages
 that you actually use in your project, one escape hatch is to include a file
 called <code>_dependencies.R</code> that includes straightforward library calls:</p>
@@ -280,7 +292,7 @@ profiles as discussed in <code><a href="../articles/profiles.html">vignette("pro
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.1.</p>
 </div>
 
   </div></footer><!-- Google Tag Manager (noscript) --><noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-KHBDBW7" height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>

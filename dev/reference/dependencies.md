@@ -9,7 +9,9 @@ by parsing the code and looking for calls of the form
 and `package::method()`. renv also supports package loading with
 [box](https://cran.r-project.org/package=box) (`box::use(...)`) and
 [pacman](https://cran.r-project.org/package=pacman)
-(`pacman::p_load(...)`).
+(`pacman::p_load(...)`), as well as dependency checks of the form
+`rlang::check_installed("package")` and
+`rlang::is_installed("package")`.
 
 For R package projects, `renv` will also detect dependencies expressed
 in the `DESCRIPTION` file. For projects using Python, R dependencies
@@ -111,6 +113,15 @@ It also can't generally tell if one of the packages you use, uses one of
 its suggested packages. For example, the `tidyr::separate_wider_delim()`
 function requires the `stringr` package, but `stringr` is only
 suggested, not required, by `tidyr`.
+
+For a small number of common cases, renv infers these indirect
+dependencies from the combination of packages in use. For example, a
+project that uses `dplyr` together with a database backend (such as
+`DBI` and `RSQLite`) is assumed to also require `dbplyr`, which `dplyr`
+loads at runtime when working with databases. These rules are defined by
+the `renv.dependencies.implied` R option; set it to an empty list
+(`options(renv.dependencies.implied = list())`) to disable this
+inference entirely.
 
 If you find that renv's dependency discovery misses one or more packages
 that you actually use in your project, one escape hatch is to include a
