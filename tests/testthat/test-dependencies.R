@@ -656,6 +656,52 @@ test_that("dependencies() detects usages of Junit test reporters", {
   check("JunitReporter$new()")
   check("testthat::test_dir(reporter = JunitReporter)")
   check("testthat::test_dir(reporter = \"junit\")")
+  check("testthat::test_check(\"example\", reporter = \"junit\")")
+  check("testthat::test_local(reporter = JunitReporter)")
+
+})
+
+test_that("dependencies() detects testthat functions with optional dependencies", {
+
+  check <- function(document, packages) {
+    file <- renv_scope_tempfile("renv-test-", fileext = ".R")
+    writeLines(document, con = file)
+    deps <- dependencies(file, quiet = TRUE)
+    expect_contains(deps$Package, packages)
+  }
+
+  check("expect_known_hash(object, \"hash\")", "digest")
+  check("testthat::expect_s7_class(object, class)", "S7")
+  check("expect_vector(object)", "vctrs")
+  check("testthat::run_cpp_tests(\"example\")", "xml2")
+  check("skip_if_offline()", "curl")
+  check("testthat::snapshot_review()", c("shiny", "diffviewer"))
+
+})
+
+test_that("dependencies() detects rlang::check_installed(), rlang::is_installed()", {
+
+  check <- function(document, packages) {
+    file <- renv_scope_tempfile("renv-test-", fileext = ".R")
+    writeLines(document, con = file)
+    deps <- dependencies(file, quiet = TRUE)
+    expect_contains(deps$Package, packages)
+  }
+
+  check("rlang::check_installed(\"openxlsx\")", "openxlsx")
+  check("check_installed(\"openxlsx\")", "openxlsx")
+  check("rlang::check_installed(\"openxlsx (>= 4.0.0)\")", "openxlsx")
+  check("rlang::check_installed(c(\"shiny\", \"diffviewer\"))", c("shiny", "diffviewer"))
+  check("rlang::check_installed(pkg = \"openxlsx\", reason = \"for exports\")", "openxlsx")
+  check("if (rlang::is_installed(\"openxlsx\")) NULL", "openxlsx")
+  check("is_installed(c(\"shiny\", \"diffviewer\"))", c("shiny", "diffviewer"))
+
+  # symbols and other non-string arguments are ignored
+  file <- renv_scope_tempfile("renv-test-", fileext = ".R")
+  writeLines("rlang::check_installed(package)", con = file)
+  deps <- dependencies(file, quiet = TRUE)
+  expect_contains(deps$Package, "rlang")
+  expect_false("package" %in% deps$Package)
 
 })
 

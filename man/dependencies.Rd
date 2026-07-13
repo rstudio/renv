@@ -66,7 +66,9 @@ parsing the code and looking for calls of the form \code{library(package)},
 \code{require(package)}, \code{requireNamespace("package")}, and \code{package::method()}.
 renv also supports package loading with
 \href{https://cran.r-project.org/package=box}{box} (\code{box::use(...)}) and
-\href{https://cran.r-project.org/package=pacman}{pacman} (\code{pacman::p_load(...)}).
+\href{https://cran.r-project.org/package=pacman}{pacman} (\code{pacman::p_load(...)}),
+as well as dependency checks of the form \code{rlang::check_installed("package")}
+and \code{rlang::is_installed("package")}.
 
 For \R package projects, \code{renv} will also detect dependencies expressed
 in the \code{DESCRIPTION} file. For projects using Python, \R dependencies within
@@ -91,6 +93,13 @@ It also can't generally tell if one of the packages you use, uses one of
 its suggested packages. For example, the \code{tidyr::separate_wider_delim()}
 function requires the \code{stringr} package, but \code{stringr} is only suggested,
 not required, by \code{tidyr}.
+
+For a small number of common cases, renv infers these indirect dependencies
+from the combination of packages in use. For example, a project that uses
+\code{dplyr} together with a database backend (such as \code{DBI} and \code{RSQLite}) is
+assumed to also require \code{dbplyr}, which \code{dplyr} loads at runtime when working
+with databases. These rules are defined by the \code{renv.dependencies.implied}
+\R option; set it to an empty list (\code{options(renv.dependencies.implied = list())}) to disable this inference entirely.
 
 If you find that renv's dependency discovery misses one or more packages
 that you actually use in your project, one escape hatch is to include a file
