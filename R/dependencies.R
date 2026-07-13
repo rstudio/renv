@@ -1285,7 +1285,7 @@ renv_dependencies_discover_r_require_namespace <- function(node, envir) {
     return(FALSE)
 
   package <- matched$package
-  if (is.character(package) && length(package == 1)) {
+  if (is.character(package) && length(package) == 1) {
     envir[[package]] <- TRUE
     return(TRUE)
   }
