@@ -108,6 +108,11 @@ suitable alternative.</p>
     <p>Records can be provided either using the <strong>remotes</strong> short-hand syntax,
 or by using an <span style="R">R</span> list of entries to record within the lockfile. See
 <code><a href="lockfiles.html">?lockfiles</a></code> for more information on the structure of a package record.</p>
+<p>A package's record can be removed from the lockfile by setting its entry
+to <code>NULL</code>; for example, use <code>renv::record(list(dplyr = NULL))</code> to remove
+the record for the dplyr package from the lockfile. Note that this only
+modifies the lockfile; use <code><a href="remove.html">remove()</a></code> if you'd also like to remove
+the package from the project library.</p>
     </div>
 
     <div class="section level2">
@@ -130,6 +135,9 @@ or by using an <span style="R">R</span> list of entries to record within the loc
 <span class="r-in"><span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="fu">renv</span><span class="fu">::</span><span class="fu">record</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>digest <span class="op">=</span> <span class="va">digest_record</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># remove the record for digest from the lockfile</span></span></span>
+<span class="r-in"><span><span class="fu">renv</span><span class="fu">::</span><span class="fu">record</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>digest <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="op">}</span> <span class="co"># }</span></span></span>
 </code></pre></div>

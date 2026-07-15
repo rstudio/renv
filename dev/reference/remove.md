@@ -5,7 +5,7 @@ Remove (uninstall) R packages.
 ## Usage
 
 ``` r
-remove(packages, ..., library = NULL, project = NULL)
+remove(packages, ..., library = NULL, prompt = interactive(), project = NULL)
 ```
 
 ## Arguments
@@ -26,6 +26,12 @@ remove(packages, ..., library = NULL, project = NULL)
   [`.libPaths()`](https://rdrr.io/r/base/libPaths.html)) is used
   instead.
 
+- prompt:
+
+  Boolean; prompt the user before removing packages? The prompt is only
+  shown when removing packages from a library other than the project
+  library.
+
 - project:
 
   The project directory. If `NULL`, then the active project will be
@@ -36,6 +42,13 @@ remove(packages, ..., library = NULL, project = NULL)
 
 A vector of package records, describing the packages (if any) which were
 successfully removed.
+
+## Details
+
+Note that `remove()` only removes packages from the requested library;
+it does not modify the project lockfile. Use
+[`record()`](https://rstudio.github.io/renv/dev/reference/record.md) if
+you'd like to remove a package's record from the lockfile.
 
 ## Examples
 

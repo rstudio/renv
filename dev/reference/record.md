@@ -56,6 +56,13 @@ or by using an R list of entries to record within the lockfile. See
 [`?lockfiles`](https://rstudio.github.io/renv/dev/reference/lockfiles.md)
 for more information on the structure of a package record.
 
+A package's record can be removed from the lockfile by setting its entry
+to `NULL`; for example, use `renv::record(list(dplyr = NULL))` to remove
+the record for the dplyr package from the lockfile. Note that this only
+modifies the lockfile; use
+[`remove()`](https://rstudio.github.io/renv/dev/reference/remove.md) if
+you'd also like to remove the package from the project library.
+
 ## Examples
 
 ``` r
@@ -77,6 +84,9 @@ digest_record <- list(
 )
 
 renv::record(list(digest = digest_record))
+
+# remove the record for digest from the lockfile
+renv::record(list(digest = NULL))
 
 } # }
 ```

@@ -58,7 +58,7 @@
 
     <div class="section level2">
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">remove</span><span class="op">(</span><span class="va">packages</span>, <span class="va">...</span>, library <span class="op">=</span> <span class="cn">NULL</span>, project <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span></span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">remove</span><span class="op">(</span><span class="va">packages</span>, <span class="va">...</span>, library <span class="op">=</span> <span class="cn">NULL</span>, prompt <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/interactive.html" class="external-link">interactive</a></span><span class="op">(</span><span class="op">)</span>, project <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div class="section level2">
@@ -80,6 +80,12 @@ are matched to <code>...</code>, renv will signal an error.</p></dd>
 <code><a href="https://rdrr.io/r/base/libPaths.html" class="external-link">.libPaths()</a></code>) is used instead.</p></dd>
 
 
+<dt id="arg-prompt">prompt<a class="anchor" aria-label="anchor" href="#arg-prompt"></a></dt>
+<dd><p>Boolean; prompt the user before removing packages? The prompt
+is only shown when removing packages from a library other than the
+project library.</p></dd>
+
+
 <dt id="arg-project">project<a class="anchor" aria-label="anchor" href="#arg-project"></a></dt>
 <dd><p>The project directory. If <code>NULL</code>, then the active project will
 be used. If no project is currently active, then the current working
@@ -90,6 +96,12 @@ directory is used instead.</p></dd>
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
     <p>A vector of package records, describing the packages (if any) which
 were successfully removed.</p>
+    </div>
+    <div class="section level2">
+    <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
+    <p>Note that <code>remove()</code> only removes packages from the requested library;
+it does not modify the project lockfile. Use <code><a href="record.html">record()</a></code> if you'd
+like to remove a package's record from the lockfile.</p>
     </div>
 
     <div class="section level2">
