@@ -157,6 +157,62 @@ test_that("snapshot ignores own package in package development scenarios", {
 
 })
 
+test_that("snapshot includes own package when include-self is set", {
+
+  renv_tests_scope()
+  ensure_directory("bread")
+  renv_scope_wd("bread")
+
+  writeLines(
+    c(
+      "Type: Package",
+      "Package: bread",
+      "Config/renv/snapshot/include-self: TRUE"
+    ),
+    con = "DESCRIPTION"
+  )
+
+  # the package should be discovered as a dependency of itself
+  deps <- dependencies()
+  expect_true("bread" %in% deps$Package)
+
+  # and so included in the lockfile after snapshot
+  install("bread")
+  lockfile <- snapshot(lockfile = NULL)
+  records <- renv_lockfile_records(lockfile)
+  expect_false(is.null(records[["bread"]]))
+
+  # the R option takes precedence over the DESCRIPTION field
+  renv_scope_options(renv.snapshot.ignore.self = TRUE)
+  lockfile <- snapshot(lockfile = NULL)
+  records <- renv_lockfile_records(lockfile)
+  expect_true(is.null(records[["bread"]]))
+
+})
+
+test_that("include-self: FALSE excludes own package in golem projects", {
+
+  renv_tests_scope()
+  ensure_directory("bread")
+  renv_scope_wd("bread")
+
+  writeLines(
+    c(
+      "Type: Package",
+      "Package: bread",
+      "Config/renv/snapshot/include-self: FALSE"
+    ),
+    con = "DESCRIPTION"
+  )
+
+  # golem projects normally include self in the lockfile
+  ensure_directory("inst")
+  writeLines("default: {}", con = "inst/golem-config.yml")
+
+  expect_equal(renv_project_ignored_packages_self(getwd()), "bread")
+
+})
+
 test_that("snapshot warns about unsatisfied dependencies", {
 
   renv_tests_scope("toast")

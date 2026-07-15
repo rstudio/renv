@@ -161,6 +161,29 @@ requested set of packages, and their recursive dependencies, will be written
 to the lockfile.
 }
 
+\section{Package projects}{
+When snapshotting a package project (that is, a project containing a
+\code{DESCRIPTION} file), renv normally records only the package's dependencies
+in the lockfile, and excludes the package itself. If you'd like the package
+itself to be recorded as well -- for example, because the project is
+deployed as a Shiny application, using an \code{app.R} that runs an application
+exported from the package -- you can set:
+
+\if{html}{\out{<div class="sourceCode">}}\preformatted{Config/renv/snapshot/include-self: TRUE
+}\if{html}{\out{</div>}}
+
+in the package's \code{DESCRIPTION} file. With this set, the package is also
+treated as a dependency of the project, and so is expected to be installed
+in the project library. Note that for the package to be restorable, it
+should be installed from a remote source -- for example, with
+\code{renv::install("<user>/<repo>")} for a package available on GitHub.
+
+The \R option \code{renv.snapshot.ignore.self} can also be used to control this
+behavior: set it to \code{FALSE} to include the package in the lockfile, or
+\code{TRUE} to exclude it. When set, this option takes precedence over the
+\code{DESCRIPTION} field.
+}
+
 \examples{
 
 \dontrun{
