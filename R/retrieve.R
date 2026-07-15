@@ -733,7 +733,8 @@ renv_retrieve_repos <- function(record) {
     if (inherits(status, "error")) {
 
       # errors signaled during retrieval have already been collected above
-      if (!identical(attr(status, "signaled", exact = TRUE), TRUE))
+      signaled <- identical(attr(status, "signaled", exact = TRUE), TRUE)
+      if (!signaled)
         errors$push(status)
 
       next
@@ -923,9 +924,12 @@ renv_retrieve_repos_archive <- function(record) {
     # unless they were already signaled during retrieval
     name <- renv_retrieve_repos_archive_name(record, type = "source")
     status <- catch(renv_retrieve_repos_impl(record, "source", name, root, defer = TRUE))
-    if (inherits(status, "error") &&
-        !identical(attr(status, "signaled", exact = TRUE), TRUE))
-    {
+
+    signal <-
+      inherits(status, "error") &&
+      !identical(attr(status, "signaled", exact = TRUE), TRUE)
+
+    if (signal) {
       attr(status, "record") <- record
       renv_condition_signal("renv.retrieve.error", status)
     }
