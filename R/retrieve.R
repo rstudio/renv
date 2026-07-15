@@ -731,8 +731,13 @@ renv_retrieve_repos <- function(record) {
     )
 
     if (inherits(status, "error")) {
-      errors$push(status)
+
+      # errors signaled during retrieval have already been collected above
+      if (!identical(attr(status, "signaled", exact = TRUE), TRUE))
+        errors$push(status)
+
       next
+
     }
 
     if (identical(status, TRUE))
@@ -745,7 +750,14 @@ renv_retrieve_repos <- function(record) {
 
   }
 
-  # if we couldn't download the package, report the errors we saw
+  # if we couldn't download the package, replay any deferred download
+  # output, and report the errors we saw
+  for (error in errors$data()) {
+    output <- attr(error, "output", exact = TRUE)
+    if (length(output))
+      writeLines(output)
+  }
+
   local({
     renv_scope_options(warn = 1L)
     for (error in errors$data())
@@ -839,12 +851,12 @@ renv_retrieve_repos_p3m <- function(record) {
   ))
 
   # attempt to retrieve
-  renv_retrieve_package(record, url, path)
+  renv_retrieve_package(record, url, path, defer = TRUE)
 
 }
 
 renv_retrieve_repos_binary <- function(record) {
-  renv_retrieve_repos_impl(record, "binary")
+  renv_retrieve_repos_impl(record, "binary", defer = TRUE)
 }
 
 renv_retrieve_repos_binary_fallback <- function(record) {
@@ -852,7 +864,7 @@ renv_retrieve_repos_binary_fallback <- function(record) {
   for (repo in getOption("repos")) {
     if (renv_nexus_enabled(repo)) {
       repourl <- contrib.url(repo, type = "binary")
-      status <- catch(renv_retrieve_repos_impl(record, "binary", repo = repourl))
+      status <- catch(renv_retrieve_repos_impl(record, "binary", repo = repourl, defer = TRUE))
       if (!inherits(status, "error"))
         return(status)
     }
@@ -863,7 +875,7 @@ renv_retrieve_repos_binary_fallback <- function(record) {
 }
 
 renv_retrieve_repos_source <- function(record) {
-  renv_retrieve_repos_impl(record, "source")
+  renv_retrieve_repos_impl(record, "source", defer = TRUE)
 }
 
 renv_retrieve_repos_source_fallback <- function(record, repo) {
@@ -871,7 +883,7 @@ renv_retrieve_repos_source_fallback <- function(record, repo) {
   for (repo in getOption("repos")) {
     if (renv_nexus_enabled(repo)) {
       repourl <- contrib.url(repo, type = "source")
-      status <- catch(renv_retrieve_repos_impl(record, "source", repo = repourl))
+      status <- catch(renv_retrieve_repos_impl(record, "source", repo = repourl, defer = TRUE))
       if (!inherits(status, "error"))
         return(status)
     }
@@ -907,10 +919,13 @@ renv_retrieve_repos_archive <- function(record) {
     if (is.null(root))
       next
 
-    # attempt download; report errors via condition handler
+    # attempt download; report errors via condition handler,
+    # unless they were already signaled during retrieval
     name <- renv_retrieve_repos_archive_name(record, type = "source")
-    status <- catch(renv_retrieve_repos_impl(record, "source", name, root))
-    if (inherits(status, "error")) {
+    status <- catch(renv_retrieve_repos_impl(record, "source", name, root, defer = TRUE))
+    if (inherits(status, "error") &&
+        !identical(attr(status, "signaled", exact = TRUE), TRUE))
+    {
       attr(status, "record") <- record
       renv_condition_signal("renv.retrieve.error", status)
     }
@@ -1003,7 +1018,8 @@ renv_retrieve_repos_archive_formatter <- function(url) {
 renv_retrieve_repos_impl <- function(record,
                                      type = NULL,
                                      name = NULL,
-                                     repo = NULL)
+                                     repo = NULL,
+                                     defer = FALSE)
 {
   package <- record$Package
   version <- record$Version
@@ -1055,24 +1071,36 @@ renv_retrieve_repos_impl <- function(record,
   url <- file.path(repo, name)
   path <- renv_retrieve_path(record, type)
 
-  renv_retrieve_package(record, url, path)
+  renv_retrieve_package(record, url, path, defer = defer)
 
 }
 
 
-renv_retrieve_package <- function(record, url, path) {
+renv_retrieve_package <- function(record, url, path, defer = FALSE) {
 
   ensure_parent_directory(path)
   type <- renv_record_source(record)
-  status <- local({
-    renv_scope_auth(record)
-    preamble <- renv_retrieve_package_preamble(record, url)
-    catch(download(url, preamble = preamble, destfile = path, type = type))
+
+  # for retrieval methods with fallback candidates available, defer download
+  # output, so that failed attempts can be reported quietly when a later
+  # candidate succeeds -- the transcript is replayed on success, or attached
+  # to the error otherwise: https://github.com/rstudio/renv/issues/1727
+  defer <- defer && !renv_download_trace()
+
+  status <- NULL
+  output <- capture.output(split = !defer, {
+    status <- local({
+      renv_scope_auth(record)
+      preamble <- renv_retrieve_package_preamble(record, url)
+      catch(download(url, preamble = preamble, destfile = path, type = type))
+    })
   })
 
   # report error for logging upstream
   if (inherits(status, "error")) {
     attr(status, "record") <- record
+    attr(status, "output") <- if (defer) output
+    attr(status, "signaled") <- TRUE
     renv_condition_signal("renv.retrieve.error", status)
   }
 
@@ -1081,11 +1109,16 @@ renv_retrieve_package <- function(record, url, path) {
     fmt <- "an unknown error occurred installing '%s' (%s)"
     msg <- sprintf(fmt, record$Package, renv_record_format_remote(record))
     status <- simpleError(msg)
+    attr(status, "output") <- if (defer) output
   }
 
   # handle errors
   if (inherits(status, "error"))
     stop(status)
+
+  # emit deferred output for the successful download
+  if (defer)
+    writeLines(output)
 
   # handle success
   renv_retrieve_successful(record, path)
