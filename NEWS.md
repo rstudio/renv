@@ -9,6 +9,12 @@
 * Removing a package record from the lockfile by setting it to `NULL`, e.g.
   with `renv::record(list(dplyr = NULL))`, is now documented. (#2331)
 
+* Package projects can now request that the package itself be included in the
+  lockfile, by setting `Config/renv/snapshot/include-self: TRUE` in the package
+  `DESCRIPTION` file. This can be useful when deploying a Shiny application
+  that is developed as part of a package. See `?renv::snapshot` for more
+  details. (#2285)
+
 * `renv::dependencies()` now detects packages referenced via
   `rlang::check_installed()` and `rlang::is_installed()`. (#1936)
 
