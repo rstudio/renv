@@ -43,9 +43,12 @@ download <- function(url,
   url      <- chartr("\\", "/", url)
   destfile <- chartr("\\", "/", destfile)
 
-  # notify user we're about to try downloading
+  # notify user we're about to try downloading, unless the download
+  # status is being deferred -- in that case, the caller is responsible
+  # for emitting the preamble alongside the deferred status
   preamble <- preamble %||% sprintf("- Downloading '%s' ... ", url)
-  printf(preamble)
+  if (is.null(the$download_status))
+    printf(preamble)
 
   # add custom headers as appropriate for the URL
   custom <- renv_download_custom_headers(url)
@@ -64,7 +67,7 @@ download <- function(url,
   if (identical(info$isdir, FALSE)) {
     size <- renv_download_size(url, type, headers)
     if (info$size == size) {
-      writef("OK [file is up to date]")
+      renv_download_status("OK [file is up to date]")
       return(destfile)
     }
   }
@@ -1107,10 +1110,12 @@ renv_download_report <- function(elapsed, file) {
   else
     structure(info$size, class = "object_size")
 
-  renv_report_ok(
+  message <- renv_report_ok_message(
     message = format(size, units = "auto"),
     elapsed = elapsed
   )
+
+  renv_download_status(message)
 
 }
 
@@ -1323,8 +1328,25 @@ renv_download_available_fallback <- function(url) {
 
 renv_download_error <- function(url, fmt, ...) {
   msg <- sprintf(fmt, ...)
-  writef("\tERROR [%s]", msg)
+  renv_download_status(sprintf("\tERROR [%s]", msg))
   stopf("error downloading '%s' [%s]", url, msg, call. = FALSE)
+}
+
+# report the status of a completed download attempt -- printed eagerly by
+# default, but stashed in 'the$download_status' when a caller has requested
+# that download output be deferred; see 'renv_retrieve_package' for motivation
+renv_download_status <- function(text) {
+
+  if (!renv_verbose())
+    return(invisible())
+
+  if (is.null(the$download_status))
+    writef("%s", text)
+  else
+    the$download_status <- text
+
+  invisible()
+
 }
 
 renv_download_trace <- function() {

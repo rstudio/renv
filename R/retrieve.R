@@ -755,8 +755,8 @@ renv_retrieve_repos <- function(record) {
   # output, and report the errors we saw
   for (error in errors$data()) {
     output <- attr(error, "output", exact = TRUE)
-    if (length(output))
-      writeLines(output)
+    if (length(output) && nzchar(output))
+      cat(output, file = stdout())
   }
 
   local({
@@ -1087,23 +1087,39 @@ renv_retrieve_package <- function(record, url, path, defer = FALSE) {
 
   # for retrieval methods with fallback candidates available, defer download
   # output, so that failed attempts can be reported quietly when a later
-  # candidate succeeds -- the transcript is replayed on success, or attached
-  # to the error otherwise: https://github.com/rstudio/renv/issues/1727
+  # candidate succeeds -- the status is emitted on success, or attached to
+  # the error otherwise: https://github.com/rstudio/renv/issues/1727
   defer <- defer && !renv_download_trace()
 
-  status <- NULL
-  output <- capture.output(split = !defer, {
-    status <- local({
-      renv_scope_auth(record)
-      preamble <- renv_retrieve_package_preamble(record, url)
-      catch(download(url, preamble = preamble, destfile = path, type = type))
-    })
+  # while deferring, the download status message is stashed in
+  # 'the$download_status', rather than printed to the console; the deferred
+  # cleanup here is a backstop for non-local exits (e.g. interrupts)
+  if (defer) {
+    the$download_status <- ""
+    defer(the$download_status <- NULL)
+  }
+
+  preamble <- renv_retrieve_package_preamble(record, url)
+
+  status <- local({
+    renv_scope_auth(record)
+    catch(download(url, preamble = preamble, destfile = path, type = type))
   })
+
+  # collect the deferred download status, clearing it eagerly so that
+  # downloads made while retrieving dependencies are not also deferred
+  output <- NULL
+  if (defer) {
+    text <- the$download_status
+    the$download_status <- NULL
+    if (nzchar(text))
+      output <- paste0(preamble, text, "\n")
+  }
 
   # report error for logging upstream
   if (inherits(status, "error")) {
     attr(status, "record") <- record
-    attr(status, "output") <- if (defer) output
+    attr(status, "output") <- output
     attr(status, "signaled") <- TRUE
     renv_condition_signal("renv.retrieve.error", status)
   }
@@ -1113,7 +1129,7 @@ renv_retrieve_package <- function(record, url, path, defer = FALSE) {
     fmt <- "an unknown error occurred installing '%s' (%s)"
     msg <- sprintf(fmt, record$Package, renv_record_format_remote(record))
     status <- simpleError(msg)
-    attr(status, "output") <- if (defer) output
+    attr(status, "output") <- output
   }
 
   # handle errors
@@ -1122,7 +1138,7 @@ renv_retrieve_package <- function(record, url, path, defer = FALSE) {
 
   # emit deferred output for the successful download
   if (defer)
-    writeLines(output)
+    cat(output, file = stdout())
 
   # handle success
   renv_retrieve_successful(record, path)
