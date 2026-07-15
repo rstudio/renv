@@ -2,6 +2,14 @@
 
 ## renv (development version)
 
+- Package projects can now request that the package itself be included
+  in the lockfile, by setting `Config/renv/snapshot/include-self: TRUE`
+  in the package `DESCRIPTION` file. This can be useful when deploying a
+  Shiny application that is developed as part of a package. See
+  [`?renv::snapshot`](https://rstudio.github.io/renv/dev/reference/snapshot.md)
+  for more details.
+  ([\#2285](https://github.com/rstudio/renv/issues/2285))
+
 - [`renv::dependencies()`](https://rstudio.github.io/renv/dev/reference/dependencies.md)
   now detects packages referenced via
   [`rlang::check_installed()`](https://rlang.r-lib.org/reference/is_installed.html)

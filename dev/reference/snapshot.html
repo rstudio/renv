@@ -247,6 +247,25 @@ requested set of packages, and their recursive dependencies, will be written
 to the lockfile.</p>
     </div>
     <div class="section level2">
+    <h2 id="package-projects">Package projects<a class="anchor" aria-label="anchor" href="#package-projects"></a></h2>
+    <p>When snapshotting a package project (that is, a project containing a
+<code>DESCRIPTION</code> file), renv normally records only the package's dependencies
+in the lockfile, and excludes the package itself. If you'd like the package
+itself to be recorded as well – for example, because the project is
+deployed as a Shiny application, using an <code>app.R</code> that runs an application
+exported from the package – you can set:</p>
+<p></p><div class="sourceCode"><pre><code><span id="cb1-1"><a href="#cb1-1" tabindex="-1"></a>Config<span class="sc">/</span>renv<span class="sc">/</span>snapshot<span class="sc">/</span>include<span class="sc">-</span>self<span class="sc">:</span> <span class="cn">TRUE</span></span></code></pre><p></p></div>
+<p>in the package's <code>DESCRIPTION</code> file. With this set, the package is also
+treated as a dependency of the project, and so is expected to be installed
+in the project library. Note that for the package to be restorable, it
+should be installed from a remote source – for example, with
+<code>renv::install("&lt;user&gt;/&lt;repo&gt;")</code> for a package available on GitHub.</p>
+<p>The <span style="R">R</span> option <code>renv.snapshot.ignore.self</code> can also be used to control this
+behavior: set it to <code>FALSE</code> to include the package in the lockfile, or
+<code>TRUE</code> to exclude it. When set, this option takes precedence over the
+<code>DESCRIPTION</code> field.</p>
+    </div>
+    <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
     <div class="dont-index"><p>More on handling package <code><a href="dependencies.html">dependencies()</a></code></p>
 <p>Other reproducibility:
