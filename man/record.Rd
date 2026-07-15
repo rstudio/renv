@@ -43,6 +43,12 @@ suitable alternative.
 Records can be provided either using the \strong{remotes} short-hand syntax,
 or by using an \R list of entries to record within the lockfile. See
 \code{?lockfiles} for more information on the structure of a package record.
+
+A package's record can be removed from the lockfile by setting its entry
+to \code{NULL}; for example, use \code{renv::record(list(dplyr = NULL))} to remove
+the record for the dplyr package from the lockfile. Note that this only
+modifies the lockfile; use \code{\link[=remove]{remove()}} if you'd also like to remove
+the package from the project library.
 }
 
 \examples{
@@ -64,6 +70,9 @@ digest_record <- list(
 )
 
 renv::record(list(digest = digest_record))
+
+# remove the record for digest from the lockfile
+renv::record(list(digest = NULL))
 
 }
 }

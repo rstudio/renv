@@ -1,6 +1,14 @@
 
 # renv (development version)
 
+* `renv::remove()` gains a `prompt` argument, and now asks for confirmation
+  before removing packages from a library other than the project library --
+  for example, when called without an activated renv project, where the
+  target library would be the user library. (#2331)
+
+* Removing a package record from the lockfile by setting it to `NULL`, e.g.
+  with `renv::record(list(dplyr = NULL))`, is now documented. (#2331)
+
 * `renv::dependencies()` now detects packages referenced via
   `rlang::check_installed()` and `rlang::is_installed()`. (#1936)
 

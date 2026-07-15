@@ -4,7 +4,7 @@
 \alias{remove}
 \title{Remove packages}
 \usage{
-remove(packages, ..., library = NULL, project = NULL)
+remove(packages, ..., library = NULL, prompt = interactive(), project = NULL)
 }
 \arguments{
 \item{packages}{A character vector of \R packages to remove.}
@@ -16,6 +16,10 @@ are matched to \code{...}, renv will signal an error.}
 \code{NULL}, the active library (that is, the first entry reported in
 \code{.libPaths()}) is used instead.}
 
+\item{prompt}{Boolean; prompt the user before removing packages? The prompt
+is only shown when removing packages from a library other than the
+project library.}
+
 \item{project}{The project directory. If \code{NULL}, then the active project will
 be used. If no project is currently active, then the current working
 directory is used instead.}
@@ -26,6 +30,11 @@ were successfully removed.
 }
 \description{
 Remove (uninstall) \R packages.
+}
+\details{
+Note that \code{remove()} only removes packages from the requested library;
+it does not modify the project lockfile. Use \code{\link[=record]{record()}} if you'd
+like to remove a package's record from the lockfile.
 }
 \examples{
 
