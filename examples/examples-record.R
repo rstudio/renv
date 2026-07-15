@@ -17,4 +17,7 @@ digest_record <- list(
 
 renv::record(list(digest = digest_record))
 
+# remove the record for digest from the lockfile
+renv::record(list(digest = NULL))
+
 }
