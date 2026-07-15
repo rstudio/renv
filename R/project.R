@@ -221,6 +221,12 @@ renv_project_ignored_packages_self <- function(project) {
   else if (identical(ignore, FALSE))
     return(NULL)
 
+  # respect DESCRIPTION field if set
+  # https://github.com/rstudio/renv/issues/2285
+  include <- desc[["Config/renv/snapshot/include-self"]]
+  if (!is.null(include))
+    return(if (truthy(include)) NULL else package)
+
   # don't ignore self in golem projets
   golem <- file.path(project, "inst/golem-config.yml")
   if (file.exists(golem))

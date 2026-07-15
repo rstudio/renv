@@ -14,6 +14,12 @@
 #' or by using an \R list of entries to record within the lockfile. See
 #' `?lockfiles` for more information on the structure of a package record.
 #'
+#' A package's record can be removed from the lockfile by setting its entry
+#' to `NULL`; for example, use `renv::record(list(dplyr = NULL))` to remove
+#' the record for the dplyr package from the lockfile. Note that this only
+#' modifies the lockfile; use [renv::remove()] if you'd also like to remove
+#' the package from the project library.
+#'
 #' @inheritParams renv-params
 #'
 #' @param records A list of named records, mapping package names to a definition
