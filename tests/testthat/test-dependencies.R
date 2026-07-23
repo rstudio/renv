@@ -363,6 +363,22 @@ test_that("engine: jupyter suppresses knitr and reticulate", {
   expect_false("reticulate" %in% deps$Package)
 })
 
+test_that("chunk engine tokens are matched case-insensitively", {
+  deps <- dependencies("resources/quarto-uppercase-chunks.qmd")
+  expect_true(all(c("knitr", "reticulate") %in% deps$Package))
+})
+
+test_that("reticulate is inferred for Python chunks even when eval is false", {
+  deps <- dependencies("resources/quarto-python-eval-false.qmd")
+  expect_true(all(c("knitr", "reticulate") %in% deps$Package))
+})
+
+test_that("engine: value is matched case-insensitively", {
+  skip_if_not_installed("yaml")
+  deps <- dependencies("resources/quarto-mixedcase-engine.qmd")
+  expect_true(all(c("knitr", "reticulate") %in% deps$Package))
+})
+
 test_that("we parse package references from arbitrary yaml fields", {
   deps <- dependencies("resources/rmd-base-format.Rmd")
   expect_true("bookdown" %in% deps$Package)
