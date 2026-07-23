@@ -1018,17 +1018,10 @@ renv_dependencies_discover_chunks <- function(path, mode) {
   # check for dependencies in inline chunks as well
   ideps <- renv_dependencies_discover_chunks_inline(path, contents)
 
-  # if this is a .qmd, infer a dependency on rmarkdown if we have any R chunks
+  # for a .qmd, infer engine-binding dependencies (knitr / reticulate)
   qdeps <- NULL
-  if (mode %in% "qmd") {
-    for (chunk in chunks) {
-      engine <- chunk$params[["engine"]]
-      if (is.character(engine) && tolower(engine) %in% c("r", "rscript")) {
-        qdeps <- renv_dependencies_list(path, "rmarkdown")
-        break
-      }
-    }
-  }
+  if (mode %in% "qmd")
+    qdeps <- renv_dependencies_discover_quarto_engine(path, contents, chunks)
 
   # paste them all together
   deps <- bind(list(cdeps, ideps, qdeps))
@@ -1037,6 +1030,58 @@ renv_dependencies_discover_chunks <- function(path, mode) {
 
   deps$Source <- path
   deps
+
+}
+
+renv_dependencies_discover_quarto_engine <- function(path, contents, chunks) {
+
+  # collect the set of chunk engines present in the document
+  engines <- tolower(map_chr(chunks, function(chunk) {
+    engine <- chunk$params[["engine"]]
+    if (is.character(engine) && length(engine) == 1L) engine else ""
+  }))
+
+  has_r <- any(engines %in% c("r", "rscript"))
+  has_python <- any(engines == "python")
+  has_executable <- any(nzchar(engines))
+
+  # parse the YAML header to check for explicit engine overrides
+  yaml <- NULL
+  yamltext <- renv_dependencies_yaml_header_text(paste(contents, collapse = "\n"))
+  if (!is.null(yamltext) && renv_dependencies_require("yaml")) {
+    parsed <- catch(renv_yaml_load(yamltext))
+    if (is.list(parsed))
+      yaml <- parsed
+  }
+
+  # resolve the engine following Quarto's engine binding rules
+  engine <- local({
+    override <- yaml[["engine"]]
+    if (is.character(override) && length(override) == 1L && nzchar(override))
+      return(tolower(override))
+    if (!is.null(yaml[["jupyter"]]))
+      return("jupyter")
+    if (!is.null(yaml[["knitr"]]))
+      return("knitr")
+    if (has_r)
+      return("knitr")
+    if (has_executable)
+      return("jupyter")
+    ""
+  })
+
+  # map the resolved engine to R package dependencies
+  packages <- character()
+  if (identical(engine, "knitr")) {
+    packages <- "knitr"
+    if (has_python)
+      packages <- c(packages, "reticulate")
+  }
+
+  if (length(packages) == 0L)
+    return(NULL)
+
+  renv_dependencies_list(path, packages)
 
 }
 
