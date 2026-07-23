@@ -777,6 +777,22 @@ renv_dependencies_discover_multimode <- function(path, mode) {
 
 }
 
+renv_dependencies_yaml_header_text <- function(contents) {
+
+  # look for the '---' fences delimiting a YAML header
+  pattern <- "(?:^|\n)\\s*---\\s*(?:$|\n)"
+  matches <- gregexpr(pattern, contents, perl = TRUE)[[1L]]
+
+  # a valid header needs an opening fence at the very start plus a closing fence
+  ok <- length(matches) > 1L && matches[[1L]] == 1L
+  if (!ok)
+    return(NULL)
+
+  # extract the text between the two fences
+  substring(contents, matches[[1L]] + 4L, matches[[2L]] - 1L)
+
+}
+
 renv_dependencies_discover_rmd_yaml_header <- function(path, mode) {
 
   deps <- stack(mode = "character")
@@ -787,12 +803,10 @@ renv_dependencies_discover_rmd_yaml_header <- function(path, mode) {
 
   # try and read the document's YAML header
   contents <- renv_file_read(path)
-  pattern <- "(?:^|\n)\\s*---\\s*(?:$|\n)"
-  matches <- gregexpr(pattern, contents, perl = TRUE)[[1L]]
+  yamltext <- renv_dependencies_yaml_header_text(contents)
 
   # check that we have something that looks like a YAML header
-  ok <- length(matches) > 1L && matches[[1L]] == 1L
-  if (!ok)
+  if (is.null(yamltext))
     return(renv_dependencies_list(path, packages = deps$data()))
 
   # require yaml package for parsing YAML header
@@ -807,8 +821,7 @@ renv_dependencies_discover_rmd_yaml_header <- function(path, mode) {
     return(renv_dependencies_list(path, packages))
   }
 
-  # extract YAML text
-  yamltext <- substring(contents, matches[[1L]] + 4L, matches[[2L]] - 1L)
+  # parse the extracted YAML text
   yaml <- catch(renv_yaml_load(yamltext))
   if (inherits(yaml, "error"))
     return(renv_dependencies_error(path, error = yaml, packages = "rmarkdown"))
