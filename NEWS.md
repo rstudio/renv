@@ -24,6 +24,12 @@
   In addition, usage of the Junit reporter is now also detected in calls to
   `test_check()` and `test_local()`. (#1936)
 
+* `renv::dependencies()` now infers dependencies on `knitr` and `reticulate`
+  for Quarto (`.qmd`) documents, following Quarto's engine-binding rules. A
+  document that uses the knitr engine now infers `knitr` (rather than
+  `rmarkdown`), and additionally infers `reticulate` when it contains Python
+  chunks. (#2174)
+
 * `renv::install()` with pak enabled no longer upgrades already-installed
   dependencies that are only pulled in transitively -- most visibly recommended
   packages such as `cluster` or `Matrix`, which previously could be rebuilt when
