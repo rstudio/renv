@@ -100,6 +100,35 @@ renv_pak_update <- function(project, library, prompt) {
 
 }
 
+# translate a user-provided remote spec into one which pak understands;
+# specs which are already pak-compatible are returned as-is
+renv_pak_remote <- function(spec) {
+
+  remote <- catch(renv_remotes_parse(spec))
+  if (inherits(remote, "error"))
+    return(spec)
+
+  if (!identical(remote$type, "gitlab"))
+    return(spec)
+
+  # we have no way of expressing a merge request with pkgdepends' syntax;
+  # pass the spec through unchanged, so pak can report the problem itself
+  if (!is.null(remote$pull))
+    return(spec)
+
+  record <- list(
+    Package        = remote$package,
+    RemoteHost     = remote$host,
+    RemoteUsername = remote$user,
+    RemoteRepo     = remote$repo,
+    RemoteSubdir   = remote$subdir,
+    RemoteRef      = remote$ref
+  )
+
+  renv_record_format_remote_pak_gitlab(record, versioned = FALSE)
+
+}
+
 renv_pak_install <- function(packages,
                              library,
                              type,
@@ -159,12 +188,17 @@ renv_pak_install <- function(packages,
     return(renv_pak_update(project, library, prompt))
   }
   
+  # renv's GitLab remote syntax (e.g. 'gitlab@host::group/project') isn't
+  # understood by pak, so translate those specs into pkgdepends' own syntax
+  # https://github.com/rstudio/renv/issues/2180
+  packages <- map_chr(packages, renv_pak_remote)
+
   # pak doesn't support ':' as a sub-directory separator, so try to
   # repair that here
   # https://github.com/rstudio/renv/issues/2011
   pattern <- "(?<!:):([^/#@:]+)"
   packages <- gsub(pattern, "/\\1", packages, perl = TRUE)
-  
+
   # build parameters. explicitly-requested packages always get 'reinstall',
   # so they are installed even when already current -- matching renv's non-pak
   # installer, which always (re)installs explicitly-requested packages. with

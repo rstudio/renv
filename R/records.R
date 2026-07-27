@@ -166,6 +166,12 @@ renv_record_format_remote <- function(record,
   subdir <- record[["RemoteSubdir"]]
   subdirsep <- if (pak) "/" else ":"
 
+  # renv's 'gitlab@host::' syntax isn't understood by pak (pkgdepends), and its
+  # sub-directory syntax differs as well, so format those remotes separately
+  # https://github.com/rstudio/renv/issues/2180
+  if (pak && (identical(source, "gitlab") || identical(type, "gitlab")))
+    return(renv_record_format_remote_pak_gitlab(record, versioned = versioned))
+
   # skip type and host if they're defaults
   if (identical(type, "github")) {
     if (is.null(host) || identical(host, "api.github.com")) {
@@ -226,6 +232,46 @@ renv_record_format_remote <- function(record,
 
   remote <- paste(stk$data(), collapse = "")
   return(remote)
+}
+
+# format a GitLab record using pkgdepends' own remote syntax, as used by pak:
+#
+#   [<package>=]gitlab::[<protocol>://<host>/]<group>/<project>[/-/<subdir>][@<ref>]
+#
+renv_record_format_remote_pak_gitlab <- function(record, versioned = TRUE) {
+
+  package <- record[["Package"]]
+  host    <- record[["RemoteHost"]] %||% config$gitlab.host()
+  user    <- record[["RemoteUsername"]]
+  repo    <- record[["RemoteRepo"]]
+  ref     <- record[["RemoteRef"]]
+  sha     <- record[["RemoteSha"]]
+  subdir  <- record[["RemoteSubdir"]]
+
+  stk <- stack(mode = "character")
+
+  # pkgdepends infers the package name from the last path component, which is
+  # wrong whenever a sub-directory is involved, so be explicit when we can
+  if (!is.null(package) && !identical(package, repo))
+    stk$push(package, "=")
+
+  # note that the host has to be spelled as a URL; pkgdepends would otherwise
+  # parse it as the leading component of the project path
+  stk$push("gitlab::", renv_retrieve_origin(host), "/")
+
+  stk$push(user, "/", repo)
+
+  # pkgdepends uses GitLab's own '/-/<path>' syntax for sub-directories
+  if (!is.null(subdir) && nzchar(subdir))
+    stk$push("/-/", subdir)
+
+  if (versioned)
+    stk$push("@", sha %||% ref %||% "HEAD")
+  else if (length(ref))
+    stk$push("@", ref)
+
+  paste(stk$data(), collapse = "")
+
 }
 
 renv_record_format_short <- function(record, versioned = FALSE) {

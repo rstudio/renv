@@ -1,6 +1,13 @@
 
 # renv (development version)
 
+* `renv::install()` and `renv::restore()` with pak enabled can now handle
+  packages hosted on a self-hosted GitLab instance. renv previously handed
+  pak remotes of the form `gitlab@<host>::<group>/<project>`, which pak was
+  unable to parse; renv now translates these into pkgdepends' own syntax,
+  `gitlab::https://<host>/<group>/<project>`. GitLab sub-directories are
+  likewise translated to pkgdepends' `/-/<subdir>` syntax. (#2180)
+
 * `renv::remove()` gains a `prompt` argument, and now asks for confirmation
   before removing packages from a library other than the project library --
   for example, when called without an activated renv project, where the
