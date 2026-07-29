@@ -1,6 +1,12 @@
 
 # renv (development version)
 
+* `renv::use()` with pak enabled now honours the requested remotes, rather than
+  installing the latest version of each package from the active repositories.
+  Previously, a call like `renv::use("generics@0.1.3")` would install the
+  current CRAN version of generics. `renv::rebuild()` and `renv::repair()` were
+  affected in the same way. (#2341)
+
 * `renv::remove()` gains a `prompt` argument, and now asks for confirmation
   before removing packages from a library other than the project library --
   for example, when called without an activated renv project, where the

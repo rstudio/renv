@@ -123,47 +123,60 @@ renv_pak_install <- function(packages,
   if (identical(name, "renv"))
     renv_scope_envvars("_R_CHECK_PACKAGE_NAME_" = NULL)
 
-  # if we received a named list of remotes, use the names
-  packages <- if (any(nzchar(names(packages))))
-     names(packages)
-  else
-    as.character(packages)
+  # convert the requested packages into pak-compatible remote specifications.
+  # some callers (e.g. renv::use(), rebuild(), repair()) hand us a named list
+  # of already-resolved records; using those names alone would discard the
+  # record's version pin and remote source
+  # https://github.com/rstudio/renv/issues/2341
+  specs <- map_chr(packages, function(package) {
+    if (is.list(package))
+      renv_record_format_remote(package, pak = TRUE)
+    else
+      as.character(package)
+  })
+
+  # associate each spec with its package name where we know it, so include /
+  # exclude filter by package name rather than by remote specification
+  nms <- names(packages) %||% rep.int("", length(specs))
+  names(specs) <- ifelse(nzchar(nms), nms, specs)
 
   # remember whether the caller explicitly scoped this install so we can
   # distinguish "no scope at all" (let pak update the project) from "explicit
   # scope filtered to empty" (no-op, matching the non-pak path)
-  explicit <- length(packages) > 0L || length(include) > 0L || length(exclude) > 0L
+  explicit <- length(specs) > 0L || length(include) > 0L || length(exclude) > 0L
 
   # apply include / exclude consistently with the non-pak install path,
   # so the semantics of these arguments don't depend on the installer.
   # if no packages were specified positionally but include was, treat it
   # as the request set (e.g. install(include = ...))
   # https://github.com/rstudio/renv/issues/2281
-  if (length(packages) == 0L && length(include))
-    packages <- as.character(include)
+  if (length(specs) == 0L && length(include)) {
+    specs <- as.character(include)
+    names(specs) <- specs
+  }
 
   if (length(exclude))
-    packages <- setdiff(packages, exclude)
+    specs <- specs[!names(specs) %in% exclude]
 
   if (length(include))
-    packages <- intersect(packages, include)
+    specs <- specs[names(specs) %in% include]
 
   # if no packages remain, fall through to a project-wide update only when
   # the caller did not provide an explicit scope; otherwise treat this as
   # a no-op so we don't surprise the user with an unintended update
-  if (length(packages) == 0L) {
+  if (length(specs) == 0L) {
     if (explicit) {
       writef("- There are no packages to install.")
       return(invisible(list()))
     }
     return(renv_pak_update(project, library, prompt))
   }
-  
+
   # pak doesn't support ':' as a sub-directory separator, so try to
   # repair that here
   # https://github.com/rstudio/renv/issues/2011
   pattern <- "(?<!:):([^/#@:]+)"
-  packages <- gsub(pattern, "/\\1", packages, perl = TRUE)
+  packages <- gsub(pattern, "/\\1", unname(specs), perl = TRUE)
   
   # build parameters. explicitly-requested packages always get 'reinstall',
   # so they are installed even when already current -- matching renv's non-pak
