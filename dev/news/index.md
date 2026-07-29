@@ -2,6 +2,17 @@
 
 ## renv (development version)
 
+- [`renv::use()`](https://rstudio.github.io/renv/dev/reference/embed.md)
+  with pak enabled now honours the requested remotes, rather than
+  installing the latest version of each package from the active
+  repositories. Previously, a call like `renv::use("generics@0.1.3")`
+  would install the current CRAN version of generics.
+  [`renv::rebuild()`](https://rstudio.github.io/renv/dev/reference/rebuild.md)
+  and
+  [`renv::repair()`](https://rstudio.github.io/renv/dev/reference/repair.md)
+  were affected in the same way.
+  ([\#2341](https://github.com/rstudio/renv/issues/2341))
+
 - [`renv::remove()`](https://rstudio.github.io/renv/dev/reference/remove.md)
   gains a `prompt` argument, and now asks for confirmation before
   removing packages from a library other than the project library – for
