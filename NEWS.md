@@ -7,6 +7,12 @@
   happen with a misconfigured shared cache), the error now says so directly.
   (#2340)
 
+* Failed package downloads are now reported quietly when a later retrieval
+  candidate succeeds -- for example, when a binary package fails to download,
+  but the source fallback succeeds. If all candidates fail, the download
+  output is still emitted, and download errors are no longer reported twice.
+  (#1727)
+
 * `renv::use()` with pak enabled now honours the requested remotes, rather than
   installing the latest version of each package from the active repositories.
   Previously, a call like `renv::use("generics@0.1.3")` would install the

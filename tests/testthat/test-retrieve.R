@@ -310,6 +310,135 @@ test_that("we can retrieve packages from R repositories", {
 
 })
 
+test_that("failed binary downloads are quiet when a source fallback succeeds", {
+
+  skip_on_cran()
+  skip_if(identical(.Platform$pkgType, "source"))
+
+  renv_tests_scope(isolated = TRUE)
+
+  # create a repository containing a source tarball for 'bread'
+  repopath <- renv_scope_tempfile("renv-repos-")
+  srccontrib <- file.path(repopath, "src/contrib")
+  ensure_directory(srccontrib)
+
+  tarball <- file.path(srccontrib, "bread_1.0.0.tar.gz")
+  local({
+    renv_scope_wd(renv_tests_path("packages"))
+    tar(tarball, "bread", compression = "gzip", tar = "internal")
+  })
+  write_PACKAGES(srccontrib, type = "source")
+
+  # advertise a binary package without actually providing its archive
+  bincontrib <- paste0(repopath, contrib.url("", type = .Platform$pkgType))
+  ensure_directory(bincontrib)
+  file.copy(file.path(srccontrib, "PACKAGES"), bincontrib)
+
+  fmt <- if (renv_platform_windows()) "file:///%s" else "file://%s"
+  renv_scope_options(
+    pkgType = "both",
+    repos = c(CRAN = sprintf(fmt, repopath)),
+    renv.verbose = TRUE
+  )
+
+  record <- list(
+    Package = "bread",
+    Version = "1.0.0",
+    Source  = "Repository"
+  )
+
+  library <- renv_scope_tempfile("renv-library-")
+  ensure_directory(library)
+  renv_scope_restore(
+    project = getwd(),
+    library = library,
+    records = list(bread = record),
+    packages = "bread",
+    recursive = TRUE
+  )
+
+  output <- capture.output(status <- renv_retrieve_repos(record))
+
+  # the failed binary download should be suppressed,
+  # while the successful source download is still reported
+  expect_true(status)
+  expect_false(any(grepl("ERROR", output, fixed = TRUE)))
+  expect_true(any(grepl("OK", output, fixed = TRUE)))
+
+})
+
+test_that("download errors are reported when all retrieval candidates fail", {
+
+  skip_on_cran()
+
+  renv_tests_scope(isolated = TRUE)
+
+  # create a repository advertising a package whose archive is missing
+  repopath <- renv_scope_tempfile("renv-repos-")
+  srccontrib <- file.path(repopath, "src/contrib")
+  ensure_directory(srccontrib)
+
+  tarball <- file.path(srccontrib, "bread_1.0.0.tar.gz")
+  local({
+    renv_scope_wd(renv_tests_path("packages"))
+    tar(tarball, "bread", compression = "gzip", tar = "internal")
+  })
+  write_PACKAGES(srccontrib, type = "source")
+  unlink(tarball)
+
+  fmt <- if (renv_platform_windows()) "file:///%s" else "file://%s"
+  renv_scope_options(
+    pkgType = "source",
+    repos = c(CRAN = sprintf(fmt, repopath)),
+    renv.verbose = TRUE
+  )
+
+  record <- list(
+    Package = "bread",
+    Version = "1.0.0",
+    Source  = "Repository"
+  )
+
+  library <- renv_scope_tempfile("renv-library-")
+  ensure_directory(library)
+  renv_scope_restore(
+    project = getwd(),
+    library = library,
+    records = list(bread = record),
+    packages = "bread",
+    recursive = TRUE
+  )
+
+  # NOTE: download errors are reported via 'warning(<error>)', so they are
+  # signaled with their original condition class -- collect and muffle them
+  # here so they don't unwind to an enclosing tryCatch()
+  warnings <- list()
+  output <- capture.output(
+    status <- catch(
+      withCallingHandlers(
+        renv_retrieve_repos(record),
+        condition = function(cnd) {
+          if (inherits(cnd, "error") && !is.null(findRestart("muffleWarning"))) {
+            warnings[[length(warnings) + 1L]] <<- cnd
+            invokeRestart("muffleWarning")
+          }
+        }
+      )
+    )
+  )
+
+  expect_s3_class(status, "error")
+  expect_match(conditionMessage(status), "failed to retrieve")
+
+  # the failed download transcript is replayed
+  expect_true(any(grepl("ERROR", output, fixed = TRUE)))
+
+  # each failure is reported only once
+  messages <- map_chr(warnings, conditionMessage)
+  expect_false(any(duplicated(messages)))
+
+})
+
 test_that("we can retrieve files using file URIs", {
 
   skip_on_cran()
