@@ -147,6 +147,65 @@ test_that("install() appends reinstall to specs that already carry a query", {
 
 })
 
+test_that("use() preserves the requested remote with pak (#2341)", {
+
+  skip_on_cran()
+  skip_on_windows()
+  skip_if_not_installed("pak")
+  pak <- renv_namespace_load("pak")
+  renv_scope_options(renv.config.pak.enabled = TRUE)
+  renv_tests_scope()
+
+  args <- NULL
+  local_mocked_bindings(renv_pak_init = function(...) invisible(NULL))
+  local_mocked_bindings(
+    .package = "pak",
+    pkg_install = function(pkg, ...) {
+      args <<- pkg
+      invisible(data.frame(package = character()))
+    }
+  )
+
+  # use() resolves its arguments into records before delegating to install();
+  # the requested version has to survive that round-trip
+  library <- renv_scope_tempfile("renv-library-")
+  quietly(use("bread@0.1.0", library = library, sandbox = FALSE, attach = FALSE))
+
+  expect_equal(unname(args), "bread@0.1.0?reinstall")
+
+})
+
+test_that("install() filters records by package name with pak (#2341)", {
+
+  skip_on_cran()
+  skip_on_windows()
+  skip_if_not_installed("pak")
+  pak <- renv_namespace_load("pak")
+  renv_scope_options(renv.config.pak.enabled = TRUE)
+  renv_tests_scope()
+
+  args <- NULL
+  local_mocked_bindings(renv_pak_init = function(...) invisible(NULL))
+  local_mocked_bindings(
+    .package = "pak",
+    pkg_install = function(pkg, ...) {
+      args <<- pkg
+      invisible(data.frame(package = character()))
+    }
+  )
+
+  # when records are supplied (as rebuild() and repair() do), include / exclude
+  # still match on the package name rather than the generated remote spec
+  records <- list(
+    bread   = list(Package = "bread",   Version = "0.1.0", Source = "Repository"),
+    oatmeal = list(Package = "oatmeal", Version = "1.0.0", Source = "Repository")
+  )
+
+  quietly(install(records, exclude = "oatmeal"))
+  expect_equal(unname(args), "bread@0.1.0?reinstall")
+
+})
+
 test_that("install() translates renv's gitlab remote syntax for pak (#2180)", {
 
   skip_on_cran()
