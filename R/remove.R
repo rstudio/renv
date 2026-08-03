@@ -3,12 +3,20 @@
 #'
 #' Remove (uninstall) \R packages.
 #'
+#' Note that `remove()` only removes packages from the requested library;
+#' it does not modify the project lockfile. Use [renv::record()] if you'd
+#' like to remove a package's record from the lockfile.
+#'
 #' @inherit renv-params
 #'
 #' @param packages A character vector of \R packages to remove.
 #' @param library The library from which packages should be removed. When
 #'   `NULL`, the active library (that is, the first entry reported in
 #'   `.libPaths()`) is used instead.
+#'
+#' @param prompt Boolean; prompt the user before removing packages? The prompt
+#'   is only shown when removing packages from a library other than the
+#'   project library.
 #'
 #' @return A vector of package records, describing the packages (if any) which
 #'   were successfully removed.
@@ -19,10 +27,12 @@
 remove <- function(packages,
                    ...,
                    library = NULL,
+                   prompt = interactive(),
                    project = NULL)
 {
   renv_scope_error_handler()
   renv_dots_check(...)
+  renv_scope_verbose_if(prompt)
 
   project <- renv_project_resolve(project)
   renv_project_lock(project = project)
@@ -41,6 +51,7 @@ remove <- function(packages,
   } else {
     fmt <- "- Removing package(s) from library '%s' ..."
     writef(fmt, renv_path_aliased(library))
+    cancel_if(prompt && !proceed())
   }
 
   if (length(packages) == 1) {

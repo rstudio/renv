@@ -562,13 +562,19 @@ renv_dependencies_discover_renv_lock <- function(path) {
   renv_dependencies_list(path, "renv")
 }
 
-renv_dependencies_discover_description_fields <- function(path, project = NULL) {
+renv_dependencies_project <- function(project = NULL) {
 
   # most callers don't pass in project so we need to get it from global state
-  project <- project %||%
+  project %||%
     renv_dependencies_state(key = "root") %||%
     renv_restore_state(key = "root") %||%
     renv_project_resolve()
+
+}
+
+renv_dependencies_discover_description_fields <- function(path, project = NULL) {
+
+  project <- renv_dependencies_project(project)
 
   # by default, respect fields defined in settings
   fields <- settings$package.dependency.fields(project = project)
@@ -618,6 +624,22 @@ renv_dependencies_discover_description <- function(path,
       packages = c(renv_bioconductor_manager(), "BiocVersion")
     )
     names(data)[[length(data)]] <- "Bioconductor"
+  }
+
+  # if this is the DESCRIPTION for the active project, and the package has
+  # requested that it be included in the lockfile, then treat the package
+  # itself as a dependency of the project as well
+  # https://github.com/rstudio/renv/issues/2285
+  include <- dcf[["Config/renv/snapshot/include-self"]]
+  if (truthy(include, default = FALSE)) {
+    root <- renv_dependencies_project(project)
+    if (renv_path_same(file.path(root, "DESCRIPTION"), path)) {
+      data[[length(data) + 1L]] <- renv_dependencies_list(
+        source   = path,
+        packages = dcf[["Package"]]
+      )
+      names(data)[[length(data)]] <- "Self"
+    }
   }
 
   bind(data, index = "Type")
