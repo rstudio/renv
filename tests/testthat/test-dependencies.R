@@ -333,9 +333,50 @@ test_that("we don't infer a dependency on rmarkdown for empty .qmd", {
   expect_true(is.null(deps) || !"rmarkdown" %in% deps$Package)
 })
 
-test_that("we do infer dependency on rmarkdown for .qmd with R chunks", {
+test_that("we infer a dependency on knitr for a .qmd with R chunks", {
   deps <- dependencies("resources/quarto-r-chunks.qmd")
-  expect_true("rmarkdown" %in% deps$Package)
+  expect_true("knitr" %in% deps$Package)
+  expect_false("rmarkdown" %in% deps$Package)
+})
+
+test_that("we infer knitr and reticulate for a .qmd with R and Python chunks", {
+  deps <- dependencies("resources/quarto-r-python-chunks.qmd")
+  expect_true(all(c("knitr", "reticulate") %in% deps$Package))
+})
+
+test_that("we do not infer knitr or reticulate for a Python-only .qmd", {
+  deps <- dependencies("resources/quarto-python-chunks.qmd")
+  expect_false("knitr" %in% deps$Package)
+  expect_false("reticulate" %in% deps$Package)
+})
+
+test_that("engine: knitr forces knitr and reticulate for Python chunks", {
+  skip_if_not_installed("yaml")
+  deps <- dependencies("resources/quarto-python-knitr.qmd")
+  expect_true(all(c("knitr", "reticulate") %in% deps$Package))
+})
+
+test_that("engine: jupyter suppresses knitr and reticulate", {
+  skip_if_not_installed("yaml")
+  deps <- dependencies("resources/quarto-jupyter-override.qmd")
+  expect_false("knitr" %in% deps$Package)
+  expect_false("reticulate" %in% deps$Package)
+})
+
+test_that("chunk engine tokens are matched case-insensitively", {
+  deps <- dependencies("resources/quarto-uppercase-chunks.qmd")
+  expect_true(all(c("knitr", "reticulate") %in% deps$Package))
+})
+
+test_that("reticulate is inferred for Python chunks even when eval is false", {
+  deps <- dependencies("resources/quarto-python-eval-false.qmd")
+  expect_true(all(c("knitr", "reticulate") %in% deps$Package))
+})
+
+test_that("engine: value is matched case-insensitively", {
+  skip_if_not_installed("yaml")
+  deps <- dependencies("resources/quarto-mixedcase-engine.qmd")
+  expect_true(all(c("knitr", "reticulate") %in% deps$Package))
 })
 
 test_that("we parse package references from arbitrary yaml fields", {

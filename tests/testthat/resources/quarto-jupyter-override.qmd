@@ -1,0 +1,12 @@
+---
+title: Jupyter override
+engine: jupyter
+---
+
+```{r}
+1 + 1
+```
+
+```{python}
+import os
+```

@@ -1,0 +1,8 @@
+---
+title: Python via knitr
+engine: knitr
+---
+
+```{python}
+import os
+```
