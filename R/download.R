@@ -132,10 +132,11 @@ renv_download_impl <- function(url, destfile, type = NULL, request = "GET", head
   url      <- chartr("\\", "/", url)
   destfile <- chartr("\\", "/", destfile)
 
-  # check that the destination file is writable
+  # check that the destination file is writable; report the containing
+  # directory, since the destination file itself need not exist yet
   if (!renv_file_writable(destfile)) {
-    fmt <- "destination path '%s' is not writable; cannot proceed"
-    stopf(fmt, renv_path_pretty(destfile))
+    fmt <- "destination directory %s is not writable; cannot proceed"
+    stopf(fmt, renv_path_pretty(dirname(destfile)))
   }
 
   # select the appropriate downloader

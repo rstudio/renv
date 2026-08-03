@@ -1,6 +1,12 @@
 
 # renv (development version)
 
+* When a package fails to download, renv now reports the reason for the
+  failure, rather than a generic "failed to download" message. For example,
+  when the download destination within the renv root is not writable (as can
+  happen with a misconfigured shared cache), the error now says so directly.
+  (#2340)
+
 * `renv::use()` with pak enabled now honours the requested remotes, rather than
   installing the latest version of each package from the active repositories.
   Previously, a call like `renv::use("generics@0.1.3")` would install the

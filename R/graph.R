@@ -1309,7 +1309,10 @@ renv_graph_install <- function(descriptions) {
 
     }
 
-    # sequential fallback for unsupported sources or failed parallel downloads
+    # sequential fallback for unsupported sources or failed parallel downloads;
+    # remember why each retrieval failed, so the reason can be reported
+    # https://github.com/rstudio/renv/issues/2340
+    downloaderrors <- list()
     for (pkg in fallbacks) {
 
       status <- catch({
@@ -1319,6 +1322,7 @@ renv_graph_install <- function(descriptions) {
       })
 
       if (inherits(status, "error")) {
+        downloaderrors[[pkg]] <- conditionMessage(status)
         downloadable[[pkg]] <- NULL
         next
       }
@@ -1347,7 +1351,8 @@ renv_graph_install <- function(descriptions) {
           pkgver <- paste(desc$Package, desc$Version)
           writef("%s %s", boo(), format(pkgver, width = the$install_step_width))
         }
-        errors$push(list(package = package, message = "failed to download"))
+        message <- downloaderrors[[package]] %||% "failed to download"
+        errors$push(list(package = package, message = message))
         failed$push(package)
         next
       }
