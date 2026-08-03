@@ -2,6 +2,13 @@
 
 ## renv (development version)
 
+- Failed package downloads are now reported quietly when a later
+  retrieval candidate succeeds – for example, when a binary package
+  fails to download, but the source fallback succeeds. If all candidates
+  fail, the download output is still emitted, and download errors are no
+  longer reported twice.
+  ([\#1727](https://github.com/rstudio/renv/issues/1727))
+
 - [`renv::use()`](https://rstudio.github.io/renv/dev/reference/embed.md)
   with pak enabled now honours the requested remotes, rather than
   installing the latest version of each package from the active
