@@ -2,6 +2,17 @@
 
 ## renv (development version)
 
+- [`renv::install()`](https://rstudio.github.io/renv/dev/reference/install.md)
+  and
+  [`renv::restore()`](https://rstudio.github.io/renv/dev/reference/restore.md)
+  with pak enabled can now handle packages hosted on a self-hosted
+  GitLab instance. renv previously handed pak remotes of the form
+  `gitlab@<host>::<group>/<project>`, which pak was unable to parse;
+  renv now translates these into pkgdepends’ own syntax,
+  `gitlab::https://<host>/<group>/<project>`. GitLab sub-directories are
+  likewise translated to pkgdepends’ `/-/<subdir>` syntax.
+  ([\#2180](https://github.com/rstudio/renv/issues/2180))
+
 - When a package fails to download, renv now reports the reason for the
   failure, rather than a generic “failed to download” message. For
   example, when the download destination within the renv root is not
