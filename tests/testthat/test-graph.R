@@ -706,6 +706,32 @@ test_that("renv_graph_install_errors is silent with no errors", {
 
 })
 
+test_that("download failures report the underlying cause (#2340)", {
+
+  skip_on_cran()
+  skip_on_windows()
+  skip_if(Sys.info()[["user"]] == "root")
+
+  # use an isolated root, so the package is downloaded rather than
+  # linked from the cache shared by other tests
+  renv_tests_scope("bread", isolated = TRUE)
+  init(bare = TRUE)
+
+  # simulate an unwritable download destination, as might happen
+  # with a shared renv root whose permissions are misconfigured
+  destdir <- renv_paths_source("repository", "bread")
+  ensure_directory(destdir)
+  Sys.chmod(destdir, "0555")
+  defer(Sys.chmod(destdir, "0755"))
+
+  renv_scope_options(renv.verbose = TRUE, renv.caution.verbose = TRUE)
+  output <- capture.output(status <- catch(install("bread")))
+  output <- paste(output, collapse = "\n")
+  expect_true(grepl("is not writable", output))
+  expect_true(grepl(basename(destdir), output, fixed = TRUE))
+
+})
+
 # wave cycle detection ----
 
 test_that("renv_graph_waves warns on dependency cycle", {

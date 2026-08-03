@@ -9,7 +9,7 @@
       # Installing packages ---
       
       The following package(s) were not installed successfully:
-      - [missing]: failed to download
+      - [missing]: package 'missing' is not available
       You may need to manually download and install these packages.
       
       The version of R recorded in the lockfile will be updated:
