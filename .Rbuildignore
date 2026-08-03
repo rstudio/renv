@@ -46,3 +46,4 @@
 ^vignettes/renv\.graffle$
 ^README\.Rmd$
 
+^CRAN-SUBMISSION$
