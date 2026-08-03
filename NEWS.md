@@ -1,6 +1,12 @@
 
 # renv (development version)
 
+* When a package fails to download, renv now reports the reason for the
+  failure, rather than a generic "failed to download" message. For example,
+  when the download destination within the renv root is not writable (as can
+  happen with a misconfigured shared cache), the error now says so directly.
+  (#2340)
+
 * Failed package downloads are now reported quietly when a later retrieval
   candidate succeeds -- for example, when a binary package fails to download,
   but the source fallback succeeds. If all candidates fail, the download
