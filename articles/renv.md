@@ -198,7 +198,7 @@ from CRAN and the mime package installed from GitHub:
 ``` json
 {
   "R": {
-    "Version": "4.6.0",
+    "Version": "4.6.1",
     "Repositories": [
       {
         "Name": "CRAN",

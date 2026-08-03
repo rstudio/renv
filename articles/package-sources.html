@@ -12,8 +12,8 @@
 <link rel="icon" sizes="any" href="../favicon.ico">
 <link rel="manifest" href="../site.webmanifest">
 <script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-<link href="../deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet">
-<script src="../deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="../deps/Source_Sans_Pro-0.4.10/font.css" rel="stylesheet">
+<link href="../deps/bootstrap-5.3.8/bootstrap.min.css" rel="stylesheet">
+<script src="../deps/bootstrap-5.3.8/bootstrap.bundle.min.js"></script><link href="../deps/Source_Sans_Pro-0.4.10/font.css" rel="stylesheet">
 <link href="../deps/Source_Code_Pro-0.4.10/font.css" rel="stylesheet">
 <link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
 <link href="../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet">
@@ -29,7 +29,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">renv</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">1.2.3</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">1.2.4</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -212,10 +212,72 @@ use:</p>
 <code class="sourceCode R"><span><span class="fu">renv</span><span class="fu">::</span><span class="va"><a href="../reference/settings.html">settings</a></span><span class="op">$</span><span class="fu">bioconductor.version</span><span class="op">(</span><span class="st">"3.20"</span><span class="op">)</span></span></code></pre></div>
 <p>If you later choose to upgrade R, you may need to upgrade the version
 of Bioconductor used as well.</p>
-<p>If you want to override the Bioconductor repositories used by renv,
-you can also explicitly set the following option:</p>
+</div>
+<div class="section level4">
+<h4 id="bioconductor-mirrors">Bioconductor mirrors<a class="anchor" aria-label="anchor" href="#bioconductor-mirrors"></a>
+</h4>
+<p>renv does not hard-code the Bioconductor repository URLs. Instead, it
+asks <code>BiocManager</code> for the repositories associated with the
+active Bioconductor release, and <code>BiocManager</code> in turn honors
+the <code>BioC_mirror</code> option
+(<code>getOption("BioC_mirror")</code>). This means a mirror – for
+example, one provided by <a href="https://docs.posit.co/rspm/" class="external-link">Posit
+Package Manager</a> – is used automatically, provided it has been
+configured in the session.</p>
+<p>There are two different options that influence the repositories renv
+uses, and they operate at different levels:</p>
+<ul>
+<li><p><code>BioC_mirror</code> sets the <strong>base URL</strong> of
+the mirror (for example,
+<code>options(BioC_mirror = "https://my.ppm.example/bioconductor")</code>).
+renv still asks <code>BiocManager</code> to expand this into the full
+set of repositories for the project’s Bioconductor release, so the
+version you have pinned with <code>bioconductor.version</code> continues
+to apply. This is the right option to reach for when you simply want to
+point renv at a different mirror.</p></li>
+<li><p><code>renv.bioconductor.repos</code> sets the
+<strong>fully-expanded, named repository vector</strong> directly (for
+example,
+<code>options(renv.bioconductor.repos = c(BioCsoft = "...", BioCann = "..."))</code>).
+When this option is set, renv uses it verbatim and skips
+<code>BiocManager</code>, <code>BioC_mirror</code>, and its own release
+inference entirely – so you become responsible for ensuring those URLs
+(including the Bioconductor release encoded in them) are correct. Reach
+for this only when you need to fully override what renv would otherwise
+compute.</p></li>
+</ul>
+<p>If you use a Bioconductor mirror and want that choice to be
+reproducible, you have a couple of options:</p>
+<ul>
+<li><p>Set <code>BioC_mirror</code> (or, if you need a full override,
+<code>renv.bioconductor.repos</code>) in your project’s
+<code>.Rprofile</code>, so that it is configured whenever the project is
+loaded; or</p></li>
+<li><p>Use a CRAN-like repository that also serves Bioconductor packages
+– for example, a Posit Package Manager “R repository”. Because these
+repositories are part of the normal <code>repos</code> option, renv
+records them in the lockfile (under <code>R$Repositories</code>) and
+restores them automatically, with no extra configuration
+required.</p></li>
+</ul>
+</div>
+<div class="section level4">
+<h4 id="disabling-bioconductor">Disabling Bioconductor<a class="anchor" aria-label="anchor" href="#disabling-bioconductor"></a>
+</h4>
+<p>By default, renv treats a package tagged with a
+<code>biocViews</code> field (and stamped with Bioconductor provenance)
+as coming from Bioconductor. Some CRAN packages also declare
+<code>biocViews</code>, and a CRAN-like repository (such as a Posit
+Package Manager “R repository”) might serve Bioconductor packages
+alongside CRAN packages. In these cases renv uses the
+<code>Repository</code> field to decide where a package was obtained, so
+such packages are recorded as ordinary repository packages.</p>
+<p>If you would like to opt a project out of Bioconductor entirely – so
+that renv never infers a Bioconductor source, activates the Bioconductor
+repositories, or records a Bioconductor release in the lockfile – you
+can disable it with:</p>
 <div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/options.html" class="external-link">options</a></span><span class="op">(</span>renv.bioconductor.repos <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">...</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="fu">renv</span><span class="fu">::</span><span class="va"><a href="../reference/settings.html">settings</a></span><span class="op">$</span><span class="fu">bioconductor.enabled</span><span class="op">(</span><span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div>
 </div>
 </div>
 <div class="section level3">
@@ -373,7 +435,7 @@ file).</p>
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.1.</p>
 </div>
 
   </div></footer><!-- Google Tag Manager (noscript) --><noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-KHBDBW7" height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>

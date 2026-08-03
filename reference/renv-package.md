@@ -27,6 +27,9 @@ Useful links:
 
 Authors:
 
+- Kevin Ushey <kevin@rstudio.com>
+  ([ORCID](https://orcid.org/0000-0003-2880-7407))
+
 - Hadley Wickham <hadley@rstudio.com>
   ([ORCID](https://orcid.org/0000-0003-4757-117X))
 

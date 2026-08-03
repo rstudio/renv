@@ -1,5 +1,261 @@
 # Changelog
 
+## renv 1.2.4
+
+- [`renv::install()`](https://rstudio.github.io/renv/reference/install.md)
+  and
+  [`renv::restore()`](https://rstudio.github.io/renv/reference/restore.md)
+  with pak enabled can now handle packages hosted on a self-hosted
+  GitLab instance. renv previously handed pak remotes of the form
+  `gitlab@<host>::<group>/<project>`, which pak was unable to parse;
+  renv now translates these into pkgdepends’ own syntax,
+  `gitlab::https://<host>/<group>/<project>`. GitLab sub-directories are
+  likewise translated to pkgdepends’ `/-/<subdir>` syntax.
+  ([\#2180](https://github.com/rstudio/renv/issues/2180))
+
+- When a package fails to download, renv now reports the reason for the
+  failure, rather than a generic “failed to download” message. For
+  example, when the download destination within the renv root is not
+  writable (as can happen with a misconfigured shared cache), the error
+  now says so directly.
+  ([\#2340](https://github.com/rstudio/renv/issues/2340))
+
+- Failed package downloads are now reported quietly when a later
+  retrieval candidate succeeds – for example, when a binary package
+  fails to download, but the source fallback succeeds. If all candidates
+  fail, the download output is still emitted, and download errors are no
+  longer reported twice.
+  ([\#1727](https://github.com/rstudio/renv/issues/1727))
+
+- [`renv::use()`](https://rstudio.github.io/renv/reference/embed.md)
+  with pak enabled now honours the requested remotes, rather than
+  installing the latest version of each package from the active
+  repositories. Previously, a call like `renv::use("generics@0.1.3")`
+  would install the current CRAN version of generics.
+  [`renv::rebuild()`](https://rstudio.github.io/renv/reference/rebuild.md)
+  and
+  [`renv::repair()`](https://rstudio.github.io/renv/reference/repair.md)
+  were affected in the same way.
+  ([\#2341](https://github.com/rstudio/renv/issues/2341))
+
+- [`renv::remove()`](https://rstudio.github.io/renv/reference/remove.md)
+  gains a `prompt` argument, and now asks for confirmation before
+  removing packages from a library other than the project library – for
+  example, when called without an activated renv project, where the
+  target library would be the user library.
+  ([\#2331](https://github.com/rstudio/renv/issues/2331))
+
+- Removing a package record from the lockfile by setting it to `NULL`,
+  e.g. with `renv::record(list(dplyr = NULL))`, is now documented.
+  ([\#2331](https://github.com/rstudio/renv/issues/2331))
+
+- Package projects can now request that the package itself be included
+  in the lockfile, by setting `Config/renv/snapshot/include-self: TRUE`
+  in the package `DESCRIPTION` file. This can be useful when deploying a
+  Shiny application that is developed as part of a package. See
+  [`?renv::snapshot`](https://rstudio.github.io/renv/reference/snapshot.md)
+  for more details.
+  ([\#2285](https://github.com/rstudio/renv/issues/2285))
+
+- [`renv::dependencies()`](https://rstudio.github.io/renv/reference/dependencies.md)
+  now detects packages referenced via
+  [`rlang::check_installed()`](https://rlang.r-lib.org/reference/is_installed.html)
+  and
+  [`rlang::is_installed()`](https://rlang.r-lib.org/reference/is_installed.html).
+  ([\#1936](https://github.com/rstudio/renv/issues/1936))
+
+- [`renv::dependencies()`](https://rstudio.github.io/renv/reference/dependencies.md)
+  now infers the optional packages required by certain testthat
+  functions; for example, `skip_if_offline()` implies a dependency on
+  curl, and `snapshot_review()` implies dependencies on shiny and
+  diffviewer. In addition, usage of the Junit reporter is now also
+  detected in calls to `test_check()` and `test_local()`.
+  ([\#1936](https://github.com/rstudio/renv/issues/1936))
+
+- [`renv::dependencies()`](https://rstudio.github.io/renv/reference/dependencies.md)
+  now detects a dependency on the ragg package when the `ragg_png`
+  graphics device is requested via knitr chunk options set in a
+  document’s YAML header. Previously, only calls of the form
+  `knitr::opts_chunk$set(dev = "ragg_png")` in code chunks were
+  detected. ([\#2311](https://github.com/rstudio/renv/issues/2311))
+
+- [`renv::install()`](https://rstudio.github.io/renv/reference/install.md)
+  with pak enabled no longer upgrades already-installed dependencies
+  that are only pulled in transitively – most visibly recommended
+  packages such as `cluster` or `Matrix`, which previously could be
+  rebuilt when installing an unrelated package. renv now passes
+  `upgrade = FALSE` to pak, matching renv’s own installer, while still
+  forcing a (re)install of the packages you explicitly request.
+  ([\#2329](https://github.com/rstudio/renv/issues/2329))
+
+- Internal DESCRIPTION reads that request a package by name now error
+  when that package is not installed, rather than silently falling back
+  to the DESCRIPTION in the current working directory.
+  ([\#2327](https://github.com/rstudio/renv/issues/2327))
+
+- renv now guards against corrupted cache entries that contain the wrong
+  package. Before installing a package from the cache, renv verifies
+  that the cache entry’s `DESCRIPTION` reports the expected package
+  name; if it does not (for example, due to a concurrent write race on a
+  shared cache), renv ignores the entry and reinstalls the package
+  instead of installing the wrong one.
+  [`renv::diagnostics()`](https://rstudio.github.io/renv/reference/diagnostics.md)
+  also reports any such cache entries.
+  ([\#2322](https://github.com/rstudio/renv/issues/2322))
+
+- renv’s file locks now record the host and process that own them. A
+  lock held by a process that is still alive on the same machine is no
+  longer treated as orphaned, even if its timestamp is stale (for
+  example, when a large package copy onto a shared cache takes longer
+  than the lock timeout and the watchdog is not refreshing the lock).
+  This reduces the chance of a lock being stolen from a live process,
+  which could otherwise corrupt a shared cache.
+  ([\#2322](https://github.com/rstudio/renv/issues/2322))
+
+- [`renv::rehash()`](https://rstudio.github.io/renv/reference/rehash.md)
+  now reminds you to run
+  [`renv::repair()`](https://rstudio.github.io/renv/reference/repair.md)
+  when it moves packages within the active cache, since project
+  libraries that still link to a package’s previous cache location are
+  left with broken links. The function’s documentation has also been
+  corrected: it no longer claims that links to the old locations are
+  retained.
+
+- When
+  [`renv::snapshot()`](https://rstudio.github.io/renv/reference/snapshot.md)
+  aborts due to a pre-flight validation failure, the error now includes
+  a summary of the problems that were detected (for example, the missing
+  packages or unsatisfied dependencies). Previously these details were
+  only printed to the console, so they could be lost when that output
+  was not visible (such as when stdout is captured).
+
+- The new
+  [`lockfile()`](https://rstudio.github.io/renv/reference/lockfile.md)
+  function provides a generic entry point for creating an renv lockfile
+  from a variety of sources. For example,
+  `lockfile(from = "manifest.json")` converts a Posit Connect
+  `manifest.json` file into a lockfile. Supply `to` to also write the
+  result to disk, as in
+  `lockfile(from = "manifest.json", to = "renv.lock")`. The set of
+  supported sources may be expanded in future releases.
+  ([\#2245](https://github.com/rstudio/renv/issues/2245))
+
+- [`renv::snapshot()`](https://rstudio.github.io/renv/reference/snapshot.md)
+  gains a `description` parameter, which converts a package
+  `DESCRIPTION` (provided either as a named list of fields, or as a path
+  to a package directory or `DESCRIPTION` file) into a single lockfile
+  record, without requiring the package to be installed. This allows
+  tools like rsconnect to perform manifest-to-lockfile conversion using
+  exported renv APIs.
+  ([\#2250](https://github.com/rstudio/renv/issues/2250))
+
+- When resolving the dependencies of a pinned package version that is
+  absent from the configured repositories’ `PACKAGES` metadata and
+  cannot be found via crandb (for example, when offline, when using an
+  internal mirror that cannot reach `crandb.r-pkg.org`, or for non-CRAN
+  packages), renv now downloads the archived source tarball for that
+  version and reads its `DESCRIPTION` directly. This is authoritative
+  wherever the package itself is reachable, and the downloaded tarball
+  is reused by the subsequent retrieve step. As a last resort, if the
+  archived tarball also cannot be read, renv falls back to the latest
+  version’s dependencies and warns, since those dependencies may differ
+  from the pinned version’s and could lead to an incorrect install
+  order. ([\#2315](https://github.com/rstudio/renv/issues/2315))
+
+- Fixed a regression introduced in renv 1.2.0 where installing a package
+  from the cellar (via
+  [`install()`](https://rstudio.github.io/renv/reference/install.md) or
+  [`use()`](https://rstudio.github.io/renv/reference/embed.md)) failed
+  to install that package’s dependencies. The graph-based installer
+  resolved cellar packages from metadata that omitted their `Depends` /
+  `Imports` / `LinkingTo` fields; renv now reads the package’s
+  `DESCRIPTION` from the cellar archive so that its dependencies are
+  discovered and installed.
+  ([\#2313](https://github.com/rstudio/renv/issues/2313))
+
+- renv now infers some “implied” dependencies that cannot be discovered
+  via static analysis because they are loaded indirectly at runtime by
+  another package. For example, dplyr lazily loads dbplyr when working
+  with a database backend, so dbplyr is now recorded when a project uses
+  both dplyr and a DBI backend (e.g. RSQLite, RPostgres, duckdb). The
+  rules are configurable via the `renv.dependencies.implied` R option;
+  set it to an empty list to disable this inference entirely.
+  ([\#2308](https://github.com/rstudio/renv/issues/2308))
+
+- [`renv::restore()`](https://rstudio.github.io/renv/reference/restore.md)
+  gains a `retry` argument, controlling whether packages that fail to
+  install successfully are retried with their latest available versions.
+  This recovery was previously only offered via an interactive prompt;
+  `retry = TRUE` now enables it without prompting (useful in
+  non-interactive sessions such as CI), while `retry = FALSE` disables
+  it entirely. ([\#1893](https://github.com/rstudio/renv/issues/1893))
+
+- renv no longer treats the mere presence of a `biocViews` field in a
+  package’s `DESCRIPTION` as proof that the package came from
+  Bioconductor. Some CRAN packages declare `biocViews`, and Posit
+  Package Manager can serve Bioconductor packages from a CRAN-like “R
+  repository”; in both cases renv now uses the `Repository` field to
+  decide where a package was obtained, so such packages are recorded as
+  repository packages and restored from the repository they came from.
+  Genuine Bioconductor packages are still recognized by their
+  `Repository` stamp, including binaries served via r-universe (stamped
+  with a `https://bioc-*.r-universe.dev` URL); and when a package has no
+  `Repository` stamp at all (as for bioconductor.org binaries, or very
+  old or source-installed packages), renv trusts the `biocViews` field.
+  ([\#2128](https://github.com/rstudio/renv/issues/2128))
+
+- A new project setting, `settings$bioconductor.enabled()`, can be set
+  to `FALSE` to opt a project out of Bioconductor entirely. When
+  disabled, renv will not infer a Bioconductor source, activate
+  Bioconductor repositories, or write a Bioconductor entry into the
+  lockfile. ([\#2128](https://github.com/rstudio/renv/issues/2128))
+
+- renv’s internal DCF and properties readers now match their (ASCII)
+  regular expressions with `useBytes = TRUE`. This avoids forcing PCRE
+  into UTF mode, which could fail with “this version of PCRE is compiled
+  without UTF support” – in some environments preventing renv from even
+  loading – when R is linked against a PCRE library lacking UTF support
+  or left in a state where it believes UTF is unsupported.
+
+- `renv::install(<package>, type = "source")` once again installs from
+  source when a binary Posit Package Manager (PPM) repository is
+  configured. Previously, the dependency graph was resolved against the
+  un-transformed (binary) repository URL, so a binary package could be
+  installed even though source was requested.
+  ([\#2303](https://github.com/rstudio/renv/issues/2303))
+
+- The presence of an `rsconnect/` folder in a project is now treated as
+  a development dependency on the `rsconnect` package, rather than a
+  runtime dependency. This means `rsconnect` will no longer be
+  automatically recorded by
+  [`renv::snapshot()`](https://rstudio.github.io/renv/reference/snapshot.md)
+  unless the project actually uses it at run time (or
+  `settings$snapshot.dev(TRUE)` is set).
+  ([\#2290](https://github.com/rstudio/renv/issues/2290))
+
+- [`renv::install()`](https://rstudio.github.io/renv/reference/install.md)
+  no longer treats a package as already installed when its namespace is
+  loaded from a path that is no longer on
+  [`.libPaths()`](https://rdrr.io/r/base/libPaths.html) (e.g. when a
+  global `~/.Rprofile` loads the package before renv activates).
+  Previously,
+  [`install()`](https://rstudio.github.io/renv/reference/install.md)
+  would silently skip these packages and
+  [`snapshot()`](https://rstudio.github.io/renv/reference/snapshot.md)
+  could not record them, leaving the project stuck.
+  ([\#2300](https://github.com/rstudio/renv/issues/2300))
+
+- On project load, renv now warns when one or more package namespaces
+  have already been loaded from a path outside the active library paths.
+  Such packages are not managed by renv and can cause
+  [`renv::status()`](https://rstudio.github.io/renv/reference/status.md)
+  and
+  [`renv::snapshot()`](https://rstudio.github.io/renv/reference/snapshot.md)
+  to report inconsistencies. The check can be disabled via the
+  `namespaces.check` config option (or the
+  `RENV_CONFIG_NAMESPACES_CHECK` environment variable).
+  ([\#2300](https://github.com/rstudio/renv/issues/2300))
+
 ## renv 1.2.3
 
 CRAN release: 2026-05-16

@@ -13,6 +13,20 @@ Settings are automatically persisted across project sessions by writing
 to `renv/settings.json`. You can also edit this file by hand, but you'll
 need to restart the session for those changes to take effect.
 
+### `bioconductor.enabled`
+
+Should renv use Bioconductor with this project? When enabled (the
+default), renv will infer that packages tagged with a `biocViews` field
+(and stamped with Bioconductor provenance) come from Bioconductor,
+activate the Bioconductor repositories when required, and record the
+Bioconductor release in the lockfile. Set this to `FALSE` for projects
+that should be treated as repository-only – for example, when all
+packages (including any that happen to carry a `biocViews` field) are
+served from a single CRAN-like repository such as a Posit Package
+Manager "R repository". When disabled, renv will never infer a
+Bioconductor source, activate Bioconductor repositories, or write a
+Bioconductor entry into the lockfile.
+
 ### `bioconductor.version`
 
 The Bioconductor version to be used with this project. Use this if you'd

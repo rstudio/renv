@@ -1,9 +1,9 @@
 # Record current state of the project library in the lockfile
 
 Call `renv::snapshot()` to update a
-[lockfile](https://rstudio.github.io/renv/reference/lockfile-api.md)
-with the current state of dependencies in the project library. The
-lockfile can be used to later
+[lockfile](https://rstudio.github.io/renv/reference/lockfile.md) with
+the current state of dependencies in the project library. The lockfile
+can be used to later
 [restore](https://rstudio.github.io/renv/reference/restore.md) these
 dependencies as required.
 
@@ -35,7 +35,8 @@ snapshot(
   prompt = interactive(),
   update = FALSE,
   force = FALSE,
-  reprex = FALSE
+  reprex = FALSE,
+  description = NULL
 )
 ```
 
@@ -133,10 +134,20 @@ snapshot(
   Boolean; generate output appropriate for embedding the lockfile as
   part of a [reprex](https://tidyverse.org/help/#reprex)?
 
+- description:
+
+  A package DESCRIPTION, provided either as a named list of DESCRIPTION
+  fields, or a path to a package directory or DESCRIPTION file. When
+  set, all other arguments are ignored, and a single lockfile record for
+  that package is returned.
+
 ## Value
 
 The generated lockfile, as an R object (invisibly). Note that this
 function is normally called for its side effects.
+
+When `description` is provided, a single lockfile record (a named list)
+is returned instead.
 
 ## Snapshot types
 
@@ -190,6 +201,28 @@ snapshots:
 When the `packages` argument is set, `type` is ignored, and instead only
 the requested set of packages, and their recursive dependencies, will be
 written to the lockfile.
+
+## Package projects
+
+When snapshotting a package project (that is, a project containing a
+`DESCRIPTION` file), renv normally records only the package's
+dependencies in the lockfile, and excludes the package itself. If you'd
+like the package itself to be recorded as well – for example, because
+the project is deployed as a Shiny application, using an `app.R` that
+runs an application exported from the package – you can set:
+
+    Config/renv/snapshot/include-self: TRUE
+
+in the package's `DESCRIPTION` file. With this set, the package is also
+treated as a dependency of the project, and so is expected to be
+installed in the project library. Note that for the package to be
+restorable, it should be installed from a remote source – for example,
+with `renv::install("<user>/<repo>")` for a package available on GitHub.
+
+The R option `renv.snapshot.ignore.self` can also be used to control
+this behavior: set it to `FALSE` to include the package in the lockfile,
+or `TRUE` to exclude it. When set, this option takes precedence over the
+`DESCRIPTION` field.
 
 ## See also
 
