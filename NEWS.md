@@ -1,5 +1,5 @@
 
-# renv (development version)
+# renv 1.2.4
 
 * `renv::install()` and `renv::restore()` with pak enabled can now handle
   packages hosted on a self-hosted GitLab instance. renv previously handed
