@@ -2,6 +2,8 @@
 
 ## renv (development version)
 
+## renv 1.2.4
+
 - [`renv::install()`](https://rstudio.github.io/renv/dev/reference/install.md)
   and
   [`renv::restore()`](https://rstudio.github.io/renv/dev/reference/restore.md)
@@ -72,6 +74,13 @@
   detected in calls to `test_check()` and `test_local()`.
   ([\#1936](https://github.com/rstudio/renv/issues/1936))
 
+- [`renv::dependencies()`](https://rstudio.github.io/renv/dev/reference/dependencies.md)
+  now detects a dependency on the ragg package when the `ragg_png`
+  graphics device is requested via knitr chunk options set in a
+  document’s YAML header. Previously, only calls of the form
+  `knitr::opts_chunk$set(dev = "ragg_png")` in code chunks were
+  detected. ([\#2311](https://github.com/rstudio/renv/issues/2311))
+
 - [`renv::install()`](https://rstudio.github.io/renv/dev/reference/install.md)
   with pak enabled no longer upgrades already-installed dependencies
   that are only pulled in transitively – most visibly recommended
@@ -132,6 +141,15 @@
   `lockfile(from = "manifest.json", to = "renv.lock")`. The set of
   supported sources may be expanded in future releases.
   ([\#2245](https://github.com/rstudio/renv/issues/2245))
+
+- [`renv::snapshot()`](https://rstudio.github.io/renv/dev/reference/snapshot.md)
+  gains a `description` parameter, which converts a package
+  `DESCRIPTION` (provided either as a named list of fields, or as a path
+  to a package directory or `DESCRIPTION` file) into a single lockfile
+  record, without requiring the package to be installed. This allows
+  tools like rsconnect to perform manifest-to-lockfile conversion using
+  exported renv APIs.
+  ([\#2250](https://github.com/rstudio/renv/issues/2250))
 
 - When resolving the dependencies of a pinned package version that is
   absent from the configured repositories’ `PACKAGES` metadata and
