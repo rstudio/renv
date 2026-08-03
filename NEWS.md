@@ -49,6 +49,12 @@
   In addition, usage of the Junit reporter is now also detected in calls to
   `test_check()` and `test_local()`. (#1936)
 
+* `renv::dependencies()` now detects a dependency on the ragg package when the
+  `ragg_png` graphics device is requested via knitr chunk options set in a
+  document's YAML header. Previously, only calls of the form
+  `knitr::opts_chunk$set(dev = "ragg_png")` in code chunks were detected.
+  (#2311)
+
 * `renv::install()` with pak enabled no longer upgrades already-installed
   dependencies that are only pulled in transitively -- most visibly recommended
   packages such as `cluster` or `Matrix`, which previously could be rebuilt when
@@ -92,6 +98,13 @@
   file into a lockfile. Supply `to` to also write the result to disk, as in
   `lockfile(from = "manifest.json", to = "renv.lock")`. The set of supported
   sources may be expanded in future releases. (#2245)
+
+* `renv::snapshot()` gains a `description` parameter, which converts a package
+  `DESCRIPTION` (provided either as a named list of fields, or as a path to a
+  package directory or `DESCRIPTION` file) into a single lockfile record,
+  without requiring the package to be installed. This allows tools like
+  rsconnect to perform manifest-to-lockfile conversion using exported renv
+  APIs. (#2250)
 
 * When resolving the dependencies of a pinned package version that is absent
   from the configured repositories' `PACKAGES` metadata and cannot be found via
@@ -156,7 +169,7 @@
   configured. Previously, the dependency graph was resolved against the
   un-transformed (binary) repository URL, so a binary package could be
   installed even though source was requested. (#2303)
-  
+
 * The presence of an `rsconnect/` folder in a project is now treated as a
   development dependency on the `rsconnect` package, rather than a runtime
   dependency. This means `rsconnect` will no longer be automatically
@@ -485,13 +498,13 @@
 
 * `renv` now supports bootstrapping itself from the global package
   cache. (#1799)
-  
+
 * `renv` now prefers appending, rather than prepending, Bioconductor
   repositories to the current set of repositories when installing
   packages. This implies that if you're using a repository that also
   provides Bioconductor packages, this repository will be preferred
   as opposed to the "default" Bioconductor repositories. (#2128)
-  
+
 * `renv::restore()` now ignores the `Repository` field on lockfile entries
   when the `repos.override` configuration option is set. (#2127)
 
@@ -545,7 +558,7 @@
   library by default. `renv::update(all = TRUE)` can be used to also
   check if packages installed in the default library are out-of-date, and
   install updated copies into the project library. (#2108)
-  
+
 * Fixed an issue where package installation could fail on Arch Linux with the
   error message "don't know how to check sysreqs on this system". (#2107)
 
@@ -558,7 +571,7 @@
   the first section in a `.renvignore` implicitly applies to all profiles --
   if you want to limit it to just the default profile, you can use
   `#| profile == "default"` for the first line. (#1662)
-  
+
 * The environment variable `RENV_PATHS_VERSION` can now be used to substitute
   the R version component normally used in library / cache paths. The provided
   path can include placeholders like `%V` for the full R version including
@@ -574,12 +587,12 @@
 * `renv` gains the `sysreqs()` function, which can be used to query the system
   packages required by a set of R packages. Functionality is currently available
   for Debian-based distributions, as well as Red Hat distributions.
-  
+
 * On Linux, `renv` now uses the database from
   <https://github.com/rstudio/r-system-requirements> when determining if
   an R package's required system libraries are installed, and notifies
   the user which packages (if any) are missing during install / restore.
-  
+
 * Fixed an issue where `renv` could fail to retrieve credentials registered
   for 'github.com' when querying URLs at 'api.github.com'.
 
@@ -626,7 +639,7 @@
 * Fixed an issue where `renv::restore()` did not respect the named repository
   within the lockfile when installing packages from the archives of the
   configured package repositories. (#2081)
-  
+
 * Fixed an issue where `renv::snapshot()` could fail if invoked within
   a project containing empty or invalid `.ipynb` files. (#2073)
 
@@ -637,13 +650,13 @@
 
 * Fixed an issue where `RENV_CONFIG_EXTERNAL_LIBRARIES` was incorrectly
   split when using Windows paths. (#2069)
-  
+
 * Fixed an issue where `renv` failed to restore packages installed from
   r-universe when the associated lockfile record had no `RemoteRef` field.
   (#2068)
 
 * `renv` now detects dependencies from usages of `utils::citation()`. (#2047)
-  
+
 * Fixed an issue where packages installed from r-universe via an explicit
   URL remote could not be restored. (#2060)
 
@@ -656,7 +669,7 @@
 
 * Fixed an issue where `renv` could fail to check for updates for packages
   installed using `pak` without an explicit branch specified. (#2040)
-  
+
 * `renv::use()` no longer re-installs packages which are already installed
   and compatible with the requested packages. (#2044)
 
@@ -691,7 +704,7 @@
 
 * Fixed an issue where headers were not properly passed to `available.packages()`
   during `renv` bootstrap. (#1942)
-  
+
 * `renv` now assumes that Artifactory package repositories will use a CRAN-like
   layout of packages for packages in the archive. (#1996)
 
@@ -707,7 +720,7 @@
   is within a folder that has been mounted as 'noexec'. This message can be
   suppressed by setting the `RENV_TEMPDIR_NOEXEC_CHECK=FALSE` environment
   variable.
-  
+
 
 # renv 1.0.10
 
@@ -735,7 +748,7 @@
 * `renv` now infers a dependency on the `ragg` package when the `ragg_png` device
   is used in R Markdown / Quarto documents, for documents using the code
   `knitr::opts_chunk$set(dev = "ragg_png")`. (#1985)
-  
+
 * `renv` now automatically generates a lockfile when loading a project containing
   a `manifest.json` file (typical for application bundles published to Posit Connect).
   (#1980, @toph-allen)
@@ -748,7 +761,7 @@
 * Fixed an issue where `renv::hydrate()` did not hydrate packages which
   were also listed as dependencies within a project's `DESCRIPTION` file.
   (#1970)
-  
+
 * Fixed an issue where `renv::checkout()` omitted some fields from lockfile
   records when using `actions = c("snapshot", "restore")`. (#1969)
 
@@ -816,7 +829,7 @@
   Otherwise, any suggested renv actions, such as `renv::restore()`, are emitted
   as a message for the user to act on. (#1879, #1915).
 
-* Fixed an issue where installation of packages from local sources, as via 
+* Fixed an issue where installation of packages from local sources, as via
   `install("<package>", repos = NULL, type = "source")`, could fail. (#1880)
 
 * A new function, `renv::lockfile_validate()`, can be used to validate your `renv.lock`
@@ -843,7 +856,7 @@
 * `renv::load()` now delegates to `base::load()` when it detects that the
   call was likely intended for `base::load()`, but `renv::load()` was used
   instead (e.g. because `base::load()` was masked by `renv::load()`).
-  
+
 * `renv::update()` gains the `lock` argument, which can be used to
   instruct `renv` to automatically update the lockfile after the requested
   packages have been updated. (#1849)
@@ -878,25 +891,25 @@
 * `renv::install()` gains the `lock` argument. When `TRUE`, the project
   lockfile will be updated after the requested packages have been
   successfully installed. (#1811)
-  
+
 * `renv` now supports the use of GitHub Enterprise servers with the
   `gitcreds` package for authentication credentials. (#1814)
 
 * `renv::dependencies()` now treats `#| eval: !expr <...>` chunk options
   as truthy by default, implying that such chunks are scanned for their
   R package dependencies. (#1816)
-  
+
 * `renv::dependencies()` now requires usages of the [import](https://cran.r-project.org/package=import)
   package to be namespace-qualified in order to be handled via static
   analysis; that is, `import::from(<pkg>)` is parsed for dependencies,
   but `from(pkg)` is not. (#1815)
-  
+
 * `renv::load()` gains the `profile` argument, allowing one to
   explicitly load a specific profile associated with an `renv` project.
   See `vignette("profiles", package = "renv")` or
   https://rstudio.github.io/renv/articles/profiles.html
   for more details.
-  
+
 * `renv::dependencies()` no longer includes `R` dependency versions
   declared from a `DESCRIPTION` file in its output. (#1806)
 
@@ -1017,7 +1030,7 @@
 
 * `renv::init()` gains the `load` argument, making it possible to initialize
   a project without explicitly loading it. (#1583)
-  
+
 * renv now uses a lock when synchronizing installed packages with the cache.
   This should help alleviate issues that can arise when multiple R processes
   are installing and caching packages concurrently. (#1571)
@@ -1026,10 +1039,10 @@
 
 * Fixed an issue that prevented `renv::install()` from functioning
   when source-only repositories were included. (#1578)
-  
+
 * Fixed a logic error in reading `RENV_AUTOLOAD_ENABLED`. (#1580)
 
-* `renv::restore()` no longer runs without prompting on load if the 
+* `renv::restore()` no longer runs without prompting on load if the
   library is empty. (#1543)
 
 * `renv::repair()` now checks for installed packages which lack a known
@@ -1069,12 +1082,12 @@
 
 ## New features
 
-* New `renv::checkout()` installings the latest-available packages from a 
-  repository. For example, `renv::checkout(date = "2023-02-08")` will install 
-  the packages available on 2023-02-08 from the Posit 
-  [Package Manager](https://packagemanager.rstudio.com/) repository. 
-  The `actions` argument allows you choose whether a lockfile is generated from 
-  the provided repositories ("snapshot"), or whether packages are installed 
+* New `renv::checkout()` installings the latest-available packages from a
+  repository. For example, `renv::checkout(date = "2023-02-08")` will install
+  the packages available on 2023-02-08 from the Posit
+  [Package Manager](https://packagemanager.rstudio.com/) repository.
+  The `actions` argument allows you choose whether a lockfile is generated from
+  the provided repositories ("snapshot"), or whether packages are installed
   from the provided repositories ("restore").
 
 * `renv::deactivate()` gains a `clean` argument: when `TRUE` it will delete
@@ -1087,13 +1100,13 @@
   details (#430).
 
 * `renv::lockfile_create()`, `renv::lockfile_read()`, `renv::lockfile_write()`
-  and `renv::lockfile_modify()` provide a small family of functions for 
+  and `renv::lockfile_modify()` provide a small family of functions for
   interacting with renv lockfiles programmatically (#1438).
 
-* Handling of development dependencies has been refined. `renv::snapshot()` 
+* Handling of development dependencies has been refined. `renv::snapshot()`
   and `renv::status()` no longer track development dependencies, while
-  `install()` continues to install them (#1019). `Suggested` packages listed in 
-  `DESCRIPTION` files are declared as development dependencies regardless of 
+  `install()` continues to install them (#1019). `Suggested` packages listed in
+  `DESCRIPTION` files are declared as development dependencies regardless of
   whether or not they're a "package" project.
 
 * MRAN integration is now disabled by default, pending the upcoming shutdown
@@ -1103,7 +1116,7 @@
 
 ## Bug fixes and minor improvements
 
-* Development versions of renv are now tracked using the Git SHA of the 
+* Development versions of renv are now tracked using the Git SHA of the
   current commit, rather than a version number that's incremented on every
   change (#1327). This shouldn't have any user facing impact, but makes
   renv maintenance a little easier.
@@ -1111,14 +1124,14 @@
 * Fixed an issue causing "restarting interrupted promise evaluation" warnings
   to be displayed when querying available packages failed. (#1260)
 
-* `renv::activate()` uses a three option menu that hopefully make your choices 
+* `renv::activate()` uses a three option menu that hopefully make your choices
   more clear (#1372).
 
 * `renv::dependencies()` now discovers R package dependencies inside Jupyter
   notebooks (#929).
 
 * `renv::dependencies()` includes packages used by user profile (`~/.Rprofile`)
-  if `renv::config$user.profile()` is `TRUE`. They are set as development 
+  if `renv::config$user.profile()` is `TRUE`. They are set as development
   dependencies, which means that they will be installed by `install()` but not
   recorded in the snapshot.
 
@@ -1134,8 +1147,8 @@
 * `renv::install(type = "source")` now ensures source repositories are used
   in projects using [PPM](https://packagemanager.posit.co/). (#927)
 
-* `renv::install()` activates Bioconductor repositories when installing a 
-  package from a remote (e.g. GitHub) which declares a Bioconductor dependency 
+* `renv::install()` activates Bioconductor repositories when installing a
+  package from a remote (e.g. GitHub) which declares a Bioconductor dependency
   (via a non-empty 'biocViews' field) (#934).
 
 * `renv::install()` respects the project snapshot type, if set.
@@ -1150,10 +1163,10 @@
   a particular version of Bioconductor. Aliases like 'release' and
   'devel' are also supported (#1195).
 
-* `renv::install()` now requires interactive confirmation that you want to 
+* `renv::install()` now requires interactive confirmation that you want to
   install packages (#587).
 
-* `renv::load()` gives a more informative message if a lockfile is present but 
+* `renv::load()` gives a more informative message if a lockfile is present but
   no packages are installed (#353).
 
 * `renv::load()` no longer attempts to query package repositories when checking
@@ -1167,18 +1180,18 @@
   in your project's `.Renviron` if you'd like to opt-in to this behavior.
   Note that this requires a nightly build of `pak` (>= 0.4.0-9000);
   see https://pak.r-lib.org/dev/reference/install.html for more details.
-  
+
 * `renv::restore()` now emits an error if called within a project that
   does not contain a lockfile (#1474).
 
-* `renv::restore()` correctly restores packages downloaded and installed 
+* `renv::restore()` correctly restores packages downloaded and installed
   from [r-universe](https://r-universe.dev/) (#1359).
 
 * `renv::snapshot()` now standardises pak metadata so CRAN packages installed via
   pak look the same as CRAN packages installed with renv or `install.packages()`
   (#1239).
 
-* If `renv::snapshot()` finds missing packages, a new prompt allows you to 
+* If `renv::snapshot()` finds missing packages, a new prompt allows you to
   install them before continuing (#1198).
 
 * `renv::snapshot()` no longer requires confirmation when writing the first
@@ -1188,7 +1201,7 @@
 * `renv::snapshot()` reports if the R version changes, even if no packages
   change (#962).
 
-* `renv::snapshot(exclude = <...>)` no longer warns when attempting to exclude 
+* `renv::snapshot(exclude = <...>)` no longer warns when attempting to exclude
   a package that is not installed (#1396).
 
 * `renv::status()` now uses a more compact display when packages have some
@@ -1197,13 +1210,13 @@
 * `renv::status()` now works more like `renv::restore()` when package versions
   are different (#675).
 
-* `renv::update()` can now update packages installed from GitLab (#136) and 
+* `renv::update()` can now update packages installed from GitLab (#136) and
   BitBucket (#1194).
 
-* `renv::settings$package.dependency.fields()` now only affects packages 
+* `renv::settings$package.dependency.fields()` now only affects packages
   installed directly by the user, not downstream dependencies of those packages.
 
-* renv functions give a clearer error if `renv.lock` has somehow become 
+* renv functions give a clearer error if `renv.lock` has somehow become
   corrupted (#1027).
 
 
@@ -1225,22 +1238,22 @@
 * Fixed an issue where renv was passing the wrong argument name to
   `installed.packages()`, causing usages of renv to fail with
   R (<= 3.4.0). (#1173)
-  
+
 * renv now sets the `SDKROOT` environment variable on macOS if it detects
   that R was built using an LLVM build of `clang` on macOS.
 
 * `renv::install()` now parses the remotes included within, for example,
   a `DESCRIPTION` file's `Config/Needs/...` field.
-  
+
 * renv now checks that the index directory is writable before attempting to
   use it, e.g. for the `R` available packages index maintained by renv. (#1171)
-  
+
 * renv now checks that the version of `curl` used for downloads appears to
   be functional, and reports a warning if it does not (for example, because
   a requisite system library is missing). The version of `curl` used for
   downloads can also be configured via the `RENV_CURL_EXECUTABLE` environment
   variable.
-  
+
 
 # renv 0.17.2
 
@@ -1271,7 +1284,7 @@
 
 * `renv::status()` now suggests running `renv::restore()` if there are no
   packages installed in the project library. (#1060)
-  
+
 * Fixed an issue where renv would fail to query [r-universe](https://r-universe.dev/)
   repositories. (#1156)
 
@@ -1293,11 +1306,11 @@
   active package repositories, that is shared across `R` sessions. This should
   improve renv's performance when querying for available packages across
   multiple different `R` sessions.
-  
+
 * `renv::hydrate()` gains the `prompt` parameter. When `TRUE` (the default),
   renv will prompt for confirmation before attempting to hydrate the active
   library.
-  
+
 * Improved handling of package installation via SSH URLs with `git`. (#667)
 
 * Improved handling of R version validation when using projects with
@@ -1311,7 +1324,7 @@
   the `igraph` package. This is mainly important when using the `renv.auth`
   authentication tools, where the package name of a remote needs to be
   declared explicitly. (#667)
-  
+
 * Fixed an issue that could prevent `renv::restore()` from functioning when
   attempting to install packages which had been archived on CRAN. (#1141)
 
@@ -1348,7 +1361,7 @@
 * renv no longer uses the R temporary directory on Windows for the
   sandbox. The sandbox directory can be customized via the
   `RENV_PATHS_SANDBOX` environment variable if required. (#835)
-  
+
 * renv now reports the elapsed time when installing packages. (#1104)
 
 * For projects using "explicit" snapshots, renv now reports if
@@ -1424,7 +1437,7 @@
   help ensure useful errors are provided for manually-edited lockfiles
   which contain a JSON parsing error. If the `jsonlite` package is not loaded,
   renv will fall back to its own internal JSON parser. (#1027)
-  
+
 * Fixed an issue that would cause renv to fail to source the user
   `~/.Rprofile` if it attempted to register global calling handlers,
   e.g. as `prompt::set_prompt()` does. (#1036)
@@ -1436,7 +1449,7 @@
   If you need finer control over ACLs set on packages moved into the cache,
   consider defining a custom callback via the `renv.cache.callback` R option.
   (#1025)
-  
+
 * Fixed an issue where `.gitignore` inclusion rules for sub-directories were
   not parsed correctly by renv for dependency discovery. (#403)
 
@@ -1446,7 +1459,7 @@
 
 * Fixed an issue where `renv::use_python()` could cause the Requirements field
   for packages in the lockfile to be unintentionally dropped. (#974)
-  
+
 * The R option `renv.cache.callback` can now be set, to run a user-defined
   callback after a package has been copied into the cache. This can be useful
   if you'd like to take some action on the cached package's contents after
@@ -1456,7 +1469,7 @@
   change the access permissions of packages copied into the cache. When set,
   after a package is copied into the cache, renv will use `chmod -Rf` to try
   and change the permissions of the cache entry to the requested permissions.
-  
+
 * (Unix only) The `RENV_CACHE_USER` environment variable can now be used to
   change the ownership of folders copied into the cache. When set, after a
   package is copied into the cache, renv will use `chown -Rf` to try and
@@ -1473,7 +1486,7 @@
 
 * Fixed an issue where installation of packages from Bioconductor's binary
   Linux package repositories could fail. (#1013)
-  
+
 * `renv::restore()` now supports restoration of packages installed from
   [R-Forge](https://r-forge.r-project.org/). (#671)
 
@@ -1502,12 +1515,12 @@
 
 * `renv::modify()` gains the `changes` argument, which can be used to modify
   a project lockfile non-interactively.
-  
+
 * `renv::clean()` now returns the project directory, as documented. (#922)
 
 * Fixed an issue where renv could fail to parse embedded YAML chunk options
   in R Markdown documents. (#963)
-  
+
 * renv now sets default placeholder names for the `repos` R option, for
   any repository URLs which happen to be unnamed. (#964)
 
@@ -1516,7 +1529,7 @@
 
 * Fixed an issue where renv could fail to install packages containing
   multibyte unicode characters in their DESCRIPTION file. (#956)
-  
+
 * Fixed detection of Rtools 4.2 (#1002)
 
 
@@ -1546,7 +1559,7 @@
 
 * Fixed an issue where renv's automatic snapshot was not run after calls to
   `renv::install()` in some cases. (#939)
-  
+
 * Fixed an issue where renv would incorrectly copy a package from the cache,
   if the cached version of the package and the requested version of the package
   had the same package version, even if they were retrieved from different
@@ -1556,7 +1569,7 @@
   `RENV_BOOTSTRAP_TARBALL`, to be used to help renv bootstrap from local
   sources. This can either be the path to a directory containing renv
   source tarballs, or the path to the tarball itself.
-  
+
 * Fixed an issue where the R site library would not be appropriately masked
   for resumed RStudio sessions. (#936)
 
@@ -1609,7 +1622,7 @@
   via the `RENV_PATHS_RENV` environment variable. This can be useful
   if you'd prefer to store your project's renv resources within
   an alternate location in the project. (#472)
-  
+
 * renv now uses an external library by default for R package projects,
   with the library located within `tools::R_user_dir("renv", "cache")`.
   This directory can be configured via the `RENV_PATHS_LIBRARY_ROOT`
@@ -1634,7 +1647,7 @@
   package. Set `RENV_CONFIG_PAK_ENABLED = TRUE` in an appropriate `.Renviron`
   file to enable `pak` integration. When enabled, calls to `renv::install()`
   will use `pak` to download and install packages.
-  
+
 * `renv::init()` gains the `bioconductor` argument, to be used to initialize
   a project with a particular Bioconductor release. You can also use
   `renv::init(bioconductor = TRUE)` to initialize with the latest-available
@@ -1652,15 +1665,15 @@
   "local sources" of packages located somewhere on the filesystem, as
   opposed to packages explicitly placed in this ad-hoc repository.
   `RENV_PATHS_LOCAL` remains supported for backwards compatibility.
-  
+
 * The `RENV_PATHS_CELLAR` environment variable can now be set to multiple
   paths. Use `;` as a separator between paths; for example,
   `RENV_PATHS_LOCAL=/path/to/sources/v1;/path/to/sources/v2`. (#550)
-  
+
 * Packages installed via e.g. `renv::install("./path/to/package")`
   will now retain the relative path to that package within the lockfile.
   (#873)
-  
+
 * Fixed an issue where invalid `config` option values were not properly
   reported. (#773)
 
@@ -1675,16 +1688,16 @@
 * renv now infers that parameterized R Markdown documents have a dependency
   on the `shiny` package. In addition, R code included within the `params:`
   list will be parsed for dependencies. (#859)
-  
+
 * renv now ignores hidden directories during dependency discovery by default.
   If you want to force a particular hidden directory to be included for
   discovery, you can use a `.renvignore` file with an explicit inclusion
   criteria; e.g. `!.hidden/`.
-  
+
 * renv now supports the `*release` remotes specifier for GitHub repositories,
   for requesting installation of the latest declared release of a package from
   GitHub. (#792)
-  
+
 * renv now handles packages stored within the sub-directory of a Git
   repository better. (#793)
 
@@ -1705,7 +1718,7 @@
 
 * Fixed an issue where `renv::restore()` could fail to restore packages which
   referred to their source via an explicit path in the `Source` field. (#849)
-  
+
 * renv no longer requires explicit user consent when used within Singularity
   containers. (#824, @kiwiroy)
 
@@ -1728,7 +1741,7 @@
 * Fixed an issue where renv's shims, e.g. for `install.packages()`, failed
   to pass along other optional arguments to the shimmed function correctly.
   (#808)
-  
+
 
 # renv 0.14.0
 
@@ -1737,7 +1750,7 @@
   cache still exists at the old location, that location will be used instead.
   This change should only affect brand new installations of renv on newer
   versions of `R`.
-  
+
 * Fixed an issue with renv tests failing with R (>= 4.2.0).
 
 * renv will no longer auto-activate itself within R processes launched via
@@ -1745,33 +1758,33 @@
   `RENV_ACTIVATE_PROJECT` environment variable -- set this to `TRUE` to
   force the project in the current working directory to be activated, and
   `FALSE` to suppress the renv auto-loader altogether. (#804)
-  
+
 * Added dependency discovery support for R utility scripts identified by a
   shebang line instead of a file extension. (#801; @klmr)
 
 * Fixed an issue where `renv::install("<package>", type = "both")` would attempt
   to install the package from sources, even if the current system did not have
   the requisite build tools available. (#800)
-  
+
 * `renv::scaffold()` gains the `settings` argument, used to create a project
   scaffolding with some default project options set. (#791)
-  
+
 * renv now determines the default branch name for packages installed from
   GitLab without an explicit reference supplied; for example, as in
   `renv::install("gitlab::<user>/<repo>")`. (#795)
-  
+
 * renv now infers a dependency on the `bslib` package for R Markdown
   documents using custom themes. (#790)
 
 * renv will now prompt users to activate the current project when calling
   `renv::snapshot()` or `renv::restore()` from within a project that has not
   yet been activated. (#777)
-  
+
 * renv now has improved handling for `git` remotes. (#776; @matthewstrasiotto)
 
 * `renv::restore()` gains the `exclude` argument, used to exclude a subset of
   packages during restore. (#746)
-  
+
 * Fixed an issue where `renv::dependencies()` could fail to parse
   dependencies in calls to `glue::glue()` that used custom open
   and close delimiters. (#772)
@@ -1781,7 +1794,7 @@
 
 * Fixed an issue where renv could fail to install packages located
   on GitHub within sub-subdirectories. (#759)
-  
+
 * renv gains the function `embed()`, used to embed a lockfile with an
   R document (via a call to `renv::use()`).
 
@@ -1817,7 +1830,7 @@
 
 * Fixed an issue where chunks with the chunk option `eval=F` would
   still be scanned for dependencies. (#421)
-  
+
 * In interactive sessions, `renv::use_python()` will now prompt for
   the version of Python to be used. Python installations in a set
   of common locations will be searched. See `?renv::use_python()`
@@ -1830,20 +1843,20 @@
   named in the `Repository` field if available. The name is matched against
   the repository names set in the R `repos` option, or as encoded in the
   renv lockfile. (#701)
-  
+
 * renv now supports the discovery of dependencies within interpolated strings
   as used by the `glue` package.
 
 * `RENV_CONFIG_EXTERNAL_LIBRARIES` can now be configured to use multiple
   library paths, delimited by either `:`, `;`, or `,`. (#700)
-  
+
 * renv gains the configuration option, `exported.functions`, controlling
   which functions and objects are placed on the R search path when renv
   is attached (e.g. via `library(renv)`). Set this to `NULL` to instruct renv
   not to place any functions on the search path. This helps avoid issues with,
   for example, `renv::load()` masking `base::load()`. When set, all usages
   of renv APIs must be explicitly qualified with the `renv::` prefix.
-  
+
 
 # renv 0.13.2
 
@@ -1863,7 +1876,7 @@
 * Fixed an issue where renv's bootstrapping code could inadvertently bootstrap
   with the wrong version of renv, if the source and binary versions of renv
   on CRAN were not in sync. (#695)
-  
+
 * Fixed an issue where `renv::status()` could provide a misleading message
   for packages which are recorded in the lockfile, but not explicitly
   required by the project. (#684)
@@ -1900,20 +1913,20 @@
 
 * `renv::snapshot()` no longer creates an `renv/activate.R` file in the project
   folder if one does not already exist. (#655)
-  
+
 * The `renv::hydrate()` function gains the `update` argument, used to control
   whether `renv::hydrate()` chooses to update packages when invoked. When set
   to `TRUE`, if the version of a package installed in the source library is
   newer than that of the project library, then renv will copy that version
   of the package into the project library. (#647)
-  
+
 * The `RENV_PATHS_PREFIX_AUTO` environment variable can now be set to instruct
   renv to include an OS-specific component as part of the library and
   cache paths. This is primarily useful for Linux systems, where one might
   want to share a global cache with multiple different operating systems.
   The path component is constructed from the `ID` and `VERSION_CODENAME` /
   `VERSION_ID` components of the system's `/etc/os-release` file.
-  
+
 * renv's dependency discovery machinery now has preliminary support
   for packages imported via the [box](https://github.com/klmr/box) package;
   e.g. `box::use(dplyr[...])`.
@@ -1947,7 +1960,7 @@
   activate different sets of project libraries + lockfiles for different workflows
   in a given project. See `vignette("profiles", package = "renv")` for more
   details.
-  
+
 * Fixed an issue where attempts to initialize an renv project in a path
   containing non-ASCII characters could fail on Windows. (#629)
 
@@ -1960,12 +1973,12 @@
   variable if more granular control over the staging library path is required.
   This fixes issues on Windows with creating junction points to the global
   package cache on Windows. (#584)
-  
+
 * renv no longer skips downloading a requested source package if an existing
   cached download exists and appears to be valid. This should help avoid issues
   when attempting to install a package whose associated tarball has changed
   remotely. (#504)
-  
+
 * During bootstrap, renv will now attempt to download and unpack a binary
   copy of renv if available from the specified package repositories.
 
@@ -1979,12 +1992,12 @@
 * Fixed an issue where `renv::restore(library = "/path/to/lib")` would fail to
   restore packages, if those packages were already installed on the active
   library paths (as reported by `.libPaths()`). (#612)
-  
+
 * `renv::snapshot()` gains the `reprex` argument. Set this to `TRUE` if you'd
   like to embed an renv lockfile as part of a reproducible example, as
   generated by the [`reprex`](https://tidyverse.org/help/#reprex-pkg)
   package.
-  
+
 * `renv::status()` now reports packages that are referenced in a project's
   scripts, but are neither installed in the project library nor recorded in the
   lockfile. (#588)
@@ -2002,7 +2015,7 @@
 
 * renv now invalidates the available packages cache if the `https_proxy`
   environment variable changes. (#579)
-  
+
 * `renv::install(<pkg>)` will now install the latest-available version of
   that package from local sources, if that package is available and newer than
   any package available on the active package repositories. (#591)
@@ -2010,7 +2023,7 @@
 * The configuration option `startup.quiet` has been added, allowing one to
   control whether renv will display the typical startup banner when a
   project is loaded.
-  
+
 * renv now better handles being unloaded and reloaded within the
   same R session. In particular, warnings related to a corrupted
   lazy-load database should no longer occur. (#600)
@@ -2027,7 +2040,7 @@
   `TRUE`, renv will stream the output generated by R when performing a
   package installation. This can be helpful in some cases when diagnosing
   a failed restore / install. (#330)
-  
+
 * Fixed an issue where renv could fail to parse R Markdown chunk headers
   with an empty label. (#598)
 
@@ -2036,7 +2049,7 @@
   library path within the `RENV_PATHS_LIBRARY_ROOT` folder. Set this to
   `"TRUE"` if you would prefer renv did not append a unique identifier
   to your project's library path. (#593)
-  
+
 * Fixed an issue where GitLab references were not URL encoded. (#590)
 
 * renv no longer emits warnings when parsing multi-mode R files that make
@@ -2044,7 +2057,7 @@
 
 * The library used for staged installs can now be configured via the
   `RENV_PATHS_LIBRARY_STAGING` environment variable. (#584)
-  
+
 * Fixed an issue where bootstrapping an older version of renv could
   fail if the R repositories had not been appropriately set.
 
@@ -2104,7 +2117,7 @@
 
 * `renv::snapshot()` no longer excludes the project itself, for `R` package
   projects that use `golem`. (#538)
-  
+
 * The renv configuration option `cache.symlinks` can now be used to control
   whether renv used symlinks into the cache, as opposed to full package
   copies. Please see `?renv::config` for more details. (#556)
@@ -2113,7 +2126,7 @@
   lockfile that captures a specific set of packages and their dependencies.
   renv will use the currently-installed versions of those packages when
   determining the package records to be written to the lockfile. (#554)
-  
+
 * `renv::dependencies()` now accepts an R function as the first argument,
   for finding the packages used by a particular function. Currently,
   package usages must be prefixed with `::` to be detected. (#554)
@@ -2132,7 +2145,7 @@
 * renv now only installs packages from sources if it detects that build tools
   are available. This determination is done by checking whether `make` is
   available on the `PATH`. (#552)
-  
+
 * Warnings related to unknown sources can now be suppressed by setting
   `options(renv.warnings.unknown_sources = FALSE)`. (#546)
 
@@ -2170,7 +2183,7 @@
   restore. If renv sees that a package already installed in one of these
   libraries is compatible with the record requested via `renv::install()` or
   `renv::restore()`, that copy of the package will be copied and used. (#492)
-  
+
 * renv now performs a lighter-weight check as to whether the project lockfile
   is synchronized with the project library on load. The default value for the
   `synchronized.check` config option has been changed back to `TRUE`. (#496)
@@ -2184,13 +2197,13 @@
 
 * Fixed an issue where the `RENV_PATHS_PREFIX` environment variable was
   inappropriately normalized when renv was loaded. (#465)
-  
+
 
 # renv 0.11.0
 
 * Fixed an issue where `renv::install(..., type = "binary")` would
   still attempt to install packages from sources in some cases. (#461)
-  
+
 * renv now always writes `renv/.gitignore`, to ensure that the appropriate
   directories are ignored for projects which initialize `git` after renv
   itself is initialized. (#462)
@@ -2206,7 +2219,7 @@
 * `renv::snapshot(project = <path>)` now properly respects `.gitignore` /
   `.renvignore` files, even when that project has not yet been explicitly
   initialized yet. (#439)
-  
+
 * The default value of the `synchronized.check` option has been changed from
   TRUE to FALSE.
 
@@ -2258,7 +2271,7 @@
   This is primarily useful for users who want to share the renv cache across
   multiple operating systems on Linux, but need to disambigutate these paths
   according to the operating system in use. See `?renv::paths` for more details.
-  
+
 * Fixed an issue where `renv::install()` could fail for packages from GitHub
   whose DESCRIPTION files contained Windows-style line endings. (#408)
 
@@ -2307,20 +2320,20 @@
 
 * renv now properly resets the session library paths when calling
   `renv::deactivate()` from within RStudio. (#219)
-  
+
 * `renv::init()` now restores the associated project library when called in a
   project containing a lockfile but no project library nor any pre-existing
   project infrastructure.
 
 * Fixed an issue on Windows where attempts to download packages from package
   repositories referenced with a `file://` scheme could fail.
-  
+
 * The configuration option `dependency.errors` has been added, controlling how
   errors are handled during dependency enumeration. This is used, for
   example, when enumerating dependencies during a call to `renv::snapshot()`.
   By default, errors are reported, and (for interactive sessions) the user is
   prompted to continue. (#342)
-  
+
 * `renv::dependencies()` gains two new arguments: the `progress` argument
   controls whether renv reports progress while enumerating dependencies,
   and `errors` controls how renv handles and reports errors encountered
@@ -2329,7 +2342,7 @@
   `quiet = TRUE` is equivalent to specifying `progress = FALSE` and
   `errors = "ignored"`. Please see the documentation in `?dependencies`
   for more details. (#342)
-  
+
 * The environment variable `RENV_PATHS_LIBRARY_ROOT` can now be set, to
   instruct renv to use a particular directory as a host for any project
   libraries that are used by renv. This can be useful for certain cases
@@ -2377,12 +2390,12 @@
 
 * `renv::hydrate()` gains the `sources` argument, used to control the library
   paths used by renv when hydrating a project. (#329)
-  
+
 * renv now sandboxes the system library by default on Windows.
 
 * renv now validates that the Xcode license has been accepted before
   attempting to install R packages from sources. (#296)
-  
+
 * The R option `renv.download.override` can now be used to override the
   machinery used by renv when downloading files. For example, setting
   `options(renv.download.override = utils::download.file)` would instruct
@@ -2412,7 +2425,7 @@
   `Github*` fields added, in addition to the default `Remote*` fields. This
   should help fix issues when attempting to deploy projects to Posit Connect
   requiring packages installed by renv. (#397)
-  
+
 * renv now prefers using a RemoteType field (if any) when attempting to
   determine a package's source. (#306)
 
@@ -2448,7 +2461,7 @@
 * renv gains a new function `renv::run()`, for running R scripts within
   a particular project's context inside an R subprocess. (#126)
 
-* The algorithm used by renv for hashing packages has changed. Consider 
+* The algorithm used by renv for hashing packages has changed. Consider
   using `renv::rehash()` to migrate packages from the old renv cache to
   the new renv cache.
 
