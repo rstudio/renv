@@ -100,6 +100,35 @@ renv_pak_update <- function(project, library, prompt) {
 
 }
 
+# translate a user-provided remote spec into one which pak understands;
+# specs which are already pak-compatible are returned as-is
+renv_pak_remote <- function(spec) {
+
+  remote <- catch(renv_remotes_parse(spec))
+  if (inherits(remote, "error"))
+    return(spec)
+
+  if (!identical(remote$type, "gitlab"))
+    return(spec)
+
+  # we have no way of expressing a merge request with pkgdepends' syntax;
+  # pass the spec through unchanged, so pak can report the problem itself
+  if (!is.null(remote$pull))
+    return(spec)
+
+  record <- list(
+    Package        = remote$package,
+    RemoteHost     = remote$host,
+    RemoteUsername = remote$user,
+    RemoteRepo     = remote$repo,
+    RemoteSubdir   = remote$subdir,
+    RemoteRef      = remote$ref
+  )
+
+  renv_record_format_remote_pak_gitlab(record, versioned = FALSE)
+
+}
+
 renv_pak_install <- function(packages,
                              library,
                              type,
@@ -128,11 +157,16 @@ renv_pak_install <- function(packages,
   # of already-resolved records; using those names alone would discard the
   # record's version pin and remote source
   # https://github.com/rstudio/renv/issues/2341
+  #
+  # user-provided specs using renv's GitLab remote syntax (e.g.
+  # 'gitlab@host::group/project') aren't understood by pak, so translate
+  # those into pkgdepends' own syntax as well
+  # https://github.com/rstudio/renv/issues/2180
   specs <- map_chr(packages, function(package) {
     if (is.list(package))
       renv_record_format_remote(package, pak = TRUE)
     else
-      as.character(package)
+      renv_pak_remote(as.character(package))
   })
 
   # associate each spec with its package name where we know it, so include /
@@ -177,7 +211,7 @@ renv_pak_install <- function(packages,
   # https://github.com/rstudio/renv/issues/2011
   pattern <- "(?<!:):([^/#@:]+)"
   packages <- gsub(pattern, "/\\1", unname(specs), perl = TRUE)
-  
+
   # build parameters. explicitly-requested packages always get 'reinstall',
   # so they are installed even when already current -- matching renv's non-pak
   # installer, which always (re)installs explicitly-requested packages. with

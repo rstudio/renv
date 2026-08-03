@@ -206,6 +206,77 @@ test_that("install() filters records by package name with pak (#2341)", {
 
 })
 
+test_that("install() translates renv's gitlab remote syntax for pak (#2180)", {
+
+  skip_on_cran()
+  skip_on_windows()
+  skip_if_not_installed("pak")
+  pak <- renv_namespace_load("pak")
+  renv_scope_options(renv.config.pak.enabled = TRUE)
+  renv_tests_scope()
+
+  args <- NULL
+  local_mocked_bindings(renv_pak_init = function(...) invisible(NULL))
+  local_mocked_bindings(
+    .package = "pak",
+    pkg_install = function(pkg, ...) {
+      args <<- pkg
+      invisible(data.frame(package = character()))
+    }
+  )
+
+  # pak (pkgdepends) doesn't understand 'gitlab@host::', and expects
+  # sub-directories to be separated with '/-/'
+  quietly(install("gitlab@gitlab.example.de::bioinf/rlib/testpackage"))
+  expect_equal(unname(args), "gitlab::https://gitlab.example.de/bioinf/rlib/testpackage?reinstall")
+
+  quietly(install("gitlab::group/repo:subdir@main"))
+  expect_equal(unname(args), "gitlab::https://gitlab.com/group/repo/-/subdir@main?reinstall")
+
+})
+
+test_that("restore() translates gitlab remotes for pak (#2180)", {
+
+  skip_on_cran()
+  skip_on_windows()
+  skip_if_not_installed("pak")
+  pak <- renv_namespace_load("pak")
+  renv_scope_options(renv.config.pak.enabled = TRUE)
+  renv_tests_scope()
+
+  args <- NULL
+  local_mocked_bindings(
+    .package = "pak",
+    pkg_install = function(pkg, ...) {
+      args <<- pkg
+      invisible(data.frame(package = character()))
+    }
+  )
+
+  lockfile <- list(
+    Packages = list(
+      testpackage = list(
+        Package        = "testpackage",
+        Version        = "0.1.0",
+        Source         = "GitLab",
+        RemoteType     = "gitlab",
+        RemoteHost     = "gitlab.example.de",
+        RemoteUsername = "bioinf",
+        RemoteRepo     = "rlib/testpackage",
+        RemoteSubdir   = "",
+        RemoteRef      = "main",
+        RemoteSha      = "babda05db8146b37a552c77651e2cd084a05ce98"
+      )
+    )
+  )
+
+  renv_pak_restore(lockfile)
+
+  expected <- "testpackage=gitlab::https://gitlab.example.de/bioinf/rlib/testpackage@babda05db8146b37a552c77651e2cd084a05ce98"
+  expect_equal(unname(args), expected)
+
+})
+
 test_that("install() does not upgrade transitively-pulled recommended packages (#2329)", {
 
   skip_on_cran()

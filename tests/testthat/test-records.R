@@ -210,6 +210,45 @@ test_that("remote hosts are included when formatting", {
 
 })
 
+test_that("gitlab remotes are formatted using pkgdepends syntax for pak (#2180)", {
+
+  record <- list(
+    Package        = "testpackage",
+    Version        = "0.1.0",
+    Source         = "GitLab",
+    RemoteType     = "gitlab",
+    RemoteHost     = "gitlab.example.de",
+    RemoteUsername = "bioinf",
+    RemoteRepo     = "rlib/testpackage",
+    RemoteSubdir   = "",
+    RemoteRef      = "main",
+    RemoteSha      = "babda05db8146b37a552c77651e2cd084a05ce98"
+  )
+
+  # renv's own 'gitlab@host::' syntax is retained for display
+  remote <- renv_record_format_remote(record)
+  expect_equal(remote, "testpackage=gitlab@gitlab.example.de::bioinf/rlib/testpackage@babda05db8146b37a552c77651e2cd084a05ce98")
+
+  # ... but pak requires the host to be spelled as a URL
+  remote <- renv_record_format_remote(record, pak = TRUE)
+  expect_equal(remote, "testpackage=gitlab::https://gitlab.example.de/bioinf/rlib/testpackage@babda05db8146b37a552c77651e2cd084a05ce98")
+
+  # the default host is included as well, so that a sub-directory can never
+  # be mistaken for the project name
+  record$RemoteHost <- NULL
+  record$RemoteUsername <- "group"
+  record$RemoteRepo <- "repo"
+  record$RemoteSubdir <- "testpackage"
+
+  remote <- renv_record_format_remote(record, pak = TRUE)
+  expect_equal(remote, "testpackage=gitlab::https://gitlab.com/group/repo/-/testpackage@babda05db8146b37a552c77651e2cd084a05ce98")
+
+  # unversioned remotes use the ref, if any
+  remote <- renv_record_format_remote(record, pak = TRUE, versioned = FALSE)
+  expect_equal(remote, "testpackage=gitlab::https://gitlab.com/group/repo/-/testpackage@main")
+
+})
+
 test_that("renv_record_source infers 'repository' from Repository field", {
 
   # a record with Source explicitly set uses that
