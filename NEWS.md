@@ -1,5 +1,12 @@
 # renv (development version)
 
+* Fixed an issue where renv would warn that a package "was loaded before renv
+  activated this project" when no such thing had happened. Projects using
+  Bioconductor were affected on every startup, as renv loads `BiocManager`
+  itself when resolving Bioconductor repositories. The check also mistook
+  packages linked into the project library from the renv cache for packages
+  loaded from outside the library paths. (#2344)
+
 * `renv::install()` and `renv::restore()` no longer build a package from source
   when a binary of the requested version is available, in cases where the active
   repositories are pinned to a dated snapshot (for example, a Posit Package

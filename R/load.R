@@ -2,6 +2,9 @@
 # are we currently running 'load()'?
 the$load_running <- FALSE
 
+# the namespaces which were already loaded when 'load()' was invoked
+the$preloaded_namespaces <- character()
+
 #' Load a project
 #'
 #' @description
@@ -86,6 +89,11 @@ load <- function(project = NULL, quiet = FALSE, profile = NULL, ...) {
 
   # indicate that we're now loading the project
   renv_scope_binding(the, "load_running", TRUE)
+
+  # take note of the namespaces which were loaded before we started, so that
+  # renv_load_check_namespaces() can tell them apart from the namespaces renv
+  # itself loads while loading the project
+  renv_scope_binding(the, "preloaded_namespaces", loadedNamespaces())
 
   # if load is being called via the autoloader,
   # then ensure RENV_PROJECT is unset
@@ -769,7 +777,14 @@ renv_load_check_namespaces <- function(project) {
 
   libpaths <- renv_libpaths_all()
   ignored <- c(renv_packages_base(), "renv")
-  candidates <- setdiff(loadedNamespaces(), ignored)
+
+  # only consider namespaces which were already loaded when renv started
+  # loading this project. renv loads some namespaces itself along the way --
+  # most notably BiocManager, when resolving Bioconductor repositories -- and
+  # those are not encapsulation breaks.
+  # https://github.com/rstudio/renv/issues/2344
+  preloaded <- intersect(the$preloaded_namespaces, loadedNamespaces())
+  candidates <- setdiff(preloaded, ignored)
   if (empty(candidates))
     return(invisible(TRUE))
 
@@ -778,7 +793,7 @@ renv_load_check_namespaces <- function(project) {
     nspath <- catch(renv_namespace_path(pkg))
     if (inherits(nspath, "error") || !nzchar(nspath))
       next
-    if (dirname(nspath) %in% libpaths)
+    if (nzchar(renv_namespace_libpath(pkg, libpaths)))
       next
     external[[pkg]] <- renv_path_aliased(nspath)
   }
