@@ -424,25 +424,21 @@ renv_available_packages_latest <- function(package,
     if (!is.null(entry))
       stopf("package '%s' is not available\n- %s", package, entry$reason)
     stopf("package '%s' is not available", package)
-  } else if (is.null(entries[[2L]])) {
-    return(entries[[1L]])
-  } else if (is.null(entries[[1L]])) {
-    return(entries[[2L]])
   }
 
-  # both the configured repositories and crandb have a candidate; use the
-  # repository record.
+  # prefer the record from the configured repositories, consulting crandb only
+  # when they have no candidate.
   #
   # the configured repositories determine what can actually be installed, and
   # available_packages() already drops versions whose R requirement the current
   # session can't satisfy -- so crandb's role is to name a compatible version
-  # when the repositories have none, which is the branch above. crandb is not
-  # restricted to the configured repositories, so when it does name a newer
-  # version here, that version generally isn't installable from them: acting on
-  # it yields a failed download, an archive fallback that fails for packages
-  # still live on CRAN (#1735), or a source build where the repositories had a
-  # binary all along (#2345)
-  entries[[1L]]
+  # when the repositories have none. crandb is not restricted to the configured
+  # repositories, so when it names a newer version than they carry, that
+  # version generally isn't installable from them: acting on it yields a failed
+  # download, an archive fallback that fails for packages still live on CRAN
+  # (#1735), or a source build where the repositories had a binary all along
+  # (#2345)
+  entries[[1L]] %||% entries[[2L]]
 
 }
 
