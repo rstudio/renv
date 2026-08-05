@@ -793,7 +793,7 @@ renv_load_check_namespaces <- function(project) {
     nspath <- catch(renv_namespace_path(pkg))
     if (inherits(nspath, "error") || !nzchar(nspath))
       next
-    if (renv_load_namespace_managed(pkg, nspath, libpaths))
+    if (nzchar(renv_namespace_libpath(pkg, libpaths)))
       next
     external[[pkg]] <- renv_path_aliased(nspath)
   }
@@ -818,29 +818,6 @@ renv_load_check_namespaces <- function(project) {
   )
 
   invisible(FALSE)
-
-}
-
-# Is `package`, whose namespace was loaded from `nspath`, provided by one of
-# `libpaths`? R records a namespace's path in fully resolved form, whereas a
-# library entry is commonly a symlink (or, on Windows, a junction) into the
-# renv cache -- so the two must be normalized before they can be compared.
-# https://github.com/rstudio/renv/issues/2344
-renv_load_namespace_managed <- function(package, nspath, libpaths) {
-
-  # fast path for libraries which own their packages outright
-  if (dirname(nspath) %in% libpaths)
-    return(TRUE)
-
-  nspath <- renv_path_normalize(nspath)
-
-  for (libpath in libpaths) {
-    pkgpath <- file.path(libpath, package)
-    if (file.exists(pkgpath) && identical(renv_path_normalize(pkgpath), nspath))
-      return(TRUE)
-  }
-
-  FALSE
 
 }
 
