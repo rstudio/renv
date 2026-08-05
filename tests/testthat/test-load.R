@@ -110,7 +110,7 @@ test_that("renv_load_check_namespaces flags packages loaded from outside libpath
 
   # the check only considers namespaces which were loaded before renv began
   # loading the project; load() normally records these for us
-  renv_scope_binding(the, "load_namespaces", loadedNamespaces())
+  renv_scope_binding(the, "preloaded_namespaces", loadedNamespaces())
 
   # we test the helper directly; renv_load_check() only wires it up
   # during autoloader-driven startup, which doesn't fire in tests
@@ -132,7 +132,7 @@ test_that("renv_load_check_namespaces is silent when all loaded packages are on 
   loaded <- setdiff(loadedNamespaces(), c(renv_packages_base(), "renv"))
   paths <- vapply(loaded, function(p) dirname(renv_namespace_path(p)), character(1))
   renv_scope_libpaths(unique(c(paths, .libPaths())))
-  renv_scope_binding(the, "load_namespaces", loadedNamespaces())
+  renv_scope_binding(the, "preloaded_namespaces", loadedNamespaces())
 
   expect_silent(result <- renv_load_check_namespaces(getwd()))
   expect_true(result)
@@ -167,7 +167,7 @@ test_that("renv_load_check_namespaces tolerates packages linked from the cache",
   defer(unloadNamespace(pkg))
 
   # consider only bread, so that the check's verdict is unambiguous
-  renv_scope_binding(the, "load_namespaces", pkg)
+  renv_scope_binding(the, "preloaded_namespaces", pkg)
 
   # the namespace path points into the cache, not the library ...
   expect_false(dirname(renv_namespace_path(pkg)) %in% renv_libpaths_all())
@@ -209,12 +209,12 @@ test_that("renv_load_check_namespaces ignores namespaces renv loaded itself", {
   renv_scope_libpaths(c(projlib, .Library))
 
   # renv loaded bread only after project load began, so it isn't reported
-  renv_scope_binding(the, "load_namespaces", managed)
+  renv_scope_binding(the, "preloaded_namespaces", managed)
   expect_silent(result <- renv_load_check_namespaces(getwd()))
   expect_true(result)
 
   # whereas had it been loaded beforehand, it would be
-  renv_scope_binding(the, "load_namespaces", c(managed, external))
+  renv_scope_binding(the, "preloaded_namespaces", c(managed, external))
   expect_output(result <- renv_load_check_namespaces(getwd()), external)
   expect_false(result)
 

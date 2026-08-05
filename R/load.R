@@ -3,7 +3,7 @@
 the$load_running <- FALSE
 
 # the namespaces which were already loaded when 'load()' was invoked
-the$load_namespaces <- character()
+the$preloaded_namespaces <- character()
 
 #' Load a project
 #'
@@ -93,7 +93,7 @@ load <- function(project = NULL, quiet = FALSE, profile = NULL, ...) {
   # take note of the namespaces which were loaded before we started, so that
   # renv_load_check_namespaces() can tell them apart from the namespaces renv
   # itself loads while loading the project
-  renv_scope_binding(the, "load_namespaces", loadedNamespaces())
+  renv_scope_binding(the, "preloaded_namespaces", loadedNamespaces())
 
   # if load is being called via the autoloader,
   # then ensure RENV_PROJECT is unset
@@ -783,8 +783,8 @@ renv_load_check_namespaces <- function(project) {
   # most notably BiocManager, when resolving Bioconductor repositories -- and
   # those are not encapsulation breaks.
   # https://github.com/rstudio/renv/issues/2344
-  loaded <- intersect(the$load_namespaces, loadedNamespaces())
-  candidates <- setdiff(loaded, ignored)
+  preloaded <- intersect(the$preloaded_namespaces, loadedNamespaces())
+  candidates <- setdiff(preloaded, ignored)
   if (empty(candidates))
     return(invisible(TRUE))
 
