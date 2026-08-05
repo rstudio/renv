@@ -925,19 +925,35 @@ renv_graph_url_repository <- function(desc) {
   if (is.null(version) || identical(record$Version, version))
     return(renv_graph_url_repository_record(desc, record))
 
-  # the latest version doesn't match; try a version-filtered lookup
-  # using the same type that was selected for the latest
-  type <- attr(record, "type", exact = TRUE) %||% "source"
-  entry <- catch(renv_available_packages_entry(
-    package = package,
-    type    = type,
-    filter  = version,
-    prefer  = desc[["Repository"]]
-  ))
+  # the latest version doesn't match; try a version-filtered lookup.
+  #
+  # normally we reuse the type selected for the latest record, but records
+  # from crandb carry no type tag -- and because crandb isn't restricted to
+  # the configured repositories, it can report a version those repositories
+  # don't have (e.g. when they're pinned to a dated snapshot), so it's these
+  # untagged records that tend to land here. assuming source for them would
+  # build from source even when a binary of the requested version is
+  # available, so honor the requested package type instead (#2345)
+  tagtype <- attr(record, "type", exact = TRUE)
+  types <- if (is.null(tagtype))
+    renv_graph_url_repository_types()
+  else
+    tagtype
 
-  if (!inherits(entry, "error")) {
-    tagged <- renv_available_packages_record(entry, type)
-    return(renv_graph_url_repository_record(desc, tagged))
+  for (type in types) {
+
+    entry <- catch(renv_available_packages_entry(
+      package = package,
+      type    = type,
+      filter  = version,
+      prefer  = desc[["Repository"]]
+    ))
+
+    if (!inherits(entry, "error")) {
+      tagged <- renv_available_packages_record(entry, type)
+      return(renv_graph_url_repository_record(desc, tagged))
+    }
+
   }
 
   # the requested version is not in current available packages;
@@ -963,6 +979,27 @@ renv_graph_url_repository <- function(desc) {
 
   # couldn't resolve; fall back to sequential retrieval
   NULL
+
+}
+
+# the package types to search, in preference order, when the record we're
+# resolving carries no type tag of its own
+renv_graph_url_repository_types <- function() {
+
+  type <- the$install_pkg_type %||% getOption("pkgType", default = "source")
+
+  # on platforms where only source packages are supported, "both" collapses
+  # to source; see renv_available_packages_latest_repos() (#2275)
+  if (identical(.Platform$pkgType, "source") && identical(type, "both"))
+    type <- "source"
+
+  if (identical(type, "source"))
+    return("source")
+
+  if (grepl("\\bbinary\\b", type))
+    return("binary")
+
+  c("binary", "source")
 
 }
 
