@@ -302,6 +302,51 @@ test_that("renv_graph_url_repository resolves from test repo", {
 
 })
 
+test_that("renv_graph_url_repository prefers a binary for untagged records", {
+
+  skip_if(identical(.Platform$pkgType, "source"),
+          "binary packages not supported on this platform")
+
+  renv_tests_scope()
+  renv_scope_options(pkgType = .Platform$pkgType)
+
+  # records from crandb carry no url or type attribute, and crandb isn't
+  # restricted to the configured repositories -- so it can report a version
+  # those repositories don't have. renv used to fall back to source in that
+  # case, ignoring an available binary of the requested version (#2345)
+  local_mocked_bindings(
+    renv_available_packages_latest = function(package, ...) {
+      list(Package = package, Version = "9.9.9", Source = "Repository")
+    }
+  )
+
+  desc <- list(Package = "bread", Version = "1.0.0", Source = "Repository")
+  info <- renv_graph_url_repository(desc)
+
+  expect_equal(info$pkgtype, "binary")
+  expect_true(endsWith(info$url, renv_package_ext("binary")))
+
+})
+
+test_that("renv_graph_url_repository honors a source request for untagged records", {
+
+  renv_tests_scope()
+  renv_scope_options(pkgType = "source")
+
+  local_mocked_bindings(
+    renv_available_packages_latest = function(package, ...) {
+      list(Package = package, Version = "9.9.9", Source = "Repository")
+    }
+  )
+
+  desc <- list(Package = "bread", Version = "1.0.0", Source = "Repository")
+  info <- renv_graph_url_repository(desc)
+
+  expect_equal(info$pkgtype, "source")
+  expect_true(endsWith(info$url, ".tar.gz"))
+
+})
+
 # adjacency graph ----
 
 test_that("renv_graph_adjacency computes correct structure for chain", {
