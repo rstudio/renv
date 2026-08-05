@@ -2,6 +2,9 @@
 # are we currently running 'load()'?
 the$load_running <- FALSE
 
+# the namespaces which were already loaded when 'load()' was invoked
+the$load_namespaces <- character()
+
 #' Load a project
 #'
 #' @description
@@ -86,6 +89,11 @@ load <- function(project = NULL, quiet = FALSE, profile = NULL, ...) {
 
   # indicate that we're now loading the project
   renv_scope_binding(the, "load_running", TRUE)
+
+  # take note of the namespaces which were loaded before we started, so that
+  # renv_load_check_namespaces() can tell them apart from the namespaces renv
+  # itself loads while loading the project
+  renv_scope_binding(the, "load_namespaces", loadedNamespaces())
 
   # if load is being called via the autoloader,
   # then ensure RENV_PROJECT is unset
@@ -769,7 +777,14 @@ renv_load_check_namespaces <- function(project) {
 
   libpaths <- renv_libpaths_all()
   ignored <- c(renv_packages_base(), "renv")
-  candidates <- setdiff(loadedNamespaces(), ignored)
+
+  # only consider namespaces which were already loaded when renv started
+  # loading this project. renv loads some namespaces itself along the way --
+  # most notably BiocManager, when resolving Bioconductor repositories -- and
+  # those are not encapsulation breaks.
+  # https://github.com/rstudio/renv/issues/2344
+  loaded <- intersect(the$load_namespaces, loadedNamespaces())
+  candidates <- setdiff(loaded, ignored)
   if (empty(candidates))
     return(invisible(TRUE))
 
@@ -778,7 +793,7 @@ renv_load_check_namespaces <- function(project) {
     nspath <- catch(renv_namespace_path(pkg))
     if (inherits(nspath, "error") || !nzchar(nspath))
       next
-    if (dirname(nspath) %in% libpaths)
+    if (renv_load_namespace_managed(pkg, nspath, libpaths))
       next
     external[[pkg]] <- renv_path_aliased(nspath)
   }
@@ -803,6 +818,29 @@ renv_load_check_namespaces <- function(project) {
   )
 
   invisible(FALSE)
+
+}
+
+# Is `package`, whose namespace was loaded from `nspath`, provided by one of
+# `libpaths`? R records a namespace's path in fully resolved form, whereas a
+# library entry is commonly a symlink (or, on Windows, a junction) into the
+# renv cache -- so the two must be normalized before they can be compared.
+# https://github.com/rstudio/renv/issues/2344
+renv_load_namespace_managed <- function(package, nspath, libpaths) {
+
+  # fast path for libraries which own their packages outright
+  if (dirname(nspath) %in% libpaths)
+    return(TRUE)
+
+  nspath <- renv_path_normalize(nspath)
+
+  for (libpath in libpaths) {
+    pkgpath <- file.path(libpath, package)
+    if (file.exists(pkgpath) && identical(renv_path_normalize(pkgpath), nspath))
+      return(TRUE)
+  }
+
+  FALSE
 
 }
 
