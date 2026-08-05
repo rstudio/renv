@@ -18,13 +18,13 @@
   loaded from outside the library paths. (#2344)
 
 * `renv::install()` and `renv::restore()` no longer build a package from source
-  when a binary of the requested version is available, in cases where the active
-  repositories are pinned to a dated snapshot (for example, a Posit Package
-  Manager URL like `https://p3m.dev/cran/2025-03-28`) and the `crandb.enabled`
-  option is set. renv consulted crandb to find the newest version of the package,
-  but because crandb is not restricted to the configured repositories, it could
-  report a version those repositories don't provide -- and renv then fell back to
-  installing from source. (#2345)
+  when a binary of the requested version is available, in cases where the
+  active repositories are pinned to a dated snapshot (for example, a Posit
+  Package Manager URL like `https://p3m.dev/cran/2025-03-28`) and the
+  `renv.config.crandb.enabled` option is set. renv consulted crandb to find the
+  newest version of the package, but because crandb is not restricted to the
+  configured repositories, it could report a version those repositories don't
+  provide -- and renv then fell back to installing from source. (#2345)
 
 
 # renv 1.2.4
