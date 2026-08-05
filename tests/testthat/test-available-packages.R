@@ -279,6 +279,58 @@ test_that("when crandb is enabled, repos entry is preferred when versions match 
   expect_true(nzchar(record$Version))
 })
 
+test_that("a repository record is preferred over a newer crandb version", {
+
+  renv_tests_scope()
+  renv_scope_options(renv.config.crandb.enabled = TRUE)
+
+  # crandb isn't restricted to the configured repositories, so it can name a
+  # version those repositories can't supply -- as happens when they're pinned
+  # to a dated snapshot. the repository record has to win, or renv resolves to
+  # a version it can't install from the repositories it was given (#2345)
+  local_mocked_bindings(
+    renv_available_packages_latest_crandb = function(package, ...) {
+      list(
+        Package    = package,
+        Version    = "9.9.9",
+        Source     = "Repository",
+        Repository = "CRAN"
+      )
+    }
+  )
+
+  record <- renv_available_packages_latest("bread")
+
+  expect_equal(record$Version, "1.0.0")
+  expect_true(renv_record_tagged(record))
+
+})
+
+test_that("crandb is still used when the repositories have no candidate", {
+
+  renv_tests_scope()
+  renv_scope_options(renv.config.crandb.enabled = TRUE)
+
+  # this is what crandb is for: naming a version renv can go find when the
+  # configured repositories can't supply the package at all
+  local_mocked_bindings(
+    renv_available_packages_latest_crandb = function(package, ...) {
+      list(
+        Package    = package,
+        Version    = "9.9.9",
+        Source     = "Repository",
+        Repository = "CRAN"
+      )
+    }
+  )
+
+  record <- renv_available_packages_latest("nonexistent.package")
+
+  expect_equal(record$Version, "9.9.9")
+  expect_false(renv_record_tagged(record))
+
+})
+
 test_that("version requirement parsing works correctly", {
 
   # Test various requirement formats
