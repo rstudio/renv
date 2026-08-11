@@ -2,6 +2,17 @@
 
 ## renv (development version)
 
+- Fixed an issue where, if one or more repositories could not be queried
+  for available packages, the partial result would be cached and served
+  for up to an hour – renv would behave as though the failed
+  repositories held no packages at all, without reporting why. Partial
+  results are no longer cached, so failed repositories are re-queried
+  (and failures re-reported) on subsequent calls. Similarly, failed
+  archive queries (used when the `renv.install.allowArchivedPackages`
+  option is enabled) are no longer cached, as the failure may be
+  transient; such queries are still only attempted once per operation.
+  ([\#2350](https://github.com/rstudio/renv/issues/2350))
+
 - When the `renv.config.crandb.enabled` option is set, renv now prefers
   the record from the active repositories whenever those repositories
   can supply the package, rather than taking whichever of the two
