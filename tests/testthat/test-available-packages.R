@@ -213,6 +213,38 @@ test_that("available_packages() tolerates missing repositories", {
   expect_true(is.null(dbs[["NARC"]]))
 })
 
+test_that("a failed repository query is not cached in the index (#2350)", {
+
+  renv_tests_scope()
+
+  # add a local repository which doesn't exist yet
+  repopath <- renv_scope_tempfile("renv-repos-")
+  fmt <- if (renv_platform_windows()) "file:///%s" else "file://%s"
+
+  repos <- getOption("repos")
+  repos[["LOCAL"]] <- sprintf(fmt, repopath)
+  renv_scope_options(repos = repos)
+
+  dbs <- available_packages(type = "source")
+  expect_false(is.null(dbs[["CRAN"]]))
+  expect_true(is.null(dbs[["LOCAL"]]))
+
+  # now, create the repository
+  contrib <- file.path(repopath, "src/contrib")
+  ensure_directory(contrib)
+  file.create(file.path(contrib, "PACKAGES"))
+
+  # clear the in-memory memoization, so we hit the on-disk index
+  renv_dynamic_reset()
+
+  # the repository should now be visible; a partial result
+  # from the previous query should not have been cached
+  dbs <- available_packages(type = "source")
+  expect_false(is.null(dbs[["CRAN"]]))
+  expect_false(is.null(dbs[["LOCAL"]]))
+
+})
+
 test_that("crandb query returns R-compatible versions", {
   skip_on_cran()
   skip_if_offline()

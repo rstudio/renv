@@ -97,6 +97,11 @@ renv_available_packages_query <- function(type, repos, quiet = FALSE) {
   })
 
   bulletin(header, msgs)
+
+  # signal that this is a partial result, so it isn't cached in the index --
+  # failed repositories should be re-queried on the next call (#2350)
+  renv_condition_signal("renv.index.skip")
+
   filter(dbs, Negate(is.null))
 
 }

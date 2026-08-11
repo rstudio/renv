@@ -146,3 +146,33 @@ test_that("the available packages index is updated and cleaned", {
   expect_length(files, 2L)
 
 })
+
+test_that("values signaling 'renv.index.skip' are not indexed", {
+
+  counter$reset()
+  key <- renv_id_generate()
+
+  value <- index(
+    scope = scope,
+    key   = key,
+    value = {
+      counter$increment()
+      renv_condition_signal("renv.index.skip")
+      "partial"
+    }
+  )
+
+  # the value is still returned as-is
+  expect_equal(value, "partial")
+  expect_equal(counter$get(), 1L)
+
+  # but it wasn't cached, so the next call re-computes
+  index(
+    scope = scope,
+    key   = key,
+    value = counter$increment()
+  )
+
+  expect_equal(counter$get(), 2L)
+
+})
