@@ -44,6 +44,17 @@ index <- function(scope, key = NULL, value = NULL, limit = 3600L) {
   if (!is.null(item))
     return(item)
 
+  # otherwise, compute the value; computations can signal 'renv.index.skip'
+  # to indicate a partial result which shouldn't be cached (#2350)
+  skip <- FALSE
+  withCallingHandlers(
+    force(value),
+    renv.index.skip = function(cnd) skip <<- TRUE
+  )
+
+  if (skip)
+    return(value)
+
   # otherwise, update the index
   renv_index_set(root, scope, index, key, value, now, limit)
 

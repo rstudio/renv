@@ -97,6 +97,11 @@ renv_available_packages_query <- function(type, repos, quiet = FALSE) {
   })
 
   bulletin(header, msgs)
+
+  # signal that this is a partial result, so it isn't cached in the index --
+  # failed repositories should be re-queried on the next call (#2350)
+  renv_condition_signal("renv.index.skip")
+
   filter(dbs, Negate(is.null))
 
 }
@@ -508,12 +513,27 @@ renv_available_packages_latest_p3m <- function(package,
 
 renv_available_packages_latest_archive_query <- function(repo) {
 
+  # use a dynamic layer over the index, so that failed queries -- which are
+  # not written to the index -- are still only attempted once per operation
+  dynamic(
+    key = list(repo = repo),
+    value = renv_available_packages_latest_archive_query_index(repo)
+  )
+
+}
+
+renv_available_packages_latest_archive_query_index <- function(repo) {
+
   index(
     scope = "available-packages-archive",
     key   = repo,
     value = tryCatch(
       renv_available_packages_latest_archive_query_impl(repo),
-      error = function(e) list()
+      error = function(e) {
+        # the failure may be transient, so avoid caching it (#2350)
+        renv_condition_signal("renv.index.skip")
+        list()
+      }
     )
   )
 
