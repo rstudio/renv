@@ -193,8 +193,22 @@ renv_sysreqs_crandb_impl_one <- function(package) {
 }
 
 renv_sysreqs_resolve <- function(sysreqs, rules = renv_sysreqs_rules()) {
+
   matches <- map(sysreqs, renv_sysreqs_match, rules)
-  unlist(matches, recursive = FALSE)
+  matches <- unlist(matches, recursive = FALSE)
+  if (empty(matches))
+    return(NULL)
+
+  # a single SystemRequirements field can match multiple rules,
+  # so merge the fields from each matching rule
+  merged <- list()
+  for (field in c("packages", "pre_install", "post_install")) {
+    values <- unlist(map(matches, `[[`, field), recursive = FALSE, use.names = FALSE)
+    merged[[field]] <- unique(values)
+  }
+
+  merged
+
 }
 
 renv_sysreqs_rules <- function() {
@@ -207,17 +221,11 @@ renv_sysreqs_rules_impl <- function() {
 }
 
 renv_sysreqs_match <- function(sysreq, rules = renv_sysreqs_rules()) {
-
-  for (rule in rules) {
-    match <- renv_sysreqs_match_impl(sysreq, rule)
-    if (!is.null(match)) {
-      return(match)
-    }
-  }
-
+  matches <- map(rules, renv_sysreqs_match_impl, sysreq)
+  reject(matches, is.null)
 }
 
-renv_sysreqs_match_impl <- function(sysreq, rule) {
+renv_sysreqs_match_impl <- function(rule, sysreq) {
 
   # check for a match in the declared system requirements
   pattern <- paste(rule$patterns, collapse = "|")

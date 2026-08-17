@@ -1,5 +1,13 @@
 # renv (development version)
 
+* Fixed an issue where `renv::sysreqs()` (and the system requirement checks
+  performed during install and restore) would only report the first system
+  package required by an R package. When a package's `SystemRequirements`
+  field declared multiple system libraries -- for example, `ragg` declares
+  freetype2, libpng, libtiff, libjpeg, and libwebp -- only the first matching
+  system dependency was reported. All matching dependencies are now reported.
+  (#2352)
+
 * Fixed an issue where, if one or more repositories could not be queried for
   available packages, the partial result would be cached and served for up to
   an hour -- renv would behave as though the failed repositories held no
