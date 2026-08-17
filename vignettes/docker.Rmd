@@ -186,6 +186,8 @@ Many R packages require system libraries to compile (e.g. `libcurl`, `libxml2`).
 renv::sysreqs(distro = "ubuntu:24.04", report = TRUE, collapse = TRUE)
 ```
 
+When the project contains a lockfile, `sysreqs()` reports on all packages recorded in the lockfile -- the same set that `renv::restore()` will install -- at their recorded versions. This means the command above can be run anywhere `renv.lock` is available (for example, on a CI runner, or within the container itself), even before any R packages have been installed.
+
 This reports the installation command needed for a given distribution, which you can then add to your Dockerfile before the restore step:
 
 ```dockerfile

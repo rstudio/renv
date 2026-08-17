@@ -31,13 +31,32 @@ the$sysreqs <- NULL
 #' @inheritParams renv-params
 #'
 #' @param packages A vector of \R package names. When `NULL`
-#'   (the default), the project's package dependencies as reported via
-#'   [renv::dependencies()] are used.
+#'   (the default), the packages recorded in the project lockfile are used,
+#'   if available; otherwise, the project's package dependencies as reported
+#'   via [renv::dependencies()] are used. Note that lockfiles record the
+#'   transitive closure of package dependencies, whereas `dependencies()`
+#'   only reports packages directly used by the project.
 #'
-#' @param local Boolean; should `renv` rely on locally-installed copies of
-#'   packages when resolving system requirements? When `FALSE`, `renv` will
-#'   use <https://crandb.r-pkg.org> to resolve the system requirements
-#'   for these packages.
+#' @param source The sources to consult when resolving package records for
+#'   system requirement lookup. For each package, the sources are tried in
+#'   order, and the first source able to provide a record for that package
+#'   is used:
+#'
+#'   - `"lockfile"`: use the record in the project lockfile,
+#'   - `"library"`: use the `DESCRIPTION` of the installed package,
+#'   - `"crandb"`: query <https://crandb.r-pkg.org> for the package.
+#'
+#'   The default consults all three, in the order listed above. Note that
+#'   lockfiles produced by older versions of `renv` may not include the
+#'   `SystemRequirements` field in their records; such records are used only
+#'   to infer the package version. When the package version is known, an
+#'   installed copy of the package is only used if its version matches, and
+#'   crandb is queried for that specific version; otherwise, crandb reports
+#'   on the latest CRAN release of the package.
+#'
+#' @param local Boolean; superseded by `source`. `local = TRUE` is
+#'   equivalent to `source = "library"`; that is, only locally-installed
+#'   copies of packages are used when resolving system requirements.
 #'
 #' @param check Boolean; should `renv` also check whether the requires system
 #'   packages appear to be installed on the current system? Ignored when
@@ -71,6 +90,7 @@ the$sysreqs <- NULL
 #' @export
 sysreqs <- function(packages = NULL,
                     ...,
+                    source   = NULL,
                     local    = FALSE,
                     check    = NULL,
                     report   = TRUE,
@@ -85,11 +105,38 @@ sysreqs <- function(packages = NULL,
     packages <- c(packages, dots[!nzchar(names(dots))])
   }
 
+  project <- renv_project_resolve(project)
+
+  # resolve sources -- 'local' is a legacy alias for 'source = "library"'
+  source <- source %||% (if (local) "library" else c("lockfile", "library", "crandb"))
+  source <- unique(match.arg(source, c("lockfile", "library", "crandb"), several.ok = TRUE))
+
+  # read records from the project lockfile, if any
+  lockfile <- NULL
+  if ("lockfile" %in% source) {
+
+    path <- renv_lockfile_path(project)
+    if (file.exists(path))
+      lockfile <- renv_lockfile_records(renv_lockfile_read(path))
+    else if (identical(source, "lockfile"))
+      abort(c(
+        "This project does not contain a lockfile.",
+        i = "Have you called `snapshot()` yet?"
+      ))
+
+  }
+
   # resolve packages
   packages <- packages %||% {
-    project <- renv_project_resolve(project)
-    deps <- dependencies(project, dev = TRUE)
-    sort(unique(deps$Package))
+    if (!is.null(lockfile)) {
+      names(lockfile)
+    } else if (local) {
+      snapshot <- renv_lockfile_create(project, dev = TRUE)
+      names(renv_lockfile_records(snapshot))
+    } else {
+      deps <- dependencies(project, dev = TRUE)
+      sort(unique(deps$Package))
+    }
   }
 
   # remove 'base' packages
@@ -112,13 +159,8 @@ sysreqs <- function(packages = NULL,
   }
 
   # compute package records
-  if (local) {
-    lockfile <- renv_lockfile_create(project, dev = TRUE)
-    records <- renv_lockfile_records(lockfile)
-  } else {
-    callback <- renv_progress_callback(renv_sysreqs_crandb, length(packages))
-    records <- map(packages, callback)
-  }
+  callback <- renv_progress_callback(renv_sysreqs_lookup, length(packages))
+  records <- map(packages, callback, sources = source, lockfile = lockfile)
 
   # extract and resolve the system requirements
   sysreqs <- map(records, `[[`, "SystemRequirements")
@@ -170,23 +212,87 @@ renv_sysreqs_report <- function(sysdeps, distro, collapse) {
 
 }
 
-renv_sysreqs_crandb <- function(package) {
+renv_sysreqs_lookup <- function(package, sources, lockfile) {
+
+  version <- NULL
+  fallback <- NULL
+
+  for (source in sources) {
+
+    if (source == "lockfile") {
+
+      record <- lockfile[[package]]
+      if (is.null(record))
+        next
+
+      # older lockfiles don't preserve SystemRequirements in their records,
+      # so use those records only as a version hint for the other sources
+      if (renv_sysreqs_record_authoritative(record))
+        return(record)
+
+      version <- version %||% record[["Version"]]
+
+    } else if (source == "library") {
+
+      record <- catch(renv_snapshot_description(package = package))
+      if (inherits(record, "error"))
+        next
+
+      # when the package version is known, only use the installed copy if the
+      # versions match; keep mismatched copies as a last-resort fallback
+      if (is.null(version) || identical(record[["Version"]], version))
+        return(record)
+
+      fallback <- fallback %||% record
+
+    } else if (source == "crandb") {
+
+      record <- renv_sysreqs_crandb(package, version)
+      if (!is.null(record))
+        return(record)
+
+    }
+
+  }
+
+  fallback
+
+}
+
+renv_sysreqs_record_authoritative <- function(record) {
+
+  # records with an explicit SystemRequirements field are always authoritative
+  if (!is.null(record[["SystemRequirements"]]))
+    return(TRUE)
+
+  # v2 lockfile records preserve all DESCRIPTION fields, so the absence of
+  # SystemRequirements implies the package doesn't declare any; detect such
+  # records via the presence of fields the v1 format doesn't preserve
+  v1fields <- c("Package", "Version", "Source", "Repository", "OS_type", "Requirements", "Hash")
+  extra <- setdiff(names(record), v1fields)
+  extra <- grep("^(?:Remote|git)", extra, perl = TRUE, invert = TRUE, value = TRUE)
+
+  length(extra) > 0L
+
+}
+
+renv_sysreqs_crandb <- function(package, version = NULL) {
   tryCatch(
-    renv_sysreqs_crandb_impl(package),
+    renv_sysreqs_crandb_impl(package, version),
     error = warnify
   )
 }
 
-renv_sysreqs_crandb_impl <- function(package) {
+renv_sysreqs_crandb_impl <- function(package, version) {
   memoize(
-    key   = package,
-    value = renv_sysreqs_crandb_impl_one(package),
+    key   = paste(package, version %||% "latest"),
+    value = renv_sysreqs_crandb_impl_one(package, version),
     scope = "sysreqs"
   )
 }
 
-renv_sysreqs_crandb_impl_one <- function(package) {
-  url <- paste("https://crandb.r-pkg.org", package, sep = "/")
+renv_sysreqs_crandb_impl_one <- function(package, version) {
+  url <- paste(c("https://crandb.r-pkg.org", package, version), collapse = "/")
   destfile <- tempfile("renv-crandb-", fileext = ".json")
   download(url, destfile = destfile, quiet = TRUE)
   renv_json_read(destfile)

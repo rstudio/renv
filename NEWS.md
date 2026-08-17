@@ -1,5 +1,20 @@
 # renv (development version)
 
+* `renv::sysreqs()` gains a `source` argument, controlling how package
+  records are resolved when computing system requirements. For each package,
+  the requested sources are tried in order: `"lockfile"` uses the record in
+  the project lockfile, `"library"` uses the installed package's DESCRIPTION,
+  and `"crandb"` queries <https://crandb.r-pkg.org>. The default consults all
+  three, in that order. In particular, when the project contains a lockfile,
+  `sysreqs()` now reports on all packages recorded in the lockfile -- the
+  same set that `renv::restore()` would install -- at their recorded
+  versions, so the full set of system requirements for a project can be
+  computed from `renv.lock` alone, e.g. when authoring a Dockerfile, before
+  any R packages have been installed. When falling back to crandb for a
+  package whose version is known, the query is now made for that version,
+  rather than the latest available version. The `local` argument is
+  superseded by `source = "library"`. (#2352)
+
 # renv 1.3.0
 
 * renv now quotes the URL, ref, and commit of a git record when passing them

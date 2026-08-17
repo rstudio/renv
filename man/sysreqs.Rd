@@ -7,6 +7,7 @@
 sysreqs(
   packages = NULL,
   ...,
+  source = NULL,
   local = FALSE,
   check = NULL,
   report = TRUE,
@@ -17,16 +18,36 @@ sysreqs(
 }
 \arguments{
 \item{packages}{A vector of \R package names. When \code{NULL}
-(the default), the project's package dependencies as reported via
-\code{\link[=dependencies]{dependencies()}} are used.}
+(the default), the packages recorded in the project lockfile are used,
+if available; otherwise, the project's package dependencies as reported
+via \code{\link[=dependencies]{dependencies()}} are used. Note that lockfiles record the
+transitive closure of package dependencies, whereas \code{dependencies()}
+only reports packages directly used by the project.}
 
 \item{...}{Unused arguments, reserved for future expansion. If any arguments
 are matched to \code{...}, renv will signal an error.}
 
-\item{local}{Boolean; should \code{renv} rely on locally-installed copies of
-packages when resolving system requirements? When \code{FALSE}, \code{renv} will
-use \url{https://crandb.r-pkg.org} to resolve the system requirements
-for these packages.}
+\item{source}{The sources to consult when resolving package records for
+system requirement lookup. For each package, the sources are tried in
+order, and the first source able to provide a record for that package
+is used:
+\itemize{
+\item \code{"lockfile"}: use the record in the project lockfile,
+\item \code{"library"}: use the \code{DESCRIPTION} of the installed package,
+\item \code{"crandb"}: query \url{https://crandb.r-pkg.org} for the package.
+}
+
+The default consults all three, in the order listed above. Note that
+lockfiles produced by older versions of \code{renv} may not include the
+\code{SystemRequirements} field in their records; such records are used only
+to infer the package version. When the package version is known, an
+installed copy of the package is only used if its version matches, and
+crandb is queried for that specific version; otherwise, crandb reports
+on the latest CRAN release of the package.}
+
+\item{local}{Boolean; superseded by \code{source}. \code{local = TRUE} is
+equivalent to \code{source = "library"}; that is, only locally-installed
+copies of packages are used when resolving system requirements.}
 
 \item{check}{Boolean; should \code{renv} also check whether the requires system
 packages appear to be installed on the current system? Ignored when
