@@ -2,14 +2,93 @@
 # the minimum-required version of 'pak' for renv integration
 the$pak_minver <- numeric_version("0.9.0")
 
-renv_pak_init <- function(stream = NULL, force = FALSE) {
+renv_pak_init <- function(stream = NULL,
+                          force = FALSE,
+                          lockfile = NULL,
+                          project = NULL)
+{
+  # if the lockfile records a compatible version of pak, install and use that
+  # version, rather than the latest version from the pak repositories
+  # https://github.com/rstudio/renv/issues/2169
+  record <- if (is.null(stream))
+    renv_pak_record(lockfile, project)
 
-  if (force || !renv_pak_available()) {
-    stream <- stream %||% renv_pak_stream()
-    renv_pak_init_impl(stream)
-  }
+  if (!is.null(record))
+    renv_pak_init_record(record, force)
+  else if (force || !renv_pak_available())
+    renv_pak_init_impl(stream %||% renv_pak_stream())
 
   renv_namespace_load("pak")
+
+}
+
+# the lockfile record for pak, if any; used so that renv can install the
+# version of pak recorded in the lockfile when initializing pak for use with
+# a project. reads the project lockfile if one wasn't explicitly provided.
+renv_pak_record <- function(lockfile = NULL, project = NULL) {
+
+  if (is.null(lockfile)) {
+
+    project <- renv_project_resolve(project)
+    path <- renv_lockfile_path(project)
+    if (!file.exists(path))
+      return(NULL)
+
+    lockfile <- catch(renv_lockfile_read(path))
+    if (inherits(lockfile, "error"))
+      return(NULL)
+
+    lockfile <- renv_lockfile_override(lockfile)
+
+  }
+
+  record <- renv_lockfile_records(lockfile)[["pak"]]
+  if (is.null(record))
+    return(NULL)
+
+  version <- catch(numeric_version(record[["Version"]]))
+  if (inherits(version, "error") || length(version) == 0L)
+    return(NULL)
+
+  # ignore records for versions of pak too old for renv integration
+  if (version < the$pak_minver) {
+    fmt <- "- The lockfile records pak %s, but renv requires pak (>= %s); ignoring."
+    caution(fmt, format(version), format(the$pak_minver))
+    return(NULL)
+  }
+
+  record
+
+}
+
+renv_pak_init_record <- function(record, force = FALSE) {
+
+  # skip installation if this version of pak is already installed
+  version <- renv_package_version("pak")
+  installed <- !is.null(version) && renv_version_eq(version, record[["Version"]])
+  if (installed && !force)
+    return(invisible(NULL))
+
+  # if another version of pak is already loaded, try to unload it, so that
+  # the version we're about to install can be loaded in its place
+  if (isNamespaceLoaded("pak"))
+    catch(renv_namespace_unload("pak"))
+
+  renv_scope_options(renv.config.pak.enabled = FALSE)
+
+  library <- renv_libpaths_active()
+  status <- catch(install(list(pak = record), library = library))
+
+  # if we couldn't install the requested version of pak, fall back to
+  # installing the latest available version
+  if (inherits(status, "error")) {
+    fmt <- "- Failed to install pak %s as recorded in the lockfile (%s)."
+    caution(fmt, record[["Version"]], conditionMessage(status))
+    caution("- Falling back to the latest available version of pak.")
+    renv_pak_init_impl(renv_pak_stream())
+  }
+
+  invisible(NULL)
 
 }
 

@@ -346,7 +346,7 @@ renv_hydrate_resolve_missing <- function(project, library, remotes, missing) {
   # if pak is enabled, delegate installation to it
   # https://github.com/rstudio/renv/issues/2282
   if (config$pak.enabled() && !recursing()) {
-    renv_pak_init()
+    renv_pak_init(project = project)
     specs <- map_chr(packages, function(package) {
       record <- remotes[[package]]
       if (is.null(record))

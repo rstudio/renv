@@ -144,7 +144,7 @@ restore <- function(project = NULL,
   # if users have requested the use of pak, delegate there
   if (config$pak.enabled() && !recursing()) {
 
-    renv_pak_init()
+    renv_pak_init(lockfile = lockfile)
 
     # pak doesn't handle package removals, so when clean = TRUE we drop
     # unused packages from the project library ourselves before delegating
