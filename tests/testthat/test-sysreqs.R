@@ -21,6 +21,25 @@ test_that("system requirements are reported", {
 
 })
 
+test_that("all matching rules are reported for multi-library requirements", {
+
+  skip_on_cran()
+
+  renv_scope_binding(the, "os", "linux")
+  renv_scope_binding(the, "distro", "ubuntu")
+  renv_scope_binding(the, "platform", list(VERSION_ID = "24.04"))
+
+  # e.g. from the 'ragg' package -- https://github.com/rstudio/renv/issues/2352
+  sysreq <- "freetype2, libpng, libtiff, libjpeg, libwebp,\nlibwebpmux"
+  sysdep <- renv_sysreqs_resolve(sysreq)
+
+  expect_equal(
+    sysdep$packages,
+    list("libfreetype6-dev", "libjpeg-dev", "libpng-dev", "libtiff-dev", "libwebp-dev")
+  )
+
+})
+
 test_that("version constraints are respected", {
 
   skip_on_cran()
