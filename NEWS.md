@@ -1,5 +1,12 @@
 # renv (development version)
 
+* Fixed an issue where renv computed the wrong Posit Package Manager binary
+  URL on some Enterprise Linux distributions. CentOS Stream 9 and 10 were
+  mapped to the non-existent `centos9` and `centos1` platforms rather than
+  `rhel9` and `rhel10`, and Rocky Linux 10 and AlmaLinux 10 were mapped to
+  `rhel1` rather than `rhel10`, causing package downloads to fail with 404
+  errors. (#2354)
+
 * Fixed an issue where, if one or more repositories could not be queried for
   available packages, the partial result would be cached and served for up to
   an hour -- renv would behave as though the failed repositories held no

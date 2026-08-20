@@ -184,6 +184,8 @@ renv_ppm_platform <- function(file = "/etc/os-release") {
     return("macos")
 
   platform <- renv_ppm_platform_impl(file)
+  if (is.null(platform))
+    return(NULL)
 
   # https://github.com/rstudio/renv/issues/2227
   if (startsWith(platform, "opensuse15"))
@@ -213,10 +215,10 @@ renv_ppm_platform_impl <- function(file = "/etc/os-release") {
 
     case(
       identical(id, "ubuntu")    ~ renv_ppm_platform_ubuntu(properties),
-      identical(id, "centos")    ~ renv_ppm_platform_centos(properties),
-      identical(id, "rhel")      ~ renv_ppm_platform_rhel(properties),
-      identical(id, "rocky")     ~ renv_ppm_platform_rocky(properties),
-      identical(id, "almalinux") ~ renv_ppm_platform_alma(properties),
+      identical(id, "centos")    ~ renv_ppm_platform_el(properties),
+      identical(id, "rhel")      ~ renv_ppm_platform_el(properties),
+      identical(id, "rocky")     ~ renv_ppm_platform_el(properties),
+      identical(id, "almalinux") ~ renv_ppm_platform_el(properties),
       grepl("suse\\b", id)       ~ renv_ppm_platform_suse(properties),
       identical(id, "sles")      ~ renv_ppm_platform_sles(properties),
       identical(id, "debian")    ~ renv_ppm_platform_debian(properties),
@@ -237,47 +239,23 @@ renv_ppm_platform_ubuntu <- function(properties) {
 
 }
 
-renv_ppm_platform_centos <- function(properties) {
+# Enterprise Linux distributions all share the same PPM binaries, published
+# under a 'centos' prefix for releases before 9 and 'rhel' from 9 onwards.
+renv_ppm_platform_el <- function(properties) {
 
   id <- properties$VERSION_ID
   if (is.null(id))
     return(NULL)
 
-  paste0("centos", substring(id, 1L, 1L))
-
-}
-
-renv_ppm_platform_rhel <- function(properties) {
-
-  id <- properties$VERSION_ID
-  if (is.null(id))
-    return(NULL)
-
-  name <- ifelse(numeric_version(id) < "9", "centos", "rhel")
+  # take just the major version; VERSION_ID may include a minor part (e.g. 9.2)
   version <- strsplit(id, ".", fixed = TRUE)[[1L]][[1L]]
+
+  major <- suppressWarnings(as.integer(version))
+  if (is.na(major))
+    return(NULL)
+
+  name <- if (major < 9L) "centos" else "rhel"
   paste0(name, version)
-
-}
-
-renv_ppm_platform_rocky <- function(properties) {
-
-  id <- properties$VERSION_ID
-  if (is.null(id))
-    return(NULL)
-
-  version <- ifelse(numeric_version(id) < "9", "centos", "rhel")
-  paste0(version, substring(id, 1L, 1L))
-
-}
-
-renv_ppm_platform_alma <- function(properties) {
-
-  id <- properties$VERSION_ID
-  if (is.null(id))
-    return(NULL)
-
-  version <- ifelse(numeric_version(id) < "9", "centos", "rhel")
-  paste0(version, substring(id, 1L, 1L))
 
 }
 
