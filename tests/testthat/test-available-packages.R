@@ -411,6 +411,74 @@ test_that("crandb is still used when the repositories have no candidate", {
 
 })
 
+test_that("P3M remains a fallback when repositories have no candidate", {
+
+  renv_tests_scope()
+  renv_scope_options(
+    pkgType = "binary",
+    renv.config.ppm.enabled = TRUE,
+    renv.config.crandb.enabled = FALSE,
+    renv.install.allowArchivedPackages = FALSE
+  )
+
+  # P3M is a fallback for packages unavailable from the configured
+  # repositories. This path regressed when crandb was inserted ahead of P3M
+  # in the candidate list (#2348).
+  local_mocked_bindings(
+    renv_available_packages_latest_repos = function(...) NULL,
+    renv_available_packages_latest_p3m = function(package, ...) {
+      list(
+        Package    = package,
+        Version    = "9.9.9",
+        Source     = "Repository",
+        Repository = "P3M"
+      )
+    }
+  )
+
+  record <- renv_available_packages_latest("nonexistent.package")
+
+  expect_equal(record$Version, "9.9.9")
+  expect_equal(record$Repository, "P3M")
+
+})
+
+test_that("configured repositories are preferred over P3M fallback", {
+
+  renv_tests_scope()
+  renv_scope_options(
+    pkgType = "binary",
+    renv.config.ppm.enabled = TRUE,
+    renv.config.crandb.enabled = FALSE,
+    renv.install.allowArchivedPackages = FALSE
+  )
+
+  local_mocked_bindings(
+    renv_available_packages_latest_repos = function(package, ...) {
+      list(
+        Package    = package,
+        Version    = "1.0.0",
+        Source     = "Repository",
+        Repository = "CRAN"
+      )
+    },
+    renv_available_packages_latest_p3m = function(package, ...) {
+      list(
+        Package    = package,
+        Version    = "9.9.9",
+        Source     = "Repository",
+        Repository = "P3M"
+      )
+    }
+  )
+
+  record <- renv_available_packages_latest("breakfast")
+
+  expect_equal(record$Version, "1.0.0")
+  expect_equal(record$Repository, "CRAN")
+
+})
+
 test_that("version requirement parsing works correctly", {
 
   # Test various requirement formats

@@ -422,28 +422,18 @@ renv_available_packages_latest <- function(package,
 
   })
 
-  # if both entries are null, error
-  if (all(map_lgl(entries, is.null))) {
-    map(errors$data(), warning)
-    entry <- the$rejected_packages[[package]]
-    if (!is.null(entry))
-      stopf("package '%s' is not available\n- %s", package, entry$reason)
-    stopf("package '%s' is not available", package)
-  }
+  # prefer configured repositories, using crandb, archives, and P3M as
+  # fallbacks when earlier methods have no candidate.
+  idx <- which(!map_lgl(entries, is.null))
+  if (length(idx))
+    return(entries[[idx[[1L]]]])
 
-  # prefer the record from the configured repositories, consulting crandb only
-  # when they have no candidate.
-  #
-  # the configured repositories determine what can actually be installed, and
-  # available_packages() already drops versions whose R requirement the current
-  # session can't satisfy -- so crandb's role is to name a compatible version
-  # when the repositories have none. crandb is not restricted to the configured
-  # repositories, so when it names a newer version than they carry, that
-  # version generally isn't installable from them: acting on it yields a failed
-  # download, an archive fallback that fails for packages still live on CRAN
-  # (#1735), or a source build where the repositories had a binary all along
-  # (#2345)
-  entries[[1L]] %||% entries[[2L]]
+  # if all entries are null, error
+  map(errors$data(), warning)
+  entry <- the$rejected_packages[[package]]
+  if (!is.null(entry))
+    stopf("package '%s' is not available\n- %s", package, entry$reason)
+  stopf("package '%s' is not available", package)
 
 }
 
