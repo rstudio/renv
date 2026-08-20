@@ -1,5 +1,21 @@
 # renv (development version)
 
+* Fixed an issue where, with the `renv.install.allowArchivedPackages` option
+  enabled, a package available only from a repository's archive would resolve
+  to nothing at all. The archive was queried, but the result was then
+  discarded: the lookup only ever returned the repository or crandb candidate.
+  Archived candidates are now used when neither of those can supply the
+  package. Records resolved this way also carry the URL of the repository's
+  archive, so they can be downloaded in the same parallel batch as everything
+  else, and they retain their repository even when `getOption("repos")` is
+  unnamed. (#2356)
+
+* The available-package lookup now stops at the first source that can supply
+  the package, rather than querying every source and discarding the extra
+  answers. Repositories still take precedence over crandb and the archive, so
+  which record is chosen is unchanged; renv simply no longer makes crandb and
+  P3M requests whose results it cannot use.
+
 * Fixed an issue where `renv::sysreqs()` (and the system requirement checks
   performed during install and restore) would only report the first system
   package required by an R package. When a package's `SystemRequirements`

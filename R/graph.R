@@ -1008,6 +1008,14 @@ renv_graph_url_repository_record <- function(desc, record) {
   type <- attr(record, "type", exact = TRUE) %||% "source"
   repo <- attr(record, "url", exact = TRUE)
   reponame <- attr(record, "name", exact = TRUE)
+
+  # an untagged record carries no repository URL. file.path(NULL, name) would
+  # quietly yield character(0), and a zero-length url aborts the whole parallel
+  # download batch when it's unpacked with vapply(). returning NULL instead
+  # routes just this package to the sequential retrieve path
+  if (is.null(repo))
+    return(NULL)
+
   name <- renv_retrieve_repos_archive_name(record, type)
 
   url <- file.path(repo, name)
