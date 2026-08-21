@@ -83,6 +83,65 @@ test_that("other processes cannot lock our owned locks", {
 
 })
 
+test_that("lock acquisition backs off, and remains interruptible", {
+
+  skip_on_cran()
+
+  renv_scope_options(renv.config.locking.enabled = TRUE)
+  renv_scope_options(renv.lock.timeout = 1e6)
+
+  # simulate a lock held by another process, which we'll never manage to acquire
+  path <- renv_lock_path(renv_scope_tempfile())
+  dir.create(path)
+
+  limit <- 2
+  timing <- system.time(
+    tryCatch({
+      setTimeLimit(elapsed = limit, transient = TRUE)
+      renv_lock_acquire(path)
+    }, error = function(cnd) NULL)
+  )
+  setTimeLimit()
+
+  # the loop has to sleep between attempts, so it should use almost no CPU, and
+  # it has to let setTimeLimit()'s condition through rather than treating it as
+  # one more reason to retry. previously it did neither. (#2358)
+  cpu <- timing[["user.self"]] + timing[["sys.self"]]
+  expect_lt(cpu, limit / 4)
+  expect_lt(timing[["elapsed"]], limit * 5)
+
+})
+
+test_that("acquiring a lock in an unwritable directory fails rather than hanging", {
+
+  skip_on_cran()
+  skip_on_os("windows")
+
+  # root ignores the directory permissions we rely on here
+  skip_if(
+    identical(Sys.info()[["effective_user"]], "root"),
+    "running as root"
+  )
+
+  renv_scope_options(renv.config.locking.enabled = TRUE)
+
+  parent <- renv_scope_tempfile("renv-lock-parent-")
+  ensure_directory(parent)
+
+  # make the parent read-only, so the lock can never be created
+  Sys.chmod(parent, mode = "0555")
+  defer(Sys.chmod(parent, mode = "0755"))
+
+  # bound the wait, so that a regression here fails rather than hangs
+  setTimeLimit(elapsed = 30, transient = TRUE)
+  defer(setTimeLimit())
+
+  path <- file.path(parent, "lock")
+  expect_error(renv_lock_acquire(path), class = "renv_error_lock_unwritable")
+  expect_false(file.exists(path))
+
+})
+
 test_that("locks are released on process exit", {
 
   skip_on_cran()

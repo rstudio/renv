@@ -21,10 +21,34 @@ renv_lock_acquire <- function(path) {
   renv_scope_options(warn = -1L)
 
   # loop until we acquire the lock
-  repeat tryCatch(
-    renv_lock_acquire_impl(path) && break,
-    error = function(cnd) Sys.sleep(0.2)
-  )
+  #
+  # note that contention is reported by the return value rather than by a
+  # signalled condition, so the retry has to be driven by that return value.
+  # wrapping this in tryCatch() would also swallow the error signalled by
+  # setTimeLimit(), leaving callers with no way to bound the wait.
+  # https://github.com/rstudio/renv/issues/2358
+  failures <- 0L
+  repeat {
+
+    status <- renv_lock_acquire_impl(path)
+    if (status$acquired)
+      break
+
+    # ordinary contention and a lock path we simply cannot write to are
+    # reported identically -- dir.create() just returns FALSE -- but only the
+    # former is worth waiting on. a missing lock after a failed create hints at
+    # the latter, so use it to gate an occasional probe of the parent directory,
+    # which then tells us for certain whether retrying could ever succeed.
+    failures <- if (file.exists(path)) 0L else failures + 1L
+    if (failures >= 3L) {
+      if (!renv_lock_writable(path))
+        renv_lock_acquire_abort(path, status$reason)
+      failures <- 0L
+    }
+
+    Sys.sleep(0.2)
+
+  }
 
   # mark this path as locked by us
   the$lock_registry[[path]] <- 1L
@@ -38,6 +62,36 @@ renv_lock_acquire <- function(path) {
 
 }
 
+# check whether we could create a lock at 'path' at all. used to tell ordinary
+# contention -- someone else holds the lock, so waiting is the right thing --
+# apart from a lock path we have no hope of writing to, where waiting is a hang.
+renv_lock_writable <- function(path) {
+
+  # the probe name is unique to this process, so (unlike the lock itself) a
+  # failure to create it can never be blamed on another process
+  probe <- sprintf("%s.probe-%i", path, Sys.getpid())
+
+  unlink(probe, recursive = TRUE, force = TRUE)
+  created <- dir.create(probe, mode = "0755", showWarnings = FALSE)
+  unlink(probe, recursive = TRUE, force = TRUE)
+
+  created
+
+}
+
+renv_lock_acquire_abort <- function(path, reason) {
+
+  message <- sprintf("renv failed to acquire the lock at %s", renv_path_pretty(path))
+
+  body <- c(
+    if (length(reason)) paste("-", reason),
+    "- renv requires write access to this path to synchronize concurrent sessions."
+  )
+
+  abort(message, body = body, class = "renv_error_lock_unwritable")
+
+}
+
 # https://rcrowley.org/2010/01/06/things-unix-can-do-atomically.html
 renv_lock_acquire_impl <- function(path) {
 
@@ -47,15 +101,24 @@ renv_lock_acquire_impl <- function(path) {
     unlink(path, recursive = TRUE, force = TRUE)
   }
 
-  # attempt to create the lock
-  created <- dir.create(path, mode = "0755", showWarnings = FALSE)
+  # attempt to create the lock, retaining the warning describing why we
+  # couldn't -- it's normally the only thing that explains a failure which
+  # isn't just ordinary contention
+  reason <- NULL
+  created <- withCallingHandlers(
+    dir.create(path, mode = "0755"),
+    warning = function(cnd) {
+      reason <<- conditionMessage(cnd)
+      invokeRestart("muffleWarning")
+    }
+  )
 
   # if we created the lock, record its owner so that other processes can
   # tell whether the lock is still held by a live process on this machine
   if (created)
     renv_lock_owner_write(path)
 
-  created
+  list(acquired = created, reason = reason)
 
 }
 
