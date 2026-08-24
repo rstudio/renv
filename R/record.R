@@ -142,9 +142,23 @@ renv_record_tag <- function(record, type, url, name) {
 
 }
 
+renv_record_tag_archive <- function(record, type, url, name) {
+  record <- renv_record_tag(record, type, url, name)
+  attr(record, "archive") <- TRUE
+  record
+}
+
 renv_record_tagged <- function(record) {
   attrs <- attributes(record)
   all(c("url", "type") %in% names(attrs))
+}
+
+renv_record_archived <- function(record) {
+  identical(attr(record, "archive", exact = TRUE), TRUE)
+}
+
+renv_record_archive_downloaded <- function(record) {
+  identical(attr(record, "archive.downloaded", exact = TRUE), TRUE)
 }
 
 # abstracted out in case we want to use a different sigil in the future,

@@ -253,16 +253,18 @@ renv_graph_description_repository <- function(record) {
   if (!inherits(entry, "error"))
     return(as.list(entry))
 
-  # try cellar via renv_available_packages_latest (includes cellar = TRUE);
-  # cellar packages won't be found by renv_available_packages_entry.
+  # try cellar and archive fallback via renv_available_packages_latest;
+  # neither is found by renv_available_packages_entry.
   # NOTE: renv_available_packages_latest only returns limited fields
-  # (Package, Version, etc.) -- no Depends/Imports/LinkingTo, so cellar
-  # records are supplemented from the archive DESCRIPTION below (#2313)
+  # (Package, Version, etc.) -- no Depends/Imports/LinkingTo, so these
+  # records are supplemented from their package DESCRIPTION below
   latest <- catch(renv_available_packages_latest(package, type = type))
   if (!inherits(latest, "error")) {
     if (is.null(version) || identical(latest$Version, version)) {
       if (identical(renv_record_source(latest, normalize = TRUE), "cellar"))
         latest <- renv_graph_description_cellar(latest)
+      else if (renv_record_archived(latest))
+        latest <- renv_graph_description_archive_enrich(latest)
       return(as.list(latest))
     }
   }
@@ -343,6 +345,26 @@ renv_graph_description_cellar <- function(record) {
   for (field in names(desc))
     if (is.null(record[[field]]))
       record[[field]] <- desc[[field]]
+
+  record
+
+}
+
+renv_graph_description_archive_enrich <- function(record) {
+
+  # archive indexes only name package versions; read the package DESCRIPTION
+  # before graph traversal so strong dependencies are not silently omitted.
+  # Keep the resolved record's repository fields and archive tag so download
+  # and provenance handling continue to use the archive path.
+  # Deliberately let retrieval / DESCRIPTION errors propagate. Returning the
+  # minimal archive-index record would allow installation to continue without
+  # the package's strong dependencies, which is the bug this enrichment fixes.
+  desc <- renv_graph_description_archive(record)
+  for (field in names(desc))
+    if (is.null(record[[field]]))
+      record[[field]] <- desc[[field]]
+
+  attr(record, "archive.downloaded") <- TRUE
 
   record
 
@@ -1016,10 +1038,17 @@ renv_graph_url_repository_record <- function(desc, record) {
   if (is.null(repo))
     return(NULL)
 
-  name <- renv_retrieve_repos_archive_name(record, type)
-
-  url <- file.path(repo, name)
   destfile <- renv_retrieve_path(as.list(desc), type = type)
+
+  # archive enrichment already downloaded and validated this tarball while
+  # reading its DESCRIPTION. route it through sequential retrieval, whose
+  # normal existing-file check reuses it, instead of downloading it again in
+  # the parallel batch
+  if (renv_record_archive_downloaded(desc) && file.exists(destfile))
+    return(NULL)
+
+  name <- renv_retrieve_repos_archive_name(record, type)
+  url <- file.path(repo, name)
 
   # carry repository metadata so install can tag the record
   # for renv_package_augment (RemoteRepos, RemoteReposName)

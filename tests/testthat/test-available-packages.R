@@ -420,14 +420,8 @@ test_that("the archive is consulted when the repositories have no candidate", {
   )
 
   # a repository which serves nothing from PACKAGES, but does archive 'gravy'
-  repopath <- renv_scope_tempfile("renv-repos-")
-  meta <- file.path(repopath, "src/contrib/Meta")
-  ensure_directory(meta)
-  database <- list(gravy = data.frame(size = 1024L, row.names = "gravy/gravy_0.5.0.tar.gz"))
-  saveRDS(database, file = file.path(meta, "archive.rds"))
-
-  fmt <- if (renv_platform_windows()) "file:///%s" else "file://%s"
-  renv_scope_options(repos = c(ARCHIVED = sprintf(fmt, repopath)))
+  archive <- renv_tests_archive_repo()
+  renv_scope_options(repos = c(ARCHIVED = archive$url))
 
   # the archive method was added in #1771 and lost its slot in #2215, when
   # crandb was inserted ahead of it and the picker kept reading only the first
@@ -447,14 +441,8 @@ test_that("an archived record carries a usable download URL", {
     renv.install.allowArchivedPackages = TRUE
   )
 
-  repopath <- renv_scope_tempfile("renv-repos-")
-  meta <- file.path(repopath, "src/contrib/Meta")
-  ensure_directory(meta)
-  database <- list(gravy = data.frame(size = 1024L, row.names = "gravy/gravy_0.5.0.tar.gz"))
-  saveRDS(database, file = file.path(meta, "archive.rds"))
-
-  fmt <- if (renv_platform_windows()) "file:///%s" else "file://%s"
-  renv_scope_options(repos = c(ARCHIVED = sprintf(fmt, repopath)))
+  archive <- renv_tests_archive_repo()
+  renv_scope_options(repos = c(ARCHIVED = archive$url))
 
   record <- renv_available_packages_latest("gravy")
 
@@ -475,20 +463,49 @@ test_that("an archived record keeps its Repository with unnamed repositories", {
 
   renv_tests_scope()
 
-  repopath <- renv_scope_tempfile("renv-repos-")
-  meta <- file.path(repopath, "src/contrib/Meta")
-  ensure_directory(meta)
-  database <- list(gravy = data.frame(size = 1024L, row.names = "gravy/gravy_0.5.0.tar.gz"))
-  saveRDS(database, file = file.path(meta, "archive.rds"))
-
-  fmt <- if (renv_platform_windows()) "file:///%s" else "file://%s"
-  repo <- sprintf(fmt, repopath)
+  archive <- renv_tests_archive_repo()
+  repo <- archive$url
 
   # renv supports unnamed repositories; names(repos)[[i]] is NULL for these,
   # and assigning that to entry$Repository used to delete the field outright
   entry <- renv_available_packages_latest_archive("gravy", repos = repo)
 
   expect_equal(entry$Repository, repo)
+
+})
+
+test_that("an archive does not satisfy a binary-only request", {
+
+  renv_tests_scope()
+  archive <- renv_tests_archive_repo()
+  renv_scope_options(
+    repos = c(ARCHIVED = archive$url),
+    renv.config.crandb.enabled = FALSE,
+    renv.install.allowArchivedPackages = TRUE
+  )
+
+  entry <- renv_available_packages_latest_archive(
+    package = "gravy",
+    type = "binary"
+  )
+
+  expect_null(entry)
+  expect_equal(
+    renv_available_packages_latest_archive("gravy", type = "both")$Version,
+    "0.5.0"
+  )
+  expect_null(renv_available_packages_latest_archive("gravy", type = "mac.binary"))
+
+  renv_scope_options(pkgType = NULL)
+  expect_equal(
+    renv_available_packages_latest_archive("gravy")$Version,
+    "0.5.0"
+  )
+
+  expect_error(
+    suppressWarnings(renv_available_packages_latest("gravy", type = "binary")),
+    "package 'gravy' is not available"
+  )
 
 })
 
@@ -525,11 +542,15 @@ test_that("P3M is not consulted when picking a latest version (#1901)", {
   # snapshot the user actually asked for
   # force the conditions under which P3M would be eligible, so this actually
   # asserts something on platforms where the test scope leaves it disabled
-  called <- FALSE
+  enabled_called <- FALSE
+  latest_called <- FALSE
   local_mocked_bindings(
-    renv_p3m_enabled = function() TRUE,
+    renv_p3m_enabled = function() {
+      enabled_called <<- TRUE
+      TRUE
+    },
     renv_available_packages_latest_p3m = function(package, ...) {
-      called <<- TRUE
+      latest_called <<- TRUE
       list(
         Package    = package,
         Version    = "9.9.9",
@@ -541,7 +562,8 @@ test_that("P3M is not consulted when picking a latest version (#1901)", {
 
   record <- renv_available_packages_latest("bread")
 
-  expect_false(called)
+  expect_false(enabled_called)
+  expect_false(latest_called)
   expect_equal(record$Version, "1.0.0")
 
 })

@@ -461,7 +461,7 @@ renv_available_packages_latest_p3m <- function(package,
                                                type = NULL,
                                                repos = NULL)
 {
-  type <- type %||% getOption("pkgType")
+  type <- type %||% getOption("pkgType", default = "source")
   if (identical(type, "source"))
     stop("binary packages are not available")
 
@@ -559,10 +559,13 @@ renv_available_packages_latest_archive <- function(package,
                                                    type = NULL,
                                                    repos = NULL)
 {
-  # note that `type` is ignored: a CRAN-style archive only ever holds source
-  # tarballs. the record is tagged "source" below so consumers build it as one;
-  # refusing a binary request outright would just turn the last remaining
-  # candidate into no candidate at all
+  # a CRAN-style archive only ever holds source tarballs. honor binary-only
+  # requests rather than silently building from source; "both" still permits
+  # this source fallback
+  type <- type %||% getOption("pkgType", default = "source")
+  if (grepl("\\bbinary\\b", type))
+    return(NULL)
+
   repos <- repos %||% getOption("repos")
 
   for (i in seq_along(repos)) {
@@ -608,7 +611,7 @@ renv_available_packages_latest_archive <- function(package,
     if (inherits(root, "error") || is.null(root))
       next
 
-    return(renv_record_tag(entry, type = "source", url = root, name = name))
+    return(renv_record_tag_archive(entry, type = "source", url = root, name = name))
 
   }
 

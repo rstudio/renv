@@ -8,7 +8,9 @@
   package. Records resolved this way also carry the URL of the repository's
   archive, so they can be downloaded in the same parallel batch as everything
   else, and they retain their repository even when `getOption("repos")` is
-  unnamed. (#2356)
+  unnamed. Their archived `DESCRIPTION` is read before dependency resolution,
+  so strong dependencies are not omitted, and binary-only requests continue
+  to reject these source-only candidates. (#2356)
 
 * The available-package lookup now stops at the first source that can supply
   the package, rather than querying every source and discarding the extra
@@ -2640,4 +2642,3 @@
 # renv 0.8.0
 
 * Initial CRAN release.
-

@@ -663,9 +663,13 @@ renv_retrieve_explicit <- function(record) {
 
 renv_retrieve_repos <- function(record) {
 
-  # if this record is tagged with a type + url, we can
-  # use that directly for retrieval
-  if (renv_record_tagged(record))
+  tagged <- renv_record_tagged(record)
+  archived <- renv_record_archived(record)
+
+  # non-archive records can use their resolved URL directly. archive records
+  # also try that URL first below, but retain the remaining retrieval methods
+  # for repository failover
+  if (tagged && !archived)
     return(renv_retrieve_repos_impl(record))
 
   # figure out what package sources are okay to use here
@@ -681,6 +685,12 @@ renv_retrieve_repos <- function(record) {
 
   # collect list of 'methods' for retrieval
   methods <- stack(mode = "list")
+
+  # preserve an explicitly-resolved archive URL even when it did not come from
+  # the current repos option. source policy still applies, and a failed direct
+  # attempt falls through to the other repositories below
+  if (archived && srcok)
+    methods$push(renv_retrieve_repos_impl)
 
   # add binary package methods
   if (binok) {

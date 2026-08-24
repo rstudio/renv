@@ -302,6 +302,18 @@ test_that("renv_graph_url_repository resolves from test repo", {
 
 })
 
+test_that("renv_graph_url_repository_record rejects an untagged record", {
+
+  record <- list(
+    Package = "bread",
+    Version = "1.0.0",
+    Source = "Repository"
+  )
+
+  expect_null(renv_graph_url_repository_record(record, record))
+
+})
+
 test_that("renv_graph_url_repository prefers a binary for untagged records", {
 
   skip_if(identical(.Platform$pkgType, "source"),
@@ -1235,6 +1247,76 @@ test_that("repository graph reads archived DESCRIPTION when crandb fails", {
 
   expect_equal(desc$Version, "0.1.0")
   expect_equal(desc$Depends, "R (>= 1.0.0)")
+
+})
+
+test_that("repository graph enriches a versionless archive record", {
+
+  renv_tests_scope()
+
+  tarball <- file.path(
+    renv_tests_repopath(),
+    "src/contrib/Archive/today/today_0.1.0.tar.gz"
+  )
+  archive <- renv_tests_archive_repo(
+    package = "today",
+    version = "0.1.0",
+    tarball = tarball
+  )
+
+  renv_scope_options(
+    repos = c(ARCHIVED = archive$url),
+    renv.config.crandb.enabled = FALSE,
+    renv.install.allowArchivedPackages = TRUE
+  )
+
+  latest <- renv_available_packages_latest_archive(
+    package = "today",
+    type = "source",
+    repos = c(ARCHIVED = archive$url)
+  )
+  local_mocked_bindings(
+    renv_available_packages_entry = function(...) {
+      stop("package is not live in the repository")
+    },
+    renv_available_packages_latest = function(...) latest
+  )
+
+  # the repository index contains no live candidate, so the latest-version
+  # lookup supplies the archive record. graph resolution must read the archived
+  # DESCRIPTION before returning it or the package's dependencies disappear.
+  record <- list(Package = "today", Source = "Repository")
+  desc <- renv_graph_description_repository(record)
+
+  expect_equal(desc$Version, "0.1.0")
+  expect_equal(desc$Depends, "R (>= 1.0.0)")
+  expect_true(renv_record_archived(desc))
+
+  # DESCRIPTION enrichment downloaded the tarball already; do not send it
+  # through the parallel downloader a second time
+  expect_null(renv_graph_url_repository_record(desc, latest))
+
+})
+
+test_that("archive enrichment rejects an unreadable DESCRIPTION", {
+
+  renv_tests_scope()
+  archive <- renv_tests_archive_repo(package = "gravy", version = "0.5.0")
+  renv_scope_options(repos = c(ARCHIVED = archive$url))
+
+  record <- renv_available_packages_latest_archive(
+    package = "gravy",
+    type = "source",
+    repos = c(ARCHIVED = archive$url)
+  )
+
+  # Returning this minimal record would silently omit the package's strong
+  # dependencies. Fail during graph construction when the advertised tarball
+  # cannot supply an authoritative DESCRIPTION.
+  expect_error(
+    renv_graph_description_archive_enrich(record),
+    "could not read archived DESCRIPTION"
+  )
 
 })
 
