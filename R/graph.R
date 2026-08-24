@@ -364,8 +364,6 @@ renv_graph_description_archive_enrich <- function(record) {
     if (is.null(record[[field]]))
       record[[field]] <- desc[[field]]
 
-  attr(record, "archive.downloaded") <- TRUE
-
   record
 
 }
@@ -1044,7 +1042,7 @@ renv_graph_url_repository_record <- function(desc, record) {
   # reading its DESCRIPTION. route it through sequential retrieval, whose
   # normal existing-file check reuses it, instead of downloading it again in
   # the parallel batch
-  if (renv_record_archive_downloaded(desc) && file.exists(destfile))
+  if (renv_record_archived(desc) && file.exists(destfile))
     return(NULL)
 
   name <- renv_retrieve_repos_archive_name(record, type)

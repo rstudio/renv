@@ -157,10 +157,6 @@ renv_record_archived <- function(record) {
   identical(attr(record, "archive", exact = TRUE), TRUE)
 }
 
-renv_record_archive_downloaded <- function(record) {
-  identical(attr(record, "archive.downloaded", exact = TRUE), TRUE)
-}
-
 # abstracted out in case we want to use a different sigil in the future,
 # like `_`, `<NA>`, or something else
 renv_record_placeholder <- function() {
