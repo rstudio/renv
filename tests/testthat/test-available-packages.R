@@ -563,15 +563,17 @@ test_that("configured repositories take precedence over P3M (#1901)", {
 
 })
 
-test_that("P3M is used as a final available-package fallback", {
+test_that("P3M is preferred over later available-package fallbacks", {
 
   renv_tests_scope()
   renv_scope_options(
-    renv.config.crandb.enabled = FALSE,
-    renv.install.allowArchivedPackages = FALSE
+    renv.config.crandb.enabled = TRUE,
+    renv.install.allowArchivedPackages = TRUE
   )
 
   enabled_type <- NULL
+  crandb_called <- FALSE
+  archive_called <- FALSE
   local_mocked_bindings(
     renv_available_packages_latest_repos = function(...) NULL,
     renv_p3m_enabled = function(type = NULL) {
@@ -588,6 +590,19 @@ test_that("P3M is used as a final available-package fallback", {
         ),
         type = "binary"
       )
+    },
+    renv_available_packages_latest_crandb = function(...) {
+      crandb_called <<- TRUE
+      NULL
+    },
+    renv_available_packages_latest_archive = function(package, ...) {
+      archive_called <<- TRUE
+      list(
+        Package    = package,
+        Version    = "8.8.8",
+        Source     = "Repository",
+        Repository = "CRAN"
+      )
     }
   )
 
@@ -596,6 +611,8 @@ test_that("P3M is used as a final available-package fallback", {
   expect_identical(enabled_type, "binary")
   expect_equal(record$Version, "9.9.9")
   expect_identical(attr(record, "type", exact = TRUE), "binary")
+  expect_false(crandb_called)
+  expect_false(archive_called)
 
 })
 

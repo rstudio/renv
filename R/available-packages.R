@@ -410,16 +410,17 @@ renv_available_packages_latest <- function(package,
   # packages still live on CRAN (#1735), or a source build where the
   # repositories had a binary all along (#2345)
   #
-  # P3M comes last: it can provide a historical binary when none of the
-  # configured repositories or other fallbacks names a candidate, but it must
-  # not override the version selected by a configured repository (#1901)
+  # P3M comes next: when the repositories have no candidate, prefer a concrete
+  # historical binary over the version hint from crandb or a source archive.
+  # the repositories still get the first word, so P3M cannot override a version
+  # selected by a configured repository (#1901)
   methods <- list(
     renv_available_packages_latest_repos,
+    if (renv_p3m_enabled(type))
+      renv_available_packages_latest_p3m,
     renv_available_packages_latest_crandb,
     if (getOption("renv.install.allowArchivedPackages", default = FALSE))
-      renv_available_packages_latest_archive,
-    if (renv_p3m_enabled(type))
-      renv_available_packages_latest_p3m
+      renv_available_packages_latest_archive
   )
 
   errors <- stack()
