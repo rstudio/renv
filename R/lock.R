@@ -28,6 +28,9 @@ renv_lock_acquire <- function(path) {
   # setTimeLimit(), leaving callers with no way to bound the wait.
   # https://github.com/rstudio/renv/issues/2358
   failures <- 0L
+  blocked <- 0L
+  probefailures <- 0L
+  probeafter <- 3L
   repeat {
 
     status <- renv_lock_acquire_impl(path)
@@ -35,14 +38,22 @@ renv_lock_acquire <- function(path) {
       break
 
     # ordinary contention and a lock path we simply cannot write to are
-    # reported identically -- dir.create() just returns FALSE -- but only the
-    # former is worth waiting on. a missing lock after a failed create hints at
-    # the latter, so use it to gate an occasional probe of the parent directory,
-    # which then tells us for certain whether retrying could ever succeed.
-    failures <- if (file.exists(path)) 0L else failures + 1L
-    if (failures >= 3L) {
-      if (!renv_lock_writable(path))
-        renv_lock_acquire_abort(path, status$reason)
+    # reported identically -- dir.create() just returns FALSE -- so occasionally
+    # probe the parent directory to determine whether retrying could succeed.
+    failures <- failures + 1L
+    blocked <- if (status$blocked) blocked + 1L else 0L
+    if (failures >= probeafter) {
+      if (renv_lock_writable(path)) {
+        if (blocked >= 3L)
+          renv_lock_acquire_abort(path, status$reason)
+        probefailures <- 0L
+        probeafter <- if (renv_file_exists(path)) 25L else 3L
+      } else {
+        probefailures <- probefailures + 1L
+        if (probefailures >= 3L)
+          renv_lock_acquire_abort(path, status$reason)
+        probeafter <- probeafter * 2L
+      }
       failures <- 0L
     }
 
@@ -96,7 +107,8 @@ renv_lock_acquire_abort <- function(path, reason) {
 renv_lock_acquire_impl <- function(path) {
 
   # check for orphaned locks
-  if (renv_lock_orphaned(path)) {
+  orphaned <- renv_lock_orphaned(path)
+  if (orphaned) {
     dlog("lock", "%s: removing orphaned lock", path)
     unlink(path, recursive = TRUE, force = TRUE)
   }
@@ -118,7 +130,14 @@ renv_lock_acquire_impl <- function(path) {
   if (created)
     renv_lock_owner_write(path)
 
-  list(acquired = created, reason = reason)
+  # a stale lock we could not remove, or a non-directory entry at the lock
+  # path, cannot be resolved by retrying even when the parent is writable
+  info <- renv_file_info(path)
+  blocked <- !created &&
+    renv_file_exists(path) &&
+    (orphaned || !identical(info$isdir, TRUE))
+
+  list(acquired = created, reason = reason, blocked = blocked)
 
 }
 
