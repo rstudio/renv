@@ -396,62 +396,72 @@ renv_available_packages_latest <- function(package,
                                            type = NULL,
                                            repos = NULL)
 {
+  # the sources consulted for this lookup, in strict precedence order: the
+  # first one to name a version wins, and the configured repositories always
+  # get the first word.
+  #
+  # the repositories determine what can actually be installed, and
+  # available_packages() already drops versions whose R requirement the current
+  # session can't satisfy -- so the later sources exist to name a compatible
+  # version when the repositories have none. those sources are not restricted
+  # to the configured repositories, so when one names a newer version than the
+  # repositories carry, that version generally isn't installable from them:
+  # acting on it yields a failed download, an archive fallback that fails for
+  # packages still live on CRAN (#1735), or a source build where the
+  # repositories had a binary all along (#2345)
+  #
+  # P3M is deliberately not in this list. it stopped being consulted here in
+  # #1771, when the archive method was inserted ahead of it -- but that is also
+  # what stopped renv preferring a newer P3M binary over the pinned repository
+  # snapshot a user actually configured (#1901), and
+  # renv_available_packages_latest_p3m() still ignores `repos` entirely.
+  # bringing it back is a separate decision, not a side effect of repairing
+  # this ordering
   methods <- list(
     renv_available_packages_latest_repos,
     renv_available_packages_latest_crandb,
     if (getOption("renv.install.allowArchivedPackages", default = FALSE))
-      renv_available_packages_latest_archive,
-    if (renv_p3m_enabled())
-      renv_available_packages_latest_p3m
+      renv_available_packages_latest_archive
   )
 
   errors <- stack()
 
-  entries <- lapply(methods, function(method) {
+  for (method in methods) {
 
     if (is.null(method))
-      return(NULL)
+      next
 
     entry <- catch(method(package, type, repos))
     if (inherits(entry, "error")) {
       errors$push(entry)
-      return(NULL)
+      next
     }
 
-    entry
-
-  })
-
-  # if both entries are null, error
-  if (all(map_lgl(entries, is.null))) {
-    map(errors$data(), warning)
-    entry <- the$rejected_packages[[package]]
     if (!is.null(entry))
-      stopf("package '%s' is not available\n- %s", package, entry$reason)
-    stopf("package '%s' is not available", package)
+      return(entry)
+
   }
 
-  # prefer the record from the configured repositories, consulting crandb only
-  # when they have no candidate.
-  #
-  # the configured repositories determine what can actually be installed, and
-  # available_packages() already drops versions whose R requirement the current
-  # session can't satisfy -- so crandb's role is to name a compatible version
-  # when the repositories have none. crandb is not restricted to the configured
-  # repositories, so when it names a newer version than they carry, that
-  # version generally isn't installable from them: acting on it yields a failed
-  # download, an archive fallback that fails for packages still live on CRAN
-  # (#1735), or a source build where the repositories had a binary all along
-  # (#2345)
-  entries[[1L]] %||% entries[[2L]]
+  # nothing named a version; report whatever went wrong along the way
+  map(errors$data(), warning)
+
+  entry <- the$rejected_packages[[package]]
+  if (!is.null(entry))
+    stopf("package '%s' is not available\n- %s", package, entry$reason)
+
+  stopf("package '%s' is not available", package)
 
 }
 
+# NOTE: currently unreferenced -- see renv_available_packages_latest() for why
+# P3M is not consulted when picking a latest version. kept here because reviving
+# it is a live option, but it would need to honor `repos` and a database that
+# covers current R releases first
 renv_available_packages_latest_p3m <- function(package,
                                                type = NULL,
                                                repos = NULL)
 {
-  type <- type %||% getOption("pkgType")
+  type <- type %||% getOption("pkgType", default = "source")
   if (identical(type, "source"))
     stop("binary packages are not available")
 
@@ -549,14 +559,25 @@ renv_available_packages_latest_archive <- function(package,
                                                    type = NULL,
                                                    repos = NULL)
 {
-  type <- type %||% getOption("pkgType")
+  # a CRAN-style archive only ever holds source tarballs. honor binary-only
+  # requests rather than silently building from source; "both" still permits
+  # this source fallback
+  type <- type %||% getOption("pkgType", default = "source")
+  if (grepl("\\bbinary\\b", type))
+    return(NULL)
+
   repos <- repos %||% getOption("repos")
 
   for (i in seq_along(repos)) {
 
-    # extract pieces of interest
-    name <- names(repos)[[i]]
+    # extract pieces of interest. repositories may be unnamed or only partly
+    # named, in which case the URL doubles as the name -- assigning NULL would
+    # instead delete the Repository field that renv_retrieve_repos_archive()
+    # uses to find this package again
     repo <- repos[[i]]
+    name <- names(repos)[[i]] %||% ""
+    if (!nzchar(name))
+      name <- repo
 
     # check for potential packages in archive
     archive <- renv_available_packages_latest_archive_query(repo)
@@ -570,12 +591,12 @@ renv_available_packages_latest_archive <- function(package,
     # grab files that look like packages
     extpat <- "(?:\\.tar\\.gz|\\.tgz|\\.zip)$"
     parts <- strsplit(rns, "_", fixed = TRUE)
-    package <- map_chr(parts, `[[`, 1L)
+    packages <- map_chr(parts, `[[`, 1L)
     rest <- map_chr(parts, `[[`, 2L)
     version <- sub(extpat, "", rest)
 
     # put it into a data.frame
-    data <- data.frame(Package = package, Version = version)
+    data <- data.frame(Package = packages, Version = version)
 
     # take the newest version
     ord <- order(numeric_version(version), decreasing = TRUE)
@@ -583,7 +604,14 @@ renv_available_packages_latest_archive <- function(package,
     entry$Source <- "Repository"
     entry$Repository <- name
 
-    return(entry)
+    # resolve where this repository keeps its archived tarballs, so the record
+    # carries a URL the download machinery can actually use. a repository whose
+    # archive layout we can't determine is no use to us, so move on
+    root <- catch(renv_retrieve_repos_archive_root(repo, entry))
+    if (inherits(root, "error") || is.null(root))
+      next
+
+    return(renv_record_tag_archive(entry, type = "source", url = root, name = name))
 
   }
 
