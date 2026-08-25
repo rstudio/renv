@@ -30,9 +30,16 @@
 
 - The available-package lookup now stops at the first source that can
   supply the package, rather than querying every source and discarding
-  the extra answers. Repositories still take precedence over crandb and
-  the archive, so which record is chosen is unchanged; renv simply no
-  longer makes crandb and P3M requests whose results it cannot use.
+  the extra answers. Repositories still take precedence over P3M,
+  crandb, and the archive, so renv no longer makes fallback requests
+  whose results it cannot use.
+
+- On Windows and macOS, the available-package lookup once again consults
+  the P3M historical-binary database when configured repositories have
+  no candidate. P3M binaries are preferred over crandb version hints and
+  enabled repository archives, while source-only requests do not consult
+  P3M. Missing records for newer R or platform versions are treated as
+  an ordinary miss while the database catches up.
 
 - Fixed an issue where
   [`renv::sysreqs()`](https://rstudio.github.io/renv/dev/reference/sysreqs.md)
