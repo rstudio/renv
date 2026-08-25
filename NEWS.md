@@ -1,5 +1,16 @@
 # renv (development version)
 
+* Fixed an issue where renv would busy-wait, consuming an entire CPU core,
+  while waiting to acquire a lock. The retry loop's backoff had become
+  unreachable, so renv retried as fast as it could rather than at the intended
+  0.2s interval. In addition, when the lock path was not writable at all (for
+  example, under an OS sandbox denying writes outside the project), the loop
+  had no terminating condition and renv would hang indefinitely -- silently,
+  and uninterruptibly when reached via `renv/activate.R` during startup. renv
+  now backs off between attempts, and reports an error (including the reason
+  reported by the operating system) when the lock path cannot be written.
+  (#2358)
+
 * Fixed an issue where, with the `renv.install.allowArchivedPackages` option
   enabled, a package available only from a repository's archive would resolve
   to nothing at all. The archive was queried, but the result was then
