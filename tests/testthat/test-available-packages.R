@@ -411,6 +411,163 @@ test_that("crandb is still used when the repositories have no candidate", {
 
 })
 
+test_that("the archive is consulted when the repositories have no candidate", {
+
+  renv_tests_scope()
+  renv_scope_options(
+    renv.config.crandb.enabled = FALSE,
+    renv.install.allowArchivedPackages = TRUE
+  )
+
+  # a repository which serves nothing from PACKAGES, but does archive 'gravy'
+  archive <- renv_tests_archive_repo()
+  renv_scope_options(repos = c(ARCHIVED = archive$url))
+
+  # the archive method was added in #1771 and lost its slot in #2215, when
+  # crandb was inserted ahead of it and the picker kept reading only the first
+  # two entries -- so an archived-only package resolved to nothing at all
+  record <- renv_available_packages_latest("gravy")
+
+  expect_equal(record$Version, "0.5.0")
+  expect_equal(record$Repository, "ARCHIVED")
+
+})
+
+test_that("an archived record carries a usable download URL", {
+
+  renv_tests_scope()
+  renv_scope_options(
+    renv.config.crandb.enabled = FALSE,
+    renv.install.allowArchivedPackages = TRUE
+  )
+
+  archive <- renv_tests_archive_repo()
+  renv_scope_options(repos = c(ARCHIVED = archive$url))
+
+  record <- renv_available_packages_latest("gravy")
+
+  # archives only ever hold source tarballs
+  expect_true(renv_record_tagged(record))
+  expect_equal(attr(record, "type", exact = TRUE), "source")
+
+  # the record has to survive URL construction: an untagged record yields a
+  # zero-length url, which aborts the entire parallel download batch rather
+  # than just this package
+  info <- renv_graph_url_repository_record(record, record)
+  expect_equal(basename(info$url), "gravy_0.5.0.tar.gz")
+  expect_equal(basename(dirname(info$url)), "gravy")
+
+})
+
+test_that("an archived record keeps its Repository with unnamed repositories", {
+
+  renv_tests_scope()
+
+  archive <- renv_tests_archive_repo()
+  repo <- archive$url
+
+  # renv supports unnamed repositories; names(repos)[[i]] is NULL for these,
+  # and assigning that to entry$Repository used to delete the field outright
+  entry <- renv_available_packages_latest_archive("gravy", repos = repo)
+
+  expect_equal(entry$Repository, repo)
+
+})
+
+test_that("an archive does not satisfy a binary-only request", {
+
+  renv_tests_scope()
+  archive <- renv_tests_archive_repo()
+  renv_scope_options(
+    repos = c(ARCHIVED = archive$url),
+    renv.config.crandb.enabled = FALSE,
+    renv.install.allowArchivedPackages = TRUE
+  )
+
+  entry <- renv_available_packages_latest_archive(
+    package = "gravy",
+    type = "binary"
+  )
+
+  expect_null(entry)
+  expect_equal(
+    renv_available_packages_latest_archive("gravy", type = "both")$Version,
+    "0.5.0"
+  )
+  expect_null(renv_available_packages_latest_archive("gravy", type = "mac.binary"))
+
+  renv_scope_options(pkgType = NULL)
+  expect_equal(
+    renv_available_packages_latest_archive("gravy")$Version,
+    "0.5.0"
+  )
+
+  expect_error(
+    suppressWarnings(renv_available_packages_latest("gravy", type = "binary")),
+    "package 'gravy' is not available"
+  )
+
+})
+
+test_that("the repositories short-circuit the later lookup methods", {
+
+  renv_tests_scope()
+  renv_scope_options(
+    renv.config.crandb.enabled = FALSE,
+    renv.install.allowArchivedPackages = TRUE
+  )
+
+  # 'bread' is live in the test repository, so nothing after it should be
+  # consulted at all -- these methods reach the network
+  count <- 0L
+  renv_scope_trace(
+    what   = renv:::renv_available_packages_latest_archive,
+    tracer = function() count <<- count + 1L
+  )
+
+  record <- renv_available_packages_latest("bread")
+
+  expect_equal(record$Version, "1.0.0")
+  expect_identical(count, 0L)
+
+})
+
+test_that("P3M is not consulted when picking a latest version (#1901)", {
+
+  renv_tests_scope()
+  renv_scope_options(renv.config.crandb.enabled = FALSE)
+
+  # P3M ignores the configured repositories entirely, so letting it name a
+  # version means renv can prefer a P3M binary over the pinned repository
+  # snapshot the user actually asked for
+  # force the conditions under which P3M would be eligible, so this actually
+  # asserts something on platforms where the test scope leaves it disabled
+  enabled_called <- FALSE
+  latest_called <- FALSE
+  local_mocked_bindings(
+    renv_p3m_enabled = function() {
+      enabled_called <<- TRUE
+      TRUE
+    },
+    renv_available_packages_latest_p3m = function(package, ...) {
+      latest_called <<- TRUE
+      list(
+        Package    = package,
+        Version    = "9.9.9",
+        Source     = "Repository",
+        Repository = "P3M"
+      )
+    }
+  )
+
+  record <- renv_available_packages_latest("bread")
+
+  expect_false(enabled_called)
+  expect_false(latest_called)
+  expect_equal(record$Version, "1.0.0")
+
+})
+
 test_that("version requirement parsing works correctly", {
 
   # Test various requirement formats

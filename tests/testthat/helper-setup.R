@@ -312,3 +312,35 @@ renv_tests_setup_repos <- function(scope = parent.frame()) {
 
 }
 
+renv_tests_archive_repo <- function(package = "gravy",
+                                    version = "0.5.0",
+                                    tarball = NULL,
+                                    scope = parent.frame())
+{
+  repopath <- renv_scope_tempfile("renv-repos-", scope = scope)
+  meta <- file.path(repopath, "src/contrib/Meta")
+  root <- file.path(repopath, "src/contrib/Archive", package)
+  ensure_directory(meta)
+  ensure_directory(root)
+
+  filename <- sprintf("%s_%s.tar.gz", package, version)
+  relpath <- file.path(package, filename)
+  size <- 1024L
+  if (!is.null(tarball)) {
+    target <- file.path(root, filename)
+    if (!file.copy(tarball, target))
+      stopf("failed to copy test archive '%s'", tarball)
+    size <- file.info(target)$size
+  }
+
+  entries <- data.frame(size = size, row.names = relpath)
+  database <- named(list(entries), package)
+  saveRDS(database, file = file.path(meta, "archive.rds"))
+
+  fmt <- if (renv_platform_windows()) "file:///%s" else "file://%s"
+  list(
+    path = repopath,
+    root = root,
+    url = sprintf(fmt, repopath)
+  )
+}
