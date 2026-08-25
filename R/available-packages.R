@@ -410,15 +410,14 @@ renv_available_packages_latest <- function(package,
   # packages still live on CRAN (#1735), or a source build where the
   # repositories had a binary all along (#2345)
   #
-  # P3M is deliberately not in this list. it stopped being consulted here in
-  # #1771, when the archive method was inserted ahead of it -- but that is also
-  # what stopped renv preferring a newer P3M binary over the pinned repository
-  # snapshot a user actually configured (#1901), and
-  # renv_available_packages_latest_p3m() still ignores `repos` entirely.
-  # bringing it back is a separate decision, not a side effect of repairing
-  # this ordering
+  # P3M comes next: when the repositories have no candidate, prefer a concrete
+  # historical binary over the version hint from crandb or a source archive.
+  # the repositories still get the first word, so P3M cannot override a version
+  # selected by a configured repository (#1901)
   methods <- list(
     renv_available_packages_latest_repos,
+    if (renv_p3m_enabled(type))
+      renv_available_packages_latest_p3m,
     renv_available_packages_latest_crandb,
     if (getOption("renv.install.allowArchivedPackages", default = FALSE))
       renv_available_packages_latest_archive
@@ -453,17 +452,13 @@ renv_available_packages_latest <- function(package,
 
 }
 
-# NOTE: currently unreferenced -- see renv_available_packages_latest() for why
-# P3M is not consulted when picking a latest version. kept here because reviving
-# it is a live option, but it would need to honor `repos` and a database that
-# covers current R releases first
 renv_available_packages_latest_p3m <- function(package,
                                                type = NULL,
                                                repos = NULL)
 {
   type <- type %||% getOption("pkgType", default = "source")
   if (identical(type, "source"))
-    stop("binary packages are not available")
+    return(NULL)
 
   # ensure local p3m database is up-to-date
   renv_p3m_database_refresh(explicit = FALSE)
@@ -477,14 +472,14 @@ renv_available_packages_latest_p3m <- function(package,
   suffix <- contrib.url("", type = "binary")
   entry <- database[[suffix]]
   if (is.null(entry))
-    stopf("no records available from repository URL '%s'", suffix)
+    return(NULL)
 
   # find all available packages
   keys <- attr(entry, "keys")
   pattern <- paste0("^", package, " ")
   matching <- grep(pattern, keys, perl = TRUE, value = TRUE)
   if (empty(matching))
-    stopf("package '%s' is not available", package)
+    return(NULL)
 
   # take the latest-available package
   entries <- unlist(mget(matching, envir = entry))

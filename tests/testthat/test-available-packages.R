@@ -532,20 +532,15 @@ test_that("the repositories short-circuit the later lookup methods", {
 
 })
 
-test_that("P3M is not consulted when picking a latest version (#1901)", {
+test_that("configured repositories take precedence over P3M (#1901)", {
 
   renv_tests_scope()
   renv_scope_options(renv.config.crandb.enabled = FALSE)
 
-  # P3M ignores the configured repositories entirely, so letting it name a
-  # version means renv can prefer a P3M binary over the pinned repository
-  # snapshot the user actually asked for
-  # force the conditions under which P3M would be eligible, so this actually
-  # asserts something on platforms where the test scope leaves it disabled
   enabled_called <- FALSE
   latest_called <- FALSE
   local_mocked_bindings(
-    renv_p3m_enabled = function() {
+    renv_p3m_enabled = function(type = NULL) {
       enabled_called <<- TRUE
       TRUE
     },
@@ -562,9 +557,103 @@ test_that("P3M is not consulted when picking a latest version (#1901)", {
 
   record <- renv_available_packages_latest("bread")
 
-  expect_false(enabled_called)
+  expect_true(enabled_called)
   expect_false(latest_called)
   expect_equal(record$Version, "1.0.0")
+
+})
+
+test_that("P3M is preferred over later available-package fallbacks", {
+
+  renv_tests_scope()
+  renv_scope_options(
+    renv.config.crandb.enabled = TRUE,
+    renv.install.allowArchivedPackages = TRUE
+  )
+
+  enabled_type <- NULL
+  crandb_called <- FALSE
+  archive_called <- FALSE
+  local_mocked_bindings(
+    renv_available_packages_latest_repos = function(...) NULL,
+    renv_p3m_enabled = function(type = NULL) {
+      enabled_type <<- type
+      TRUE
+    },
+    renv_available_packages_latest_p3m = function(package, ...) {
+      structure(
+        list(
+          Package    = package,
+          Version    = "9.9.9",
+          Source     = "Repository",
+          Repository = "P3M"
+        ),
+        type = "binary"
+      )
+    },
+    renv_available_packages_latest_crandb = function(...) {
+      crandb_called <<- TRUE
+      NULL
+    },
+    renv_available_packages_latest_archive = function(package, ...) {
+      archive_called <<- TRUE
+      list(
+        Package    = package,
+        Version    = "8.8.8",
+        Source     = "Repository",
+        Repository = "CRAN"
+      )
+    }
+  )
+
+  record <- renv_available_packages_latest("bread", type = "binary")
+
+  expect_identical(enabled_type, "binary")
+  expect_equal(record$Version, "9.9.9")
+  expect_identical(attr(record, "type", exact = TRUE), "binary")
+  expect_false(crandb_called)
+  expect_false(archive_called)
+
+})
+
+test_that("P3M eligibility respects the requested package type", {
+
+  renv_tests_scope()
+  renv_scope_options(
+    pkgType = "source",
+    renv.config.ppm.enabled = TRUE
+  )
+
+  expect_false(renv_p3m_enabled())
+  expect_false(renv_p3m_enabled("source"))
+  expect_true(renv_p3m_enabled("binary"))
+
+})
+
+test_that("ordinary P3M misses are quiet", {
+
+  renv_tests_scope()
+
+  refreshed <- FALSE
+  database <- new.env(parent = emptyenv())
+  local_mocked_bindings(
+    renv_p3m_database_refresh = function(...) refreshed <<- TRUE,
+    renv_p3m_database_load = function(...) database
+  )
+
+  expect_null(renv_available_packages_latest_p3m("bread", type = "binary"))
+  expect_true(refreshed)
+
+  suffix <- contrib.url("", type = "binary")
+  entry <- new.env(parent = emptyenv())
+  attr(entry, "keys") <- "breakfast 1.0.0"
+  database[[suffix]] <- entry
+
+  expect_null(renv_available_packages_latest_p3m("bread", type = "binary"))
+
+  refreshed <- FALSE
+  expect_null(renv_available_packages_latest_p3m("bread", type = "source"))
+  expect_false(refreshed)
 
 })
 
