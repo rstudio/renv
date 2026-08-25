@@ -18,6 +18,12 @@
   which record is chosen is unchanged; renv simply no longer makes crandb and
   P3M requests whose results it cannot use.
 
+* On Windows and macOS, the available-package lookup once again consults the
+  P3M historical-binary database as a final fallback. Configured repositories,
+  crandb, and enabled repository archives retain precedence, and source-only
+  requests do not consult P3M. Missing records for newer R or platform versions
+  are treated as an ordinary miss while the database catches up.
+
 * Fixed an issue where `renv::sysreqs()` (and the system requirement checks
   performed during install and restore) would only report the first system
   package required by an R package. When a package's `SystemRequirements`

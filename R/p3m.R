@@ -1,6 +1,7 @@
 
-renv_p3m_enabled <- function() {
-  !identical(getOption("pkgType"), "source") && config$ppm.enabled()
+renv_p3m_enabled <- function(type = NULL) {
+  type <- type %||% getOption("pkgType", default = "source")
+  !identical(type, "source") && config$ppm.enabled()
 }
 
 renv_p3m_database_path <- function() {
