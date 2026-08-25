@@ -2,6 +2,36 @@
 
 ## renv (development version)
 
+- Fixed an issue where, with the `renv.install.allowArchivedPackages`
+  option enabled, a package available only from a repository’s archive
+  would resolve to nothing at all. The archive was queried, but the
+  result was then discarded: the lookup only ever returned the
+  repository or crandb candidate. Archived candidates are now used when
+  neither of those can supply the package. Records resolved this way
+  also carry the URL of the repository’s archive, so they can be
+  downloaded in the same parallel batch as everything else, and they
+  retain their repository even when `getOption("repos")` is unnamed.
+  Their archived `DESCRIPTION` is read before dependency resolution, so
+  strong dependencies are not omitted, and binary-only requests continue
+  to reject these source-only candidates.
+  ([\#2356](https://github.com/rstudio/renv/issues/2356))
+
+- The available-package lookup now stops at the first source that can
+  supply the package, rather than querying every source and discarding
+  the extra answers. Repositories still take precedence over crandb and
+  the archive, so which record is chosen is unchanged; renv simply no
+  longer makes crandb and P3M requests whose results it cannot use.
+
+- Fixed an issue where
+  [`renv::sysreqs()`](https://rstudio.github.io/renv/dev/reference/sysreqs.md)
+  (and the system requirement checks performed during install and
+  restore) would only report the first system package required by an R
+  package. When a package’s `SystemRequirements` field declared multiple
+  system libraries – for example, `ragg` declares freetype2, libpng,
+  libtiff, libjpeg, and libwebp – only the first matching system
+  dependency was reported. All matching dependencies are now reported.
+  ([\#2352](https://github.com/rstudio/renv/issues/2352))
+
 - Fixed an issue where, if one or more repositories could not be queried
   for available packages, the partial result would be cached and served
   for up to an hour – renv would behave as though the failed
