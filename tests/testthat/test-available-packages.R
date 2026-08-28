@@ -411,6 +411,252 @@ test_that("crandb is still used when the repositories have no candidate", {
 
 })
 
+test_that("the archive is consulted when the repositories have no candidate", {
+
+  renv_tests_scope()
+  renv_scope_options(
+    renv.config.crandb.enabled = FALSE,
+    renv.install.allowArchivedPackages = TRUE
+  )
+
+  # a repository which serves nothing from PACKAGES, but does archive 'gravy'
+  archive <- renv_tests_archive_repo()
+  renv_scope_options(repos = c(ARCHIVED = archive$url))
+
+  # the archive method was added in #1771 and lost its slot in #2215, when
+  # crandb was inserted ahead of it and the picker kept reading only the first
+  # two entries -- so an archived-only package resolved to nothing at all
+  record <- renv_available_packages_latest("gravy")
+
+  expect_equal(record$Version, "0.5.0")
+  expect_equal(record$Repository, "ARCHIVED")
+
+})
+
+test_that("an archived record carries a usable download URL", {
+
+  renv_tests_scope()
+  renv_scope_options(
+    renv.config.crandb.enabled = FALSE,
+    renv.install.allowArchivedPackages = TRUE
+  )
+
+  archive <- renv_tests_archive_repo()
+  renv_scope_options(repos = c(ARCHIVED = archive$url))
+
+  record <- renv_available_packages_latest("gravy")
+
+  # archives only ever hold source tarballs
+  expect_true(renv_record_tagged(record))
+  expect_equal(attr(record, "type", exact = TRUE), "source")
+
+  # the record has to survive URL construction: an untagged record yields a
+  # zero-length url, which aborts the entire parallel download batch rather
+  # than just this package
+  info <- renv_graph_url_repository_record(record, record)
+  expect_equal(basename(info$url), "gravy_0.5.0.tar.gz")
+  expect_equal(basename(dirname(info$url)), "gravy")
+
+})
+
+test_that("an archived record keeps its Repository with unnamed repositories", {
+
+  renv_tests_scope()
+
+  archive <- renv_tests_archive_repo()
+  repo <- archive$url
+
+  # renv supports unnamed repositories; names(repos)[[i]] is NULL for these,
+  # and assigning that to entry$Repository used to delete the field outright
+  entry <- renv_available_packages_latest_archive("gravy", repos = repo)
+
+  expect_equal(entry$Repository, repo)
+
+})
+
+test_that("an archive does not satisfy a binary-only request", {
+
+  renv_tests_scope()
+  archive <- renv_tests_archive_repo()
+  renv_scope_options(
+    repos = c(ARCHIVED = archive$url),
+    renv.config.crandb.enabled = FALSE,
+    renv.install.allowArchivedPackages = TRUE
+  )
+
+  entry <- renv_available_packages_latest_archive(
+    package = "gravy",
+    type = "binary"
+  )
+
+  expect_null(entry)
+  expect_equal(
+    renv_available_packages_latest_archive("gravy", type = "both")$Version,
+    "0.5.0"
+  )
+  expect_null(renv_available_packages_latest_archive("gravy", type = "mac.binary"))
+
+  renv_scope_options(pkgType = NULL)
+  expect_equal(
+    renv_available_packages_latest_archive("gravy")$Version,
+    "0.5.0"
+  )
+
+  expect_error(
+    suppressWarnings(renv_available_packages_latest("gravy", type = "binary")),
+    "package 'gravy' is not available"
+  )
+
+})
+
+test_that("the repositories short-circuit the later lookup methods", {
+
+  renv_tests_scope()
+  renv_scope_options(
+    renv.config.crandb.enabled = FALSE,
+    renv.install.allowArchivedPackages = TRUE
+  )
+
+  # 'bread' is live in the test repository, so nothing after it should be
+  # consulted at all -- these methods reach the network
+  count <- 0L
+  renv_scope_trace(
+    what   = renv:::renv_available_packages_latest_archive,
+    tracer = function() count <<- count + 1L
+  )
+
+  record <- renv_available_packages_latest("bread")
+
+  expect_equal(record$Version, "1.0.0")
+  expect_identical(count, 0L)
+
+})
+
+test_that("configured repositories take precedence over P3M (#1901)", {
+
+  renv_tests_scope()
+  renv_scope_options(renv.config.crandb.enabled = FALSE)
+
+  enabled_called <- FALSE
+  latest_called <- FALSE
+  local_mocked_bindings(
+    renv_p3m_enabled = function(type = NULL) {
+      enabled_called <<- TRUE
+      TRUE
+    },
+    renv_available_packages_latest_p3m = function(package, ...) {
+      latest_called <<- TRUE
+      list(
+        Package    = package,
+        Version    = "9.9.9",
+        Source     = "Repository",
+        Repository = "P3M"
+      )
+    }
+  )
+
+  record <- renv_available_packages_latest("bread")
+
+  expect_true(enabled_called)
+  expect_false(latest_called)
+  expect_equal(record$Version, "1.0.0")
+
+})
+
+test_that("P3M is preferred over later available-package fallbacks", {
+
+  renv_tests_scope()
+  renv_scope_options(
+    renv.config.crandb.enabled = TRUE,
+    renv.install.allowArchivedPackages = TRUE
+  )
+
+  enabled_type <- NULL
+  crandb_called <- FALSE
+  archive_called <- FALSE
+  local_mocked_bindings(
+    renv_available_packages_latest_repos = function(...) NULL,
+    renv_p3m_enabled = function(type = NULL) {
+      enabled_type <<- type
+      TRUE
+    },
+    renv_available_packages_latest_p3m = function(package, ...) {
+      structure(
+        list(
+          Package    = package,
+          Version    = "9.9.9",
+          Source     = "Repository",
+          Repository = "P3M"
+        ),
+        type = "binary"
+      )
+    },
+    renv_available_packages_latest_crandb = function(...) {
+      crandb_called <<- TRUE
+      NULL
+    },
+    renv_available_packages_latest_archive = function(package, ...) {
+      archive_called <<- TRUE
+      list(
+        Package    = package,
+        Version    = "8.8.8",
+        Source     = "Repository",
+        Repository = "CRAN"
+      )
+    }
+  )
+
+  record <- renv_available_packages_latest("bread", type = "binary")
+
+  expect_identical(enabled_type, "binary")
+  expect_equal(record$Version, "9.9.9")
+  expect_identical(attr(record, "type", exact = TRUE), "binary")
+  expect_false(crandb_called)
+  expect_false(archive_called)
+
+})
+
+test_that("P3M eligibility respects the requested package type", {
+
+  renv_tests_scope()
+  renv_scope_options(
+    pkgType = "source",
+    renv.config.ppm.enabled = TRUE
+  )
+
+  expect_false(renv_p3m_enabled())
+  expect_false(renv_p3m_enabled("source"))
+  expect_true(renv_p3m_enabled("binary"))
+
+})
+
+test_that("ordinary P3M misses are quiet", {
+
+  renv_tests_scope()
+
+  refreshed <- FALSE
+  database <- new.env(parent = emptyenv())
+  local_mocked_bindings(
+    renv_p3m_database_refresh = function(...) refreshed <<- TRUE,
+    renv_p3m_database_load = function(...) database
+  )
+
+  expect_null(renv_available_packages_latest_p3m("bread", type = "binary"))
+  expect_true(refreshed)
+
+  suffix <- contrib.url("", type = "binary")
+  entry <- new.env(parent = emptyenv())
+  attr(entry, "keys") <- "breakfast 1.0.0"
+  database[[suffix]] <- entry
+
+  expect_null(renv_available_packages_latest_p3m("bread", type = "binary"))
+
+  refreshed <- FALSE
+  expect_null(renv_available_packages_latest_p3m("bread", type = "source"))
+  expect_false(refreshed)
+
+})
+
 test_that("version requirement parsing works correctly", {
 
   # Test various requirement formats

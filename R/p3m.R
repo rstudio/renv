@@ -1,6 +1,7 @@
 
-renv_p3m_enabled <- function() {
-  !identical(getOption("pkgType"), "source") && config$ppm.enabled()
+renv_p3m_enabled <- function(type = NULL) {
+  type <- type %||% getOption("pkgType", default = "source")
+  !identical(type, "source") && config$ppm.enabled()
 }
 
 renv_p3m_database_path <- function() {
@@ -108,8 +109,10 @@ renv_p3m_database_dates <- function(version, all = TRUE) {
     "4.2" = "2022-04-22",
     "4.3" = "2023-04-21",
     "4.4" = "2024-04-24",
-    "4.5" = "2025-05-18",  # a guess
-    "4.6" = "2026-05-18",  # a guess
+    "4.5" = "2025-04-11",
+    "4.6" = "2026-04-24",
+    "4.7" = "2027-04-24",  # a guess
+    "4.8" = "2028-04-24",  # a guess
     NULL
   )
 
@@ -322,7 +325,10 @@ renv_p3m_database_sync_all <- function() {
 renv_p3m_database_sync_all_impl <- function() {
 
   # NOTE: this needs to be manually updated since the binary URL for
-  # packages can change from version to version, especially on macOS
+  # packages can change from version to version, especially on macOS.
+  # the keys are looked up via contrib.url(), so they must match the
+  # layout of https://cran.r-project.org/bin/macosx/ exactly -- p3m
+  # serves other spellings too, but no R installation asks for them.
 
 #  # R 3.2
 #  renv_p3m_database_sync("windows", "3.2")
@@ -360,12 +366,22 @@ renv_p3m_database_sync_all_impl <- function() {
 
   # R 4.3
   renv_p3m_database_sync("windows", "4.3")
-  renv_p3m_database_sync("macosx", "4.3")
+  renv_p3m_database_sync("macosx/big-sur-x86_64", "4.3")
   renv_p3m_database_sync("macosx/big-sur-arm64", "4.3")
-  
+
   # R 4.4
   renv_p3m_database_sync("windows", "4.4")
-  renv_p3m_database_sync("macosx", "4.4")
+  renv_p3m_database_sync("macosx/big-sur-x86_64", "4.4")
   renv_p3m_database_sync("macosx/big-sur-arm64", "4.4")
+
+  # R 4.5
+  renv_p3m_database_sync("windows", "4.5")
+  renv_p3m_database_sync("macosx/big-sur-x86_64", "4.5")
+  renv_p3m_database_sync("macosx/big-sur-arm64", "4.5")
+
+  # R 4.6
+  renv_p3m_database_sync("windows", "4.6")
+  renv_p3m_database_sync("macosx/big-sur-x86_64", "4.6")
+  renv_p3m_database_sync("macosx/sonoma-arm64", "4.6")
 
 }

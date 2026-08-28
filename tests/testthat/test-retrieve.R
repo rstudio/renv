@@ -367,6 +367,80 @@ test_that("failed binary downloads are quiet when a source fallback succeeds", {
 
 })
 
+test_that("tagged archive records try their resolved URL first", {
+
+  renv_tests_scope()
+  renv_scope_options(pkgType = "source")
+
+  record <- renv_record_tag_archive(
+    record = list(
+      Package = "bread",
+      Version = "1.0.0",
+      Source = "Repository"
+    ),
+    type = "source",
+    url = "https://example.com/archive/bread",
+    name = "EXPLICIT"
+  )
+
+  called <- FALSE
+  local_mocked_bindings(
+    renv_retrieve_repos_impl = function(record, ...) {
+      called <<- TRUE
+      TRUE
+    }
+  )
+
+  expect_true(renv_retrieve_repos(record))
+  expect_true(called)
+
+})
+
+test_that("tagged archive records fall back to later repositories", {
+
+  renv_tests_scope(isolated = TRUE)
+
+  tarball <- file.path(renv_tests_repopath(), "src/contrib/bread_1.0.0.tar.gz")
+  first <- renv_tests_archive_repo(package = "bread", version = "1.0.0")
+  second <- renv_tests_archive_repo(
+    package = "bread",
+    version = "1.0.0",
+    tarball = tarball
+  )
+
+  repos <- c(FIRST = first$url, SECOND = second$url)
+  renv_scope_options(
+    pkgType = "source",
+    repos = repos,
+    renv.config.crandb.enabled = FALSE,
+    renv.install.allowArchivedPackages = TRUE
+  )
+
+  # the first archive index advertises the package but its tarball is absent;
+  # the tagged URL is useful to the parallel downloader, but sequential
+  # retrieval must still continue to the second repository
+  record <- renv_available_packages_latest_archive(
+    package = "bread",
+    type = "source",
+    repos = repos
+  )
+  expect_equal(record$Repository, "FIRST")
+  expect_true(renv_record_archived(record))
+
+  library <- renv_scope_tempfile("renv-library-")
+  ensure_directory(library)
+  renv_scope_restore(
+    project = getwd(),
+    library = library,
+    records = list(bread = record),
+    packages = "bread",
+    recursive = TRUE
+  )
+
+  expect_true(renv_retrieve_repos(record))
+
+})
+
 test_that("download errors are reported when all retrieval candidates fail", {
 
   skip_on_cran()

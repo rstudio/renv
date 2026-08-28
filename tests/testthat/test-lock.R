@@ -83,6 +83,144 @@ test_that("other processes cannot lock our owned locks", {
 
 })
 
+test_that("lock acquisition backs off, and remains interruptible", {
+
+  skip_on_cran()
+
+  skip_if(
+    is.null(formals(system2)[["timeout"]]),
+    "system2() lacks the timeout argument"
+  )
+
+  # simulate a lock held by another process, which we'll never manage to acquire
+  path <- renv_lock_path(renv_scope_tempfile())
+  dir.create(path)
+
+  result <- renv_scope_tempfile(fileext = ".rds")
+  limit <- 2
+  script <- renv_test_code(
+    {
+      options(renv.config.locking.enabled = TRUE)
+      options(renv.lock.timeout = 1e6)
+      timing <- system.time(
+        tryCatch({
+          setTimeLimit(elapsed = limit, transient = TRUE)
+          renv:::renv_lock_acquire(path)
+        }, error = function(cnd) NULL)
+      )
+      setTimeLimit()
+      saveRDS(timing, result)
+    },
+    list(path = path, limit = limit, result = result)
+  )
+
+  args <- c("--vanilla", "-s", "-f", shQuote(script))
+  status <- suppressWarnings(
+    system2(R(), args, stdout = FALSE, stderr = FALSE, timeout = 10L)
+  )
+
+  expect_equal(status, 0L)
+  expect_true(file.exists(result))
+  if (!file.exists(result))
+    return()
+
+  timing <- readRDS(result)
+
+  # the loop has to sleep between attempts, so it should use almost no CPU, and
+  # it has to let setTimeLimit()'s condition through rather than treating it as
+  # one more reason to retry. previously it did neither. (#2358)
+  cpu <- timing[["user.self"]] + timing[["sys.self"]]
+  expect_lt(cpu, limit / 4)
+  expect_lt(timing[["elapsed"]], limit * 5)
+
+})
+
+test_that("an unremovable lock fails rather than hanging", {
+
+  skip_on_cran()
+  skip_on_os("windows")
+
+  skip_if(
+    is.null(formals(system2)[["timeout"]]),
+    "system2() lacks the timeout argument"
+  )
+
+  # root ignores the directory permissions we rely on here
+  skip_if(
+    identical(Sys.info()[["effective_user"]], "root"),
+    "running as root"
+  )
+
+  renv_scope_options(renv.config.locking.enabled = TRUE)
+
+  parent <- renv_scope_tempfile("renv-lock-parent-")
+  ensure_directory(parent)
+
+  # leave a stale lock in a read-only parent, so it cannot be removed
+  path <- file.path(parent, "lock")
+  dir.create(path)
+  Sys.chmod(parent, mode = "0555")
+  defer(Sys.chmod(parent, mode = "0755"))
+
+  result <- renv_scope_tempfile(fileext = ".rds")
+  script <- renv_test_code(
+    {
+      options(renv.config.locking.enabled = TRUE)
+      options(renv.lock.timeout = -1L)
+      cnd <- tryCatch(
+        renv:::renv_lock_acquire(path),
+        renv_error_lock_unwritable = function(cnd) cnd
+      )
+      saveRDS(cnd, result)
+    },
+    list(path = path, result = result)
+  )
+
+  args <- c("--vanilla", "-s", "-f", shQuote(script))
+  status <- suppressWarnings(
+    system2(R(), args, stdout = FALSE, stderr = FALSE, timeout = 15L)
+  )
+
+  expect_equal(status, 0L)
+  expect_true(file.exists(result))
+  if (!file.exists(result))
+    return()
+
+  cnd <- readRDS(result)
+  expect_s3_class(cnd, "renv_error_lock_unwritable")
+  expect_length(cnd$meta$body, 2L)
+  expect_true(file.exists(path))
+
+})
+
+test_that("transient writability failures are retried", {
+
+  skip_on_cran()
+
+  path <- renv_lock_path(renv_scope_tempfile())
+  attempts <- 0L
+  probes <- 0L
+
+  local_mocked_bindings(
+    renv_lock_acquire_impl = function(path) {
+      attempts <<- attempts + 1L
+      if (attempts <= 9L)
+        return(list(acquired = FALSE, reason = "transient", blocked = FALSE))
+      dir.create(path)
+      list(acquired = TRUE, reason = NULL, blocked = FALSE)
+    },
+    renv_lock_writable = function(path) {
+      probes <<- probes + 1L
+      probes > 1L
+    }
+  )
+
+  expect_true(renv_lock_acquire(path))
+  expect_equal(probes, 2L)
+  renv_lock_release(path)
+
+})
+
 test_that("locks are released on process exit", {
 
   skip_on_cran()
