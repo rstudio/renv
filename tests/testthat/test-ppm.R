@@ -112,6 +112,88 @@ test_that("renv correctly detects RHEL9 for PPM", {
 
 })
 
+test_that("renv correctly detects CentOS Linux 7 for PPM", {
+  skip_on_cran()
+  skip_on_os("windows")
+
+  release <- heredoc('
+    NAME="CentOS Linux"
+    VERSION="7 (Core)"
+    ID="centos"
+    ID_LIKE="rhel fedora"
+    VERSION_ID="7"
+    PRETTY_NAME="CentOS Linux 7 (Core)"
+    ANSI_COLOR="0;31"
+    CPE_NAME="cpe:/o:centos:centos:7"
+    HOME_URL="https://www.centos.org/"
+    BUG_REPORT_URL="https://bugs.centos.org/"
+  ')
+
+  file <- renv_scope_tempfile()
+  writeLines(release, con = file)
+
+  platform <- renv_ppm_platform_impl(file = file)
+  expect_equal(platform, "centos7")
+
+})
+
+test_that("renv correctly detects CentOS Stream 9 as rhel9 for PPM", {
+  skip_on_cran()
+  skip_on_os("windows")
+
+  # https://github.com/rstudio/renv/issues/2354
+  release <- heredoc('
+    NAME="CentOS Stream"
+    VERSION="9"
+    ID="centos"
+    ID_LIKE="rhel fedora"
+    VERSION_ID="9"
+    PLATFORM_ID="platform:el9"
+    PRETTY_NAME="CentOS Stream 9"
+    ANSI_COLOR="0;31"
+    LOGO="fedora-logo-icon"
+    CPE_NAME="cpe:/o:centos:centos:9"
+    HOME_URL="https://centos.org/"
+    BUG_REPORT_URL="https://issues.redhat.com/"
+    REDHAT_SUPPORT_PRODUCT="Red Hat Enterprise Linux 9"
+    REDHAT_SUPPORT_PRODUCT_VERSION="CentOS Stream"
+  ')
+
+  file <- renv_scope_tempfile()
+  writeLines(release, con = file)
+
+  platform <- renv_ppm_platform_impl(file = file)
+  expect_equal(platform, "rhel9")
+
+})
+
+test_that("renv correctly detects CentOS Stream 10 as rhel10 for PPM", {
+  skip_on_cran()
+  skip_on_os("windows")
+
+  release <- heredoc('
+    NAME="CentOS Stream"
+    VERSION="10 (Coughlan)"
+    ID="centos"
+    ID_LIKE="rhel fedora"
+    VERSION_ID="10"
+    PLATFORM_ID="platform:el10"
+    PRETTY_NAME="CentOS Stream 10 (Coughlan)"
+    ANSI_COLOR="0;31"
+    LOGO="fedora-logo-icon"
+    CPE_NAME="cpe:/o:centos:centos:10"
+    HOME_URL="https://centos.org/"
+    BUG_REPORT_URL="https://issues.redhat.com/"
+  ')
+
+  file <- renv_scope_tempfile()
+  writeLines(release, con = file)
+
+  platform <- renv_ppm_platform_impl(file = file)
+  expect_equal(platform, "rhel10")
+
+})
+
 test_that("renv correctly detects Rocky Linux 8 as centos8 for PPM", {
   skip_on_cran()
   skip_on_os("windows")
@@ -173,6 +255,39 @@ test_that("renv correctly detects Rocky Linux 9 as rhel9 for PPM", {
 
   platform <- renv_ppm_platform_impl(file = file)
   expect_equal(platform, "rhel9")
+
+})
+
+test_that("renv correctly detects Rocky Linux 10 as rhel10 for PPM", {
+  skip_on_cran()
+  skip_on_os("windows")
+
+  release <- heredoc('
+    NAME="Rocky Linux"
+    VERSION="10.0 (Red Quartz)"
+    ID="rocky"
+    ID_LIKE="rhel centos fedora"
+    VERSION_ID="10.0"
+    PLATFORM_ID="platform:el10"
+    PRETTY_NAME="Rocky Linux 10.0 (Red Quartz)"
+    ANSI_COLOR="0;32"
+    LOGO="fedora-logo-icon"
+    CPE_NAME="cpe:/o:rocky:rocky:10::baseos"
+    HOME_URL="https://rockylinux.org/"
+    VENDOR_NAME="Rocky Linux"
+    BUG_REPORT_URL="https://bugs.rockylinux.org/"
+    SUPPORT_END="2035-05-31"
+    ROCKY_SUPPORT_PRODUCT="Rocky-Linux-10"
+    ROCKY_SUPPORT_PRODUCT_VERSION="10.0"
+    REDHAT_SUPPORT_PRODUCT="Rocky Linux"
+    REDHAT_SUPPORT_PRODUCT_VERSION="10.0"
+  ')
+
+  file <- renv_scope_tempfile()
+  writeLines(release, con = file)
+
+  platform <- renv_ppm_platform_impl(file = file)
+  expect_equal(platform, "rhel10")
 
 })
 
@@ -361,6 +476,28 @@ test_that("renv detects no supported PPM platform for Amazon Linux 2023", {
 
   platform <- renv_ppm_platform_impl(file = file)
   expect_null(platform)
+
+})
+
+test_that("renv_ppm_platform() returns NULL for unrecognized distributions", {
+  skip_on_cran()
+  skip_on_os(c("windows", "mac"))
+
+  renv_scope_envvars(RENV_PPM_PLATFORM = NULL, RENV_RSPM_PLATFORM = NULL)
+
+  release <- heredoc('
+    NAME="Alpine Linux"
+    ID=alpine
+    VERSION_ID=3.20.0
+    PRETTY_NAME="Alpine Linux v3.20"
+    HOME_URL="https://alpinelinux.org/"
+    BUG_REPORT_URL="https://gitlab.alpinelinux.org/alpine/aports/-/issues"
+  ')
+
+  file <- renv_scope_tempfile()
+  writeLines(release, con = file)
+
+  expect_null(renv_ppm_platform(file = file))
 
 })
 
