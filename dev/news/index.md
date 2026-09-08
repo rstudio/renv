@@ -2,6 +2,12 @@
 
 ## renv (development version)
 
+- [`renv::dependencies()`](https://rstudio.github.io/renv/dev/reference/dependencies.md)
+  no longer emits encoding warnings when checking R script headers
+  containing non-ASCII text in a different encoding from the current
+  locale. This also avoids failures when warnings are treated as errors.
+  ([\#2362](https://github.com/rstudio/renv/issues/2362))
+
 - Fixed an issue where renv computed the wrong Posit Package Manager
   binary URL on some Enterprise Linux distributions. CentOS Stream 9 and
   10 were mapped to the non-existent `centos9` and `centos1` platforms
