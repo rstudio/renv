@@ -2,6 +2,12 @@
 
 ## renv (development version)
 
+- [`renv::update()`](https://rstudio.github.io/renv/dev/reference/update.md)
+  no longer tries to fork the R session when checking packages installed
+  from non-CRAN remotes within Positron, whose R kernel forbids forking.
+  Such checks now run sequentially there, as they already do on Windows.
+  ([\#2364](https://github.com/rstudio/renv/issues/2364))
+
 - [`renv::dependencies()`](https://rstudio.github.io/renv/dev/reference/dependencies.md)
   no longer emits encoding warnings when checking R script headers
   containing non-ASCII text in a different encoding from the current
