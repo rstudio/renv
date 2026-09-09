@@ -1,5 +1,10 @@
 # renv (development version)
 
+* `renv::update()` no longer tries to fork the R session when checking
+  packages installed from non-CRAN remotes within Positron, whose R kernel
+  forbids forking. Such checks now run sequentially there, as they already do
+  on Windows. (#2364)
+
 * `renv::dependencies()` no longer emits encoding warnings when checking R
   script headers containing non-ASCII text in a different encoding from the
   current locale. This also avoids failures when warnings are treated as

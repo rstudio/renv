@@ -141,6 +141,16 @@ test_that("we guard against invalid mc.cores values", {
 
 })
 
+test_that("we don't fork in Positron", {
+
+  skip_on_windows()
+  renv_scope_options(renv.config.updates.parallel = TRUE, mc.cores = 4L)
+  renv_scope_envvars(POSITRON = "1")
+
+  expect_equal(renv_parallel_cores(), 1L)
+
+})
+
 test_that("update() ignores packages in other libraries by default", {
 
   skip_on_cran()
