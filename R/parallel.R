@@ -1,7 +1,9 @@
 
 renv_parallel_cores <- function() {
 
-  if (renv_platform_windows())
+  # forking is unsupported on Windows, and Positron's ark kernel blocks it
+  # outright (posit-dev/positron#3817), so run sequentially in both cases
+  if (renv_platform_windows() || renv_platform_positron())
     return(1L)
 
   parallel <- config$updates.parallel()

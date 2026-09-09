@@ -37,6 +37,10 @@ renv_platform_windows <- function() {
   .Platform$OS.type == "windows"
 }
 
+renv_platform_positron <- function() {
+  Sys.getenv("POSITRON") == "1"
+}
+
 renv_platform_macos <- function() {
   the$sysinfo[["sysname"]] == "Darwin"
 }
