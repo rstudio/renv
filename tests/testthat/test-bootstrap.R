@@ -209,6 +209,18 @@ test_that("bootstrapping gives informative output when install fails", {
 
 # helpers -----------------------------------------------------------------
 
+test_that("git tarball sha extraction fails closed on invalid input", {
+
+  path <- renv_scope_tempfile("renv-bootstrap-")
+  writeBin(charToRaw("garbage"), path)
+
+  expect_null(suppressWarnings(
+    renv_bootstrap_git_extract_sha1_tar("definitely-missing-file.tar.gz")
+  ))
+  expect_null(renv_bootstrap_git_extract_sha1_tar(path))
+
+})
+
 test_that("renv_boostrap_version_validate() recognises when versions are the same", {
 
   expect_true(
