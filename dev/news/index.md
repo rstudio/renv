@@ -2,6 +2,13 @@
 
 ## renv (development version)
 
+- When bootstrapping renv from GitHub, errors while extracting the
+  commit SHA from the downloaded archive are now reported without
+  aborting the bootstrap process. Installation is attempted without
+  adding GitHub metadata.
+  ([\#2366](https://github.com/rstudio/renv/issues/2366),
+  [@jkylearmstrong](https://github.com/jkylearmstrong))
+
 - [`renv::update()`](https://rstudio.github.io/renv/dev/reference/update.md)
   no longer tries to fork the R session when checking packages installed
   from non-CRAN remotes within Positron, whose R kernel forbids forking.
