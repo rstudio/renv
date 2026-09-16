@@ -1224,7 +1224,7 @@ renv_snapshot_dependencies_impl <- function(project, type = NULL, dev = FALSE) {
       count <- count[count >= 200]
 
       # report to user
-      ignore <- file.exists(file.path(project, ".renvignore"))
+      ignore <- renv_renvignore_exists(project)
 
       lines <- c(
         "",

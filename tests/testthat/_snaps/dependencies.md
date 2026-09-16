@@ -11,6 +11,19 @@
       
       Finding R package dependencies ... Done!
 
+# renv warns when large number of files found and .renvignore exists
+
+    Code
+      . <- dependencies()
+    Output
+      A large number of files (8 in total) have been discovered using current .renvignore specifications.
+      It may take renv a long time to scan these files for dependencies.
+      Consider modifying .renvignore to ignore irrelevant files.
+      See `?renv::dependencies` for more information.
+      Set `options(renv.config.dependencies.limit = Inf)` to disable this warning.
+      
+      Finding R package dependencies ... Done!
+
 # renv warns when large number of files found in one directory
 
     Code
