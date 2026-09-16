@@ -209,6 +209,51 @@ test_that("bootstrapping gives informative output when install fails", {
 
 # helpers -----------------------------------------------------------------
 
+test_that("git tarball sha extraction fails closed on invalid input", {
+
+  path <- renv_scope_tempfile("renv-bootstrap-")
+  expect_null(suppressWarnings(
+    renv_bootstrap_git_extract_sha1_tar(path)
+  ))
+
+  writeBin(charToRaw("garbage"), path)
+  expect_null(renv_bootstrap_git_extract_sha1_tar(path))
+
+})
+
+test_that("git tarball sha extraction logs parsing errors", {
+
+  renv_scope_options(renv.bootstrap.quiet = FALSE)
+
+  path <- renv_scope_tempfile("renv-bootstrap-")
+  writeBin(c(raw(512), charToRaw("a"), as.raw(0), charToRaw("b")), path)
+
+  expect_error(renv_bootstrap_git_extract_sha1_tar_impl(path), "embedded nul")
+  expect_output(
+    expect_null(renv_bootstrap_git_extract_sha1_tar(path)),
+    "Failed to extract the Git SHA.*embedded nul"
+  )
+
+  renv_scope_options(renv.bootstrap.quiet = TRUE)
+  expect_silent(expect_null(renv_bootstrap_git_extract_sha1_tar(path)))
+
+})
+
+test_that("git tarball sha extraction handles plain and gzip headers", {
+
+  sha <- "5049cef8a94591b802f9766a0da092780f59f7e4"
+  header <- c(raw(512), charToRaw(paste0("52 comment=", sha, "\n")))
+  path <- renv_scope_tempfile("renv-bootstrap-")
+
+  for (compressed in c(FALSE, TRUE)) {
+    conn <- if (compressed) gzfile(path, "wb") else file(path, "wb")
+    writeBin(header, conn)
+    close(conn)
+    expect_identical(renv_bootstrap_git_extract_sha1_tar(path), sha)
+  }
+
+})
+
 test_that("renv_boostrap_version_validate() recognises when versions are the same", {
 
   expect_true(
