@@ -1,5 +1,11 @@
 # renv (development version)
 
+* Staged package installations now use the project library root by default.
+  This allows projects on network drives to retain cache junctions on Windows
+  when their libraries and cache are stored locally. Installs into a different
+  library stage within that library, and `RENV_PATHS_LIBRARY_STAGING` continues
+  to override the staging location. (#2368)
+
 * When bootstrapping renv from GitHub, errors while extracting the commit SHA
   from the downloaded archive are now reported without aborting the bootstrap
   process. Installation is attempted without adding GitHub metadata.

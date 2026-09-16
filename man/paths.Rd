@@ -50,6 +50,11 @@ set in: a project-local \code{.Renviron}, the user-level \code{.Renviron}, or a
 site-wide file at \code{file.path(R.home("etc"), "Renviron.site")}. See
 \link{Startup} for more details).
 
+Staged package installations use a temporary directory within the project
+library root by default. When installing into a different library, or without
+an active project, staging takes place within the destination library instead.
+Set \code{RENV_PATHS_LIBRARY_STAGING} to override the staging location.
+
 Note that renv will append platform-specific and version-specific entries
 to the set paths as appropriate. For example, if you have set:
 

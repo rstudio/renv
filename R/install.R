@@ -400,12 +400,13 @@ renv_install_staged_library_path_impl <- function() {
     if (!is.na(override))
       return(override)
 
-    # if we have an active project, use that path
+    # keep staging with the project library, even when it is relocated;
+    # use its root to avoid the longer R version and platform suffixes
     project <- renv_project_get(default = NULL)
-    if (!is.null(project))
-      return(renv_paths_renv("staging", project = project))
+    if (!is.null(project) && renv_path_same(libpath, renv_paths_library(project = project)))
+      return(file.path(renv_paths_library_root(project), ".renv-staging"))
 
-    # otherwise, stage within library path
+    # otherwise, stage within the actual destination library
     file.path(libpath, ".renv")
 
   })
@@ -440,10 +441,9 @@ renv_install_staged_library_path_impl <- function() {
 # we may want to try and avoid installing on one mount and then
 # copying to another mount (as that could be slow).
 #
-# note that using the renv folder might be counter-productive,
-# since users will want to use renv in projects sync'ed via
-# OneDrive and friends, and we don't want those to lock files
-# in the staging directory
+# staging within the library root also keeps temporary installs out of
+# the project directory when the library has been moved elsewhere, e.g.
+# to avoid a network share or a directory managed by OneDrive
 renv_install_staged_library_path <- function() {
 
   # compute path
