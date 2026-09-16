@@ -5,6 +5,16 @@
   process. Installation is attempted without adding GitHub metadata.
   (#2366, @jkylearmstrong)
 
+* `renv::update()` no longer tries to fork the R session when checking
+  packages installed from non-CRAN remotes within Positron, whose R kernel
+  forbids forking. Such checks now run sequentially there, as they already do
+  on Windows. (#2364)
+
+* `renv::dependencies()` no longer emits encoding warnings when checking R
+  script headers containing non-ASCII text in a different encoding from the
+  current locale. This also avoids failures when warnings are treated as
+  errors. (#2362)
+
 * Fixed an issue where renv computed the wrong Posit Package Manager binary
   URL on some Enterprise Linux distributions. CentOS Stream 9 and 10 were
   mapped to the non-existent `centos9` and `centos1` platforms rather than

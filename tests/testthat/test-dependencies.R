@@ -785,6 +785,23 @@ test_that("R scripts that appear destined for knitr::spin() are detected", {
   expect_contains(result$Package, c("knitr", "rmarkdown"))
 })
 
+test_that("R script header checks tolerate non-native encodings", {
+
+  # https://github.com/rstudio/renv/issues/2362
+  comment <- paste("#", intToUtf8(c(0x4e2d, 0x6587, 0x6d4b, 0x8bd5)))
+  text <- c(comment, "library(dplyr)")
+
+  for (encoding in c("UTF-8", "GBK")) {
+    file <- renv_scope_tempfile(fileext = ".R")
+    encoded <- iconv(text, from = "UTF-8", to = encoding)
+    writeLines(encoded, file, useBytes = TRUE)
+
+    expect_no_warning(deps <- dependencies(file, quiet = TRUE))
+    expect_equal(deps$Package, "dplyr")
+  }
+
+})
+
 test_that("renv infers a dev. dependency on lintr", {
   project <- renv_tests_scope()
   file.create(".lintr")

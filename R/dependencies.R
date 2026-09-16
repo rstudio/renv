@@ -1216,7 +1216,9 @@ renv_dependencies_discover_r <- function(path  = NULL,
   # https://github.com/rstudio/renv/issues/2023
   if (is.character(text) || is.character(path)) {
     text <- text %||% readLines(path, n = 1L, warn = FALSE)
-    if (length(text) && grepl("^\\s*#'\\s*[-]{3}\\s*$", text[[1L]], perl = TRUE))
+    # Match bytes so comments in other encodings do not cause warnings.
+    pattern <- "^\\s*#'\\s*[-]{3}\\s*$"
+    if (length(text) && grepl(pattern, text[[1L]], perl = TRUE, useBytes = TRUE))
       packages <- union(c("knitr", "rmarkdown"), packages)
   }
 
