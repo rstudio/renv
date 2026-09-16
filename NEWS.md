@@ -2,7 +2,8 @@
 
 * When bootstrapping renv from GitHub, errors while extracting the commit SHA
   from the downloaded archive are now reported without aborting the bootstrap
-  process. Installation is attempted without adding GitHub metadata. (#2366)
+  process. Installation is attempted without adding GitHub metadata.
+  (#2366, @jkylearmstrong)
 
 * Fixed an issue where renv computed the wrong Posit Package Manager binary
   URL on some Enterprise Linux distributions. CentOS Stream 9 and 10 were
