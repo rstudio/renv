@@ -242,3 +242,15 @@ test_that("renv_renvignore_exists and renv_renvignore_path work as expected", {
   expect_true(renv_renvignore_exists(getwd()))
 
 })
+
+test_that(".renvignore detection respects scans without a root", {
+
+  renv_tests_scope()
+  file.create(".renvignore")
+
+  renv_dependencies_scope(root = NULL)
+  expect_null(renv_renvignore_path())
+  expect_false(renv_renvignore_exists())
+  expect_true(renv_renvignore_exists(getwd()))
+
+})

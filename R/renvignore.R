@@ -314,8 +314,13 @@ renv_renvignore_create <- function(paths,
 
 renv_renvignore_path <- function(project = NULL) {
 
+  # A NULL root in an active dependency scan disables ignore rules.
+  state <- renv_dependencies_state()
+  if (is.null(project) && !is.null(state) && is.null(state$root))
+    return(NULL)
+
   project <- project %||%
-    renv_dependencies_state(key = "root") %||%
+    state$root %||%
     renv_restore_state(key = "root") %||%
     renv_project_resolve()
 
@@ -328,6 +333,6 @@ renv_renvignore_path <- function(project = NULL) {
 
 renv_renvignore_exists <- function(project = NULL) {
   path <- renv_renvignore_path(project)
-  isTRUE(file.exists(path))
+  !is.null(path) && isTRUE(file.exists(path))
 }
 

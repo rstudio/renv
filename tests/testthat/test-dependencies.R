@@ -113,6 +113,24 @@ test_that("renv warns when large number of files found and .renvignore exists", 
 
 })
 
+test_that("renv does not report applying .renvignore without a scan root", {
+
+  renv_tests_scope()
+  renv_scope_options(renv.config.dependencies.limit = 6L)
+
+  unlink("renv", recursive = TRUE)
+  writeLines("*.R", ".renvignore")
+  dir.create("a")
+  dir.create("b")
+  for (path in c(sprintf("a/%.3i.R", 1:3), sprintf("b/%.3i.R", 1:3)))
+    writeLines("library(shouldbeignored)", path)
+
+  expect_null(renv_dependencies_root())
+  expect_snapshot(deps <- dependencies(errors = "reported"))
+  expect_equal(unique(deps$Package), "shouldbeignored")
+
+})
+
 test_that("renv warns when large number of files found in one directory", {
 
   renv_scope_options(renv.config.dependencies.limit = 5L)
