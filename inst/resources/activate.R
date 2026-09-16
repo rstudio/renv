@@ -716,28 +716,37 @@ local({
   # (512 byte) header.
   renv_bootstrap_git_extract_sha1_tar <- function(bundle) {
   
-    tryCatch({
-  
-      # open the bundle for reading
-      # We use gzcon for everything because (from ?gzcon)
-      # > Reading from a connection which does not supply a 'gzip' magic
-      # > header is equivalent to reading from the original connection
-      conn <- gzcon(file(bundle, open = "rb", raw = TRUE))
-      on.exit(close(conn))
-    
-      # The default pax header is 512 bytes long and the first pax extended header
-      # with the comment should be 51 bytes long
-      # `52 comment=` (11 chars) + 40 byte SHA1 hash
-      len <- 0x200 + 0x33
-      res <- rawToChar(readBin(conn, "raw", n = len)[0x201:len])
-    
-      if (grepl("^52 comment=", res)) {
-        sub("52 comment=", "", res)
-      } else {
+    tryCatch(
+      renv_bootstrap_git_extract_sha1_tar_impl(bundle),
+      error = function(cnd) {
+        catf("- Failed to extract the Git SHA from '%s': %s", bundle, conditionMessage(cnd))
         NULL
       }
+    )
   
-    }, error = function(e) NULL)
+  }
+  
+  renv_bootstrap_git_extract_sha1_tar_impl <- function(bundle) {
+  
+    # open the bundle for reading
+    # We use gzcon for everything because (from ?gzcon)
+    # > Reading from a connection which does not supply a 'gzip' magic
+    # > header is equivalent to reading from the original connection
+    conn <- gzcon(file(bundle, open = "rb", raw = TRUE))
+    on.exit(close(conn))
+  
+    # The default pax header is 512 bytes long and the first pax extended header
+    # with the comment should be 51 bytes long
+    # `52 comment=` (11 chars) + 40 byte SHA1 hash
+    len <- 0x200 + 0x33
+    res <- rawToChar(readBin(conn, "raw", n = len)[0x201:len])
+  
+    if (grepl("^52 comment=", res)) {
+      sub("52 comment=", "", res)
+    } else {
+      NULL
+    }
+  
   }
   
   renv_bootstrap_install <- function(version, tarball, library) {
