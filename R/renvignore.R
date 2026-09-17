@@ -304,10 +304,35 @@ renv_renvignore_create <- function(paths,
 {
   for (path in paths) {
     if (file.exists(path)) {
-      ignorefile <- file.path(path, ".renvignore")
-      if (!file.exists(ignorefile))
+      if (!renv_renvignore_exists(path)) {
+        ignorefile <- renv_renvignore_path(path)
         writeLines(contents, con = ignorefile)
+      }
     }
   }
+}
+
+renv_renvignore_path <- function(project = NULL) {
+
+  # A NULL root in an active dependency scan disables ignore rules.
+  state <- renv_dependencies_state()
+  if (is.null(project) && !is.null(state) && is.null(state$root))
+    return(NULL)
+
+  project <- project %||%
+    state$root %||%
+    renv_restore_state(key = "root") %||%
+    renv_project_resolve()
+
+  if (is.null(project))
+    return(NULL)
+
+  file.path(project, ".renvignore")
+
+}
+
+renv_renvignore_exists <- function(project = NULL) {
+  path <- renv_renvignore_path(project)
+  !is.null(path) && isTRUE(file.exists(path))
 }
 

@@ -539,10 +539,20 @@ renv_dependencies_discover_preflight <- function(paths, errors) {
   if (length(paths) < config$dependencies.limit())
     return(TRUE)
 
+  ignore <- renv_renvignore_exists()
+
   lines <- c(
-    "A large number of files (%i in total) have been discovered.",
+    if (ignore) {
+      "A large number of files (%i in total) have been discovered using current .renvignore specifications."
+    } else {
+      "A large number of files (%i in total) have been discovered."
+    },
     "It may take renv a long time to scan these files for dependencies.",
-    "Consider using .renvignore to ignore irrelevant files.",
+    if (ignore) {
+      "Consider modifying .renvignore to ignore irrelevant files."
+    } else {
+      "Consider using .renvignore to ignore irrelevant files."
+    },
     "See `?renv::dependencies` for more information.",
     "Set `options(renv.config.dependencies.limit = Inf)` to disable this warning.",
     ""

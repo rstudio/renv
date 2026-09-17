@@ -229,3 +229,28 @@ test_that(".renvignore is read when project root is filesystem root", {
   expect_false("shouldbeignored" %in% deps$Package)
 
 })
+
+test_that("renv_renvignore_exists and renv_renvignore_path work as expected", {
+
+  renv_tests_scope()
+
+  expect_false(renv_renvignore_exists())
+  expect_equal(renv_renvignore_path(), file.path(getwd(), ".renvignore"))
+
+  file.create(".renvignore")
+  expect_true(renv_renvignore_exists())
+  expect_true(renv_renvignore_exists(getwd()))
+
+})
+
+test_that(".renvignore detection respects scans without a root", {
+
+  renv_tests_scope()
+  file.create(".renvignore")
+
+  renv_dependencies_scope(root = NULL)
+  expect_null(renv_renvignore_path())
+  expect_false(renv_renvignore_exists())
+  expect_true(renv_renvignore_exists(getwd()))
+
+})
