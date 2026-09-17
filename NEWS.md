@@ -1,5 +1,11 @@
 # renv (development version)
 
+* Staged package installations now use the project library root by default.
+  This allows projects on network drives to retain cache junctions on Windows
+  when their libraries and cache are stored locally. Installs into a different
+  library stage within that library, and `RENV_PATHS_LIBRARY_STAGING` continues
+  to override the staging location. (#2368)
+
 * The large-file-count warning during `renv::dependencies()` now accounts
   for whether an `.renvignore` file already exists, and suggests modifying it
   instead of creating one. (#2193, @jkylearmstrong)
