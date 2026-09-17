@@ -97,6 +97,10 @@ you add these to an appropriate <span style="R">R</span> startup file. For examp
 set in: a project-local <code>.Renviron</code>, the user-level <code>.Renviron</code>, or a
 site-wide file at <code>file.path(R.home("etc"), "Renviron.site")</code>. See
 <a href="https://rdrr.io/r/base/Startup.html" class="external-link">Startup</a> for more details).</p>
+<p>Staged package installations use a temporary directory within the project
+library root by default. When installing into a different library, or without
+an active project, staging takes place within the destination library instead.
+Set <code>RENV_PATHS_LIBRARY_STAGING</code> to override the staging location.</p>
 <p>Note that renv will append platform-specific and version-specific entries
 to the set paths as appropriate. For example, if you have set:</p>
 <p></p><div class="sourceCode"><pre><code><span id="cb1-1"><a href="#cb1-1" tabindex="-1"></a><span class="fu">Sys.setenv</span>(<span class="at">RENV_PATHS_CACHE =</span> <span class="st">"/mnt/shared/renv/cache"</span>)</span></code></pre><p></p></div>
