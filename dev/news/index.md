@@ -2,6 +2,13 @@
 
 ## renv (development version)
 
+- The large-file-count warning during
+  [`renv::dependencies()`](https://rstudio.github.io/renv/dev/reference/dependencies.md)
+  now accounts for whether an `.renvignore` file already exists, and
+  suggests modifying it instead of creating one.
+  ([\#2193](https://github.com/rstudio/renv/issues/2193),
+  [@jkylearmstrong](https://github.com/jkylearmstrong))
+
 - When bootstrapping renv from GitHub, errors while extracting the
   commit SHA from the downloaded archive are now reported without
   aborting the bootstrap process. Installation is attempted without
