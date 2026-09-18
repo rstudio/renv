@@ -52,7 +52,7 @@ renv_test_retrieve <- function(record) {
     stopf("failed to retrieve package '%s'", package)
 
   desc <- renv_description_read(descpath)
-  fields <- grep("^Remote", names(record), value = TRUE)
+  fields <- grep("^(?:Remote|git_)", names(record), value = TRUE)
 
   testthat::expect_identical(
     as.list(desc[fields]),

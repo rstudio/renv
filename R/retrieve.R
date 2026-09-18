@@ -396,6 +396,141 @@ renv_retrieve_bioconductor_version <- function(record) {
 
 }
 
+renv_retrieve_bioconductor_git <- function(record) {
+
+  # NOTE: This path will later be used during the install step, so we don't
+  # want to clean it up afterwards
+  path <- tempfile("renv-git-")
+  renv_retrieve_bioconductor_git_impl(record, path)
+  renv_retrieve_successful(record, path)
+
+}
+
+renv_retrieve_bioconductor_git_impl <- function(record, path) {
+
+  renv_git_preflight()
+
+  package <- record$Package
+  url     <- record[["git_url"]]
+  sha     <- record[["git_last_commit"]]
+
+  if (!grepl("^[[:xdigit:]]{7,40}$", sha))
+    stopf("record for package '%s' has invalid git commit '%s'", package, sha)
+
+  printf("- Cloning '%s' ... ", url)
+
+  before <- Sys.time()
+
+  # only the last attempt reports errors from git, so that a failed
+  # shallow fetch isn't reported when the full fetch then succeeds
+  attempts <- renv_retrieve_bioconductor_git_fetchargs(record)
+  for (i in seq_along(attempts)) {
+    silent <- i < length(attempts)
+    status <- renv_retrieve_bioconductor_git_checkout(record, path, attempts[[i]], silent)
+    if (status == 0L)
+      break
+  }
+
+  after <- Sys.time()
+
+  if (status != 0L) {
+    fmt <- "error checking out commit '%s' of '%s' from '%s' [status code %i]"
+    stopf(fmt, sha, package, url, status)
+  }
+
+  # the commit is recorded as an abbreviated hash, so make sure
+  # that it resolved to the package version that was requested
+  descpath <- file.path(path, "DESCRIPTION")
+  desc <- renv_description_read(descpath)
+
+  version <- record$Version
+  if (!is.null(version) && !identical(desc$Version, version)) {
+    fmt <- "commit '%s' of '%s' provides version %s, not the requested version %s"
+    stopf(fmt, sha, package, desc$Version, version)
+  }
+
+  # stamp the package with its git provenance, as the Bioconductor build
+  # system does, so that later snapshots can still find this commit
+  fields <- grep("^git_", names(record), value = TRUE)
+  renv_dcf_write(overlay(desc, record[fields]), file = descpath)
+
+  fmt <- "OK [cloned repository in %s]"
+  elapsed <- difftime(after, before, units = "auto")
+  writef(fmt, renv_difftime_format(elapsed))
+
+  TRUE
+
+}
+
+renv_retrieve_bioconductor_git_fetchargs <- function(record) {
+
+  # the Bioconductor git server doesn't allow commits to be fetched directly,
+  # so we need to fetch history and then resolve the commit locally. fetching
+  # everything always works, but is slow for packages with a long history
+  full <- "origin"
+
+  # so prefer fetching only the recorded branch, as of the recorded commit date.
+  # the full fetch remains as a fallback, since the branch may no longer exist
+  # (Bioconductor renamed 'master' to 'devel') and the date may not be usable
+  branch <- record[["git_branch"]] %||% ""
+  date <- catch(as.Date(record[["git_last_commit_date"]] %||% ""))
+
+  ok <-
+    grepl("^[[:alnum:]._/-]+$", branch) &&
+    inherits(date, "Date") &&
+    !is.na(date)
+
+  if (!ok)
+    return(list(full))
+
+  # the date is recorded without a time zone, so allow for a day of slack
+  since <- format(date - 1L, "%Y-%m-%d")
+  shallow <- sprintf('--shallow-since=%s origin "%s"', since, branch)
+  list(shallow, full)
+
+}
+
+renv_retrieve_bioconductor_git_checkout <- function(record, path, fetchargs, silent) {
+
+  # start from a clean slate, in case an earlier attempt failed part-way
+  unlink(path, recursive = TRUE)
+  ensure_directory(path)
+
+  # be quiet if requested
+  quiet <- getOption("renv.git.quiet", default = TRUE)
+  quiet <- if (quiet) "--quiet" else ""
+
+  template <- heredoc('
+    git init ${QUIET}
+    git remote add origin "${ORIGIN}"
+    git fetch ${QUIET} ${FETCHARGS}
+    git reset ${QUIET} --hard "${SHA}"
+  ')
+
+  data <- list(
+    ORIGIN    = record[["git_url"]],
+    SHA       = record[["git_last_commit"]],
+    FETCHARGS = fetchargs,
+    QUIET     = quiet
+  )
+
+  commands <- renv_template_replace(template, data)
+  command <- gsub("\n", " && ", commands, fixed = TRUE)
+
+  # group the commands, so that 'ignore.stderr' applies to all
+  # of them rather than only the last one
+  command <- if (renv_platform_windows())
+    paste(comspec(), "/C", command)
+  else
+    sprintf("(%s)", command)
+
+  renv_scope_wd(path)
+  renv_scope_auth(record)
+  renv_scope_git_auth()
+  system(command, ignore.stderr = silent)
+
+}
+
 renv_retrieve_bitbucket <- function(record) {
 
   # query repositories endpoint to find download URL
@@ -723,6 +858,14 @@ renv_retrieve_repos <- function(record) {
       methods$push(renv_retrieve_git)
     else
       methods$push(renv_retrieve_repos_archive)
+
+    # Bioconductor doesn't archive superseded package versions -- for the
+    # devel branch in particular -- so as a last resort, try the git commit
+    # the package was built from
+    # https://github.com/rstudio/renv/issues/2370
+    biocfields <- c("git_url", "git_last_commit")
+    if (all(biocfields %in% names(record)))
+      methods$push(renv_retrieve_bioconductor_git)
 
   }
 
