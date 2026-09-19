@@ -702,3 +702,280 @@ test_that("renv_retrieve_libpaths_impl rejects packages built for a different R 
   expect_false(renv_retrieve_libpaths_impl(record, userlib))
 
 })
+
+# simulate a Bioconductor package whose recorded version has been superseded,
+# as happens routinely with the devel branch of Bioconductor. we create:
+#
+# - a git repository holding versions 1.0.0 and then 1.0.1 of the package;
+# - a package repository providing only version 1.0.1, with no archive;
+# - a record for version 1.0.0, as Bioconductor would have stamped it.
+#
+# https://github.com/rstudio/renv/issues/2370
+renv_tests_bioconductor_superseded <- function(scope = parent.frame()) {
+
+  root <- renv_scope_tempfile("renv-bioc-", scope = scope)
+  repo <- file.path(root, "biocpkg")
+  ensure_directory(repo)
+  renv_scope_wd(repo)
+
+  renv_system_exec("git", c("init", "--quiet"), action = "git init")
+  renv_system_exec("git", c("checkout", "--quiet", "-b", "devel"), action = "git checkout")
+  renv_system_exec("git", c("config", "user.name", shQuote("User Name")), action = "git config")
+  renv_system_exec("git", c("config", "user.email", shQuote("user@example.com")), action = "git config")
+
+  versions <- c("1.0.0", "1.0.1")
+  dates <- c("2020-01-01T12:00:00", "2020-02-01T12:00:00")
+  shas <- character()
+
+  for (i in seq_along(versions)) {
+
+    desc <- c(
+      "Package: biocpkg",
+      "Type: Package",
+      paste("Version:", versions[[i]]),
+      "biocViews: Software"
+    )
+
+    writeLines(desc, con = "DESCRIPTION")
+    writeLines("", con = "NAMESPACE")
+
+    renv_scope_envvars(GIT_AUTHOR_DATE = dates[[i]], GIT_COMMITTER_DATE = dates[[i]])
+    renv_system_exec("git", c("add", "-A"), action = "git add")
+    renv_system_exec("git", c("commit", "--quiet", "-m", shQuote(versions[[i]])), action = "git commit")
+    shas[[i]] <- renv_system_exec("git", c("rev-parse", "--short=7", "HEAD"), action = "git rev-parse")
+
+  }
+
+  # tag the newer commit with the name of the older one; git prefers a tag
+  # when resolving such a name, so we shouldn't be fetching tags at all
+  renv_system_exec("git", c("tag", shas[[1L]], "HEAD"), action = "git tag")
+
+  # renv installs these alongside any Bioconductor package, so
+  # provide stubs for them to keep the repository self-contained
+  renv_scope_wd(root)
+  stubs <- c(BiocManager = "1.30.26", BiocVersion = "3.24.0")
+  for (package in names(stubs)) {
+    ensure_directory(package)
+    desc <- c(paste("Package:", package), paste("Version:", stubs[[package]]))
+    writeLines(desc, con = file.path(package, "DESCRIPTION"))
+    writeLines("", con = file.path(package, "NAMESPACE"))
+  }
+
+  # publish only the newest version of the package, excluding '.git'
+  contrib <- file.path(root, "repos/src/contrib")
+  ensure_directory(contrib)
+
+  published <- c(biocpkg = "1.0.1", stubs)
+  for (package in names(published)) {
+    tarball <- sprintf("%s/%s_%s.tar.gz", contrib, package, published[[package]])
+    tar(tarball, file.path(package, c("DESCRIPTION", "NAMESPACE")), compression = "gzip")
+  }
+
+  tools::write_PACKAGES(contrib, type = "source")
+
+  record <- list(
+    Package              = "biocpkg",
+    Version              = "1.0.0",
+    Source               = "Bioconductor",
+    git_url              = renv_path_normalize(repo),
+    git_branch           = "devel",
+    git_last_commit      = shas[[1L]],
+    git_last_commit_date = "2020-01-01"
+  )
+
+  fmt <- if (renv_platform_windows()) "file:///%s" else "file://%s"
+  repos <- sprintf(fmt, renv_path_normalize(file.path(root, "repos")))
+
+  list(record = record, repos = repos)
+
+}
+
+# use the simulated Bioconductor repository, so that Bioconductor records
+# can be restored without BiocManager or access to bioconductor.org
+renv_tests_scope_bioconductor_superseded <- function(bioc, scope = parent.frame()) {
+
+  # BiocManager is installed from the regular package repositories
+  repos <- c(getOption("repos"), BioCsoft = bioc$repos)
+
+  renv_scope_options(
+    repos                     = repos,
+    renv.bioconductor.repos   = repos,
+    renv.bioconductor.version = "3.24",
+    scope                     = scope
+  )
+
+}
+
+test_that("Bioconductor packages can be retrieved from their recorded git commit", {
+
+  skip_on_cran()
+  skip_if(!nzchar(Sys.which("git")), "git is not installed")
+
+  record <- renv_tests_bioconductor_superseded()$record
+
+  path <- renv_scope_tempfile("renv-git-")
+  expect_true(renv_retrieve_bioconductor_git_impl(record, path))
+
+  # we should get the recorded version, not the latest one,
+  # stamped with the same git provenance as the record
+  desc <- renv_description_read(path)
+  expect_identical(desc$Version, "1.0.0")
+
+  fields <- grep("^git_", names(record), value = TRUE)
+  expect_identical(as.list(desc[fields]), as.list(record[fields]))
+
+})
+
+test_that("superseded Bioconductor package versions are retrieved using git", {
+
+  skip_on_cran()
+  skip_if(!nzchar(Sys.which("git")), "git is not installed")
+
+  renv_tests_scope()
+  bioc <- renv_tests_bioconductor_superseded()
+  renv_tests_scope_bioconductor_superseded(bioc)
+
+  # also checks that the installed package retains its git provenance
+  renv_test_retrieve(bioc$record)
+
+})
+
+test_that("restore() can restore superseded Bioconductor package versions", {
+
+  skip_on_cran()
+  skip_if(!nzchar(Sys.which("git")), "git is not installed")
+
+  project <- renv_tests_scope()
+  bioc <- renv_tests_bioconductor_superseded()
+  renv_tests_scope_bioconductor_superseded(bioc)
+
+  lockfile <- renv_lockfile_init(project = project)
+  lockfile$Packages <- list(biocpkg = bioc$record)
+  renv_lockfile_write(lockfile, file = "renv.lock")
+
+  # dependencies should be resolved from the recorded commit,
+  # rather than guessed (with a warning) from the newer version
+  expect_no_warning(restore())
+
+  # we should get the recorded version, rather than the
+  # newer version which is all the repository now provides
+  expect_true(renv_package_installed("biocpkg"))
+  expect_true(renv_package_version("biocpkg") == "1.0.0")
+
+  # a new snapshot should reproduce the lockfile record, so that the
+  # package remains restorable from a newly-generated lockfile
+  record <- renv_snapshot_description(package = "biocpkg")
+  fields <- names(bioc$record)
+  expect_identical(as.list(record[fields]), as.list(bioc$record))
+
+})
+
+test_that("Bioconductor git retrieval tolerates a branch that no longer exists", {
+
+  skip_on_cran()
+  skip_if(!nzchar(Sys.which("git")), "git is not installed")
+
+  # Bioconductor renamed 'master' to 'devel'
+  record <- renv_tests_bioconductor_superseded()$record
+  record$git_branch <- "master"
+
+  path <- renv_scope_tempfile("renv-git-")
+  expect_true(renv_retrieve_bioconductor_git_impl(record, path))
+
+  desc <- renv_description_read(path)
+  expect_identical(desc$Version, "1.0.0")
+
+})
+
+test_that("Bioconductor git retrieval tolerates a commit outside the shallow window", {
+
+  skip_on_cran()
+  skip_if(!nzchar(Sys.which("git")), "git is not installed")
+
+  # this date falls between the two commits, so the shallow fetch succeeds
+  # but doesn't provide the recorded commit; the full fetch is then needed
+  record <- renv_tests_bioconductor_superseded()$record
+  record$git_last_commit_date <- "2020-01-20"
+
+  path <- renv_scope_tempfile("renv-git-")
+  expect_true(renv_retrieve_bioconductor_git_impl(record, path))
+
+  desc <- renv_description_read(path)
+  expect_identical(desc$Version, "1.0.0")
+
+})
+
+test_that("Bioconductor git retrieval fails if the commit has the wrong version", {
+
+  skip_on_cran()
+  skip_if(!nzchar(Sys.which("git")), "git is not installed")
+
+  record <- renv_tests_bioconductor_superseded()$record
+  record$Version <- "0.9.0"
+
+  path <- renv_scope_tempfile("renv-git-")
+  expect_error(
+    renv_retrieve_bioconductor_git_impl(record, path),
+    "not the requested version"
+  )
+
+  # a failed checkout shouldn't be left behind
+  before <- list.files(tempdir(), pattern = "^renv-git-")
+  expect_error(
+    renv_retrieve_bioconductor_git(record),
+    "not the requested version"
+  )
+
+  after <- list.files(tempdir(), pattern = "^renv-git-")
+  expect_setequal(after, before)
+
+})
+
+test_that("Bioconductor git retrieval rejects urls unsafe for use with git", {
+
+  record <- list(
+    Package         = "biocpkg",
+    Version         = "1.0.0",
+    git_url         = "https://example.com/biocpkg\"; echo oops",
+    git_last_commit = "abcdef0"
+  )
+
+  path <- renv_scope_tempfile("renv-git-")
+  for (url in c(record$git_url, "--upload-pack=oops", "ext::sh -c oops")) {
+    record$git_url <- url
+    expect_error(renv_retrieve_bioconductor_git_impl(record, path), "invalid git url")
+  }
+
+})
+
+test_that("Bioconductor git retrieval only uses shallow fetches with usable metadata", {
+
+  record <- list(
+    git_branch           = "devel",
+    git_last_commit_date = "2020-01-01"
+  )
+
+  # the date is recorded without a time zone, so we allow a day of slack
+  full <- "--no-tags origin"
+  expect_identical(
+    renv_retrieve_bioconductor_git_fetchargs(record),
+    list('--no-tags --shallow-since=2019-12-31 origin "devel"', full)
+  )
+
+  expect_identical(
+    renv_retrieve_bioconductor_git_fetchargs(list(git_branch = "devel")),
+    list(full)
+  )
+
+  record$git_last_commit_date <- "not a date"
+  expect_identical(renv_retrieve_bioconductor_git_fetchargs(record), list(full))
+
+  record$git_last_commit_date <- "2020-01-01"
+  record$git_branch <- "devel\"; echo oops"
+  expect_identical(renv_retrieve_bioconductor_git_fetchargs(record), list(full))
+
+  # git would read this as an option, not a branch
+  record$git_branch <- "--unshallow"
+  expect_identical(renv_retrieve_bioconductor_git_fetchargs(record), list(full))
+
+})

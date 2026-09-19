@@ -290,6 +290,16 @@ renv_graph_description_repository <- function(record) {
       return(as.list(archive))
   }
 
+  # Bioconductor doesn't archive superseded package versions, but it does
+  # record the git commit each package was built from; use its DESCRIPTION
+  # https://github.com/rstudio/renv/issues/2370
+  biocfields <- c("git_url", "git_last_commit")
+  if (!is.null(version) && all(biocfields %in% names(record))) {
+    bioc <- catch(renv_graph_description_bioconductor_git(record))
+    if (!inherits(bioc, "error"))
+      return(as.list(bioc))
+  }
+
   # last-resort fallback when crandb is unreachable or lacks the version: use
   # the latest entry's full fields with the requested version substituted. this
   # may report stale dependency constraints if they changed between versions,
@@ -428,6 +438,19 @@ renv_graph_description_bioconductor <- function(record) {
   renv_scope_bioconductor(project = project, version = version)
 
   renv_graph_description_repository(record)
+
+}
+
+renv_graph_description_bioconductor_git <- function(record) {
+
+  path <- renv_scope_tempfile("renv-git-")
+
+  local({
+    renv_scope_options(renv.verbose = FALSE)
+    renv_retrieve_bioconductor_git_impl(record, path)
+  })
+
+  renv_description_read(path)
 
 }
 
