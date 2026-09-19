@@ -399,9 +399,15 @@ renv_retrieve_bioconductor_version <- function(record) {
 renv_retrieve_bioconductor_git <- function(record) {
 
   # NOTE: This path will later be used during the install step, so we don't
-  # want to clean it up afterwards
+  # want to clean it up afterwards -- unless the checkout failed, as that
+  # could leave a (potentially large) partial clone behind
   path <- tempfile("renv-git-")
-  renv_retrieve_bioconductor_git_impl(record, path)
+  status <- catch(renv_retrieve_bioconductor_git_impl(record, path))
+  if (inherits(status, "error")) {
+    unlink(path, recursive = TRUE, force = TRUE)
+    stop(status)
+  }
+
   renv_retrieve_successful(record, path)
 
 }
@@ -413,6 +419,16 @@ renv_retrieve_bioconductor_git_impl <- function(record, path) {
   package <- record$Package
   url     <- record[["git_url"]]
   sha     <- record[["git_last_commit"]]
+
+  # the url is passed to the shell, so be strict about what we accept.
+  # a leading '-' would also have git read it as an option, and the
+  # '<transport>::<address>' form can have git run arbitrary helpers
+  ok <-
+    grepl("^[[:alnum:]/][[:alnum:] @:/._~+-]*$", url) &&
+    !grepl("::", url, fixed = TRUE)
+
+  if (!ok)
+    stopf("record for package '%s' has invalid git url '%s'", package, url)
 
   if (!grepl("^[[:xdigit:]]{7,40}$", sha))
     stopf("record for package '%s' has invalid git commit '%s'", package, sha)
@@ -466,8 +482,10 @@ renv_retrieve_bioconductor_git_fetchargs <- function(record) {
 
   # the Bioconductor git server doesn't allow commits to be fetched directly,
   # so we need to fetch history and then resolve the commit locally. fetching
-  # everything always works, but is slow for packages with a long history
-  full <- "origin"
+  # everything always works, but is slow for packages with a long history.
+  # tags aren't needed, and one named like the (abbreviated) commit would
+  # otherwise be what git resolves that name to
+  full <- "--no-tags origin"
 
   # so prefer fetching only the recorded branch, as of the recorded commit date.
   # the full fetch remains as a fallback, since the branch may no longer exist
@@ -475,8 +493,9 @@ renv_retrieve_bioconductor_git_fetchargs <- function(record) {
   branch <- record[["git_branch"]] %||% ""
   date <- catch(as.Date(record[["git_last_commit_date"]] %||% ""))
 
+  # NOTE: a leading '-' would have git read the branch as an option
   ok <-
-    grepl("^[[:alnum:]._/-]+$", branch) &&
+    grepl("^[[:alnum:]][[:alnum:]._/-]*$", branch) &&
     inherits(date, "Date") &&
     !is.na(date)
 
@@ -485,7 +504,7 @@ renv_retrieve_bioconductor_git_fetchargs <- function(record) {
 
   # the date is recorded without a time zone, so allow for a day of slack
   since <- format(date - 1L, "%Y-%m-%d")
-  shallow <- sprintf('--shallow-since=%s origin "%s"', since, branch)
+  shallow <- sprintf('--no-tags --shallow-since=%s origin "%s"', since, branch)
   list(shallow, full)
 
 }
@@ -493,7 +512,8 @@ renv_retrieve_bioconductor_git_fetchargs <- function(record) {
 renv_retrieve_bioconductor_git_checkout <- function(record, path, fetchargs, silent) {
 
   # start from a clean slate, in case an earlier attempt failed part-way
-  unlink(path, recursive = TRUE)
+  # NOTE: git marks its object files read-only, hence 'force'
+  unlink(path, recursive = TRUE, force = TRUE)
   ensure_directory(path)
 
   # be quiet if requested

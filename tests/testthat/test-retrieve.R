@@ -746,6 +746,10 @@ renv_tests_bioconductor_superseded <- function(scope = parent.frame()) {
 
   }
 
+  # tag the newer commit with the name of the older one; git prefers a tag
+  # when resolving such a name, so we shouldn't be fetching tags at all
+  renv_system_exec("git", c("tag", shas[[1L]], "HEAD"), action = "git tag")
+
   # renv installs these alongside any Bioconductor package, so
   # provide stubs for them to keep the repository self-contained
   renv_scope_wd(root)
@@ -883,6 +887,24 @@ test_that("Bioconductor git retrieval tolerates a branch that no longer exists",
 
 })
 
+test_that("Bioconductor git retrieval tolerates a commit outside the shallow window", {
+
+  skip_on_cran()
+  skip_if(!nzchar(Sys.which("git")), "git is not installed")
+
+  # this date falls between the two commits, so the shallow fetch succeeds
+  # but doesn't provide the recorded commit; the full fetch is then needed
+  record <- renv_tests_bioconductor_superseded()$record
+  record$git_last_commit_date <- "2020-01-20"
+
+  path <- renv_scope_tempfile("renv-git-")
+  expect_true(renv_retrieve_bioconductor_git_impl(record, path))
+
+  desc <- renv_description_read(path)
+  expect_identical(desc$Version, "1.0.0")
+
+})
+
 test_that("Bioconductor git retrieval fails if the commit has the wrong version", {
 
   skip_on_cran()
@@ -897,6 +919,33 @@ test_that("Bioconductor git retrieval fails if the commit has the wrong version"
     "not the requested version"
   )
 
+  # a failed checkout shouldn't be left behind
+  before <- list.files(tempdir(), pattern = "^renv-git-")
+  expect_error(
+    renv_retrieve_bioconductor_git(record),
+    "not the requested version"
+  )
+
+  after <- list.files(tempdir(), pattern = "^renv-git-")
+  expect_setequal(after, before)
+
+})
+
+test_that("Bioconductor git retrieval rejects urls unsafe for use with git", {
+
+  record <- list(
+    Package         = "biocpkg",
+    Version         = "1.0.0",
+    git_url         = "https://example.com/biocpkg\"; echo oops",
+    git_last_commit = "abcdef0"
+  )
+
+  path <- renv_scope_tempfile("renv-git-")
+  for (url in c(record$git_url, "--upload-pack=oops", "ext::sh -c oops")) {
+    record$git_url <- url
+    expect_error(renv_retrieve_bioconductor_git_impl(record, path), "invalid git url")
+  }
+
 })
 
 test_that("Bioconductor git retrieval only uses shallow fetches with usable metadata", {
@@ -907,21 +956,26 @@ test_that("Bioconductor git retrieval only uses shallow fetches with usable meta
   )
 
   # the date is recorded without a time zone, so we allow a day of slack
+  full <- "--no-tags origin"
   expect_identical(
     renv_retrieve_bioconductor_git_fetchargs(record),
-    list('--shallow-since=2019-12-31 origin "devel"', "origin")
+    list('--no-tags --shallow-since=2019-12-31 origin "devel"', full)
   )
 
   expect_identical(
     renv_retrieve_bioconductor_git_fetchargs(list(git_branch = "devel")),
-    list("origin")
+    list(full)
   )
 
   record$git_last_commit_date <- "not a date"
-  expect_identical(renv_retrieve_bioconductor_git_fetchargs(record), list("origin"))
+  expect_identical(renv_retrieve_bioconductor_git_fetchargs(record), list(full))
 
   record$git_last_commit_date <- "2020-01-01"
   record$git_branch <- "devel\"; echo oops"
-  expect_identical(renv_retrieve_bioconductor_git_fetchargs(record), list("origin"))
+  expect_identical(renv_retrieve_bioconductor_git_fetchargs(record), list(full))
+
+  # git would read this as an option, not a branch
+  record$git_branch <- "--unshallow"
+  expect_identical(renv_retrieve_bioconductor_git_fetchargs(record), list(full))
 
 })
