@@ -1,5 +1,12 @@
 # renv (development version)
 
+* `renv::restore()` can now restore Bioconductor packages whose recorded
+  version is no longer available from the Bioconductor repositories. This is
+  most often seen with the devel branch of Bioconductor, which does not archive
+  superseded package versions. In such cases, renv now retrieves the package
+  sources from the git commit recorded in the lockfile (via the `git_url` and
+  `git_last_commit` fields), and installs the package from those. (#2370)
+
 * Staged package installations now use the project library root by default.
   This allows projects on network drives to retain cache junctions on Windows
   when their libraries and cache are stored locally. Installs into a different
