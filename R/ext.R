@@ -52,10 +52,26 @@ renv_ext_onload <- function(libname, pkgname) {
   # now try to load it
   soname <- paste0("renv", .Platform$dynlib.ext)
   sofile <- file.path(libsdir, soname)
-  if (file.exists(sofile)) {
-    info <- library.dynam("renv", pkgname, libname)
-    the$dll_info <- info
-  }
+  if (!file.exists(sofile))
+    return()
+
+  # the extensions are optional, so if the library can't be loaded (e.g. it
+  # was built for a different architecture), fall back to the R implementations
+  info <- tryCatch(
+    library.dynam("renv", pkgname, libname),
+    error = function(cnd) {
+      fmt <- paste(
+        "renv's compiled extensions could not be loaded; using R implementations instead.",
+        "Reason: %s",
+        "Set RENV_EXT_ENABLED = FALSE to suppress this warning.",
+        sep = "\n"
+      )
+      warningf(fmt, conditionMessage(cnd))
+      NULL
+    }
+  )
+
+  the$dll_info <- info
 
 }
 
