@@ -2,6 +2,11 @@
 
 ## renv (development version)
 
+- renv now falls back to its R implementations, with a warning, if its
+  compiled extensions exist but cannot be loaded. For example, when a
+  binary package accidentally ships a shared library built for a
+  different architecture. (eddelbuettel/r2u#162)
+
 - [`renv::restore()`](https://rstudio.github.io/renv/dev/reference/restore.md)
   can now restore Bioconductor packages whose recorded version is no
   longer available from the Bioconductor repositories. This is most
