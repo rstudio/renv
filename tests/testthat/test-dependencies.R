@@ -368,6 +368,129 @@ test_that("we don't infer a dependency on rmarkdown for empty .qmd", {
 test_that("we do infer dependency on rmarkdown for .qmd with R chunks", {
   deps <- dependencies("resources/quarto-r-chunks.qmd")
   expect_true("rmarkdown" %in% deps$Package)
+  expect_false("reticulate" %in% deps$Package)
+})
+
+test_that("we infer reticulate for .qmd with R and Python chunks", {
+
+  path <- renv_scope_tempfile(fileext = ".qmd")
+  writeLines(con = path, c(
+    "---",
+    "title: Engine binding",
+    "---",
+    "",
+    "```{r}",
+    "library(A)",
+    "```",
+    "",
+    "```{python}",
+    "import os",
+    "```"
+  ))
+
+  deps <- dependencies(path)
+  expect_true(all(c("A", "rmarkdown", "reticulate") %in% deps$Package))
+
+})
+
+test_that("chunk engines in .qmd are matched case-insensitively", {
+
+  path <- renv_scope_tempfile(fileext = ".qmd")
+  writeLines(con = path, c(
+    "```{R}",
+    "library(A)",
+    "```",
+    "",
+    "```{Python}",
+    "import os",
+    "```"
+  ))
+
+  deps <- dependencies(path)
+  expect_true(all(c("A", "rmarkdown", "reticulate") %in% deps$Package))
+
+})
+
+test_that("an explicit knitr engine binds Python-only .qmd to knitr", {
+
+  path <- renv_scope_tempfile(fileext = ".qmd")
+  writeLines(con = path, c(
+    "---",
+    "engine: 'knitr'",
+    "---",
+    "",
+    "```{python}",
+    "import os",
+    "```"
+  ))
+
+  deps <- dependencies(path)
+  expect_true(all(c("rmarkdown", "reticulate") %in% deps$Package))
+
+})
+
+test_that("knitr options in the YAML header bind a .qmd to knitr", {
+
+  path <- renv_scope_tempfile(fileext = ".qmd")
+  writeLines(con = path, c(
+    "---",
+    "engine: jupyter",
+    "knitr:",
+    "  opts_chunk:",
+    "    echo: false",
+    "---",
+    "",
+    "```{python}",
+    "import os",
+    "```"
+  ))
+
+  deps <- dependencies(path)
+  expect_true(all(c("rmarkdown", "reticulate") %in% deps$Package))
+
+})
+
+test_that("an explicit jupyter engine does not imply rmarkdown", {
+
+  path <- renv_scope_tempfile(fileext = ".qmd")
+  writeLines(con = path, c(
+    "---",
+    "engine: jupyter",
+    "---",
+    "",
+    "```{r}",
+    "library(A)",
+    "```",
+    "",
+    "```{python}",
+    "import os",
+    "```"
+  ))
+
+  deps <- dependencies(path)
+  expect_true("A" %in% deps$Package)
+  expect_false("rmarkdown" %in% deps$Package)
+  expect_false("reticulate" %in% deps$Package)
+
+})
+
+test_that("jupyter options in the YAML header bind a .qmd to jupyter", {
+
+  path <- renv_scope_tempfile(fileext = ".qmd")
+  writeLines(con = path, c(
+    "---",
+    "jupyter: python3",
+    "---",
+    "",
+    "```{r}",
+    "library(A)",
+    "```"
+  ))
+
+  deps <- dependencies(path)
+  expect_true("A" %in% deps$Package)
+  expect_false("rmarkdown" %in% deps$Package)
+
 })
 
 test_that("we parse package references from arbitrary yaml fields", {
