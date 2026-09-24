@@ -71,6 +71,20 @@
       ! aborting snapshot due to pre-flight validation failure
       - unsatisfied dependencies: bread
 
+# snapshot warns about unsatisfied project DESCRIPTION constraints
+
+    Code
+      snapshot()
+    Output
+      The following package(s) have unsatisfied dependencies:
+      - myproject requires bread (>= 2.0.0), but version 1.0.0 is installed
+      Consider updating the required dependencies as appropriate.
+      
+    Condition
+      Error:
+      ! aborting snapshot due to pre-flight validation failure
+      - unsatisfied dependencies: bread
+
 # renv reports missing packages in explicit snapshots
 
     Code

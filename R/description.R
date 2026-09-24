@@ -107,7 +107,7 @@ renv_description_parse_field <- function(field) {
   pattern <- paste0(
     "^\\s*",                                  # leading whitespace
     "([a-zA-Z0-9._]+)",                       # package name
-    "(?:\\s*\\(([><=]+)\\s*([0-9.-]+)\\))?",  # optional version specification
+    "(?:\\s*\\(([!><=]+)\\s*([0-9.-]+)\\))?", # optional version specification
     "\\s*$"                                   # trailing whitespace
   )
 

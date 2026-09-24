@@ -65,7 +65,7 @@ renv_graph_init <- function(remotes, records = list(), project = NULL, scope = p
   # doesn't satisfy constraints from other packages in the graph,
   # try to upgrade it to the latest available version
   descriptions <- as.list(envir)
-  requirements <- renv_graph_requirements(descriptions)
+  requirements <- renv_graph_requirements(descriptions, project = project)
 
   for (package in ls(envir = requirements)) {
 
@@ -638,7 +638,7 @@ renv_graph_deps <- function(desc, fields = NULL) {
 
 }
 
-renv_graph_requirements <- function(descriptions) {
+renv_graph_requirements <- function(descriptions, project = NULL) {
 
   requirements <- new.env(parent = emptyenv())
 
@@ -656,6 +656,17 @@ renv_graph_requirements <- function(descriptions) {
         pkg <- explicit$Package[[i]]
         requirements[[pkg]] <- c(requirements[[pkg]], list(explicit[i, ]))
       }
+    }
+  }
+
+  # include constraints declared by the project itself
+  explicit <- renv_project_requirements(project)
+  if (NROW(explicit)) {
+    explicit$RequiredBy <- explicit$Source
+    explicit$Source <- NULL
+    for (i in seq_len(nrow(explicit))) {
+      pkg <- explicit$Package[[i]]
+      requirements[[pkg]] <- c(requirements[[pkg]], list(explicit[i, ]))
     }
   }
 
@@ -1329,7 +1340,7 @@ renv_graph_install <- function(descriptions) {
 
   # filter out packages that are already correctly installed;
   # safe to do up front since nothing has been installed yet
-  requirements <- renv_graph_requirements(descriptions)
+  requirements <- renv_graph_requirements(descriptions, project = project)
   remaining <- Filter(function(pkg) {
     renv_graph_needs_update(pkg, descriptions[[pkg]], requirements)
   }, packages)

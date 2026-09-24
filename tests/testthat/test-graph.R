@@ -431,6 +431,28 @@ test_that("renv_graph_requirements extracts version constraints", {
 
 })
 
+test_that("renv_graph_requirements includes project DESCRIPTION constraints", {
+
+  project <- renv_tests_scope()
+
+  desc <- c(
+    "Type: Project",
+    "Package: myproject",
+    "Imports: bread (>= 1.0.0)"
+  )
+  writeLines(desc, con = "DESCRIPTION")
+
+  descriptions <- renv_graph_init("toast", project = project)
+  requirements <- renv_graph_requirements(descriptions, project = project)
+
+  reqs <- requirements[["bread"]]
+  expect_true(is.data.frame(reqs))
+  expect_true("myproject" %in% reqs$RequiredBy)
+  expect_equal(reqs$Require[reqs$RequiredBy == "myproject"], ">=")
+  expect_equal(reqs$Version[reqs$RequiredBy == "myproject"], "1.0.0")
+
+})
+
 test_that("renv_graph_compatible accepts satisfied constraints", {
 
   reqs <- data.frame(

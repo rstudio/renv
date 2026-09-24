@@ -227,6 +227,22 @@ test_that("snapshot warns about unsatisfied dependencies", {
 
 })
 
+test_that("snapshot warns about unsatisfied project DESCRIPTION constraints", {
+
+  renv_tests_scope("bread")
+  init(settings = list(use.cache = FALSE))
+
+  desc <- c(
+    "Type: Project",
+    "Package: myproject",
+    "Imports: bread (>= 2.0.0)"
+  )
+  writeLines(desc, con = "DESCRIPTION")
+
+  expect_snapshot(snapshot(), error = TRUE)
+
+})
+
 test_that("snapshot records packages discovered in cellar", {
 
   renv_tests_scope("skeleton")

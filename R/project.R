@@ -187,6 +187,40 @@ renv_project_remotes <- function(project, filter = NULL, resolve = FALSE) {
 
 }
 
+# explicit version constraints declared in the project's DESCRIPTION file,
+# e.g. 'Imports: dplyr (>= 1.1.0)'. these are not attached to any installed
+# package, so they'd otherwise be invisible to install() and snapshot()
+renv_project_requirements <- function(project) {
+
+  if (is.null(project))
+    return(NULL)
+
+  descpath <- file.path(project, "DESCRIPTION")
+  if (!file.exists(descpath))
+    return(NULL)
+
+  deps <- renv_dependencies_discover_description(descpath, project = project)
+  if (empty(deps))
+    return(NULL)
+
+  explicit <- deps[nzchar(deps$Require) & nzchar(deps$Version), ]
+  if (nrow(explicit) == 0L)
+    return(NULL)
+
+  # label these with the project's package name, if any, so
+  # they can be reported alongside installed packages
+  desc <- renv_description_read(descpath)
+  label <- desc$Package %||% "DESCRIPTION"
+
+  data_frame(
+    Source  = label,
+    Package = explicit$Package,
+    Require = explicit$Require,
+    Version = explicit$Version
+  )
+
+}
+
 renv_project_ignored_packages <- function(project) {
 
   # if we don't have a project, nothing to do

@@ -23,6 +23,28 @@ test_that("requested version in DESCRIPTION file is honored", {
 
 })
 
+test_that("version constraints in the project DESCRIPTION are honored", {
+
+  renv_tests_scope()
+  init(bare = TRUE)
+
+  # install an old version of 'bread'; toast depends on bread without
+  # any version constraint, so installing toast would normally keep it
+  install("bread@0.1.0")
+  expect_equal(renv_package_version("bread"), "0.1.0")
+
+  desc <- c(
+    "Type: Project",
+    "Package: myproject",
+    "Imports: bread (>= 1.0.0)"
+  )
+  writeLines(desc, con = "DESCRIPTION")
+
+  install("toast")
+  expect_equal(renv_package_version("bread"), "1.0.0")
+
+})
+
 test_that("installation failure is well-reported", {
 
   # TODO: test seems to fail because a connection gets
