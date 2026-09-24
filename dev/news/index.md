@@ -2,6 +2,16 @@
 
 ## renv (development version)
 
+- [`renv::dependencies()`](https://rstudio.github.io/renv/dev/reference/dependencies.md)
+  now follows Quarto’s engine-binding rules when inferring dependencies
+  for `.qmd` documents. Documents bound to the knitr engine, whether via
+  R chunks, an explicit `engine: knitr` declaration, or `knitr:` options
+  in the YAML header, infer a dependency on `rmarkdown`, and
+  additionally on `reticulate` when they contain Python chunks.
+  Documents bound to another engine (for example, `engine: jupyter`) no
+  longer infer a dependency on `rmarkdown`.
+  ([\#2174](https://github.com/rstudio/renv/issues/2174))
+
 - [`renv::restore()`](https://rstudio.github.io/renv/dev/reference/restore.md)
   now resolves the dependencies of a package installed from r-universe
   using the git commit recorded in the lockfile (via the `RemoteUrl` and
