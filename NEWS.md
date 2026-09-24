@@ -1,5 +1,13 @@
 # renv (development version)
 
+* `renv::dependencies()` now follows Quarto's engine-binding rules when
+  inferring dependencies for `.qmd` documents. Documents bound to the knitr
+  engine, whether via R chunks, an explicit `engine: knitr` declaration, or
+  `knitr:` options in the YAML header, infer a dependency on `rmarkdown`, and
+  additionally on `reticulate` when they contain Python chunks. Documents
+  bound to another engine (for example, `engine: jupyter`) no longer infer a
+  dependency on `rmarkdown`. (#2174)
+
 * renv now falls back to its R implementations, with a warning, if its
   compiled extensions exist but cannot be loaded. For example, when a binary
   package accidentally ships a shared library built for a different

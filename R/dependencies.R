@@ -1015,17 +1015,10 @@ renv_dependencies_discover_chunks <- function(path, mode) {
   # check for dependencies in inline chunks as well
   ideps <- renv_dependencies_discover_chunks_inline(path, contents)
 
-  # if this is a .qmd, infer a dependency on rmarkdown if we have any R chunks
+  # if this is a .qmd, infer dependencies implied by the bound engine
   qdeps <- NULL
-  if (mode %in% "qmd") {
-    for (chunk in chunks) {
-      engine <- chunk$params[["engine"]]
-      if (is.character(engine) && tolower(engine) %in% c("r", "rscript")) {
-        qdeps <- renv_dependencies_list(path, "rmarkdown")
-        break
-      }
-    }
-  }
+  if (mode %in% "qmd")
+    qdeps <- renv_dependencies_discover_chunks_quarto(path, contents, chunks)
 
   # paste them all together
   deps <- bind(list(cdeps, ideps, qdeps))
@@ -1034,6 +1027,68 @@ renv_dependencies_discover_chunks <- function(path, mode) {
 
   deps$Source <- path
   deps
+
+}
+
+renv_dependencies_discover_chunks_quarto <- function(path, contents, chunks) {
+
+  # collect the engines used by each chunk
+  engines <- map_chr(chunks, function(chunk) {
+    engine <- chunk$params[["engine"]]
+    if (pstring(engine)) tolower(engine) else ""
+  })
+
+  # only the knitr engine implies R package dependencies
+  if (!renv_dependencies_discover_chunks_quarto_knitr(contents, engines))
+    return(NULL)
+
+  # Quarto's knitr engine renders documents via rmarkdown
+  packages <- "rmarkdown"
+
+  # knitr evaluates Python chunks via reticulate
+  if ("python" %in% engines)
+    packages <- c(packages, "reticulate")
+
+  renv_dependencies_list(path, packages)
+
+}
+
+# https://quarto.org/docs/computations/execution-options.html#engine-binding
+renv_dependencies_discover_chunks_quarto_knitr <- function(contents, engines) {
+
+  header <- renv_dependencies_discover_chunks_quarto_header(contents)
+
+  # a top-level 'knitr:' field binds the document to knitr, even when
+  # 'engine:' says otherwise (Quarto checks engines in order, knitr first)
+  if (any(grepl("^knitr\\s*:", header)))
+    return(TRUE)
+
+  # otherwise, an explicit 'engine:' declaration wins
+  line <- grep("^engine\\s*:", header, value = TRUE)
+  if (length(line)) {
+    engine <- sub("^engine\\s*:", "", line[[1L]])
+    engine <- tolower(gsub("[\"'[:space:]]", "", engine))
+    if (nzchar(engine))
+      return(identical(engine, "knitr"))
+  }
+
+  # a top-level 'jupyter:' field binds the document to jupyter
+  if (any(grepl("^jupyter\\s*:", header)))
+    return(FALSE)
+
+  # with no explicit binding, any R chunk binds the document to knitr
+  "r" %in% engines
+
+}
+
+renv_dependencies_discover_chunks_quarto_header <- function(contents) {
+
+  # the YAML header (if any) must begin on the first line
+  fences <- grep("^\\s*---\\s*$", contents)
+  if (length(fences) < 2L || fences[[1L]] != 1L)
+    return(character())
+
+  contents[seq.int(2L, length.out = fences[[2L]] - 2L)]
 
 }
 
