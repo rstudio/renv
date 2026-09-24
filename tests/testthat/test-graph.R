@@ -1337,3 +1337,197 @@ test_that("gitlab DESCRIPTION path handles empty RemoteSubdir", {
   expect_equal(descpath, "src%2FDESCRIPTION")
 
 })
+
+# r-universe stamps packages with the git commit they were built from, and
+# its repositories only serve the latest version of a package. so once the
+# recorded version has been superseded, the DESCRIPTION for that version has
+# to come from the recorded commit -- not from the latest version with the
+# version number overridden, which can drop dependencies or add stricter
+# version constraints that then force upgrades of other locked packages
+# https://github.com/rstudio/renv/issues/2370
+test_that("repository graph reads DESCRIPTION from GitHub for r-universe records", {
+
+  renv_tests_scope()
+
+  args <- NULL
+  renv_scope_binding(
+    envir = asNamespace("renv"),
+    symbol = "renv_remotes_resolve_github_description",
+    replacement = function(url, host, user, repo, subdir, sha) {
+      args <<- list(host = host, user = user, repo = repo, subdir = subdir, sha = sha)
+      list(Package = "bread", Version = "0.5.0", Depends = "github-marker")
+    }
+  )
+
+  # the GitHub lookup suffices, so git shouldn't be used at all
+  renv_scope_binding(
+    envir = asNamespace("renv"),
+    symbol = "renv_remotes_resolve_git_description",
+    replacement = function(record) {
+      stop("git should not be used")
+    }
+  )
+
+  # 'bread' 0.5.0 is not available from the test repository, nor its archive
+  record <- list(
+    Package    = "bread",
+    Version    = "0.5.0",
+    Source     = "Repository",
+    Repository = "https://bioc.r-universe.dev",
+    RemoteUrl  = "https://github.com/bioc/bread.git",
+    RemoteSha  = "0123456789abcdef0123456789abcdef01234567"
+  )
+
+  expect_no_warning(desc <- renv_graph_description_repository(record))
+  expect_equal(desc$Version, "0.5.0")
+  expect_equal(desc$Depends, "github-marker")
+
+  expect_equal(args$host, "api.github.com")
+  expect_equal(args$user, "bioc")
+  expect_equal(args$repo, "bread")
+  expect_equal(args$sha, record$RemoteSha)
+
+})
+
+test_that("repository graph falls back to git when the GitHub lookup fails", {
+
+  renv_tests_scope()
+
+  renv_scope_binding(
+    envir = asNamespace("renv"),
+    symbol = "renv_remotes_resolve_github_description",
+    replacement = function(url, host, user, repo, subdir, sha) {
+      stop("GitHub unreachable")
+    }
+  )
+
+  renv_scope_binding(
+    envir = asNamespace("renv"),
+    symbol = "renv_remotes_resolve_git_description",
+    replacement = function(record) {
+      list(Package = "bread", Version = "0.5.0", Depends = "git-marker")
+    }
+  )
+
+  record <- list(
+    Package   = "bread",
+    Version   = "0.5.0",
+    Source    = "Repository",
+    RemoteUrl = "https://github.com/bioc/bread",
+    RemoteSha = "0123456789abcdef0123456789abcdef01234567"
+  )
+
+  expect_no_warning(desc <- renv_graph_description_repository(record))
+  expect_equal(desc$Version, "0.5.0")
+  expect_equal(desc$Depends, "git-marker")
+
+})
+
+test_that("repository graph rejects a commit providing a different version", {
+
+  renv_tests_scope()
+
+  renv_scope_binding(
+    envir = asNamespace("renv"),
+    symbol = "renv_remotes_resolve_git_description",
+    replacement = function(record) {
+      list(Package = "bread", Version = "0.6.0", Depends = "git-marker")
+    }
+  )
+
+  renv_scope_binding(
+    envir = asNamespace("renv"),
+    symbol = "renv_graph_description_crandb",
+    replacement = function(package, version) {
+      stop("crandb unreachable")
+    }
+  )
+
+  # a non-GitHub remote, so only git is consulted
+  record <- list(
+    Package   = "bread",
+    Version   = "0.5.0",
+    Source    = "Repository",
+    RemoteUrl = "https://git.example.com/bioc/bread",
+    RemoteSha = "0123456789abcdef0123456789abcdef01234567"
+  )
+
+  # the commit's DESCRIPTION must not be used; with nothing else providing
+  # the requested version, resolution ends at the (warning) last resort
+  expect_warning(
+    desc <- renv_graph_description_repository(record),
+    "using dependencies from the latest version"
+  )
+
+  expect_equal(desc$Version, "0.5.0")
+  expect_false(identical(desc$Depends, "git-marker"))
+
+})
+
+test_that("repository graph reads DESCRIPTION from a git commit for r-universe records", {
+
+  skip_on_cran()
+  skip_if(!nzchar(Sys.which("git")), "git is not installed")
+
+  renv_tests_scope()
+
+  # a git repository holding 'bread' 0.5.0 and then 1.0.0; the test package
+  # repository provides only 1.0.0 (and archives 0.1.0), so 0.5.0 can only be
+  # resolved from the recorded commit
+  repo <- renv_scope_tempfile("renv-git-")
+  ensure_directory(repo)
+  renv_scope_wd(repo)
+
+  renv_system_exec("git", c("init", "--quiet"), action = "git init")
+  renv_system_exec("git", c("config", "user.name", shQuote("User Name")), action = "git config")
+  renv_system_exec("git", c("config", "user.email", shQuote("user@example.com")), action = "git config")
+
+  # GitHub allows any commit to be fetched directly; a local repository
+  # needs to be told to allow it
+  renv_system_exec("git", c("config", "uploadpack.allowAnySHA1InWant", "true"), action = "git config")
+
+  versions <- c("0.5.0", "1.0.0")
+  depends <- c("egg", "toast")
+  shas <- character()
+
+  for (i in seq_along(versions)) {
+
+    desc <- c(
+      "Package: bread",
+      "Type: Package",
+      paste("Version:", versions[[i]]),
+      paste("Depends:", depends[[i]])
+    )
+
+    writeLines(desc, con = "DESCRIPTION")
+    writeLines("", con = "NAMESPACE")
+
+    renv_system_exec("git", c("add", "-A"), action = "git add")
+    renv_system_exec("git", c("commit", "--quiet", "-m", shQuote(versions[[i]])), action = "git commit")
+    shas[[i]] <- renv_system_exec("git", c("rev-parse", "HEAD"), action = "git rev-parse")
+
+  }
+
+  # nothing but the commit should be able to provide this version
+  renv_scope_binding(
+    envir = asNamespace("renv"),
+    symbol = "renv_graph_description_crandb",
+    replacement = function(package, version) {
+      stop("crandb unreachable")
+    }
+  )
+
+  record <- list(
+    Package    = "bread",
+    Version    = "0.5.0",
+    Source     = "Repository",
+    Repository = "https://bioc.r-universe.dev",
+    RemoteUrl  = renv_path_normalize(repo),
+    RemoteSha  = shas[[1L]]
+  )
+
+  expect_no_warning(desc <- renv_graph_description_repository(record))
+  expect_equal(desc$Version, "0.5.0")
+  expect_equal(desc$Depends, "egg")
+
+})
