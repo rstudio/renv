@@ -8,6 +8,13 @@
   bound to another engine (for example, `engine: jupyter`) no longer infer a
   dependency on `rmarkdown`. (#2174)
 
+* `renv::restore()` now resolves the dependencies of a package installed from
+  r-universe using the git commit recorded in the lockfile (via the `RemoteUrl`
+  and `RemoteSha` fields) when the recorded version is no longer available
+  from the repository. Previously, the dependencies of the latest version were
+  used instead, which could cause packages to be installed in the wrong order
+  or force other locked packages to be upgraded. (#2370)
+
 * renv now falls back to its R implementations, with a warning, if its
   compiled extensions exist but cannot be loaded. For example, when a binary
   package accidentally ships a shared library built for a different

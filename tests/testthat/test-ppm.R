@@ -324,6 +324,40 @@ test_that("renv correctly detects AlmaLinux 9 as rhel9 for PPM", {
 
 })
 
+test_that("renv correctly detects AlmaLinux 10 as rhel10 for PPM", {
+  skip_on_cran()
+  skip_on_os("windows")
+
+  # https://github.com/rstudio/renv/issues/2373
+  release <- heredoc('
+    NAME="AlmaLinux"
+    VERSION="10.2 (Purple Lion)"
+    ID="almalinux"
+    ID_LIKE="rhel centos fedora"
+    VERSION_ID="10.2"
+    PLATFORM_ID="platform:el10"
+    PRETTY_NAME="AlmaLinux 10.2 (Purple Lion)"
+    ANSI_COLOR="0;34"
+    LOGO="fedora-logo-icon"
+    CPE_NAME="cpe:/o:almalinux:almalinux:10::baseos"
+    HOME_URL="https://almalinux.org/"
+    DOCUMENTATION_URL="https://wiki.almalinux.org/"
+    BUG_REPORT_URL="https://bugs.almalinux.org/"
+
+    ALMALINUX_MANTISBT_PROJECT="AlmaLinux-10"
+    ALMALINUX_MANTISBT_PROJECT_VERSION="10.2"
+    REDHAT_SUPPORT_PRODUCT="AlmaLinux"
+    REDHAT_SUPPORT_PRODUCT_VERSION="10.2"
+  ')
+
+  file <- renv_scope_tempfile()
+  writeLines(release, con = file)
+
+  platform <- renv_ppm_platform_impl(file = file)
+  expect_equal(platform, "rhel10")
+
+})
+
 test_that("renv correctly detects OpenSUSE for PPM", {
   skip_on_cran()
   skip_on_os("windows")

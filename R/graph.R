@@ -269,6 +269,19 @@ renv_graph_description_repository <- function(record) {
     }
   }
 
+  # r-universe stamps packages with the git commit they were built from
+  # ('RemoteUrl' + 'RemoteSha'), and that commit is what the package is
+  # retrieved from when the version is no longer available from the
+  # repository, so read the DESCRIPTION from there. this is exact, and so
+  # is preferred over the version-based lookups that follow
+  # https://github.com/rstudio/renv/issues/2370
+  unifields <- c("RemoteUrl", "RemoteSha")
+  if (!is.null(version) && all(unifields %in% names(record))) {
+    remote <- catch(renv_graph_description_remote(record))
+    if (!inherits(remote, "error"))
+      return(as.list(remote))
+  }
+
   # the requested version wasn't found in configured repos; try crandb for the
   # specific version's dependency fields. this must come before any fallback
   # that reuses the latest entry's fields with an overridden version, since
@@ -451,6 +464,37 @@ renv_graph_description_bioconductor_git <- function(record) {
   })
 
   renv_description_read(path)
+
+}
+
+renv_graph_description_remote <- function(record) {
+
+  package <- record$Package
+  url     <- record[["RemoteUrl"]]
+  sha     <- record[["RemoteSha"]]
+  subdir  <- record[["RemoteSubdir"]]
+
+  # for GitHub, the DESCRIPTION can be fetched directly through the API;
+  # otherwise (or if that fails), fetch the commit from git
+  pattern <- "^https?://github[.]com/([^/]+)/([^/]+?)(?:[.]git)?/?$"
+  desc <- if (grepl(pattern, url, perl = TRUE)) {
+    user <- sub(pattern, "\\1", url, perl = TRUE)
+    repo <- sub(pattern, "\\2", url, perl = TRUE)
+    host <- "api.github.com"
+    catch(renv_remotes_resolve_github_description(url, host, user, repo, subdir, sha))
+  }
+
+  if (is.null(desc) || inherits(desc, "error"))
+    desc <- renv_remotes_resolve_git_description(record)
+
+  # make sure the commit provides the version that was requested
+  version <- record$Version
+  if (!identical(desc$Version, version)) {
+    fmt <- "commit '%s' of '%s' provides version %s, not the requested version %s"
+    stopf(fmt, sha, package, desc$Version, version)
+  }
+
+  desc
 
 }
 
