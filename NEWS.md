@@ -4,7 +4,9 @@
   installed from when using the `git::` remote pathway, so that
   `renv::snapshot()` pins that package to the installed commit, and
   `renv::restore()` retrieves that same commit rather than whatever the
-  recorded ref points at when the project is restored. (#2378)
+  recorded ref points at when the project is restored. In addition, the
+  clone made while resolving the remote is now re-used when installing the
+  package, rather than the repository being cloned a second time. (#2378)
 
 * `renv::dependencies()` now follows Quarto's engine-binding rules when
   inferring dependencies for `.qmd` documents. Documents bound to the knitr

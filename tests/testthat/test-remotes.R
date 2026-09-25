@@ -317,8 +317,19 @@ test_that("git remotes record the commit they were resolved from", {
   # the recorded ref can be re-resolved to its current commit
   expect_equal(renv_remotes_resolve_git_sha_ref(record), shas$release)
 
-  # the sha is written to the installed package, and captured in the lockfile
-  install(list(record))
+  # the sha is written to the installed package, and captured in the lockfile;
+  # installing re-uses the clone made while resolving, rather than cloning again
+  local({
+    renv_scope_binding(
+      envir = asNamespace("renv"),
+      symbol = "renv_retrieve_git_impl",
+      replacement = function(record, path) {
+        stop("unexpected clone of '", record$RemoteUrl, "'")
+      }
+    )
+    install(list(record))
+  })
+  expect_null(the$git_clones[[renv_git_clone_key(record)]])
   desc <- renv_description_read(package = "bread")
   expect_equal(desc$RemoteType, "git")
   expect_equal(desc$RemoteSha, shas$release)

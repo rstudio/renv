@@ -779,12 +779,16 @@ renv_remotes_resolve_git <- function(remote) {
   # the package is pinned to that commit rather than to whatever the ref
   # happens to point at when the lockfile is later restored
   # https://github.com/rstudio/renv/issues/2378
-  path <- renv_remotes_resolve_git_clone(record)
+  path <- tempfile("renv-git-")
+  renv_remotes_resolve_git_clone(record, path)
   desc <- renv_description_read(path, subdir = subdir)
 
   record$Package   <- desc$Package
   record$Version   <- desc$Version
   record$RemoteSha <- renv_git_sha(path)
+
+  # keep the clone, so that installing this record can use it directly
+  renv_git_clone_register(record, path)
 
   record
 
@@ -824,9 +828,8 @@ renv_remotes_resolve_git_sha_ref <- function(record) {
 }
 
 
-renv_remotes_resolve_git_clone <- function(record, scope = parent.frame()) {
+renv_remotes_resolve_git_clone <- function(record, path) {
 
-  path <- renv_scope_tempfile("renv-git-", scope = scope)
   ensure_directory(path)
 
   # TODO: is there a cheaper way for us to accomplish this?
@@ -842,7 +845,8 @@ renv_remotes_resolve_git_clone <- function(record, scope = parent.frame()) {
 }
 
 renv_remotes_resolve_git_description <- function(record) {
-  path <- renv_remotes_resolve_git_clone(record)
+  path <- renv_scope_tempfile("renv-git-")
+  renv_remotes_resolve_git_clone(record, path)
   renv_description_read(path, subdir = record$RemoteSubdir)
 }
 
