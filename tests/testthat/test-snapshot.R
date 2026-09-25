@@ -243,6 +243,23 @@ test_that("snapshot warns about unsatisfied project DESCRIPTION constraints", {
 
 })
 
+test_that("snapshot ignores constraints on Suggests in the project DESCRIPTION", {
+
+  renv_tests_scope("bread")
+  init(settings = list(use.cache = FALSE))
+
+  desc <- c(
+    "Type: Project",
+    "Package: myproject",
+    "Suggests: bread (>= 2.0.0)"
+  )
+  writeLines(desc, con = "DESCRIPTION")
+
+  lockfile <- snapshot(lockfile = NULL)
+  expect_equal(renv_lockfile_records(lockfile)$bread$Version, "1.0.0")
+
+})
+
 test_that("snapshot records packages discovered in cellar", {
 
   renv_tests_scope("skeleton")

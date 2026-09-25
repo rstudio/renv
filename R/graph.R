@@ -75,6 +75,12 @@ renv_graph_init <- function(remotes, records = list(), project = NULL, scope = p
     if (is.null(version))
       next
 
+    # the project's own constraints shouldn't override a version pinned by
+    # the caller -- a lockfile record during restore(), or an explicit
+    # 'pkg@version' request; those are only reported below
+    if (renv_graph_pinned(package, records))
+      reqs <- reqs[!reqs$Project, ]
+
     if (renv_graph_compatible(version, reqs))
       next
 
@@ -652,6 +658,7 @@ renv_graph_requirements <- function(descriptions, project = NULL) {
       if (nrow(explicit) == 0L)
         next
       explicit$RequiredBy <- desc$Package
+      explicit$Project <- FALSE
       for (i in seq_len(nrow(explicit))) {
         pkg <- explicit$Package[[i]]
         requirements[[pkg]] <- c(requirements[[pkg]], list(explicit[i, ]))
@@ -664,6 +671,7 @@ renv_graph_requirements <- function(descriptions, project = NULL) {
   if (NROW(explicit)) {
     explicit$RequiredBy <- explicit$Source
     explicit$Source <- NULL
+    explicit$Project <- TRUE
     for (i in seq_len(nrow(explicit))) {
       pkg <- explicit$Package[[i]]
       requirements[[pkg]] <- c(requirements[[pkg]], list(explicit[i, ]))
@@ -677,6 +685,14 @@ renv_graph_requirements <- function(descriptions, project = NULL) {
 
   requirements
 
+}
+
+# is this package's version pinned by an explicit record from the caller?
+# lazy records (from the project DESCRIPTION) resolve on demand, and so
+# don't count as pins
+renv_graph_pinned <- function(package, records) {
+  record <- records[[package]]
+  !is.null(record) && !is.function(record) && !is.null(record$Version)
 }
 
 renv_graph_compatible <- function(version, requirements) {

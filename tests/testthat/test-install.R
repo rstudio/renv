@@ -45,6 +45,23 @@ test_that("version constraints in the project DESCRIPTION are honored", {
 
 })
 
+test_that("explicitly requested versions win over project DESCRIPTION constraints", {
+
+  renv_tests_scope()
+  init(bare = TRUE)
+
+  desc <- c(
+    "Type: Project",
+    "Package: myproject",
+    "Imports: bread (>= 1.0.0)"
+  )
+  writeLines(desc, con = "DESCRIPTION")
+
+  install("bread@0.1.0")
+  expect_equal(renv_package_version("bread"), "0.1.0")
+
+})
+
 test_that("installation failure is well-reported", {
 
   # TODO: test seems to fail because a connection gets

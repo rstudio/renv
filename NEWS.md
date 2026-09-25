@@ -5,7 +5,10 @@
   and validated by `renv::snapshot()`. Previously, these constraints were
   only used when they pinned an exact version with `==`; other constraints
   were silently ignored, so an installed dependency could be older than
-  the version the project declared it required. `renv::restore()` also now
+  the version the project declared it required. Versions pinned by the
+  lockfile during `renv::restore()`, or requested explicitly via
+  `pkg@version`, are never overridden by these constraints; renv reports
+  the unmet constraint instead. `renv::restore()` also now
   reports whenever it replaces a requested package version because it
   didn't satisfy the constraints of other packages, rather than only when
   that package was explicitly requested. `!=` constraints are now parsed
