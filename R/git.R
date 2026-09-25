@@ -15,36 +15,92 @@ renv_git_preflight <- function() {
 }
 
 renv_git_sha <- function(path) {
+
   renv_scope_wd(path)
-  renv_system_exec("git", c("rev-parse", "HEAD"), action = "reading git commit")
+
+  # git may print warnings (e.g. about its own configuration) on stderr,
+  # so read only stdout, and check that we got a commit hash back
+  args <- c("rev-parse", "HEAD")
+  output <- suppressWarnings(system2("git", args, stdout = TRUE, stderr = FALSE))
+
+  sha <- trimws(output)
+  sha <- sha[grepl("^[[:xdigit:]]{40,64}$", sha)]
+  if (length(sha) != 1L)
+    stopf("error reading git commit in '%s'", path)
+
+  sha
+
 }
 
-# clones made while resolving a git remote are kept in 'the$git_clones',
-# keyed on the repository URL and commit, so that a following retrieve can
-# install from the same clone rather than fetching the same commit again
+# the commit-ish that should be fetched for a git record
+renv_git_rev <- function(record) {
+
+  sha <- record$RemoteSha %||% ""
+  ref <- record$RemoteRef %||% ""
+
+  case(
+    nzchar(sha) ~ sha,
+    nzchar(ref) ~ ref,
+    "HEAD"
+  )
+
+}
+
+# clones of git repositories are cached for the duration of an operation (e.g.
+# install() or restore()), so that each commit is cloned at most once; for
+# example, the clone made while resolving a remote (to read its DESCRIPTION)
+# is re-used to install that remote. clones are removed when the operation
+# that created the cache completes, so operations which hand clones back to
+# their caller (e.g. retrieve()) shouldn't use one.
+renv_scope_git_clones <- function(scope = parent.frame()) {
+
+  # share the cache of an enclosing operation, if any
+  clones <- the$git_clones
+  if (!is.null(clones))
+    return(invisible(clones))
+
+  clones <- env(keys = list(), paths = character())
+  the$git_clones <- clones
+
+  defer({
+    unlink(clones$paths, recursive = TRUE, force = TRUE)
+    the$git_clones <- NULL
+  }, scope = scope)
+
+  invisible(clones)
+
+}
+
 renv_git_clone_key <- function(record) {
-  paste(record$RemoteUrl, record$RemoteSha, sep = "@")
+  paste(record$RemoteUrl, renv_git_rev(record), sep = "@")
 }
 
 renv_git_clone_register <- function(record, path) {
-  key <- renv_git_clone_key(record)
-  the$git_clones <- the$git_clones %||% list()
-  the$git_clones[[key]] <- path
+
+  clones <- the$git_clones
+  if (!is.null(clones))
+    clones$keys[[renv_git_clone_key(record)]] <- path
+
   invisible(path)
+
 }
 
-renv_git_clone_take <- function(record) {
+renv_git_clone <- function(record) {
 
-  key <- renv_git_clone_key(record)
-  path <- the$git_clones[[key]]
-  if (is.null(path))
-    return(NULL)
+  clones <- the$git_clones
 
-  # hand the clone over exactly once; the installer owns it from here
-  the$git_clones[[key]] <- NULL
-  if (!dir.exists(path))
-    return(NULL)
+  # re-use a clone made earlier in this operation, if any
+  path <- clones$keys[[renv_git_clone_key(record)]]
+  if (!is.null(path) && dir.exists(path))
+    return(path)
 
-  path
+  # track the clone before it's made, so that it's removed even if cloning
+  # fails; without an active cache, the caller owns the clone
+  path <- tempfile("renv-git-")
+  if (!is.null(clones))
+    clones$paths <- c(clones$paths, path)
+
+  renv_retrieve_git_impl(record, path)
+  renv_git_clone_register(record, path)
 
 }

@@ -626,14 +626,9 @@ renv_retrieve_gitlab <- function(record) {
 renv_retrieve_git <- function(record) {
 
   # NOTE: This path will later be used during the install step, so we don't
-  # want to clean it up afterwards
-  path <- renv_git_clone_take(record)
-  if (is.null(path)) {
-    path <- tempfile("renv-git-")
-    ensure_directory(path)
-    renv_retrieve_git_impl(record, path)
-  }
-
+  # want to clean it up afterwards; clones made during an install or restore
+  # are instead removed once that operation completes
+  path <- renv_git_clone(record)
   renv_retrieve_successful(record, path)
 
 }
@@ -644,49 +639,53 @@ renv_retrieve_git_impl <- function(record, path) {
 
   package <- record$Package
   url     <- record$RemoteUrl
-  ref     <- record$RemoteRef
-  sha     <- record$RemoteSha
-
-  # figure out the default ref
-  gitref <- case(
-    nzchar(sha %||% "") ~ sha,
-    nzchar(ref %||% "") ~ ref,
-    "HEAD"
-  )
+  ref     <- record$RemoteRef %||% ""
+  sha     <- record$RemoteSha %||% ""
 
   # be quiet if requested
   quiet <- getOption("renv.git.quiet", default = TRUE)
   quiet <- if (quiet) "--quiet" else ""
 
-  template <- heredoc('
+  data <- list(
+    ORIGIN  = url,
+    REF     = renv_git_rev(record),
+    SHA     = sha,
+    HISTORY = if (nzchar(ref)) ref else "HEAD",
+    QUIET   = quiet
+  )
+
+  init <- heredoc('
     git init ${QUIET}
     git remote add origin "${ORIGIN}"
+  ')
+
+  fetch <- heredoc('
     git fetch ${QUIET} --depth=1 origin "${REF}"
     git reset ${QUIET} --hard FETCH_HEAD
   ')
 
-  data <- list(
-    ORIGIN = url,
-    REF    = gitref,
-    QUIET  = quiet
-  )
-
-  commands <- renv_template_replace(template, data)
-  command <- gsub("\n", " && ", commands, fixed = TRUE)
-  if (renv_platform_windows())
-    command <- paste(comspec(), "/C", command)
+  # some servers refuse to serve a commit by its sha unless a ref points at it
+  # (e.g. once the recorded branch has moved on); in that case, fetch the
+  # history of the recorded ref instead, and check out the commit from there.
+  # the failure to fetch by sha is expected then, so it isn't reported
+  fallback <- nzchar(sha) && !identical(sha, ref)
+  history <- heredoc('
+    git fetch ${QUIET} origin "${HISTORY}"
+    git reset ${QUIET} --hard "${SHA}"
+  ')
 
   printf("- Cloning '%s' ... ", url)
 
   before <- Sys.time()
 
-  status <- local({
-    ensure_directory(path)
-    renv_scope_wd(path)
-    renv_scope_auth(record)
-    renv_scope_git_auth()
-    system(command)
-  })
+  status <- renv_retrieve_git_exec(record, path, init, data)
+  if (status == 0L) {
+
+    status <- renv_retrieve_git_exec(record, path, fetch, data, quiet = fallback)
+    if (status != 0L && fallback)
+      status <- renv_retrieve_git_exec(record, path, history, data)
+
+  }
 
   after <- Sys.time()
 
@@ -700,6 +699,27 @@ renv_retrieve_git_impl <- function(record, path) {
   writef(fmt, renv_difftime_format(elapsed))
 
   TRUE
+
+}
+
+renv_retrieve_git_exec <- function(record, path, template, data, quiet = FALSE) {
+
+  commands <- renv_template_replace(template, data)
+  command <- gsub("\n", " && ", commands, fixed = TRUE)
+
+  # on unix, R ignores stderr by appending '2>/dev/null' to the command, so
+  # group the commands for that to apply to all of them, not just the last
+  if (quiet && !renv_platform_windows())
+    command <- paste0("(", command, ")")
+
+  if (renv_platform_windows())
+    command <- paste(comspec(), "/C", command)
+
+  ensure_directory(path)
+  renv_scope_wd(path)
+  renv_scope_auth(record)
+  renv_scope_git_auth()
+  system(command, ignore.stderr = quiet)
 
 }
 

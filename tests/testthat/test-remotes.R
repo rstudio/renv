@@ -254,7 +254,50 @@ test_that("we can parse remotes containing multiple '@'s", {
 
 })
 
-test_that("git remotes record the commit they were resolved from", {
+# write a DESCRIPTION for 'bread' at the requested version, and commit it
+renv_tests_git_commit <- function(repo, version) {
+
+  renv_scope_wd(repo)
+
+  desc <- c("Package: bread", "Type: Package", paste("Version:", version))
+  writeLines(desc, con = "DESCRIPTION")
+  writeLines("", con = "NAMESPACE")
+
+  renv_system_exec("git", c("add", "-A"), action = "git add")
+  renv_system_exec("git", c("commit", "--quiet", "-m", version), action = "git commit")
+  renv_system_exec("git", c("rev-parse", "HEAD"), action = "git rev-parse")
+
+}
+
+# a local git repository holding 'bread' 0.5.0 on its default branch, and
+# 1.0.0 on a 'release' branch
+renv_tests_git_remote <- function(scope = parent.frame()) {
+
+  repo <- renv_scope_tempfile("renv-repo-", scope = scope)
+  ensure_directory(repo)
+  renv_scope_wd(repo)
+
+  renv_system_exec("git", c("init", "--quiet"), action = "git init")
+  renv_system_exec("git", c("config", "user.name", shQuote("User Name")), action = "git config")
+  renv_system_exec("git", c("config", "user.email", shQuote("user@example.com")), action = "git config")
+
+  head <- renv_tests_git_commit(repo, "0.5.0")
+
+  renv_system_exec("git", c("checkout", "--quiet", "-b", "release"), action = "git checkout")
+  release <- renv_tests_git_commit(repo, "1.0.0")
+  renv_system_exec("git", c("checkout", "--quiet", "-"), action = "git checkout")
+
+  # use a file URL, so that the repository path is not mistaken for a local
+  # package source when the package is later retrieved
+  list(
+    repo = repo,
+    url  = paste0("file://", renv_path_normalize(repo)),
+    shas = list(head = head, release = release)
+  )
+
+}
+
+test_that("git remotes are pinned to the commit they were installed from", {
 
   skip_on_cran()
   skip_if(!nzchar(Sys.which("git")), "git is not installed")
@@ -262,96 +305,145 @@ test_that("git remotes record the commit they were resolved from", {
   project <- renv_tests_scope()
   init()
 
-  # a local git repository holding 'bread' 0.5.0 on the default branch,
-  # and 1.0.0 on a 'release' branch
-  repo <- renv_scope_tempfile("renv-git-")
-  ensure_directory(repo)
+  remote <- renv_tests_git_remote()
+  shas <- remote$shas
 
-  local({
-
-    renv_scope_wd(repo)
-    renv_system_exec("git", c("init", "--quiet"), action = "git init")
-    renv_system_exec("git", c("config", "user.name", shQuote("User Name")), action = "git config")
-    renv_system_exec("git", c("config", "user.email", shQuote("user@example.com")), action = "git config")
-
-    # restore fetches by sha; a local repository needs to be told to allow it
-    renv_system_exec("git", c("config", "uploadpack.allowAnySHA1InWant", "true"), action = "git config")
-
-    writeLines(c("Package: bread", "Type: Package", "Version: 0.5.0"), con = "DESCRIPTION")
-    writeLines("", con = "NAMESPACE")
-    renv_system_exec("git", c("add", "-A"), action = "git add")
-    renv_system_exec("git", c("commit", "--quiet", "-m", "0.5.0"), action = "git commit")
-
-    renv_system_exec("git", c("checkout", "--quiet", "-b", "release"), action = "git checkout")
-    writeLines(c("Package: bread", "Type: Package", "Version: 1.0.0"), con = "DESCRIPTION")
-    renv_system_exec("git", c("commit", "--quiet", "-am", "1.0.0"), action = "git commit")
-    renv_system_exec("git", c("checkout", "--quiet", "-"), action = "git checkout")
-
-  })
-
-  # use a file URL, so that the repository path is not mistaken for a local
-  # package source when the package is later retrieved
-  url <- paste0("file://", renv_path_normalize(repo))
-  shas <- list(
-    head    = renv_git_sha(repo),
-    release = local({
-      renv_scope_wd(repo)
-      renv_system_exec("git", c("rev-parse", "release"), action = "git rev-parse")
-    })
+  # count the clones made, and check that none are left behind
+  clones <- 0L
+  impl <- renv_retrieve_git_impl
+  renv_scope_binding(
+    envir = asNamespace("renv"),
+    symbol = "renv_retrieve_git_impl",
+    replacement = function(record, path) {
+      clones <<- clones + 1L
+      impl(record, path)
+    }
   )
 
-  remote <- list(url = url, repo = "bread")
+  tmpfiles <- list.files(tempdir(), pattern = "^renv-git-")
 
-  # no ref: the default branch is resolved, and its commit recorded
-  record <- renv_remotes_resolve_git(remote)
+  # resolving a remote with no ref records the commit of the default branch;
+  # the clone made to do so is removed again, as it's not part of an install
+  record <- renv_remotes_resolve_git(list(url = remote$url, repo = "bread"))
   expect_equal(record$Version, "0.5.0")
   expect_equal(record$RemoteRef, "HEAD")
   expect_equal(record$RemoteSha, shas$head)
+  expect_null(the$git_clones)
+  expect_setequal(list.files(tempdir(), pattern = "^renv-git-"), tmpfiles)
 
-  # an explicit ref resolves to that ref's commit
-  record <- renv_remotes_resolve_git(c(remote, ref = "release"))
-  expect_equal(record$Version, "1.0.0")
-  expect_equal(record$RemoteRef, "release")
-  expect_equal(record$RemoteSha, shas$release)
-
-  # the recorded ref can be re-resolved to its current commit
-  expect_equal(renv_remotes_resolve_git_sha_ref(record), shas$release)
-
-  # the sha is written to the installed package, and captured in the lockfile;
-  # installing re-uses the clone made while resolving, rather than cloning again
+  # install() resolves remotes as part of the install, and so re-uses the
+  # clone made to resolve a remote to read its DESCRIPTION, and to install it;
+  # its remote parser doesn't accept file URLs, so we do the same here
+  clones <- 0L
   local({
-    renv_scope_binding(
-      envir = asNamespace("renv"),
-      symbol = "renv_retrieve_git_impl",
-      replacement = function(record, path) {
-        stop("unexpected clone of '", record$RemoteUrl, "'")
-      }
-    )
+    renv_scope_git_clones()
+    record <- renv_remotes_resolve_git(list(url = remote$url, repo = "bread", ref = "release"))
     install(list(record))
   })
-  expect_null(the$git_clones[[renv_git_clone_key(record)]])
+  expect_equal(clones, 1L)
+  expect_null(the$git_clones)
+  expect_setequal(list.files(tempdir(), pattern = "^renv-git-"), tmpfiles)
+
   desc <- renv_description_read(package = "bread")
   expect_equal(desc$RemoteType, "git")
+  expect_equal(desc$RemoteRef, "release")
   expect_equal(desc$RemoteSha, shas$release)
 
+  # the commit is captured in the lockfile
   writeLines("library(bread)", con = file.path(project, "dependencies.R"))
   snapshot()
   lockfile <- renv_lockfile_read(file.path(project, "renv.lock"))
-  expect_equal(lockfile$Packages$bread$Source, "git")
-  expect_equal(lockfile$Packages$bread$RemoteSha, shas$release)
+  record <- lockfile$Packages$bread
+  expect_equal(record$Source, "git")
+  expect_equal(record$RemoteSha, shas$release)
 
-  # restore retrieves the recorded commit even after the ref moves on
+  # retrieve() hands the clone back to its caller, so it isn't removed
+  destdir <- renv_scope_tempfile("renv-destdir-")
+  paths <- retrieve("bread", lockfile = file.path(project, "renv.lock"), destdir = destdir)
+  expect_true(file.exists(file.path(paths[["bread"]], "DESCRIPTION")))
+  unlink(paths[["bread"]], recursive = TRUE)
+
+  # update() sees no update until the recorded ref moves on
+  expect_length(renv_update_find(list(bread = record)), 0L)
+
   local({
-    renv_scope_wd(repo)
+    renv_scope_wd(remote$repo)
     renv_system_exec("git", c("checkout", "--quiet", "release"), action = "git checkout")
-    writeLines(c("Package: bread", "Type: Package", "Version: 2.0.0"), con = "DESCRIPTION")
-    renv_system_exec("git", c("commit", "--quiet", "-am", "2.0.0"), action = "git commit")
   })
+  latest <- renv_tests_git_commit(remote$repo, "2.0.0")
 
+  updates <- renv_update_find(list(bread = record))
+  expect_equal(updates$bread$Version, "2.0.0")
+  expect_equal(updates$bread$RemoteSha, latest)
+
+  # restore retrieves the recorded commit, even though the ref has moved on.
+  # git's original wire protocol refuses to serve a commit that no ref points
+  # at (as do some servers), so restore needs to fetch the ref's history
+  renv_scope_envvars(
+    GIT_CONFIG_COUNT   = "1",
+    GIT_CONFIG_KEY_0   = "protocol.version",
+    GIT_CONFIG_VALUE_0 = "0"
+  )
+
+  # (rebuild, so that the package isn't just restored from the cache)
   remove("bread")
-  restore()
+  clones <- 0L
+  restore(rebuild = TRUE)
+  expect_equal(clones, 1L)
+  expect_null(the$git_clones)
+  expect_setequal(list.files(tempdir(), pattern = "^renv-git-"), tmpfiles)
+
   desc <- renv_description_read(package = "bread")
   expect_equal(desc$Version, "1.0.0")
   expect_equal(desc$RemoteSha, shas$release)
+
+})
+
+test_that("git refs are resolved to the commits they point at", {
+
+  skip_on_cran()
+  skip_if(!nzchar(Sys.which("git")), "git is not installed")
+
+  renv_tests_scope()
+  remote <- renv_tests_git_remote()
+  shas <- remote$shas
+
+  # point an annotated tag, and a pull request ref (like those GitHub
+  # provides), at the release commit
+  local({
+    renv_scope_wd(remote$repo)
+    renv_system_exec("git", c("tag", "-a", "v1.0.0", "-m", "v1.0.0", "release"), action = "git tag")
+    renv_system_exec("git", c("update-ref", "refs/pull/1/head", shas$release), action = "git update-ref")
+  })
+
+  record <- list(
+    Package    = "bread",
+    Version    = "1.0.0",
+    Source     = "git",
+    RemoteType = "git",
+    RemoteUrl  = remote$url
+  )
+
+  # records without a ref use the default branch
+  expect_equal(renv_remotes_resolve_git_sha_ref(record), shas$head)
+
+  # annotated tags resolve to the commit they point at, rather than to the
+  # tag object itself, and so report no update for the installed commit
+  record$RemoteRef <- "v1.0.0"
+  record$RemoteSha <- shas$release
+  expect_equal(renv_remotes_resolve_git_sha_ref(record), shas$release)
+  expect_null(renv_update_find_git_impl(record))
+
+  # pull requests are recorded as refspecs
+  resolved <- renv_remotes_resolve_git(list(url = remote$url, repo = "bread", pull = "1"))
+  expect_equal(resolved$Version, "1.0.0")
+  expect_equal(resolved$RemoteRef, "pull/1/head:pull/1")
+  expect_equal(resolved$RemoteSha, shas$release)
+  expect_equal(renv_remotes_resolve_git_sha_ref(resolved), shas$release)
+
+  # a commit isn't a ref, and so can't be resolved; nor can it be updated
+  record$RemoteRef <- shas$release
+  expect_equal(renv_remotes_resolve_git_sha_ref(record), "")
+  expect_null(renv_update_find_git_impl(record))
 
 })

@@ -249,6 +249,40 @@ test_that("gitlab remotes are formatted using pkgdepends syntax for pak (#2180)"
 
 })
 
+test_that("git remotes are formatted using pkgdepends syntax for pak (#2378)", {
+
+  record <- list(
+    Package    = "skeleton",
+    Version    = "1.1.0",
+    Source     = "git",
+    RemoteType = "git",
+    RemoteUrl  = "https://github.com/kevinushey/skeleton.git",
+    RemoteRef  = "main",
+    RemoteSha  = "e4aafb92b86ba7eba3b7036d9d96fdfb6c32761a"
+  )
+
+  # renv's own syntax is retained for display
+  remote <- renv_record_format_remote(record)
+  expect_equal(remote, "git::https://github.com/kevinushey/skeleton.git")
+
+  # pak installs the recorded commit
+  remote <- renv_record_format_remote(record, pak = TRUE)
+  expect_equal(remote, "skeleton=git::https://github.com/kevinushey/skeleton.git@e4aafb92b86ba7eba3b7036d9d96fdfb6c32761a")
+
+  # unversioned remotes use the ref, if any
+  remote <- renv_record_format_remote(record, pak = TRUE, versioned = FALSE)
+  expect_equal(remote, "skeleton=git::https://github.com/kevinushey/skeleton.git@main")
+
+  # pkgdepends uses the default branch without a ref, and can't express a
+  # pull request refspec
+  for (ref in c("HEAD", "pull/1/head:pull/1")) {
+    record$RemoteRef <- ref
+    remote <- renv_record_format_remote(record, pak = TRUE, versioned = FALSE)
+    expect_equal(remote, "skeleton=git::https://github.com/kevinushey/skeleton.git")
+  }
+
+})
+
 test_that("renv_record_source infers 'repository' from Repository field", {
 
   # a record with Source explicitly set uses that

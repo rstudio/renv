@@ -164,6 +164,9 @@ restore <- function(project = NULL,
 
   }
 
+  # share clones of git remotes across the steps of this restore
+  renv_scope_git_clones()
+
   # set up Bioconductor version + repositories
   biocversion <- getOption("renv.bioconductor.version") %||% lockfile$Bioconductor$Version
   if (!is.null(biocversion)) {

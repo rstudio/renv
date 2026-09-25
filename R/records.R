@@ -143,6 +143,9 @@ renv_record_format_remote <- function(record,
   }
 
   # handle git, svn remotes
+  if (pak && identical(source, "git"))
+    return(renv_record_format_remote_pak_git(record, versioned = versioned))
+
   if (source %in% c("git", "svn")) {
     url <- record[["RemoteUrl"]]
     remote <- sprintf("%s::%s", source, url)
@@ -269,6 +272,38 @@ renv_record_format_remote_pak_gitlab <- function(record, versioned = TRUE) {
     stk$push("@", sha %||% ref %||% "HEAD")
   else if (length(ref))
     stk$push("@", ref)
+
+  paste(stk$data(), collapse = "")
+
+}
+
+# format a git record using pkgdepends' own remote syntax, as used by pak:
+#
+#   [<package>=]git::<url>[@<commitish>]
+#
+renv_record_format_remote_pak_git <- function(record, versioned = TRUE) {
+
+  package <- record[["Package"]]
+  url     <- record[["RemoteUrl"]]
+  ref     <- record[["RemoteRef"]] %||% ""
+  sha     <- record[["RemoteSha"]] %||% ""
+
+  # pkgdepends uses the default branch when no ref is given, and has no
+  # syntax for pull request refspecs (e.g. 'pull/1/head:pull/1')
+  if (identical(ref, "HEAD") || grepl(":", ref, fixed = TRUE))
+    ref <- ""
+
+  commitish <- if (versioned && nzchar(sha)) sha else ref
+
+  stk <- stack(mode = "character")
+
+  if (!is.null(package))
+    stk$push(package, "=")
+
+  stk$push("git::", url)
+
+  if (nzchar(commitish))
+    stk$push("@", commitish)
 
   paste(stk$data(), collapse = "")
 

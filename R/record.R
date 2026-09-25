@@ -198,9 +198,9 @@ renv_record_enrich_key <- function(record, source = NULL) {
 
   source <- source %||% renv_record_source(record, normalize = TRUE)
 
-  # include every field that contributes to source identity. plain git
-  # remotes (Source = "git") have no RemoteSha, so distinct URLs would
-  # otherwise alias to the same cache slot.
+  # include every field that contributes to source identity. git records
+  # may have no RemoteSha (e.g. those recorded by older versions of renv),
+  # so distinct URLs would otherwise alias to the same cache slot.
   fields <- c(
     "Package", "Version", "Source", "Repository",
     "RemoteType", "RemoteHost", "RemoteUrl", "RemoteUsername",

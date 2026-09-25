@@ -38,21 +38,29 @@ renv_update_find_repos_impl <- function(record) {
 }
 
 renv_update_find_git <- function(records) {
-  renv_parallel_exec(records, renv_update_find_git_impl)
+
+  names(records) <- map_chr(records, `[[`, "Package")
+  results <- renv_parallel_exec(records, function(record) {
+    catch(renv_update_find_git_impl(record))
+  })
+
+  failed <- map_lgl(results, inherits, "error")
+  if (any(failed))
+    renv_update_errors_set("git", results[failed])
+
+  results[!failed]
+
 }
 
 renv_update_find_git_impl <- function(record) {
 
+  # the sha is empty if the ref couldn't be resolved on the remote; most
+  # likely, the ref is itself a commit hash, and so has no updates
   sha <- renv_remotes_resolve_git_sha_ref(record)
+  if (!nzchar(sha))
+    return(NULL)
 
-  # if sha is empty:
-  # `git remote-ls origin ref` expects ref to be a reference, not a sha
-  # it is empty if ref isn't a reference on the repo
-  # this may be due to record$RemoteRef actually being a sha
-  # or it may be because record$RemoteRef is not a real ref
-  # but we can't check, so we will try to fetch the ref & see what we get
-  oldsha <- record$RemoteSha %||% ""
-  if (nzchar(oldsha) && identical(sha, oldsha))
+  if (identical(sha, record$RemoteSha))
     return(NULL)
 
   current <- record
@@ -174,7 +182,10 @@ renv_update_find_remote_impl <- function(record, update) {
 
 renv_update_find <- function(records) {
 
+  # packages installed by renv from git have Source 'git', whereas those
+  # installed by e.g. remotes (via 'git2r' or 'xgit') have Source 'Git'
   sources <- extract_chr(records, "Source")
+  sources[sources == "git"] <- "Git"
   grouped <- split(records, sources)
 
   # retrieve updates
@@ -447,6 +458,7 @@ renv_update_errors_emit <- function() {
   # then emit errors for each class
   renv_update_errors_emit_repos()
   renv_update_errors_emit_remote("github", "GitHub")
+  renv_update_errors_emit_remote("git", "Git")
   renv_update_errors_emit_remote("gitlab", "GitLab")
   renv_update_errors_emit_remote("bitbucket", "BitBucket")
 

@@ -361,6 +361,9 @@ renv_hydrate_resolve_missing <- function(project, library, remotes, missing) {
     return(invisible())
   }
 
+  # share clones of git remotes across the steps of this install
+  renv_scope_git_clones()
+
   # set up restore state for graph resolution
   renv_scope_restore(
     project  = project,

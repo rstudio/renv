@@ -779,15 +779,16 @@ renv_remotes_resolve_git <- function(remote) {
   # the package is pinned to that commit rather than to whatever the ref
   # happens to point at when the lockfile is later restored
   # https://github.com/rstudio/renv/issues/2378
-  path <- tempfile("renv-git-")
-  renv_remotes_resolve_git_clone(record, path)
+  renv_scope_git_clones()
+  path <- renv_remotes_resolve_git_clone(record)
   desc <- renv_description_read(path, subdir = subdir)
 
   record$Package   <- desc$Package
   record$Version   <- desc$Version
   record$RemoteSha <- renv_git_sha(path)
 
-  # keep the clone, so that installing this record can use it directly
+  # make the clone available by commit as well, so that installing this
+  # record within the same operation can use it rather than cloning again
   renv_git_clone_register(record, path)
 
   record
@@ -799,14 +800,22 @@ renv_remotes_resolve_git_sha_ref <- function(record) {
 
   renv_git_preflight()
 
-  # records restored from a lockfile may carry no ref (the lockfile omits
-  # 'HEAD' refs), and 'ls-remote' cannot resolve a sha, so fall back to HEAD
+  # records may carry no ref: older versions of renv recorded an empty ref for
+  # the default branch, and version 1 lockfiles omit 'HEAD' refs; 'ls-remote'
+  # can't resolve a sha, so use the remote's default branch for these
   origin <- record$RemoteUrl
   ref <- record$RemoteRef %||% ""
   if (!nzchar(ref))
     ref <- "HEAD"
 
-  args <- c("ls-remote", origin, ref)
+  # pull request refs are recorded as refspecs, e.g. 'pull/1/head:pull/1';
+  # 'ls-remote' only needs the remote side of these
+  ref <- sub(":.*", "", ref)
+
+  # an annotated tag has its own sha; ask for the commit it points at as well,
+  # which 'ls-remote' lists as '<ref>^{}'
+  peeled <- renv_shell_quote(paste0(ref, "^{}"))
+  args <- c("ls-remote", origin, ref, peeled)
 
   output <- local({
     renv_scope_auth(record)
@@ -814,39 +823,43 @@ renv_remotes_resolve_git_sha_ref <- function(record) {
     renv_system_exec("git", args, "checking git remote")
   })
 
-  if (empty(output))
-    return("")
-
   # format of output is, for example:
   #
   #   $ git ls-remote https://github.com/rstudio/renv refs/tags/0.14.0
   #   20ca74bdcc3c87848e5665effa2fc8ee8b039c69        refs/tags/0.14.0
   #
-  # take first line of output, split on tab character, and take leftmost entry
-  strsplit(output[[1L]], "\t", fixed = TRUE)[[1L]][[1L]]
+  # skip anything else that git might have written, e.g. warnings
+  pattern <- "^([[:xdigit:]]{40,64})\t(.*)$"
+  matches <- grep(pattern, output, value = TRUE)
+  if (empty(matches))
+    return("")
+
+  shas <- sub(pattern, "\\1", matches)
+  refs <- sub(pattern, "\\2", matches)
+
+  # prefer the commit an annotated tag points at, since that's what we check out
+  index <- match(paste0(refs[[1L]], "^{}"), refs)
+  if (is.na(index))
+    return(shas[[1L]])
+
+  shas[[index]]
 
 }
 
 
-renv_remotes_resolve_git_clone <- function(record, path) {
-
-  ensure_directory(path)
+renv_remotes_resolve_git_clone <- function(record) {
 
   # TODO: is there a cheaper way for us to accomplish this?
   # it'd be nice if we could retrieve the contents of a single
   # file, without needing to pull an entire repository branch
-  local({
-    renv_scope_options(renv.verbose = FALSE)
-    renv_retrieve_git_impl(record, path)
-  })
-
-  path
+  renv_scope_options(renv.verbose = FALSE)
+  renv_git_clone(record)
 
 }
 
 renv_remotes_resolve_git_description <- function(record) {
-  path <- renv_scope_tempfile("renv-git-")
-  renv_remotes_resolve_git_clone(record, path)
+  renv_scope_git_clones()
+  path <- renv_remotes_resolve_git_clone(record)
   renv_description_read(path, subdir = record$RemoteSubdir)
 }
 
