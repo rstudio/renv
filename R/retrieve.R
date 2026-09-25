@@ -629,6 +629,7 @@ renv_retrieve_git <- function(record) {
   # want to clean it up afterwards; clones made during an install or restore
   # are instead removed once that operation completes
   path <- renv_git_clone(record)
+  record <- renv_git_record_pin(record, path)
   renv_retrieve_successful(record, path)
 
 }
@@ -644,14 +645,13 @@ renv_retrieve_git_impl <- function(record, path) {
 
   # be quiet if requested
   quiet <- getOption("renv.git.quiet", default = TRUE)
-  quiet <- if (quiet) "--quiet" else ""
 
   data <- list(
     ORIGIN  = url,
     REF     = renv_git_rev(record),
     SHA     = sha,
     HISTORY = if (nzchar(ref)) ref else "HEAD",
-    QUIET   = quiet
+    QUIET   = if (quiet) "--quiet" else ""
   )
 
   init <- heredoc('
@@ -667,13 +667,9 @@ renv_retrieve_git_impl <- function(record, path) {
   # some servers refuse to serve a commit by its sha unless a ref points at it
   # (e.g. once the recorded branch has moved on); in that case, fetch the
   # history of the recorded ref instead, and check out the commit from there.
-  # the failure to fetch by sha is expected then, so it isn't reported.
-  # tags aren't needed, and could make this fetch much larger
+  # the failure to fetch by sha is expected then, so it's only shown when
+  # git's output was requested
   fallback <- nzchar(sha) && !identical(sha, ref)
-  history <- heredoc('
-    git fetch ${QUIET} --no-tags origin "${HISTORY}"
-    git reset ${QUIET} --hard "${SHA}"
-  ')
 
   printf("- Cloning '%s' ... ", url)
 
@@ -682,9 +678,9 @@ renv_retrieve_git_impl <- function(record, path) {
   status <- renv_retrieve_git_exec(record, path, init, data)
   if (status == 0L) {
 
-    status <- renv_retrieve_git_exec(record, path, fetch, data, quiet = fallback)
+    status <- renv_retrieve_git_exec(record, path, fetch, data, quiet = fallback && quiet)
     if (status != 0L && fallback)
-      status <- renv_retrieve_git_exec(record, path, history, data)
+      status <- renv_retrieve_git_history(record, path, data)
 
   }
 
@@ -700,6 +696,36 @@ renv_retrieve_git_impl <- function(record, path) {
   writef(fmt, renv_difftime_format(elapsed))
 
   TRUE
+
+}
+
+renv_retrieve_git_history <- function(record, path, data) {
+
+  # the commit is most likely a recent one, so fetch the recent history of the
+  # ref first, and fetch the rest of it only if the commit isn't found there.
+  # tags aren't needed, and could make these fetches much larger
+  fetch <- 'git fetch ${QUIET} --no-tags ${DEPTH} origin "${HISTORY}"'
+  reset <- 'git reset ${QUIET} --hard "${SHA}"'
+
+  for (depth in c("--depth=100", "--unshallow")) {
+
+    data$DEPTH <- depth
+    status <- renv_retrieve_git_exec(record, path, fetch, data)
+    if (status != 0L)
+      return(status)
+
+    if (renv_git_commit_exists(path, data$SHA))
+      return(renv_retrieve_git_exec(record, path, reset, data))
+
+    # stop if the ref's whole history has already been fetched
+    if (!file.exists(file.path(path, ".git/shallow")))
+      break
+
+  }
+
+  # e.g. the branch was force-pushed, and the commit is no longer part of it
+  fmt <- "commit '%s' was not found in the history of '%s' from '%s'"
+  stopf(fmt, data$SHA, data$HISTORY, data$ORIGIN)
 
 }
 

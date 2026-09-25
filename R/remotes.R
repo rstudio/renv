@@ -783,15 +783,10 @@ renv_remotes_resolve_git <- function(remote) {
   path <- renv_remotes_resolve_git_clone(record)
   desc <- renv_description_read(path, subdir = subdir)
 
-  record$Package   <- desc$Package
-  record$Version   <- desc$Version
-  record$RemoteSha <- renv_git_sha(path)
+  record$Package <- desc$Package
+  record$Version <- desc$Version
 
-  # make the clone available by commit as well, so that installing this
-  # record within the same operation can use it rather than cloning again
-  renv_git_clone_register(record, path)
-
-  record
+  renv_git_record_pin(record, path)
 
 }
 
@@ -813,9 +808,10 @@ renv_remotes_resolve_git_sha_ref <- function(record) {
   ref <- sub(":.*", "", ref)
 
   # an annotated tag has its own sha; ask for the commit it points at as well,
-  # which 'ls-remote' lists as '<ref>^{}'
-  peeled <- renv_shell_quote(paste0(ref, "^{}"))
-  args <- c("ls-remote", origin, ref, peeled)
+  # which 'ls-remote' lists as '<ref>^{}'. these are passed through the shell,
+  # and refs can contain characters that the shell would interpret
+  patterns <- c(ref, paste0(ref, "^{}"))
+  args <- c("ls-remote", renv_shell_quote(origin), renv_shell_quote(patterns))
 
   output <- local({
     renv_scope_auth(record)
@@ -832,7 +828,7 @@ renv_remotes_resolve_git_sha_ref <- function(record) {
   pattern <- "^([[:xdigit:]]{40,64})\t(.*)$"
   matches <- grep(pattern, output, value = TRUE)
   if (empty(matches))
-    return("")
+    return(character())
 
   shas <- sub(pattern, "\\1", matches)
   refs <- sub(pattern, "\\2", matches)
@@ -852,15 +848,13 @@ renv_remotes_resolve_git_sha_ref <- function(record) {
   index <- match(sprintf(rules, ref), refs)
   index <- index[!is.na(index)]
   if (empty(index))
-    return("")
+    return(character())
 
-  # prefer the commit an annotated tag points at, since that's what we check out
-  index <- index[[1L]]
-  peeled <- match(paste0(refs[[index]], "^{}"), refs)
-  if (!is.na(peeled))
-    index <- peeled
-
-  shas[[index]]
+  # return the commit an annotated tag points at first, since that's what we
+  # check out; the tag's own sha follows, since that's what remotes records
+  refname <- refs[[index[[1L]]]]
+  index <- match(c(paste0(refname, "^{}"), refname), refs, nomatch = 0L)
+  shas[index]
 
 }
 

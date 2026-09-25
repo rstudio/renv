@@ -32,6 +32,16 @@ renv_git_sha <- function(path) {
 
 }
 
+renv_git_commit_exists <- function(path, sha) {
+
+  renv_scope_wd(path)
+
+  args <- c("cat-file", "-e", sha)
+  status <- suppressWarnings(system2("git", args, stdout = FALSE, stderr = FALSE))
+  identical(status, 0L)
+
+}
+
 # the commit-ish that should be fetched for a git record
 renv_git_rev <- function(record) {
 
@@ -75,6 +85,24 @@ renv_git_clone_key <- function(record) {
   paste(record$RemoteUrl, renv_git_rev(record), sep = "@")
 }
 
+# pin a git record to the commit checked out by its clone, unless it's pinned
+# already; e.g. records written by older versions of renv have no sha
+# https://github.com/rstudio/renv/issues/2378
+renv_git_record_pin <- function(record, path) {
+
+  if (nzchar(record$RemoteSha %||% ""))
+    return(record)
+
+  record$RemoteSha <- renv_git_sha(path)
+
+  # make the clone available by commit as well, so that later steps of this
+  # operation (e.g. installing the record) can use it rather than cloning again
+  renv_git_clone_register(record, path)
+
+  record
+
+}
+
 renv_git_clone_register <- function(record, path) {
 
   clones <- the$git_clones
@@ -82,6 +110,21 @@ renv_git_clone_register <- function(record, path) {
     clones$keys[[renv_git_clone_key(record)]] <- path
 
   invisible(path)
+
+}
+
+# adopt a clone made outside of the active cache (e.g. in a forked process), so
+# that it can be re-used, and is removed along with the others
+renv_git_clone_adopt <- function(record, path) {
+
+  clones <- the$git_clones
+  if (is.null(clones))
+    return(invisible(path))
+
+  if (!path %in% clones$paths)
+    clones$paths <- c(clones$paths, path)
+
+  renv_git_clone_register(record, path)
 
 }
 

@@ -1474,39 +1474,19 @@ test_that("repository graph reads DESCRIPTION from a git commit for r-universe r
   # a git repository holding 'bread' 0.5.0 and then 1.0.0; the test package
   # repository provides only 1.0.0 (and archives 0.1.0), so 0.5.0 can only be
   # resolved from the recorded commit
-  repo <- renv_scope_tempfile("renv-git-")
-  ensure_directory(repo)
-  renv_scope_wd(repo)
-
-  renv_system_exec("git", c("init", "--quiet"), action = "git init")
-  renv_system_exec("git", c("config", "user.name", shQuote("User Name")), action = "git config")
-  renv_system_exec("git", c("config", "user.email", shQuote("user@example.com")), action = "git config")
+  repo <- renv_tests_git_init()
 
   # GitHub allows any commit to be fetched directly; a local repository
   # needs to be told to allow it
-  renv_system_exec("git", c("config", "uploadpack.allowAnySHA1InWant", "true"), action = "git config")
+  local({
+    renv_scope_wd(repo)
+    renv_system_exec("git", c("config", "uploadpack.allowAnySHA1InWant", "true"), action = "git config")
+  })
 
-  versions <- c("0.5.0", "1.0.0")
-  depends <- c("egg", "toast")
-  shas <- character()
-
-  for (i in seq_along(versions)) {
-
-    desc <- c(
-      "Package: bread",
-      "Type: Package",
-      paste("Version:", versions[[i]]),
-      paste("Depends:", depends[[i]])
-    )
-
-    writeLines(desc, con = "DESCRIPTION")
-    writeLines("", con = "NAMESPACE")
-
-    renv_system_exec("git", c("add", "-A"), action = "git add")
-    renv_system_exec("git", c("commit", "--quiet", "-m", shQuote(versions[[i]])), action = "git commit")
-    shas[[i]] <- renv_system_exec("git", c("rev-parse", "HEAD"), action = "git rev-parse")
-
-  }
+  shas <- c(
+    renv_tests_git_commit(repo, "0.5.0", depends = "egg"),
+    renv_tests_git_commit(repo, "1.0.0", depends = "toast")
+  )
 
   # nothing but the commit should be able to provide this version
   renv_scope_binding(

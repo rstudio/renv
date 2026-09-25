@@ -304,6 +304,19 @@ test_that("git remotes are formatted using pkgdepends syntax for pak (#2378)", {
     expect_equal(remote, "skeleton=git::https://github.com/kevinushey/skeleton.git")
   }
 
+  # pak records the remote as requested, which doesn't pin the commit it
+  # installed; that pkgref is kept for display, but pak is given the commit
+  record$RemotePkgRef <- "git::https://github.com/kevinushey/skeleton.git"
+  remote <- renv_record_format_remote(record)
+  expect_equal(remote, record$RemotePkgRef)
+
+  remote <- renv_record_format_remote(record, pak = TRUE)
+  expect_equal(remote, "skeleton=git::https://github.com/kevinushey/skeleton.git@e4aafb92b86ba7eba3b7036d9d96fdfb6c32761a")
+
+  # pkgdepends can't install a package from a sub-directory of a git repository
+  record$RemoteSubdir <- "pkg"
+  expect_error(renv_record_format_remote(record, pak = TRUE), "sub-directory")
+
 })
 
 test_that("renv_record_source infers 'repository' from Repository field", {

@@ -37,28 +37,51 @@ renv_update_find_repos_impl <- function(record) {
 
 }
 
-renv_update_find_git <- function(records) {
+# check each record for updates, in parallel if possible; errors are collected,
+# to be reported under the given key
+renv_update_find_parallel <- function(records, key, callback) {
 
   names(records) <- map_chr(records, `[[`, "Package")
   results <- renv_parallel_exec(records, function(record) {
-    catch(renv_update_find_git_impl(record))
+    catch(callback(record))
   })
 
   failed <- map_lgl(results, inherits, "error")
   if (any(failed))
-    renv_update_errors_set("git", results[failed])
+    renv_update_errors_set(key, results[failed])
 
   results[!failed]
 
 }
 
+renv_update_find_git <- function(records) {
+
+  renv_scope_git_clones()
+  results <- renv_update_find_parallel(records, "git", renv_update_find_git_impl)
+
+  # the checks may have run in forked processes, whose clones this process
+  # doesn't know about; adopt them, so that installing an update can re-use
+  # its clone, and so that the clones are removed along with the others
+  map(results, function(result) {
+
+    if (is.null(result))
+      return(NULL)
+
+    renv_git_clone_adopt(result$record, result$path)
+    if (result$updated)
+      result$record
+
+  })
+
+}
+
 renv_update_find_git_impl <- function(record) {
 
-  # the sha is empty if the ref couldn't be found on the remote; that's expected
+  # no sha is found if the ref couldn't be found on the remote; that's expected
   # when the ref is itself a commit, which has no updates, but otherwise means
   # the ref no longer exists (e.g. a deleted branch)
-  sha <- renv_remotes_resolve_git_sha_ref(record)
-  if (!nzchar(sha)) {
+  shas <- renv_remotes_resolve_git_sha_ref(record)
+  if (empty(shas)) {
 
     ref <- record$RemoteRef %||% ""
     if (grepl("^[[:xdigit:]]{7,64}$", ref))
@@ -69,36 +92,32 @@ renv_update_find_git_impl <- function(record) {
 
   }
 
-  if (identical(sha, record$RemoteSha))
+  # for an annotated tag, remotes records the sha of the tag itself, rather
+  # than that of the commit it points at, so accept either
+  sha <- record$RemoteSha %||% ""
+  if (sha %in% shas)
     return(NULL)
 
   current <- record
-  current$RemoteSha <- sha
+  current$RemoteSha <- shas[[1L]]
 
-  desc <- renv_remotes_resolve_git_description(current)
+  path <- renv_remotes_resolve_git_clone(current)
+  desc <- renv_description_read(path, subdir = current$RemoteSubdir)
 
   current$Version <- desc$Version
   current$Package <- desc$Package
 
-  updated <- renv_version_ge(current$Version, record$Version)
-  if (updated)
-    return(current)
+  # without a recorded commit, we can't tell whether the installed package is
+  # out of date, so only report an update if a newer version is available
+  compare <- renv_version_compare(current$Version, record$Version)
+  updated <- if (nzchar(sha)) compare >= 0L else compare > 0L
+
+  list(record = current, path = path, updated = updated)
 
 }
 
 renv_update_find_github <- function(records) {
-
-  names(records) <- map_chr(records, `[[`, "Package")
-  results <- renv_parallel_exec(records, function(record) {
-    catch(renv_update_find_github_impl(record))
-  })
-
-  failed <- map_lgl(results, inherits, "error")
-  if (any(failed))
-    renv_update_errors_set("github", results[failed])
-
-  results[!failed]
-
+  renv_update_find_parallel(records, "github", renv_update_find_github_impl)
 }
 
 renv_update_find_github_impl <- function(record) {
@@ -154,16 +173,9 @@ renv_update_find_remote <- function(records, type) {
     stopf("Unsupported type %s", type)
   )
 
-  names(records) <- map_chr(records, `[[`, "Package")
-  results <- renv_parallel_exec(records, function(record) {
-    catch(renv_update_find_remote_impl(record, update))
+  renv_update_find_parallel(records, type, function(record) {
+    renv_update_find_remote_impl(record, update)
   })
-
-  failed <- map_lgl(results, inherits, "error")
-  if (any(failed))
-    renv_update_errors_set(type, results[failed])
-
-  results[!failed]
 
 }
 
@@ -191,21 +203,21 @@ renv_update_find_remote_impl <- function(record, update) {
 
 renv_update_find <- function(records) {
 
-  # packages installed by renv from git have Source 'git', whereas those
-  # installed by e.g. remotes (via 'git2r' or 'xgit') have Source 'Git'
-  sources <- extract_chr(records, "Source")
-  sources[sources == "git"] <- "Git"
+  # group on the normalized source, since the same source can be spelled in
+  # different ways; e.g. packages installed by renv from git have Source 'git',
+  # whereas those installed by remotes (via 'git2r' or 'xgit') have Source 'Git'
+  sources <- map_chr(records, renv_record_source, normalize = TRUE)
   grouped <- split(records, sources)
 
   # retrieve updates
   results <- enumerate(grouped, function(source, records) {
     case(
-      source == "Bioconductor" ~ renv_update_find_repos(records),
-      source == "Repository"   ~ renv_update_find_repos(records),
-      source == "GitHub"       ~ renv_update_find_github(records),
-      source == "Git"          ~ renv_update_find_git(records),
-      source == "GitLab"       ~ renv_update_find_remote(records, "gitlab"),
-      source == "Bitbucket"    ~ renv_update_find_remote(records, "bitbucket")
+      source == "bioconductor" ~ renv_update_find_repos(records),
+      source == "repository"   ~ renv_update_find_repos(records),
+      source == "github"       ~ renv_update_find_github(records),
+      source == "git"          ~ renv_update_find_git(records),
+      source == "gitlab"       ~ renv_update_find_remote(records, "gitlab"),
+      source == "bitbucket"    ~ renv_update_find_remote(records, "bitbucket")
     )
   })
 
@@ -396,6 +408,9 @@ update <- function(packages = NULL,
     !inherits(entry, "error")
 
   })
+
+  # share clones of git remotes between the update checks and the install
+  renv_scope_git_clones()
 
   updates <- renv_update_find(selected)
   writef("Done!")
