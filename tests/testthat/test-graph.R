@@ -453,6 +453,34 @@ test_that("renv_graph_requirements includes project DESCRIPTION constraints", {
 
 })
 
+test_that("project DESCRIPTION constraints don't override Remotes entries", {
+
+  project <- renv_tests_scope()
+
+  # a local copy of 'bread', older than the version on the repository
+  root <- renv_scope_tempfile("renv-remotes-")
+  source <- file.path(root, "bread")
+  renv_file_copy(renv_tests_path("packages/bread"), source)
+
+  descpath <- file.path(source, "DESCRIPTION")
+  bread <- renv_description_read(descpath)
+  bread$Version <- "0.5.0"
+  renv_dcf_write(bread, file = descpath)
+
+  desc <- c(
+    "Type: Project",
+    "Package: myproject",
+    "Imports: bread (>= 1.0.0)",
+    sprintf("Remotes: local::%s", source)
+  )
+  writeLines(desc, con = "DESCRIPTION")
+
+  # the Remotes entry wins; the constraint is only reported
+  descriptions <- renv_graph_init("bread", project = project)
+  expect_equal(descriptions$bread$Version, "0.5.0")
+
+})
+
 test_that("renv_graph_compatible accepts satisfied constraints", {
 
   reqs <- data.frame(

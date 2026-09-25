@@ -7,12 +7,13 @@
   were silently ignored, so an installed dependency could be older than
   the version the project declared it required. Versions pinned by the
   lockfile during `renv::restore()`, or requested explicitly via
-  `pkg@version`, are never overridden by these constraints; renv reports
-  the unmet constraint instead. `renv::restore()` also now
-  reports whenever it replaces a requested package version because it
-  didn't satisfy the constraints of other packages, rather than only when
-  that package was explicitly requested. `!=` constraints are now parsed
-  as well.
+  `pkg@version`, or declared in the project's `Remotes` field, are never
+  overridden by these constraints; renv reports the unmet constraint
+  instead. When renv retrieves packages one at a time (for example, in
+  `renv::upgrade()`), it also now reports whenever it replaces a package
+  version that didn't satisfy the constraints of other packages, rather
+  than only when that package was explicitly requested. `!=` constraints
+  are now parsed as well.
 
 * `renv::dependencies()` now follows Quarto's engine-binding rules when
   inferring dependencies for `.qmd` documents. Documents bound to the knitr
