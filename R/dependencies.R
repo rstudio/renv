@@ -702,7 +702,7 @@ renv_dependencies_discover_description_impl <- function(dcf, field, path) {
   # match to split on remote, version
   pattern <- paste0(
     "([^,\\([:space:]]+)",                    # remote name
-    "(?:\\s*\\(([><=]+)\\s*([0-9.-]+)\\))?"   # optional version specification
+    "(?:\\s*\\(([!><=]+)\\s*([0-9.-]+)\\))?"  # optional version specification
   )
 
   m <- regexec(pattern, x)

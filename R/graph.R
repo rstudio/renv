@@ -24,8 +24,10 @@ renv_graph_init <- function(remotes, records = list(), project = NULL, scope = p
   # so that packages specified via the project DESCRIPTION Remotes field
   # are resolved from the correct source (e.g. GitHub) even when the
   # caller doesn't explicitly include them in 'records'
+  pinned <- character()
   if (!is.null(project) && config$install.remotes()) {
     projrecords <- renv_project_remotes(project)
+    pinned <- attr(projrecords, "remotes") %||% character()
     for (name in names(projrecords))
       if (is.null(records[[name]]))
         records[[name]] <- projrecords[[name]]
@@ -42,15 +44,15 @@ renv_graph_init <- function(remotes, records = list(), project = NULL, scope = p
   # if any resolved description indicates Bioconductor is needed (via Source
   # or Bioconductor provenance), activate Bioconductor repos for the rest of
   # resolution -- unless Bioconductor is disabled for this project
-  project <- renv_restore_state(key = "project") %||% renv_project_resolve()
+  bioproject <- renv_restore_state(key = "project") %||% project
   resolved <- as.list(envir)
-  bioc <- renv_bioconductor_enabled(project = project) && any(map_lgl(resolved, function(desc) {
+  bioc <- renv_bioconductor_enabled(project = bioproject) && any(map_lgl(resolved, function(desc) {
     source <- renv_record_source(desc, normalize = TRUE)
     identical(source, "bioconductor") || renv_description_bioconductor(desc)
   }))
 
   if (bioc)
-    renv_scope_bioconductor(project = project, scope = scope)
+    renv_scope_bioconductor(project = bioproject, scope = scope)
 
   # phase 2: resolve transitive dependencies with default fields
   idx <- 1L
@@ -65,7 +67,7 @@ renv_graph_init <- function(remotes, records = list(), project = NULL, scope = p
   # doesn't satisfy constraints from other packages in the graph,
   # try to upgrade it to the latest available version
   descriptions <- as.list(envir)
-  requirements <- renv_graph_requirements(descriptions)
+  requirements <- renv_graph_requirements(descriptions, project = project)
 
   for (package in ls(envir = requirements)) {
 
@@ -74,6 +76,12 @@ renv_graph_init <- function(remotes, records = list(), project = NULL, scope = p
     version <- descriptions[[package]]$Version
     if (is.null(version))
       next
+
+    # the project's own constraints shouldn't override a version pinned by
+    # the caller -- a lockfile record during restore(), an explicit
+    # 'pkg@version' request, or a Remotes entry; those are only reported below
+    if (renv_graph_pinned(package, records, descriptions[[package]], pinned))
+      reqs <- reqs[!reqs$Project, ]
 
     if (renv_graph_compatible(version, reqs))
       next
@@ -638,7 +646,7 @@ renv_graph_deps <- function(desc, fields = NULL) {
 
 }
 
-renv_graph_requirements <- function(descriptions) {
+renv_graph_requirements <- function(descriptions, project = NULL) {
 
   requirements <- new.env(parent = emptyenv())
 
@@ -652,10 +660,23 @@ renv_graph_requirements <- function(descriptions) {
       if (nrow(explicit) == 0L)
         next
       explicit$RequiredBy <- desc$Package
+      explicit$Project <- FALSE
       for (i in seq_len(nrow(explicit))) {
         pkg <- explicit$Package[[i]]
         requirements[[pkg]] <- c(requirements[[pkg]], list(explicit[i, ]))
       }
+    }
+  }
+
+  # include constraints declared by the project itself
+  explicit <- renv_project_requirements(project)
+  if (NROW(explicit)) {
+    explicit$RequiredBy <- explicit$Source
+    explicit$Source <- NULL
+    explicit$Project <- TRUE
+    for (i in seq_len(nrow(explicit))) {
+      pkg <- explicit$Package[[i]]
+      requirements[[pkg]] <- c(requirements[[pkg]], list(explicit[i, ]))
     }
   }
 
@@ -665,6 +686,27 @@ renv_graph_requirements <- function(descriptions) {
   })
 
   requirements
+
+}
+
+# is this package's version pinned, such that the project's own constraints
+# shouldn't upgrade it? lazy records (from the project DESCRIPTION) resolve
+# on demand, and so don't count as pins by themselves
+renv_graph_pinned <- function(package, records, desc, pinned = character()) {
+
+  # packages declared in the project's Remotes field
+  if (package %in% pinned)
+    return(TRUE)
+
+  # explicit records from the caller, e.g. lockfile records or 'pkg@version'
+  record <- records[[package]]
+  if (!is.null(record) && !is.function(record) && !is.null(record$Version))
+    return(TRUE)
+
+  # packages from a non-repository source (e.g. a Remotes entry) can't be
+  # upgraded by swapping in the latest repository version
+  source <- renv_record_source(desc, normalize = TRUE)
+  !source %in% c("repository", "bioconductor")
 
 }
 
@@ -1266,7 +1308,7 @@ renv_graph_install <- function(descriptions) {
   if (length(packages) == 0L)
     return(invisible(list()))
 
-  project <- renv_project_resolve()
+  project <- renv_restore_state(key = "project") %||% renv_project_resolve()
   library <- renv_libpaths_active()
 
   # set up restore state if not already provided by the caller
@@ -1329,7 +1371,7 @@ renv_graph_install <- function(descriptions) {
 
   # filter out packages that are already correctly installed;
   # safe to do up front since nothing has been installed yet
-  requirements <- renv_graph_requirements(descriptions)
+  requirements <- renv_graph_requirements(descriptions, project = project)
   remaining <- Filter(function(pkg) {
     renv_graph_needs_update(pkg, descriptions[[pkg]], requirements)
   }, packages)

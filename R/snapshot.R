@@ -555,6 +555,10 @@ renv_snapshot_validate_dependencies_compatible <- function(project, lockfile, li
   packages <- extract_chr(records, "Package")
   locs <- find.package(packages, lib.loc = libpaths, quiet = TRUE)
   deps <- bapply(locs, renv_dependencies_discover_description)
+
+  # include constraints declared in the project's own DESCRIPTION;
+  # constraints on Suggests are advisory, so don't block the snapshot on them
+  deps <- bind(list(deps, renv_project_requirements(project, dev = FALSE)))
   if (empty(deps))
     return(character())
 

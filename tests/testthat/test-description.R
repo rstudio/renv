@@ -74,3 +74,14 @@ test_that("we can read a DESCRIPTION file with empty lines", {
   expect_equal(actual, expected)
 
 })
+
+test_that("version constraints are parsed from dependency fields", {
+
+  field <- "bread (>= 1.0.0), toast (!= 0.1.0), oatmeal"
+  parsed <- renv_description_parse_field(field)
+
+  expect_equal(parsed$Package, c("bread", "toast", "oatmeal"))
+  expect_equal(parsed$Require, c(">=", "!=", ""))
+  expect_equal(parsed$Version, c("1.0.0", "0.1.0", ""))
+
+})

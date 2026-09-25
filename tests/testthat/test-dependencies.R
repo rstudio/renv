@@ -1017,3 +1017,17 @@ test_that("system.file() dependencies are handled", {
   result <- dependencies(path, quiet = TRUE)
   expect_contains(result$Package, c("A", "B", "C"))
 })
+
+test_that("DESCRIPTION dependency constraints are parsed, including '!='", {
+
+  renv_tests_scope()
+  writeLines("Imports: bread (>= 1.0.0), toast (!= 0.1.0), oatmeal", con = "DESCRIPTION")
+
+  deps <- renv_dependencies_discover_description("DESCRIPTION")
+  deps <- deps[order(deps$Package), ]
+
+  expect_equal(deps$Package, c("bread", "oatmeal", "toast"))
+  expect_equal(deps$Require, c(">=", "", "!="))
+  expect_equal(deps$Version, c("1.0.0", "", "0.1.0"))
+
+})

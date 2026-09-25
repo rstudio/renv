@@ -431,6 +431,73 @@ test_that("renv_graph_requirements extracts version constraints", {
 
 })
 
+test_that("renv_graph_requirements includes project DESCRIPTION constraints", {
+
+  project <- renv_tests_scope()
+
+  desc <- c(
+    "Type: Project",
+    "Package: myproject",
+    "Imports: bread (>= 1.0.0)"
+  )
+  writeLines(desc, con = "DESCRIPTION")
+
+  descriptions <- renv_graph_init("toast", project = project)
+  requirements <- renv_graph_requirements(descriptions, project = project)
+
+  reqs <- requirements[["bread"]]
+  expect_true(is.data.frame(reqs))
+  expect_true("myproject" %in% reqs$RequiredBy)
+  expect_equal(reqs$Require[reqs$RequiredBy == "myproject"], ">=")
+  expect_equal(reqs$Version[reqs$RequiredBy == "myproject"], "1.0.0")
+
+})
+
+test_that("project DESCRIPTION constraints don't override Remotes entries", {
+
+  project <- renv_tests_scope()
+
+  # a local copy of 'bread', older than the version on the repository
+  root <- renv_scope_tempfile("renv-remotes-")
+  source <- file.path(root, "bread")
+  renv_file_copy(renv_tests_path("packages/bread"), source)
+
+  descpath <- file.path(source, "DESCRIPTION")
+  bread <- renv_description_read(descpath)
+  bread$Version <- "0.5.0"
+  renv_dcf_write(bread, file = descpath)
+
+  desc <- c(
+    "Type: Project",
+    "Package: myproject",
+    "Imports: bread (>= 1.0.0)",
+    sprintf("Remotes: local::%s", source)
+  )
+  writeLines(desc, con = "DESCRIPTION")
+
+  # the Remotes entry wins; the constraint is only reported
+  descriptions <- renv_graph_init("bread", project = project)
+  expect_equal(descriptions$bread$Version, "0.5.0")
+
+})
+
+test_that("project DESCRIPTION constraints don't override versioned Remotes entries", {
+
+  project <- renv_tests_scope()
+
+  desc <- c(
+    "Type: Project",
+    "Package: myproject",
+    "Imports: bread (>= 1.0.0)",
+    "Remotes: bread@0.1.0"
+  )
+  writeLines(desc, con = "DESCRIPTION")
+
+  descriptions <- renv_graph_init("bread", project = project)
+  expect_equal(descriptions$bread$Version, "0.1.0")
+
+})
+
 test_that("renv_graph_compatible accepts satisfied constraints", {
 
   reqs <- data.frame(
