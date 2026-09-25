@@ -535,8 +535,17 @@ renv_graph_description_crandb_convert <- function(value) {
 }
 
 renv_graph_description_git <- function(record) {
-  desc <- renv_remotes_resolve_git_description(record)
+
+  renv_scope_git_clones()
+  path <- renv_remotes_resolve_git_clone(record)
+  desc <- renv_description_read(path, subdir = record$RemoteSubdir)
+
+  # the package is installed from this description, so pin it here
+  record <- renv_git_record_pin(record, path)
+  desc$RemoteSha <- record$RemoteSha
+
   as.list(desc)
+
 }
 
 renv_graph_description_github <- function(record) {

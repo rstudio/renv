@@ -143,6 +143,29 @@ test_that("records with NULL versions are treated as crossgrades", {
 
 })
 
+test_that("'HEAD' refs compare equal to no ref (#2378)", {
+
+  # version 1 lockfiles omit 'HEAD' refs, which git records now use
+  # for the default branch
+  before <- list(
+    Package    = "skeleton",
+    Version    = "1.0.0",
+    Source     = "git",
+    RemoteType = "git",
+    RemoteUrl  = "https://github.com/kevinushey/skeleton.git",
+    RemoteRef  = "HEAD",
+    RemoteSha  = "e4aafb92b86ba7eba3b7036d9d96fdfb6c32761a"
+  )
+
+  after <- before
+  after$RemoteRef <- NULL
+  expect_null(renv_lockfile_diff_record(before, after))
+
+  after$RemoteRef <- "main"
+  expect_equal(renv_lockfile_diff_record(before, after), "crossgrade")
+
+})
+
 test_that("pak's cran remotes are considered cranlike", {
 
   record <- list(
@@ -246,6 +269,53 @@ test_that("gitlab remotes are formatted using pkgdepends syntax for pak (#2180)"
   # unversioned remotes use the ref, if any
   remote <- renv_record_format_remote(record, pak = TRUE, versioned = FALSE)
   expect_equal(remote, "testpackage=gitlab::https://gitlab.com/group/repo/-/testpackage@main")
+
+})
+
+test_that("git remotes are formatted using pkgdepends syntax for pak (#2378)", {
+
+  record <- list(
+    Package    = "skeleton",
+    Version    = "1.1.0",
+    Source     = "git",
+    RemoteType = "git",
+    RemoteUrl  = "https://github.com/kevinushey/skeleton.git",
+    RemoteRef  = "main",
+    RemoteSha  = "e4aafb92b86ba7eba3b7036d9d96fdfb6c32761a"
+  )
+
+  # renv's own syntax is retained for display
+  remote <- renv_record_format_remote(record)
+  expect_equal(remote, "git::https://github.com/kevinushey/skeleton.git")
+
+  # pak installs the recorded commit
+  remote <- renv_record_format_remote(record, pak = TRUE)
+  expect_equal(remote, "skeleton=git::https://github.com/kevinushey/skeleton.git@e4aafb92b86ba7eba3b7036d9d96fdfb6c32761a")
+
+  # unversioned remotes use the ref, if any
+  remote <- renv_record_format_remote(record, pak = TRUE, versioned = FALSE)
+  expect_equal(remote, "skeleton=git::https://github.com/kevinushey/skeleton.git@main")
+
+  # pkgdepends uses the default branch without a ref, and can't express a
+  # pull request refspec
+  for (ref in c("HEAD", "pull/1/head:pull/1")) {
+    record$RemoteRef <- ref
+    remote <- renv_record_format_remote(record, pak = TRUE, versioned = FALSE)
+    expect_equal(remote, "skeleton=git::https://github.com/kevinushey/skeleton.git")
+  }
+
+  # pak records the remote as requested, which doesn't pin the commit it
+  # installed; that pkgref is kept for display, but pak is given the commit
+  record$RemotePkgRef <- "git::https://github.com/kevinushey/skeleton.git"
+  remote <- renv_record_format_remote(record)
+  expect_equal(remote, record$RemotePkgRef)
+
+  remote <- renv_record_format_remote(record, pak = TRUE)
+  expect_equal(remote, "skeleton=git::https://github.com/kevinushey/skeleton.git@e4aafb92b86ba7eba3b7036d9d96fdfb6c32761a")
+
+  # pkgdepends can't install a package from a sub-directory of a git repository
+  record$RemoteSubdir <- "pkg"
+  expect_error(renv_record_format_remote(record, pak = TRUE), "sub-directory")
 
 })
 
