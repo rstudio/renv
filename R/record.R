@@ -122,6 +122,11 @@ renv_record_normalize <- function(record) {
   if (renv_record_cranlike(record))
     record <- record[grep("^Remote", names(record), invert = TRUE)]
 
+  # a 'HEAD' ref just requests the default branch, and is omitted from version
+  # 1 lockfiles, so treat it the same as having no ref
+  if (identical(record$RemoteRef, "HEAD"))
+    record$RemoteRef <- NULL
+
   # keep only specific records for comparison
   remotes <- grep("^Remote", names(record), value = TRUE)
   keep <- c("Package", "Version", "Source", remotes)

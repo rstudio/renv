@@ -837,10 +837,28 @@ renv_remotes_resolve_git_sha_ref <- function(record) {
   shas <- sub(pattern, "\\1", matches)
   refs <- sub(pattern, "\\2", matches)
 
+  # 'ls-remote' lists every ref whose name ends with the requested ref (e.g.
+  # 'main' also matches 'refs/heads/feature/main'), so pick the one that
+  # 'git fetch' would check out, using git's own rules for expanding a ref
+  rules <- c(
+    "%s",
+    "refs/%s",
+    "refs/tags/%s",
+    "refs/heads/%s",
+    "refs/remotes/%s",
+    "refs/remotes/%s/HEAD"
+  )
+
+  index <- match(sprintf(rules, ref), refs)
+  index <- index[!is.na(index)]
+  if (empty(index))
+    return("")
+
   # prefer the commit an annotated tag points at, since that's what we check out
-  index <- match(paste0(refs[[1L]], "^{}"), refs)
-  if (is.na(index))
-    return(shas[[1L]])
+  index <- index[[1L]]
+  peeled <- match(paste0(refs[[index]], "^{}"), refs)
+  if (!is.na(peeled))
+    index <- peeled
 
   shas[[index]]
 

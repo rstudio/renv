@@ -361,7 +361,9 @@ test_that("git remotes are pinned to the commit they were installed from", {
   destdir <- renv_scope_tempfile("renv-destdir-")
   paths <- retrieve("bread", lockfile = file.path(project, "renv.lock"), destdir = destdir)
   expect_true(file.exists(file.path(paths[["bread"]], "DESCRIPTION")))
-  unlink(paths[["bread"]], recursive = TRUE)
+
+  # NOTE: git marks its object files read-only, hence 'force'
+  unlink(paths[["bread"]], recursive = TRUE, force = TRUE)
 
   # update() sees no update until the recorded ref moves on
   expect_length(renv_update_find(list(bread = record)), 0L)
@@ -414,6 +416,12 @@ test_that("git refs are resolved to the commits they point at", {
     renv_scope_wd(remote$repo)
     renv_system_exec("git", c("tag", "-a", "v1.0.0", "-m", "v1.0.0", "release"), action = "git tag")
     renv_system_exec("git", c("update-ref", "refs/pull/1/head", shas$release), action = "git update-ref")
+
+    # also add refs that 'ls-remote' lists ahead of the ones 'git fetch' uses:
+    # a branch whose name ends with 'release', and a 'stable' branch and tag
+    renv_system_exec("git", c("branch", "feature/release", shas$head), action = "git branch")
+    renv_system_exec("git", c("branch", "stable", shas$head), action = "git branch")
+    renv_system_exec("git", c("tag", "stable", shas$release), action = "git tag")
   })
 
   record <- list(
@@ -426,6 +434,15 @@ test_that("git refs are resolved to the commits they point at", {
 
   # records without a ref use the default branch
   expect_equal(renv_remotes_resolve_git_sha_ref(record), shas$head)
+
+  # refs resolve to the commit that 'git fetch' checks out, which prefers an
+  # exact match to one that only ends with the ref, and tags to branches
+  record$RemoteRef <- "release"
+  expect_equal(renv_remotes_resolve_git_sha_ref(record), shas$release)
+
+  resolved <- renv_remotes_resolve_git(list(url = remote$url, repo = "bread", ref = "stable"))
+  expect_equal(resolved$RemoteSha, shas$release)
+  expect_equal(renv_remotes_resolve_git_sha_ref(resolved), shas$release)
 
   # annotated tags resolve to the commit they point at, rather than to the
   # tag object itself, and so report no update for the installed commit
@@ -445,5 +462,9 @@ test_that("git refs are resolved to the commits they point at", {
   record$RemoteRef <- shas$release
   expect_equal(renv_remotes_resolve_git_sha_ref(record), "")
   expect_null(renv_update_find_git_impl(record))
+
+  # but a ref that no longer exists (e.g. a deleted branch) is an error
+  record$RemoteRef <- "deleted"
+  expect_error(renv_update_find_git_impl(record), "ref 'deleted' was not found")
 
 })

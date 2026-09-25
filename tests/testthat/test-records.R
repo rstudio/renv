@@ -143,6 +143,29 @@ test_that("records with NULL versions are treated as crossgrades", {
 
 })
 
+test_that("'HEAD' refs compare equal to no ref (#2378)", {
+
+  # version 1 lockfiles omit 'HEAD' refs, which git records now use
+  # for the default branch
+  before <- list(
+    Package    = "skeleton",
+    Version    = "1.0.0",
+    Source     = "git",
+    RemoteType = "git",
+    RemoteUrl  = "https://github.com/kevinushey/skeleton.git",
+    RemoteRef  = "HEAD",
+    RemoteSha  = "e4aafb92b86ba7eba3b7036d9d96fdfb6c32761a"
+  )
+
+  after <- before
+  after$RemoteRef <- NULL
+  expect_null(renv_lockfile_diff_record(before, after))
+
+  after$RemoteRef <- "main"
+  expect_equal(renv_lockfile_diff_record(before, after), "crossgrade")
+
+})
+
 test_that("pak's cran remotes are considered cranlike", {
 
   record <- list(

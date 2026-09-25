@@ -54,11 +54,20 @@ renv_update_find_git <- function(records) {
 
 renv_update_find_git_impl <- function(record) {
 
-  # the sha is empty if the ref couldn't be resolved on the remote; most
-  # likely, the ref is itself a commit hash, and so has no updates
+  # the sha is empty if the ref couldn't be found on the remote; that's expected
+  # when the ref is itself a commit, which has no updates, but otherwise means
+  # the ref no longer exists (e.g. a deleted branch)
   sha <- renv_remotes_resolve_git_sha_ref(record)
-  if (!nzchar(sha))
-    return(NULL)
+  if (!nzchar(sha)) {
+
+    ref <- record$RemoteRef %||% ""
+    if (grepl("^[[:xdigit:]]{7,64}$", ref))
+      return(NULL)
+
+    fmt <- "ref '%s' was not found in git repository '%s'"
+    stopf(fmt, ref, record$RemoteUrl)
+
+  }
 
   if (identical(sha, record$RemoteSha))
     return(NULL)

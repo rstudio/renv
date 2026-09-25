@@ -667,10 +667,11 @@ renv_retrieve_git_impl <- function(record, path) {
   # some servers refuse to serve a commit by its sha unless a ref points at it
   # (e.g. once the recorded branch has moved on); in that case, fetch the
   # history of the recorded ref instead, and check out the commit from there.
-  # the failure to fetch by sha is expected then, so it isn't reported
+  # the failure to fetch by sha is expected then, so it isn't reported.
+  # tags aren't needed, and could make this fetch much larger
   fallback <- nzchar(sha) && !identical(sha, ref)
   history <- heredoc('
-    git fetch ${QUIET} origin "${HISTORY}"
+    git fetch ${QUIET} --no-tags origin "${HISTORY}"
     git reset ${QUIET} --hard "${SHA}"
   ')
 

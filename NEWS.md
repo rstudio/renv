@@ -12,7 +12,10 @@
   those clones once they complete. (#2378)
 
 * `renv::update()` now checks for updates to packages that renv installed
-  from `git::` remotes; previously, these packages were skipped. (#2378)
+  from `git::` remotes; previously, these packages were skipped. For git
+  packages, it also now resolves a ref to the commit that git itself would
+  fetch, rather than to any ref whose name ends with it (e.g. `feature/main`
+  for `main`), and reports refs that no longer exist as errors. (#2378)
 
 * `renv::dependencies()` now follows Quarto's engine-binding rules when
   inferring dependencies for `.qmd` documents. Documents bound to the knitr
