@@ -755,13 +755,15 @@ renv_remotes_resolve_git <- function(remote) {
   url     <- remote$url
   subdir  <- remote$subdir
 
-  # handle git ref
+  # handle git ref; an empty ref requests the remote's default branch
   pull <- remote$pull %||% ""
   ref  <- remote$ref %||% ""
 
   # resolve ref from pull if set
   if (nzchar(pull))
-    ref <- renv_remotes_resolve_git_pull(ref)
+    ref <- renv_remotes_resolve_git_pull(pull)
+  else if (!nzchar(ref))
+    ref <- "HEAD"
 
   record <- list(
     Package        = package,
@@ -773,12 +775,19 @@ renv_remotes_resolve_git <- function(remote) {
     RemoteRef      = ref
   )
 
-  desc <- renv_remotes_resolve_git_description(record)
+  # clone the repository, and record the commit that was checked out, so that
+  # the package is pinned to that commit rather than to whatever the ref
+  # happens to point at when the lockfile is later restored
+  # https://github.com/rstudio/renv/issues/2378
+  path <- renv_remotes_resolve_git_clone(record)
+  desc <- renv_description_read(path, subdir = subdir)
 
-  record$Package <- desc$Package
-  record$Version <- desc$Version
+  record$Package   <- desc$Package
+  record$Version   <- desc$Version
+  record$RemoteSha <- renv_git_sha(path)
 
   record
+
 }
 
 
@@ -786,8 +795,13 @@ renv_remotes_resolve_git_sha_ref <- function(record) {
 
   renv_git_preflight()
 
+  # records restored from a lockfile may carry no ref (the lockfile omits
+  # 'HEAD' refs), and 'ls-remote' cannot resolve a sha, so fall back to HEAD
   origin <- record$RemoteUrl
-  ref <- record$RemoteRef %||% record$RemoteSha
+  ref <- record$RemoteRef %||% ""
+  if (!nzchar(ref))
+    ref <- "HEAD"
+
   args <- c("ls-remote", origin, ref)
 
   output <- local({
@@ -810,9 +824,9 @@ renv_remotes_resolve_git_sha_ref <- function(record) {
 }
 
 
-renv_remotes_resolve_git_description <- function(record) {
+renv_remotes_resolve_git_clone <- function(record, scope = parent.frame()) {
 
-  path <- renv_scope_tempfile("renv-git-")
+  path <- renv_scope_tempfile("renv-git-", scope = scope)
   ensure_directory(path)
 
   # TODO: is there a cheaper way for us to accomplish this?
@@ -823,11 +837,13 @@ renv_remotes_resolve_git_description <- function(record) {
     renv_retrieve_git_impl(record, path)
   })
 
-  # subdir may be NULL
-  subdir <- record$RemoteSubdir
-  desc <- renv_description_read(path, subdir = subdir)
+  path
 
-  desc
+}
+
+renv_remotes_resolve_git_description <- function(record) {
+  path <- renv_remotes_resolve_git_clone(record)
+  renv_description_read(path, subdir = record$RemoteSubdir)
 }
 
 renv_remotes_resolve_git_pull <- function(pr) {

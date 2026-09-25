@@ -1,5 +1,11 @@
 # renv (development version)
 
+* `renv::install()` now records the commit (`RemoteSha`) that a package was
+  installed from when using the `git::` remote pathway, so that
+  `renv::snapshot()` pins that package to the installed commit, and
+  `renv::restore()` retrieves that same commit rather than whatever the
+  recorded ref points at when the project is restored. (#2378)
+
 * `renv::dependencies()` now follows Quarto's engine-binding rules when
   inferring dependencies for `.qmd` documents. Documents bound to the knitr
   engine, whether via R chunks, an explicit `engine: knitr` declaration, or

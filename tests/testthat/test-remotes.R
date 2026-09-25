@@ -94,6 +94,7 @@ test_that("we can parse a variety of remotes", {
   expect_equal(record$Version, "0.0.0.9000")
   expect_equal(record$RemoteUrl, "https://github.com/kevinushey/renv.git1.git")
   expect_equal(record$RemoteRef, "main")
+  expect_match(record$RemoteSha, "^[0-9a-f]{40}$")
 
   # git + *release
   record <- renv_remotes_resolve("kevinushey/skeleton@*release")
@@ -250,5 +251,96 @@ test_that("we can parse remotes containing multiple '@'s", {
   )
 
   expect_equal(remote, expected)
+
+})
+
+test_that("git remotes record the commit they were resolved from", {
+
+  skip_on_cran()
+  skip_if(!nzchar(Sys.which("git")), "git is not installed")
+
+  project <- renv_tests_scope()
+  init()
+
+  # a local git repository holding 'bread' 0.5.0 on the default branch,
+  # and 1.0.0 on a 'release' branch
+  repo <- renv_scope_tempfile("renv-git-")
+  ensure_directory(repo)
+
+  local({
+
+    renv_scope_wd(repo)
+    renv_system_exec("git", c("init", "--quiet"), action = "git init")
+    renv_system_exec("git", c("config", "user.name", shQuote("User Name")), action = "git config")
+    renv_system_exec("git", c("config", "user.email", shQuote("user@example.com")), action = "git config")
+
+    # restore fetches by sha; a local repository needs to be told to allow it
+    renv_system_exec("git", c("config", "uploadpack.allowAnySHA1InWant", "true"), action = "git config")
+
+    writeLines(c("Package: bread", "Type: Package", "Version: 0.5.0"), con = "DESCRIPTION")
+    writeLines("", con = "NAMESPACE")
+    renv_system_exec("git", c("add", "-A"), action = "git add")
+    renv_system_exec("git", c("commit", "--quiet", "-m", "0.5.0"), action = "git commit")
+
+    renv_system_exec("git", c("checkout", "--quiet", "-b", "release"), action = "git checkout")
+    writeLines(c("Package: bread", "Type: Package", "Version: 1.0.0"), con = "DESCRIPTION")
+    renv_system_exec("git", c("commit", "--quiet", "-am", "1.0.0"), action = "git commit")
+    renv_system_exec("git", c("checkout", "--quiet", "-"), action = "git checkout")
+
+  })
+
+  # use a file URL, so that the repository path is not mistaken for a local
+  # package source when the package is later retrieved
+  url <- paste0("file://", renv_path_normalize(repo))
+  shas <- list(
+    head    = renv_git_sha(repo),
+    release = local({
+      renv_scope_wd(repo)
+      renv_system_exec("git", c("rev-parse", "release"), action = "git rev-parse")
+    })
+  )
+
+  remote <- list(url = url, repo = "bread")
+
+  # no ref: the default branch is resolved, and its commit recorded
+  record <- renv_remotes_resolve_git(remote)
+  expect_equal(record$Version, "0.5.0")
+  expect_equal(record$RemoteRef, "HEAD")
+  expect_equal(record$RemoteSha, shas$head)
+
+  # an explicit ref resolves to that ref's commit
+  record <- renv_remotes_resolve_git(c(remote, ref = "release"))
+  expect_equal(record$Version, "1.0.0")
+  expect_equal(record$RemoteRef, "release")
+  expect_equal(record$RemoteSha, shas$release)
+
+  # the recorded ref can be re-resolved to its current commit
+  expect_equal(renv_remotes_resolve_git_sha_ref(record), shas$release)
+
+  # the sha is written to the installed package, and captured in the lockfile
+  install(list(record))
+  desc <- renv_description_read(package = "bread")
+  expect_equal(desc$RemoteType, "git")
+  expect_equal(desc$RemoteSha, shas$release)
+
+  writeLines("library(bread)", con = file.path(project, "dependencies.R"))
+  snapshot()
+  lockfile <- renv_lockfile_read(file.path(project, "renv.lock"))
+  expect_equal(lockfile$Packages$bread$Source, "git")
+  expect_equal(lockfile$Packages$bread$RemoteSha, shas$release)
+
+  # restore retrieves the recorded commit even after the ref moves on
+  local({
+    renv_scope_wd(repo)
+    renv_system_exec("git", c("checkout", "--quiet", "release"), action = "git checkout")
+    writeLines(c("Package: bread", "Type: Package", "Version: 2.0.0"), con = "DESCRIPTION")
+    renv_system_exec("git", c("commit", "--quiet", "-am", "2.0.0"), action = "git commit")
+  })
+
+  remove("bread")
+  restore()
+  desc <- renv_description_read(package = "bread")
+  expect_equal(desc$Version, "1.0.0")
+  expect_equal(desc$RemoteSha, shas$release)
 
 })
