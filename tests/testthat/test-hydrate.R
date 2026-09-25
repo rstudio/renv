@@ -71,7 +71,9 @@ test_that("hydrate() clones each git remote only once", {
   skip_on_cran()
   skip_if(!nzchar(Sys.which("git")), "git is not installed")
 
-  project <- renv_tests_scope()
+  # use a separate cache, since the version of 'bread' installed here would
+  # otherwise shadow the one from the test repositories in later tests
+  project <- renv_tests_scope(isolated = TRUE)
   init()
 
   remote <- renv_tests_git_remote()

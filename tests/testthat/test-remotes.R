@@ -259,7 +259,9 @@ test_that("git remotes are pinned to the commit they were installed from", {
   skip_on_cran()
   skip_if(!nzchar(Sys.which("git")), "git is not installed")
 
-  project <- renv_tests_scope()
+  # use a separate cache, since the versions of 'bread' installed here would
+  # otherwise shadow those from the test repositories in later tests
+  project <- renv_tests_scope(isolated = TRUE)
   init()
 
   remote <- renv_tests_git_remote()

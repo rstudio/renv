@@ -73,8 +73,11 @@ renv_tests_git_extend <- function(repo, branch, count) {
     from
   )
 
+  # write in binary mode, since fast-import rejects Windows line endings
   stream <- renv_scope_tempfile("renv-fast-import-")
-  writeLines(commits, con = stream)
+  con <- file(stream, open = "wb")
+  writeLines(commits, con = con)
+  close(con)
 
   status <- system2("git", c("fast-import", "--quiet"), stdin = stream)
   if (!identical(status, 0L))
