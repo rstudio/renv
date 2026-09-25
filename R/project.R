@@ -183,7 +183,12 @@ renv_project_remotes <- function(project, filter = NULL, resolve = FALSE) {
 
   })
 
-  if (resolve) map(records, resolve) else records
+  records <- if (resolve) map(records, resolve) else records
+
+  # note which packages came from the Remotes field; the graph treats
+  # these as pinned when applying the project's own version constraints
+  attr(records, "remotes") <- names(remotes)
+  records
 
 }
 

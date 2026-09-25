@@ -481,6 +481,23 @@ test_that("project DESCRIPTION constraints don't override Remotes entries", {
 
 })
 
+test_that("project DESCRIPTION constraints don't override versioned Remotes entries", {
+
+  project <- renv_tests_scope()
+
+  desc <- c(
+    "Type: Project",
+    "Package: myproject",
+    "Imports: bread (>= 1.0.0)",
+    "Remotes: bread@0.1.0"
+  )
+  writeLines(desc, con = "DESCRIPTION")
+
+  descriptions <- renv_graph_init("bread", project = project)
+  expect_equal(descriptions$bread$Version, "0.1.0")
+
+})
+
 test_that("renv_graph_compatible accepts satisfied constraints", {
 
   reqs <- data.frame(

@@ -1692,7 +1692,7 @@ renv_retrieve_incompatible_report <- function(package, record, replacement, comp
   fmt <- "%s (requires %s %s %s)"
   values <- with(compat, sprintf(fmt, Source, Package, Require, Version))
 
-  fmt <- "The requested version of '%s %s' does not satisfy the following constraints:"
+  fmt <- "Package '%s %s' does not satisfy the following constraints:"
   preamble <- with(record, sprintf(fmt, Package, Version))
 
   # say so if the replacement doesn't satisfy the constraints either,

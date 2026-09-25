@@ -24,8 +24,10 @@ renv_graph_init <- function(remotes, records = list(), project = NULL, scope = p
   # so that packages specified via the project DESCRIPTION Remotes field
   # are resolved from the correct source (e.g. GitHub) even when the
   # caller doesn't explicitly include them in 'records'
+  pinned <- character()
   if (!is.null(project) && config$install.remotes()) {
     projrecords <- renv_project_remotes(project)
+    pinned <- attr(projrecords, "remotes") %||% character()
     for (name in names(projrecords))
       if (is.null(records[[name]]))
         records[[name]] <- projrecords[[name]]
@@ -78,7 +80,7 @@ renv_graph_init <- function(remotes, records = list(), project = NULL, scope = p
     # the project's own constraints shouldn't override a version pinned by
     # the caller -- a lockfile record during restore(), an explicit
     # 'pkg@version' request, or a Remotes entry; those are only reported below
-    if (renv_graph_pinned(package, records, descriptions[[package]]))
+    if (renv_graph_pinned(package, records, descriptions[[package]], pinned))
       reqs <- reqs[!reqs$Project, ]
 
     if (renv_graph_compatible(version, reqs))
@@ -690,7 +692,11 @@ renv_graph_requirements <- function(descriptions, project = NULL) {
 # is this package's version pinned, such that the project's own constraints
 # shouldn't upgrade it? lazy records (from the project DESCRIPTION) resolve
 # on demand, and so don't count as pins by themselves
-renv_graph_pinned <- function(package, records, desc) {
+renv_graph_pinned <- function(package, records, desc, pinned = character()) {
+
+  # packages declared in the project's Remotes field
+  if (package %in% pinned)
+    return(TRUE)
 
   # explicit records from the caller, e.g. lockfile records or 'pkg@version'
   record <- records[[package]]
