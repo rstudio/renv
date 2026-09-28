@@ -727,3 +727,27 @@ test_that("restore(retry = TRUE) recovers failed packages end-to-end", {
   expect_true(renv_package_installed("bread"))
   expect_equal(renv_package_version("bread"), "1.0.0")
 })
+
+test_that("restore installs lockfile versions despite project DESCRIPTION constraints", {
+
+  renv_tests_scope("bread")
+  init(bare = TRUE)
+
+  # snapshot a lockfile pinning an old version of 'bread'
+  install("bread@0.1.0")
+  snapshot()
+  remove("bread")
+
+  # the project now asks for a newer version than the lockfile records;
+  # restore() should still install what the lockfile says
+  desc <- c(
+    "Type: Project",
+    "Package: myproject",
+    "Imports: bread (>= 1.0.0)"
+  )
+  writeLines(desc, con = "DESCRIPTION")
+
+  restore()
+  expect_equal(renv_package_version("bread"), "0.1.0")
+
+})
