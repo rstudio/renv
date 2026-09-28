@@ -52,6 +52,9 @@ record <- function(records,
 
   lockfile <- lockfile %||% renv_lockfile_path(project)
 
+  # share clones of git remotes between resolving a record, and enriching it
+  renv_scope_git_clones()
+
   # track which entries came from a character spec; only those entries
   # are enriched, so caller-supplied list records pass through unchanged
   # (and offline, since enrichment otherwise requires a reachable source)

@@ -105,22 +105,55 @@ renv_tests_git_scope_spec <- function(spec, remote, scope = parent.frame()) {
 
 }
 
-# count the clones made of git repositories
-renv_tests_git_scope_clones <- function(scope = parent.frame()) {
+# count the calls made to a function in renv's namespace
+renv_tests_git_scope_counter <- function(symbol, scope = parent.frame()) {
 
   counter <- env(count = 0L)
 
-  impl <- renv_retrieve_git_impl
+  impl <- get(symbol, envir = asNamespace("renv"))
   renv_scope_binding(
     envir = asNamespace("renv"),
-    symbol = "renv_retrieve_git_impl",
-    replacement = function(record, path) {
+    symbol = symbol,
+    replacement = function(...) {
       counter$count <- counter$count + 1L
-      impl(record, path)
+      impl(...)
     },
     scope = scope
   )
 
   counter
 
+}
+
+# count the clones made of git repositories
+renv_tests_git_scope_clones <- function(scope = parent.frame()) {
+  renv_tests_git_scope_counter("renv_retrieve_git_impl", scope = scope)
+}
+
+# count the fetches of a ref's history, made when a commit can't be fetched
+renv_tests_git_scope_history <- function(scope = parent.frame()) {
+  renv_tests_git_scope_counter("renv_retrieve_git_history", scope = scope)
+}
+
+# make git refuse to serve a commit by its sha, as its original wire protocol
+# (and some servers) do; the tests then need to fetch the history of a ref.
+# git only reads this configuration from the environment as of 2.31
+renv_tests_git_scope_protocol_v0 <- function(scope = parent.frame()) {
+
+  version <- renv_tests_git_version()
+  skip_if(version < "2.31", "git 2.31 or newer is required")
+
+  renv_scope_envvars(
+    GIT_CONFIG_COUNT   = "1",
+    GIT_CONFIG_KEY_0   = "protocol.version",
+    GIT_CONFIG_VALUE_0 = "0",
+    scope = scope
+  )
+
+}
+
+renv_tests_git_version <- function() {
+  output <- renv_system_exec("git", "--version", action = "git version")
+  version <- regmatches(output, regexpr("[0-9]+([.][0-9]+)+", output))
+  numeric_version(version[[1L]])
 }

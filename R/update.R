@@ -63,14 +63,9 @@ renv_update_find_git <- function(records) {
   # doesn't know about; adopt them, so that installing an update can re-use
   # its clone, and so that the clones are removed along with the others
   map(results, function(result) {
-
-    if (is.null(result))
-      return(NULL)
-
-    renv_git_clone_adopt(result$record, result$path)
-    if (result$updated)
-      result$record
-
+    if (!is.null(result))
+      renv_git_clone_adopt(result$record, result$path)
+    result$record
   })
 
 }
@@ -80,11 +75,12 @@ renv_update_find_git_impl <- function(record) {
   # no sha is found if the ref couldn't be found on the remote; that's expected
   # when the ref is itself a commit, which has no updates, but otherwise means
   # the ref no longer exists (e.g. a deleted branch)
+  sha <- record$RemoteSha %||% ""
+  ref <- renv_git_ref(record)
   shas <- renv_remotes_resolve_git_sha_ref(record)
   if (empty(shas)) {
 
-    ref <- record$RemoteRef %||% ""
-    if (grepl("^[[:xdigit:]]{7,64}$", ref))
+    if (renv_git_ref_is_commit(ref, sha))
       return(NULL)
 
     fmt <- "ref '%s' was not found in git repository '%s'"
@@ -94,25 +90,35 @@ renv_update_find_git_impl <- function(record) {
 
   # for an annotated tag, remotes records the sha of the tag itself, rather
   # than that of the commit it points at, so accept either
-  sha <- record$RemoteSha %||% ""
   if (sha %in% shas)
     return(NULL)
 
   current <- record
   current$RemoteSha <- shas[[1L]]
 
+  # the clone is handed back to the caller, so that it can be re-used to
+  # install the update; it's removed here if there's no update to install,
+  # or if it couldn't be read, since a forked caller can't do so
   path <- renv_remotes_resolve_git_clone(current)
-  desc <- renv_description_read(path, subdir = current$RemoteSubdir)
+  result <- catch({
+    desc <- renv_description_read(path, subdir = current$RemoteSubdir)
+    current$Version <- desc$Version
+    current$Package <- desc$Package
 
-  current$Version <- desc$Version
-  current$Package <- desc$Package
+    # without a recorded commit, we can't tell whether the installed package
+    # is out of date, so only report an update if a newer version is available
+    compare <- renv_version_compare(current$Version, record$Version)
+    if (nzchar(sha)) compare >= 0L else compare > 0L
+  })
 
-  # without a recorded commit, we can't tell whether the installed package is
-  # out of date, so only report an update if a newer version is available
-  compare <- renv_version_compare(current$Version, record$Version)
-  updated <- if (nzchar(sha)) compare >= 0L else compare > 0L
+  if (inherits(result, "error") || !result) {
+    unlink(path, recursive = TRUE, force = TRUE)
+    if (inherits(result, "error"))
+      stop(result)
+    return(NULL)
+  }
 
-  list(record = current, path = path, updated = updated)
+  list(record = current, path = path)
 
 }
 

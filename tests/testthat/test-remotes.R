@@ -340,17 +340,15 @@ test_that("git remotes are pinned to the commit they were installed from", {
   # restore retrieves the recorded commit, even though the ref has moved on.
   # git's original wire protocol refuses to serve a commit that no ref points
   # at (as do some servers), so restore needs to fetch the ref's history
-  renv_scope_envvars(
-    GIT_CONFIG_COUNT   = "1",
-    GIT_CONFIG_KEY_0   = "protocol.version",
-    GIT_CONFIG_VALUE_0 = "0"
-  )
+  renv_tests_git_scope_protocol_v0()
+  history <- renv_tests_git_scope_history()
 
   # (rebuild, so that the package isn't just restored from the cache)
   remove("bread")
   clones$count <- 0L
   restore(rebuild = TRUE)
   expect_equal(clones$count, 1L)
+  expect_equal(history$count, 1L)
   expect_null(the$git_clones)
   expect_setequal(list.files(tempdir(), pattern = "^renv-git-"), tmpfiles)
 
@@ -359,8 +357,10 @@ test_that("git remotes are pinned to the commit they were installed from", {
   expect_equal(desc$RemoteSha, shas$release)
 
   # records written by older versions of renv have no sha; restoring one
-  # records the commit that was installed
+  # records the commit that was installed (such a record was written when the
+  # ref pointed at the version it records, so record the ref's version here)
   lockfile$Packages$bread$RemoteSha <- NULL
+  lockfile$Packages$bread$Version <- "2.0.0"
   renv_lockfile_write(lockfile, file = file.path(project, "renv.lock"))
 
   remove("bread")
@@ -369,6 +369,24 @@ test_that("git remotes are pinned to the commit they were installed from", {
   desc <- renv_description_read(package = "bread")
   expect_equal(desc$Version, "2.0.0")
   expect_equal(desc$RemoteSha, latest)
+
+  # the pinned package satisfies the lockfile's record, so it isn't reported
+  # as a change by restore() or status() (until it's snapshotted, which pins
+  # the record as well)
+  lockfile <- renv_lockfile_read(file.path(project, "renv.lock"))
+  current <- snapshot(lockfile = NULL)
+  expect_length(renv_lockfile_diff_packages(current, lockfile), 0L)
+  expect_null(lockfile$Packages$bread$RemoteSha)
+
+  # and it was cached under the hash of the pinned package, not the hash the
+  # lockfile recorded for the unpinned one
+  path <- renv_cache_path(renv_package_find("bread"))
+  expect_true(file.exists(path))
+  expect_equal(NROW(renv_cache_diagnose(verbose = FALSE)), 0L)
+
+  snapshot()
+  lockfile <- renv_lockfile_read(file.path(project, "renv.lock"))
+  expect_equal(lockfile$Packages$bread$RemoteSha, latest)
 
 })
 
@@ -450,12 +468,33 @@ test_that("git refs are resolved to the commits they point at", {
 
   # a commit isn't a ref, and so can't be resolved; nor can it be updated
   record$RemoteRef <- shas$release
+  record$RemoteSha <- shas$release
   expect_length(renv_remotes_resolve_git_sha_ref(record), 0L)
   expect_null(renv_update_find_git_impl(record))
 
-  # but a ref that no longer exists (e.g. a deleted branch) is an error
-  record$RemoteRef <- "deleted"
-  expect_error(renv_update_find_git_impl(record), "ref 'deleted' was not found")
+  # including an abbreviated commit, with or without a recorded sha
+  record$RemoteRef <- substring(shas$release, 1L, 7L)
+  expect_null(renv_update_find_git_impl(record))
+  record$RemoteSha <- NULL
+  expect_null(renv_update_find_git_impl(record))
+
+  # but a ref that no longer exists (e.g. a deleted branch) is an error, even
+  # if its name could be an abbreviated commit
+  record$RemoteSha <- shas$release
+  for (ref in c("deleted", "deadbeef")) {
+    record$RemoteRef <- ref
+    expect_error(renv_update_find_git_impl(record), sprintf("ref '%s' was not found", ref))
+  }
+
+  # as is a record without a ref whose remote has no default branch
+  record$RemoteRef <- NULL
+  local({
+    renv_scope_wd(remote$repo)
+    head <- renv_system_exec("git", c("symbolic-ref", "HEAD"), action = "git symbolic-ref")
+    renv_system_exec("git", c("symbolic-ref", "HEAD", "refs/heads/nonexistent"), action = "git symbolic-ref")
+    defer(renv_system_exec("git", c("symbolic-ref", "HEAD", head), action = "git symbolic-ref"))
+    expect_error(renv_update_find_git_impl(record), "ref 'HEAD' was not found")
+  })
 
   # refs are passed through the shell, and may contain shell metacharacters
   local({
@@ -491,12 +530,23 @@ test_that("clones made while checking for git updates are kept for install", {
     RemoteSha  = shas$head
   )
 
-  records <- list(record, overlay(record, list(RemoteRef = "HEAD", RemoteSha = shas$release)))
+  records <- list(
+    record,
+    overlay(record, list(RemoteRef = "HEAD", RemoteSha = shas$release)),
+
+    # a record that's current, whose clone isn't needed
+    overlay(record, list(RemoteRef = "HEAD", RemoteSha = shas$head)),
+
+    # and one whose clone can't be read
+    overlay(record, list(RemoteSubdir = "missing"))
+  )
+
+  tmpfiles <- list.files(tempdir(), pattern = "^renv-git-")
 
   paths <- local({
 
     clones <- renv_scope_git_clones()
-    updates <- renv_update_find_git(records)
+    updates <- Filter(Negate(is.null), renv_update_find_git(records))
     expect_equal(map_chr(updates, `[[`, "RemoteSha"), c(bread = shas$release, bread = shas$head))
 
     # the clones made by the forked processes are adopted by this one
@@ -504,12 +554,20 @@ test_that("clones made while checking for git updates are kept for install", {
     expect_true(all(dir.exists(clones$paths)))
     expect_equal(renv_git_clone(updates[[1L]]), clones$keys[[renv_git_clone_key(updates[[1L]])]])
 
+    # the unreadable clone is reported as an error
+    errors <- the$update_errors$git
+    expect_length(errors, 1L)
+    expect_match(conditionMessage(errors[[1L]]), "missing")
+    renv_update_errors_clear()
+
     clones$paths
 
   })
 
-  # and are removed along with the others
+  # and are removed along with the others; the clones which weren't handed
+  # back were removed by the checks themselves
   expect_false(any(dir.exists(paths)))
+  expect_setequal(list.files(tempdir(), pattern = "^renv-git-"), tmpfiles)
 
 })
 
@@ -538,11 +596,8 @@ test_that("restore() finds a pinned commit deep within the history of a ref", {
   })
 
   # make the server refuse to serve a commit by its sha
-  renv_scope_envvars(
-    GIT_CONFIG_COUNT   = "1",
-    GIT_CONFIG_KEY_0   = "protocol.version",
-    GIT_CONFIG_VALUE_0 = "0"
-  )
+  renv_tests_git_scope_protocol_v0()
+  history <- renv_tests_git_scope_history()
 
   record <- list(
     Package    = "bread",
@@ -554,17 +609,44 @@ test_that("restore() finds a pinned commit deep within the history of a ref", {
     RemoteSha  = shas$release
   )
 
+  # the commit is found by deepening the history of the ref
+  path <- renv_scope_tempfile("renv-clone-")
+  renv_retrieve_git_impl(record, path)
+  expect_equal(history$count, 1L)
+  expect_equal(renv_git_sha(path), shas$release)
+
+  # a commit that isn't part of the ref's history is reported as such, along
+  # with git's complaint about the commit itself, which was held back
+  record$RemoteSha <- doomed
+  path <- renv_scope_tempfile("renv-clone-")
+  renv_scope_options(renv.verbose = TRUE)
+  expect_output(
+    expect_error(
+      renv_retrieve_git_impl(record, path),
+      sprintf("commit '%s' was not found in the history of 'release'", doomed)
+    ),
+    "could not be fetched directly"
+  )
+
+  # a ref can itself be a commit, whose history can't be fetched either; the
+  # default branch's history is used then
+  record$RemoteRef <- substring(shas$head, 1L, 7L)
+  record$RemoteSha <- shas$head
+  path <- renv_scope_tempfile("renv-clone-")
+  renv_retrieve_git_impl(record, path)
+  expect_equal(renv_git_sha(path), shas$head)
+
+  # but a ref that merely looks like a commit (e.g. a tag named for a date)
+  # is still a ref, with a history of its own
+  local({
+    renv_scope_wd(remote$repo)
+    renv_system_exec("git", c("tag", "20240101", "release"), action = "git tag")
+  })
+
+  record$RemoteRef <- "20240101"
+  record$RemoteSha <- shas$release
   path <- renv_scope_tempfile("renv-clone-")
   renv_retrieve_git_impl(record, path)
   expect_equal(renv_git_sha(path), shas$release)
-  expect_false(file.exists(file.path(path, ".git/shallow")))
-
-  # a commit that isn't part of the ref's history is reported as such
-  record$RemoteSha <- doomed
-  path <- renv_scope_tempfile("renv-clone-")
-  expect_error(
-    renv_retrieve_git_impl(record, path),
-    sprintf("commit '%s' was not found in the history of 'release'", doomed)
-  )
 
 })

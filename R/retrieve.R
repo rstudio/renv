@@ -650,7 +650,7 @@ renv_retrieve_git_impl <- function(record, path) {
     ORIGIN  = url,
     REF     = renv_git_rev(record),
     SHA     = sha,
-    HISTORY = if (nzchar(ref)) ref else "HEAD",
+    HISTORY = renv_git_ref_history(record),
     QUIET   = if (quiet) "--quiet" else ""
   )
 
@@ -667,9 +667,11 @@ renv_retrieve_git_impl <- function(record, path) {
   # some servers refuse to serve a commit by its sha unless a ref points at it
   # (e.g. once the recorded branch has moved on); in that case, fetch the
   # history of the recorded ref instead, and check out the commit from there.
-  # the failure to fetch by sha is expected then, so it's only shown when
-  # git's output was requested
+  # the failure to fetch by sha is expected then, so its output is held back
+  # (unless git's output was requested), and shown only if the fallback fails
+  # as well, since it might then explain why (e.g. an authentication failure)
   fallback <- nzchar(sha) && !identical(sha, ref)
+  errfile <- if (fallback && quiet) renv_scope_tempfile("renv-git-stderr-")
 
   printf("- Cloning '%s' ... ", url)
 
@@ -678,15 +680,20 @@ renv_retrieve_git_impl <- function(record, path) {
   status <- renv_retrieve_git_exec(record, path, init, data)
   if (status == 0L) {
 
-    status <- renv_retrieve_git_exec(record, path, fetch, data, quiet = fallback && quiet)
-    if (status != 0L && fallback)
-      status <- renv_retrieve_git_history(record, path, data)
+    status <- renv_retrieve_git_exec(record, path, fetch, data, errfile = errfile)
+    if (status != 0L && fallback) {
+      status <- withCallingHandlers(
+        renv_retrieve_git_history(record, path, data),
+        error = function(cnd) renv_retrieve_git_stderr(errfile)
+      )
+    }
 
   }
 
   after <- Sys.time()
 
   if (status != 0L) {
+    renv_retrieve_git_stderr(errfile)
     fmt <- "error cloning '%s' from '%s' [status code %i]"
     stopf(fmt, package, url, status)
   }
@@ -702,12 +709,14 @@ renv_retrieve_git_impl <- function(record, path) {
 renv_retrieve_git_history <- function(record, path, data) {
 
   # the commit is most likely a recent one, so fetch the recent history of the
-  # ref first, and fetch the rest of it only if the commit isn't found there.
+  # ref first, and deepen it (by growing amounts) only while the commit isn't
+  # found, so that a commit some way back doesn't require the whole history.
   # tags aren't needed, and could make these fetches much larger
   fetch <- 'git fetch ${QUIET} --no-tags ${DEPTH} origin "${HISTORY}"'
   reset <- 'git reset ${QUIET} --hard "${SHA}"'
 
-  for (depth in c("--depth=100", "--unshallow")) {
+  depths <- c("--depth=100", "--deepen=1000", "--deepen=10000", "--unshallow")
+  for (depth in depths) {
 
     data$DEPTH <- depth
     status <- renv_retrieve_git_exec(record, path, fetch, data)
@@ -729,15 +738,17 @@ renv_retrieve_git_history <- function(record, path, data) {
 
 }
 
-renv_retrieve_git_exec <- function(record, path, template, data, quiet = FALSE) {
+# run git commands within a clone; if 'errfile' is given, their stderr is
+# written to that file rather than shown
+renv_retrieve_git_exec <- function(record, path, template, data, errfile = NULL) {
 
   commands <- renv_template_replace(template, data)
   command <- gsub("\n", " && ", commands, fixed = TRUE)
 
-  # on unix, R ignores stderr by appending '2>/dev/null' to the command, so
-  # group the commands for that to apply to all of them, not just the last
-  if (quiet && !renv_platform_windows())
-    command <- paste0("(", command, ")")
+  # group the commands, so that the redirection applies to all of them, not
+  # just the last; both the unix shells and cmd.exe accept this form
+  if (!is.null(errfile))
+    command <- sprintf("(%s) 2>%s", command, renv_shell_path(errfile))
 
   if (renv_platform_windows())
     command <- paste(comspec(), "/C", command)
@@ -746,7 +757,27 @@ renv_retrieve_git_exec <- function(record, path, template, data, quiet = FALSE) 
   renv_scope_wd(path)
   renv_scope_auth(record)
   renv_scope_git_auth()
-  system(command, ignore.stderr = quiet)
+  system(command)
+
+}
+
+# show the git output held back by an earlier, failed attempt
+renv_retrieve_git_stderr <- function(errfile) {
+
+  if (is.null(errfile) || !file.exists(errfile))
+    return(invisible(FALSE))
+
+  output <- readLines(errfile, warn = FALSE)
+  output <- output[nzchar(trimws(output))]
+  if (empty(output))
+    return(invisible(FALSE))
+
+  writef("")
+  writef("- The commit could not be fetched directly; git reported:")
+  writef(paste(" ", output))
+  writef("")
+
+  invisible(TRUE)
 
 }
 

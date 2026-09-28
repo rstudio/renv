@@ -166,6 +166,37 @@ test_that("'HEAD' refs compare equal to no ref (#2378)", {
 
 })
 
+test_that("records without a sha are satisfied by a pinned commit (#2378)", {
+
+  # records written by older versions of renv have no sha; restoring one
+  # pins the installed package to the commit that was installed, which
+  # shouldn't then be reported as a change (in either direction)
+  pinned <- list(
+    Package    = "skeleton",
+    Version    = "1.0.0",
+    Source     = "git",
+    RemoteType = "git",
+    RemoteUrl  = "https://github.com/kevinushey/skeleton.git",
+    RemoteRef  = "main",
+    RemoteSha  = "e4aafb92b86ba7eba3b7036d9d96fdfb6c32761a"
+  )
+
+  unpinned <- pinned
+  unpinned$RemoteSha <- NULL
+  expect_null(renv_lockfile_diff_record(unpinned, pinned))
+  expect_null(renv_lockfile_diff_record(pinned, unpinned))
+
+  # but other differences are still reported
+  unpinned$RemoteRef <- "release"
+  expect_equal(renv_lockfile_diff_record(unpinned, pinned), "crossgrade")
+
+  # as are different commits
+  moved <- pinned
+  moved$RemoteSha <- "0123456789abcdef0123456789abcdef01234567"
+  expect_equal(renv_lockfile_diff_record(pinned, moved), "crossgrade")
+
+})
+
 test_that("pak's cran remotes are considered cranlike", {
 
   record <- list(

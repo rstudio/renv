@@ -42,17 +42,40 @@ renv_git_commit_exists <- function(path, sha) {
 
 }
 
+# the ref requested by a git record; records may carry no ref: older versions
+# of renv recorded an empty ref for the default branch, and version 1 lockfiles
+# omit 'HEAD' refs. these request the remote's default branch
+renv_git_ref <- function(record) {
+  ref <- record$RemoteRef %||% ""
+  if (nzchar(ref)) ref else "HEAD"
+}
+
 # the commit-ish that should be fetched for a git record
 renv_git_rev <- function(record) {
-
   sha <- record$RemoteSha %||% ""
-  ref <- record$RemoteRef %||% ""
+  if (nzchar(sha)) sha else renv_git_ref(record)
+}
 
-  case(
-    nzchar(sha) ~ sha,
-    nzchar(ref) ~ ref,
-    "HEAD"
-  )
+# the ref whose history holds the commit recorded for a git record, e.g. when
+# that commit can't be fetched directly. a ref can itself be a commit (e.g.
+# 'git::<url>@<sha>'), whose history can't be fetched either, so use the
+# default branch for those
+renv_git_ref_history <- function(record) {
+  ref <- renv_git_ref(record)
+  sha <- record$RemoteSha %||% ""
+  if (renv_git_ref_is_commit(ref, sha)) "HEAD" else ref
+}
+
+# is a ref a commit (e.g. 'git::<url>@<sha>'), rather than a branch or tag?
+# a full commit id is never a ref, but an abbreviated one could also be the
+# name of a branch or tag (e.g. a date), so it's only taken to be a commit if
+# it matches the recorded commit, or if no commit was recorded
+renv_git_ref_is_commit <- function(ref, sha) {
+
+  if (!grepl("^[[:xdigit:]]{7,64}$", ref))
+    return(FALSE)
+
+  nchar(ref) >= 40L || !nzchar(sha) || startsWith(sha, ref)
 
 }
 
@@ -94,6 +117,11 @@ renv_git_record_pin <- function(record, path) {
     return(record)
 
   record$RemoteSha <- renv_git_sha(path)
+
+  # the sha is written to the installed DESCRIPTION, which changes its hash,
+  # so a hash recorded for the unpinned package (e.g. in a lockfile) no
+  # longer applies
+  record$Hash <- NULL
 
   # make the clone available by commit as well, so that later steps of this
   # operation (e.g. installing the record) can use it rather than cloning again

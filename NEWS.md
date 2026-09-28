@@ -7,13 +7,15 @@
   recorded ref points at when the project is restored (including when pak is
   enabled). Restoring a git package from a lockfile written by an older
   version of renv, which has no `RemoteSha`, likewise records the commit that
-  was installed, so the next `renv::snapshot()` pins it. If a git server
-  refuses to serve a pinned commit directly, renv now fetches the recent
-  history of the recorded ref instead (and, if needed, the rest of it), and
-  checks out the commit from there. In addition, `renv::install()`,
-  `renv::restore()`, `renv::hydrate()`, and `renv::update()` now clone a given
-  commit at most once, rather than up to three times, and remove those clones
-  once they complete. (#2378)
+  was installed, so the next `renv::snapshot()` pins it; until then, the
+  installed package is treated as satisfying the lockfile's record, rather
+  than being reported as a change. If a git server refuses to serve a pinned
+  commit directly, renv now fetches the recent history of the recorded ref
+  instead (deepening it as needed), and checks out the commit from there. In
+  addition, `renv::install()`, `renv::restore()`, `renv::hydrate()`,
+  `renv::update()`, and `renv::record()` now clone a given commit at most
+  once, rather than up to three times, and remove those clones once they
+  complete. (#2378)
 
 * With pak enabled, installing a package from a sub-directory of a git
   repository now reports that pak does not support this, rather than asking

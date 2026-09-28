@@ -779,14 +779,13 @@ renv_remotes_resolve_git <- function(remote) {
   # the package is pinned to that commit rather than to whatever the ref
   # happens to point at when the lockfile is later restored
   # https://github.com/rstudio/renv/issues/2378
-  renv_scope_git_clones()
-  path <- renv_remotes_resolve_git_clone(record)
-  desc <- renv_description_read(path, subdir = subdir)
+  desc <- renv_remotes_resolve_git_description(record)
 
-  record$Package <- desc$Package
-  record$Version <- desc$Version
+  record$Package   <- desc$Package
+  record$Version   <- desc$Version
+  record$RemoteSha <- desc$RemoteSha
 
-  renv_git_record_pin(record, path)
+  record
 
 }
 
@@ -795,17 +794,10 @@ renv_remotes_resolve_git_sha_ref <- function(record) {
 
   renv_git_preflight()
 
-  # records may carry no ref: older versions of renv recorded an empty ref for
-  # the default branch, and version 1 lockfiles omit 'HEAD' refs; 'ls-remote'
-  # can't resolve a sha, so use the remote's default branch for these
-  origin <- record$RemoteUrl
-  ref <- record$RemoteRef %||% ""
-  if (!nzchar(ref))
-    ref <- "HEAD"
-
   # pull request refs are recorded as refspecs, e.g. 'pull/1/head:pull/1';
   # 'ls-remote' only needs the remote side of these
-  ref <- sub(":.*", "", ref)
+  origin <- record$RemoteUrl
+  ref <- sub(":.*", "", renv_git_ref(record))
 
   # an annotated tag has its own sha; ask for the commit it points at as well,
   # which 'ls-remote' lists as '<ref>^{}'. these are passed through the shell,
@@ -869,10 +861,20 @@ renv_remotes_resolve_git_clone <- function(record) {
 
 }
 
+# read the DESCRIPTION of a git record from a clone of its repository; the
+# commit that was cloned is reported as the description's 'RemoteSha', so
+# that the record can be pinned to the commit its description came from
 renv_remotes_resolve_git_description <- function(record) {
+
   renv_scope_git_clones()
   path <- renv_remotes_resolve_git_clone(record)
-  renv_description_read(path, subdir = record$RemoteSubdir)
+  desc <- renv_description_read(path, subdir = record$RemoteSubdir)
+
+  record <- renv_git_record_pin(record, path)
+  desc$RemoteSha <- record$RemoteSha
+
+  desc
+
 }
 
 renv_remotes_resolve_git_pull <- function(pr) {
