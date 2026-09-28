@@ -76,6 +76,16 @@ renv_lockfile_diff_record <- function(before, after) {
       return(NULL)
   }
 
+  # a git record without a sha (e.g. one recorded by an older version of renv)
+  # requests whatever its ref points at, so it's satisfied by a record that
+  # pins a commit; otherwise, restoring such a lockfile would report the
+  # pinned package as a crossgrade on every restore
+  # https://github.com/rstudio/renv/issues/2378
+  if (is.null(before$RemoteSha) != is.null(after$RemoteSha)) {
+    before$RemoteSha <- NULL
+    after$RemoteSha <- NULL
+  }
+
   # check for a crossgrade -- where the package version is the same,
   # but details about the package's remotes have changed
   if (!setequal(renv_record_names(before), renv_record_names(after)))

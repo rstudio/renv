@@ -19,6 +19,36 @@
   non-transactionally, so a package that cannot be installed no longer causes
   the other packages being hydrated to be rolled back. (#2380)
 
+* `renv::install()` now records the commit (`RemoteSha`) that a package was
+  installed from when using the `git::` remote pathway, so that
+  `renv::snapshot()` pins that package to the installed commit, and
+  `renv::restore()` retrieves that same commit rather than whatever the
+  recorded ref points at when the project is restored (including when pak is
+  enabled). Restoring a git package from a lockfile written by an older
+  version of renv, which has no `RemoteSha`, likewise records the commit that
+  was installed, so the next `renv::snapshot()` pins it; until then, the
+  installed package is treated as satisfying the lockfile's record, rather
+  than being reported as a change. If a git server refuses to serve a pinned
+  commit directly, renv now fetches the recent history of the recorded ref
+  instead (deepening it as needed), and checks out the commit from there. In
+  addition, `renv::install()`, `renv::restore()`, `renv::hydrate()`,
+  `renv::update()`, and `renv::record()` now clone a given commit at most
+  once, rather than up to three times, and remove those clones once they
+  complete. (#2378)
+
+* With pak enabled, installing a package from a sub-directory of a git
+  repository now reports that pak does not support this, rather than asking
+  pak to install from the repository's root. (#2378)
+
+* `renv::update()` now checks for updates to packages that renv installed
+  from `git::` remotes; previously, these packages were skipped. For git
+  packages, it also now resolves a ref to the commit that git itself would
+  fetch, rather than to any ref whose name ends with it (e.g. `feature/main`
+  for `main`), and reports refs that no longer exist as errors. Packages
+  installed from an annotated tag by remotes are no longer reported as out
+  of date, and git packages with no recorded commit are only reported as out
+  of date if a newer version is available. (#2378)
+
 * Version constraints declared in the project's `DESCRIPTION` file (for
   example, `Imports: dplyr (>= 1.1.0)`) are now honored by `renv::install()`
   and validated by `renv::snapshot()`. Previously, these constraints were
