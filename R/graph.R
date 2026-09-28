@@ -1587,6 +1587,11 @@ renv_graph_install <- function(descriptions) {
       all[[pkg]] <<- entry$record
     } else {
       writeLines(c(
+        sprintf("DIAG[%s] failure in pid", Sys.getpid()),
+        paste("DIAG install.opts:", deparse(getOption("install.opts"))),
+        paste("DIAG INSTALL_opts:", deparse(getOption("INSTALL_opts"))),
+        paste("DIAG R_LIBS:", Sys.getenv("R_LIBS")),
+        paste("DIAG installdir writable:", file.access(installdir, 2L) == 0L, "isdir:", isTRUE(file.info(installdir)$isdir)),
         "DIAG command:", entry$prepared$command %||% "<none>",
         paste("DIAG success:", format(result$success)),
         paste("DIAG output length:", length(result$output)),
@@ -2263,7 +2268,7 @@ renv_graph_install_launch_socket <- function(prepared, port) {
       # on success 'output' is a character vector with a "status"
       # attribute; on error it's a condition object
       output <- tryCatch(
-        suppressWarnings(system(!!command, intern = TRUE)),
+        suppressWarnings(if (.Platform$OS.type == "windows") shell(!!command, intern = TRUE) else system(!!command, intern = TRUE)),
         error = identity
       )
 

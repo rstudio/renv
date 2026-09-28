@@ -48,7 +48,13 @@ renv_scope_libpaths <- function(new = .libPaths(), scope = parent.frame()) {
 renv_scope_options <- function(..., scope = parent.frame()) {
   new <- list(...)
   old <- options(new)
-  defer(options(old), scope = scope)
+  if ("install.opts" %in% names(new))
+    writeLines(sprintf("DIAG[%s] install.opts set (scope %s, nframe %d)", Sys.getpid(), renv_defer_id(scope), sys.nframe()))
+  defer({
+    if ("install.opts" %in% names(old))
+      writeLines(sprintf("DIAG[%s] install.opts restored (scope %s)", Sys.getpid(), renv_defer_id(scope)))
+    options(old)
+  }, scope = scope)
 }
 
 renv_scope_locale <- function(category = "LC_ALL", locale = "", scope = parent.frame()) {
