@@ -431,6 +431,73 @@ test_that("renv_graph_requirements extracts version constraints", {
 
 })
 
+test_that("renv_graph_requirements includes project DESCRIPTION constraints", {
+
+  project <- renv_tests_scope()
+
+  desc <- c(
+    "Type: Project",
+    "Package: myproject",
+    "Imports: bread (>= 1.0.0)"
+  )
+  writeLines(desc, con = "DESCRIPTION")
+
+  descriptions <- renv_graph_init("toast", project = project)
+  requirements <- renv_graph_requirements(descriptions, project = project)
+
+  reqs <- requirements[["bread"]]
+  expect_true(is.data.frame(reqs))
+  expect_true("myproject" %in% reqs$RequiredBy)
+  expect_equal(reqs$Require[reqs$RequiredBy == "myproject"], ">=")
+  expect_equal(reqs$Version[reqs$RequiredBy == "myproject"], "1.0.0")
+
+})
+
+test_that("project DESCRIPTION constraints don't override Remotes entries", {
+
+  project <- renv_tests_scope()
+
+  # a local copy of 'bread', older than the version on the repository
+  root <- renv_scope_tempfile("renv-remotes-")
+  source <- file.path(root, "bread")
+  renv_file_copy(renv_tests_path("packages/bread"), source)
+
+  descpath <- file.path(source, "DESCRIPTION")
+  bread <- renv_description_read(descpath)
+  bread$Version <- "0.5.0"
+  renv_dcf_write(bread, file = descpath)
+
+  desc <- c(
+    "Type: Project",
+    "Package: myproject",
+    "Imports: bread (>= 1.0.0)",
+    sprintf("Remotes: local::%s", source)
+  )
+  writeLines(desc, con = "DESCRIPTION")
+
+  # the Remotes entry wins; the constraint is only reported
+  descriptions <- renv_graph_init("bread", project = project)
+  expect_equal(descriptions$bread$Version, "0.5.0")
+
+})
+
+test_that("project DESCRIPTION constraints don't override versioned Remotes entries", {
+
+  project <- renv_tests_scope()
+
+  desc <- c(
+    "Type: Project",
+    "Package: myproject",
+    "Imports: bread (>= 1.0.0)",
+    "Remotes: bread@0.1.0"
+  )
+  writeLines(desc, con = "DESCRIPTION")
+
+  descriptions <- renv_graph_init("bread", project = project)
+  expect_equal(descriptions$bread$Version, "0.1.0")
+
+})
+
 test_that("renv_graph_compatible accepts satisfied constraints", {
 
   reqs <- data.frame(
@@ -481,6 +548,43 @@ test_that("renv_graph_compatible returns TRUE for no requirements", {
 
   expect_true(renv_graph_compatible("1.0.0", NULL))
   expect_true(renv_graph_compatible("1.0.0", data.frame()))
+
+})
+
+test_that("renv_graph_compatible ignores malformed operators", {
+
+  # a typo in a DESCRIPTION constraint shouldn't abort installation
+  reqs <- data.frame(
+    Package    = "toast",
+    Require    = "=>",
+    Version    = "2.0.0",
+    RequiredBy = "breakfast",
+    stringsAsFactors = FALSE
+  )
+
+  expect_true(renv_graph_compatible("1.0.0", reqs))
+
+})
+
+test_that("renv_graph_requirements_active drops project constraints for pinned packages", {
+
+  reqs <- data.frame(
+    Package    = c("bread", "bread"),
+    Require    = c(">=", ">="),
+    Version    = c("0.1.0", "1.0.0"),
+    RequiredBy = c("toast", "myproject"),
+    Project    = c(FALSE, TRUE),
+    stringsAsFactors = FALSE
+  )
+
+  desc <- list(Package = "bread", Version = "0.1.0")
+  expect_equal(nrow(renv_graph_requirements_active(reqs, desc)), 2L)
+
+  attr(desc, "pinned") <- TRUE
+  active <- renv_graph_requirements_active(reqs, desc)
+  expect_equal(active$RequiredBy, "toast")
+
+  expect_null(renv_graph_requirements_active(NULL, desc))
 
 })
 
@@ -549,6 +653,41 @@ test_that("renv_graph_needs_update upgrades when requirements not satisfied", {
 
   # installed bread 1.0.0 doesn't satisfy >= 2.0.0, so update is needed
   expect_true(renv_graph_needs_update("bread", record, requirements))
+
+})
+
+test_that("renv_graph_needs_update ignores project constraints for pinned packages", {
+
+  renv_tests_scope()
+
+  # install bread 1.0.0
+  descriptions <- renv_graph_init("bread")
+  renv_graph_install(descriptions)
+
+  renv_scope_restore(
+    project  = getwd(),
+    library  = renv_libpaths_active(),
+    packages = "breakfast"
+  )
+
+  # the project asks for a newer bread than is installed, but bread
+  # is pinned (e.g. via Remotes), so the project constraint is moot
+  requirements <- new.env(parent = emptyenv())
+  requirements[["bread"]] <- data.frame(
+    Package    = "bread",
+    Require    = ">=",
+    Version    = "2.0.0",
+    RequiredBy = "myproject",
+    Project    = TRUE,
+    stringsAsFactors = FALSE
+  )
+
+  # the graph resolved bread to a version that isn't installed yet
+  record <- list(Package = "bread", Version = "2.0.0", Source = "Repository")
+  expect_true(renv_graph_needs_update("bread", record, requirements))
+
+  attr(record, "pinned") <- TRUE
+  expect_false(renv_graph_needs_update("bread", record, requirements))
 
 })
 

@@ -217,6 +217,8 @@ renv_retrieve_impl_one <- function(package) {
       iscompat <- renv_retrieve_incompatible(package, replacement)
       if (NROW(iscompat)) {
         replacement <- renv_available_packages_latest(package, type = "source")
+        if (is.null(replacement))
+          stopf("package '%s' is not available", package)
       }
     }
 
@@ -1669,33 +1671,26 @@ renv_retrieve_incompatible <- function(package, record) {
   if (is.null(version))
     return(NULL)
 
-  # for each row, compute whether we're compatible
-  rversion <- numeric_version(version)
-  compatible <- map_lgl(seq_len(nrow(explicit)), function(i) {
-    expr <- call(explicit$Require[[i]], rversion, explicit$Version[[i]])
-    eval(expr, envir = baseenv())
-  })
-
   # keep whatever wasn't compatible
-  explicit[!compatible, ]
+  explicit[renv_graph_unsatisfied(version, explicit), ]
 
 }
 
 renv_retrieve_incompatible_report <- function(package, record, replacement, compat) {
 
-  # only report if the user explicitly requesting installation of a particular
-  # version of a package, but that package isn't actually compatible
-  state <- renv_restore_state()
-  if (!package %in% state$packages)
-    return()
-
   fmt <- "%s (requires %s %s %s)"
   values <- with(compat, sprintf(fmt, Source, Package, Require, Version))
 
-  fmt <- "Installation of '%s %s' was requested, but the following constraints are not met:"
+  fmt <- "Package '%s %s' does not satisfy the following constraints:"
   preamble <- with(record, sprintf(fmt, Package, Version))
 
-  fmt <- "renv will try to install '%s %s' instead."
+  # say so if the replacement doesn't satisfy the constraints either,
+  # so the user isn't surprised when installation or loading fails later
+  fmt <- if (NROW(renv_retrieve_incompatible(package, replacement)))
+    "renv will try to install '%s %s' instead, but it does not satisfy these constraints either."
+  else
+    "renv will try to install '%s %s' instead."
+
   postamble <- with(replacement, sprintf(fmt, Package, Version))
 
   if (!renv_tests_running()) {

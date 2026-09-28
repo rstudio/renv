@@ -716,19 +716,7 @@ renv_version_requirement_satisfied <- function(version, requirement) {
   op <- sub(pattern, "\\1", requirement)
   reqver <- sub(pattern, "\\2", requirement)
 
-  # perform comparison
-  cmp <- renv_version_compare(version, reqver)
-
-  switch(
-    op,
-    ">=" = cmp >= 0L,
-    ">"  = cmp > 0L,
-    "<=" = cmp <= 0L,
-    "<"  = cmp < 0L,
-    "==" = cmp == 0L,
-    "!=" = cmp != 0L,
-    TRUE
-  )
+  renv_version_satisfies(version, op, reqver)
 
 }
 
