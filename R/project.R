@@ -183,7 +183,47 @@ renv_project_remotes <- function(project, filter = NULL, resolve = FALSE) {
 
   })
 
-  if (resolve) map(records, resolve) else records
+  records <- if (resolve) map(records, resolve) else records
+
+  # note which packages came from the Remotes field; the graph treats
+  # these as pinned when applying the project's own version constraints
+  attr(records, "remotes") <- names(remotes)
+  records
+
+}
+
+# explicit version constraints declared in the project's DESCRIPTION file,
+# e.g. 'Imports: dplyr (>= 1.1.0)'. these are not attached to any installed
+# package, so they'd otherwise be invisible to install() and snapshot()
+renv_project_requirements <- function(project, dev = TRUE) {
+
+  if (is.null(project))
+    return(NULL)
+
+  descpath <- file.path(project, "DESCRIPTION")
+  if (!file.exists(descpath))
+    return(NULL)
+
+  deps <- renv_dependencies_discover_description(descpath, project = project)
+  if (empty(deps))
+    return(NULL)
+
+  keep <- nzchar(deps$Require) & nzchar(deps$Version) & deps$Dev %in% c(dev, FALSE)
+  explicit <- deps[keep, ]
+  if (nrow(explicit) == 0L)
+    return(NULL)
+
+  # label these with the project's package name, if any, so
+  # they can be reported alongside installed packages
+  desc <- renv_description_read(descpath)
+  label <- desc$Package %||% "DESCRIPTION"
+
+  data_frame(
+    Source  = label,
+    Package = explicit$Package,
+    Require = explicit$Require,
+    Version = explicit$Version
+  )
 
 }
 
