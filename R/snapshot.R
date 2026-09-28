@@ -293,14 +293,10 @@ snapshot <- function(project  = NULL,
 }
 
 renv_snapshot_preserve <- function(old, new) {
-  records <- filter(old$Packages, renv_snapshot_preserve_impl)
+  records <- filter(old$Packages, renv_record_ostype_incompatible)
   if (length(records))
     new$Packages[names(records)] <- records
   new
-}
-
-renv_snapshot_preserve_impl <- function(record) {
-  renv_record_ostype_incompatible(record)
 }
 
 renv_snapshot_preflight <- function(project, libpaths) {

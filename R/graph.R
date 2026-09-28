@@ -1998,12 +1998,12 @@ renv_graph_install <- function(descriptions) {
   }
 
   # packages discarded by a transactional rollback never reached the library;
-  # don't report them as installed, but tell the caller what was discarded so
-  # they can be distinguished from packages which failed (#2380)
+  # don't report them as installed, but tell the caller what was discarded
+  # and what caused it; see renv_graph_install_failed() (#2380)
   n <- length(all)
   if (rolledback && n > 0L) {
     writef("Rolled back installation of %s due to errors.", nplural("package", n))
-    all <- structure(list(), rolledback = names(all))
+    all <- structure(list(), rolledback = names(all), failed = failed$data())
   } else if (n > 0L) {
     fmt <- "Successfully installed %s in %s."
     elapsed <- timer$tick()
@@ -2018,6 +2018,22 @@ renv_graph_install <- function(descriptions) {
   renv_graph_install_errors(errors$data(), failed$data(), descriptions)
 
   invisible(all)
+
+}
+
+# determine which of the requested 'packages' failed to install, given the
+# result of renv_graph_install(). packages discarded by a transactional
+# rollback didn't fail themselves; when only such packages are missing, the
+# rollback was caused by something outside the requested set (for example, a
+# dependency discovered during resolution), so report those failures instead
+renv_graph_install_failed <- function(records, packages) {
+
+  rolledback <- attr(records, "rolledback", exact = TRUE)
+  failed <- setdiff(packages, c(names(records), rolledback))
+  if (length(rolledback) && length(failed) == 0L)
+    failed <- attr(records, "failed", exact = TRUE)
+
+  failed
 
 }
 

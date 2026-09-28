@@ -943,10 +943,27 @@ test_that("renv_graph_install reports packages discarded by a transactional roll
   # https://github.com/rstudio/renv/issues/2380
   expect_length(records, 0L)
   expect_setequal(attr(records, "rolledback"), c("bread", "oatmeal", "toast"))
+  expect_setequal(attr(records, "failed"), "breakfast")
 
   library <- renv_libpaths_active()
   for (pkg in names(descriptions))
     expect_false(renv_package_installed(pkg, lib.loc = library), info = pkg)
+
+})
+
+test_that("renv_graph_install_failed reports the cause of a rollback", {
+
+  # requested packages which failed, or are otherwise missing, are reported
+  records <- list(A = list(Package = "A"))
+  expect_equal(renv_graph_install_failed(records, c("A", "B")), "B")
+
+  # rolled-back packages didn't fail themselves ...
+  records <- structure(list(), rolledback = c("A", "B"), failed = "C")
+  expect_equal(renv_graph_install_failed(records, c("A", "B", "C")), "C")
+
+  # ... so when only they are missing, the packages which caused the
+  # rollback are reported instead, even if they weren't requested
+  expect_equal(renv_graph_install_failed(records, c("A", "B")), "C")
 
 })
 
