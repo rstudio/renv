@@ -269,12 +269,16 @@ renv_restore_run_actions <- function(project, actions, current, lockfile, rebuil
   # download + install in parallel dependency waves
   records <- renv_graph_install(descriptions)
 
-  # check for failed packages; offer to retry with latest versions
-  failed <- setdiff(packages, names(records))
+  # check for failed packages; offer to retry with latest versions. packages
+  # discarded by a transactional rollback didn't fail themselves; the retry
+  # re-installs them at their lockfile versions (#2380)
+  rolledback <- attr(records, "rolledback", exact = TRUE)
+  failed <- setdiff(packages, c(names(records), rolledback))
   if (length(failed)) {
-    recovered <- renv_restore_recover(failed, project, retry)
+    retrying <- c(failed, rolledback)
+    recovered <- renv_restore_recover(failed, project, retry, retrying, lockrecords)
     if (length(recovered)) {
-      records <- c(records, recovered)
+      records <- c(records[setdiff(names(records), names(recovered))], recovered)
       failed <- setdiff(packages, names(records))
     }
   }
@@ -306,7 +310,12 @@ renv_restore_run_actions <- function(project, actions, current, lockfile, rebuil
 
 }
 
-renv_restore_recover <- function(failed, project, retry = NULL) {
+renv_restore_recover <- function(failed,
+                                 project,
+                                 retry = NULL,
+                                 packages = failed,
+                                 records = list())
+{
 
   # when 'retry' is unset, prompt the user (interactive sessions only);
   # otherwise, honor the caller's explicit request
@@ -324,15 +333,22 @@ renv_restore_recover <- function(failed, project, retry = NULL) {
 
   writef("")
 
-  # narrow state$packages to just the failed packages so that
-  # already-installed dependencies are not needlessly re-installed
+  # narrow state$packages to the packages being retried, so that
+  # already-installed dependencies are not needlessly re-installed.
+  # 'packages' also includes packages discarded by a transactional
+  # rollback of the first pass; these need to land together with the
+  # failed packages, and are cheap to re-install as the first pass
+  # populated the cache
+  # https://github.com/rstudio/renv/issues/2380
   state <- renv_restore_state()
   old <- state$packages
-  state$packages <- failed
+  state$packages <- packages
   defer(state$packages <- old)
 
-  # resolve latest versions (no lockfile records = latest from repos)
-  descriptions <- catch(renv_graph_init(failed, project = project))
+  # failed packages resolve to the latest available version (no lockfile
+  # record = latest from repos); everything else keeps its lockfile record
+  records <- records[setdiff(names(records), failed)]
+  descriptions <- catch(renv_graph_init(packages, records = records, project = project))
   if (inherits(descriptions, "error"))
     return(NULL)
 

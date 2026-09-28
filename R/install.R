@@ -294,6 +294,10 @@ install <- function(packages = NULL,
   requested <- names(remotes) %||% packages
   failed <- setdiff(requested, names(records))
   failed <- intersect(failed, names(descriptions))
+
+  # packages discarded by a transactional rollback didn't fail themselves;
+  # the packages which caused the rollback are reported instead (#2380)
+  failed <- setdiff(failed, attr(records, "rolledback", exact = TRUE))
   library <- renv_libpaths_active()
   failed <- Filter(function(pkg) {
     if (isTRUE(attr(descriptions[[pkg]], "resolution_failed")))

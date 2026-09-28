@@ -727,3 +727,32 @@ test_that("restore(retry = TRUE) recovers failed packages end-to-end", {
   expect_true(renv_package_installed("bread"))
   expect_equal(renv_package_version("bread"), "1.0.0")
 })
+
+test_that("restore(retry = TRUE) keeps first-pass packages under a transactional restore", {
+  skip_on_cran()
+  renv_tests_scope(c("bread", "oatmeal"))
+  init()
+
+  renv_scope_options(renv.config.install.transactional = TRUE)
+
+  # record a non-existent version of bread that cannot be installed
+  snapshot()
+  lockfile <- renv_lockfile_load(project = getwd())
+  lockfile$Packages$bread$Version <- "9.9.9"
+  renv_lockfile_save(lockfile, project = getwd())
+
+  # remove both packages so restore() must reinstall them
+  remove.packages(c("bread", "oatmeal"), lib = renv_libpaths_active())
+  expect_false(renv_package_installed("bread"))
+  expect_false(renv_package_installed("oatmeal"))
+
+  # the first pass installs oatmeal but fails on bread 9.9.9, so the
+  # transactional rollback discards oatmeal; the retry must bring it back
+  # alongside the latest version of bread
+  # https://github.com/rstudio/renv/issues/2380
+  restore(retry = TRUE)
+  expect_true(renv_package_installed("oatmeal"))
+  expect_equal(renv_package_version("oatmeal"), "1.0.0")
+  expect_true(renv_package_installed("bread"))
+  expect_equal(renv_package_version("bread"), "1.0.0")
+})

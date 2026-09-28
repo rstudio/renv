@@ -1951,7 +1951,8 @@ renv_graph_install <- function(descriptions) {
   # library unchanged for a clean rollback)
   trash <- NULL
   transactional <- config$install.transactional()
-  if (staged && length(all) > 0L && !(transactional && !failed$empty())) {
+  rolledback <- staged && transactional && !failed$empty()
+  if (staged && length(all) > 0L && !rolledback) {
 
     stagepaths <- file.path(templib, names(all))
     stagepaths <- stagepaths[file.exists(stagepaths)]
@@ -1981,8 +1982,14 @@ renv_graph_install <- function(descriptions) {
     renv_filebacked_clear("renv_hash_description", descpaths)
   }
 
+  # packages discarded by a transactional rollback never reached the library;
+  # don't report them as installed, but tell the caller what was discarded so
+  # they can be distinguished from packages which failed (#2380)
   n <- length(all)
-  if (n > 0L) {
+  if (rolledback && n > 0L) {
+    writef("Rolled back installation of %s due to errors.", nplural("package", n))
+    all <- structure(list(), rolledback = names(all))
+  } else if (n > 0L) {
     fmt <- "Successfully installed %s in %s."
     elapsed <- timer$tick()
     writef(fmt, nplural("package", n), renv_difftime_format(elapsed))

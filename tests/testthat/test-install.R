@@ -943,3 +943,23 @@ test_that("install() reinstalls packages loaded from outside the active libpaths
   expect_true(renv_graph_needs_update("bread", record, list()))
 
 })
+
+test_that("install() doesn't report rolled-back packages as failures", {
+
+  renv_tests_scope()
+
+  # use a fresh cache so that breakfast is actually built (and fails)
+  # rather than being copied from the cache
+  renv_scope_envvars(RENV_PATHS_CACHE = renv_scope_tempfile())
+
+  # breakfast fails to install after its dependencies have been built
+  renv_scope_options(install.opts = list(breakfast = "--version"))
+
+  # https://github.com/rstudio/renv/issues/2380
+  error <- expect_error(install(c("oatmeal", "breakfast"), transactional = TRUE))
+  expect_match(conditionMessage(error), "breakfast")
+  expect_false(grepl("oatmeal", conditionMessage(error)))
+  expect_false(renv_package_installed("oatmeal"))
+  expect_false(renv_package_installed("breakfast"))
+
+})

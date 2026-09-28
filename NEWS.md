@@ -1,5 +1,14 @@
 # renv (development version)
 
+* `renv::restore(retry = TRUE)` (and the interactive retry prompt) now keeps
+  the packages which installed successfully in the first pass when the restore
+  is transactional. Previously, the transactional rollback of the first pass
+  discarded those packages, but the retry only re-installed the packages which
+  had failed, leaving the library incomplete. A transactional rollback is now
+  also reported as such, rather than as a successful installation, and
+  `renv::install()` no longer lists rolled-back packages among the packages
+  which failed to install. (#2380)
+
 * `renv::dependencies()` now follows Quarto's engine-binding rules when
   inferring dependencies for `.qmd` documents. Documents bound to the knitr
   engine, whether via R chunks, an explicit `engine: knitr` declaration, or
