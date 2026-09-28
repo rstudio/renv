@@ -292,12 +292,8 @@ install <- function(packages = NULL,
   # but don't error for packages that are already installed —
   # unless resolution itself failed (e.g. incompatible R version)
   requested <- names(remotes) %||% packages
-  failed <- setdiff(requested, names(records))
+  failed <- renv_graph_install_failed(records, requested)
   failed <- intersect(failed, names(descriptions))
-
-  # packages discarded by a transactional rollback didn't fail themselves;
-  # the packages which caused the rollback are reported instead (#2380)
-  failed <- setdiff(failed, attr(records, "rolledback", exact = TRUE))
   library <- renv_libpaths_active()
   failed <- Filter(function(pkg) {
     if (isTRUE(attr(descriptions[[pkg]], "resolution_failed")))

@@ -369,6 +369,10 @@ renv_hydrate_resolve_missing <- function(project, library, remotes, missing) {
     records  = remotes
   )
 
+  # hydration is best-effort: install what can be installed and report the
+  # rest, rather than rolling everything back on the first failure (#2380)
+  renv_scope_options(renv.config.install.transactional = FALSE)
+
   # resolve dependency graph and install in parallel waves;
   # renv_graph_install handles error reporting internally
   descriptions <- renv_graph_init(packages, records = remotes, project = project)
@@ -378,7 +382,7 @@ renv_hydrate_resolve_missing <- function(project, library, remotes, missing) {
   records <- renv_graph_install(descriptions)
 
   # determine which requested packages failed to install
-  failed <- setdiff(packages, names(records))
+  failed <- renv_graph_install_failed(records, packages)
   if (empty(failed))
     return()
 

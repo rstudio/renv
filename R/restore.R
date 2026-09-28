@@ -195,6 +195,15 @@ restore <- function(project = NULL,
   ignored <- renv_project_ignored_packages(project = project)
   diff <- diff[renv_vector_diff(names(diff), ignored)]
 
+  # don't try to install packages built for a different operating system
+  # (e.g. a Windows-only package recorded in a lockfile restored on Linux);
+  # these are skipped rather than treated as failures (#2380)
+  lockrecords <- renv_lockfile_records(lockfile)
+  incompatible <- map_lgl(names(diff), function(package) {
+    renv_record_ostype_incompatible(lockrecords[[package]])
+  })
+  diff <- diff[!incompatible]
+
   # only take action with requested packages; if a subset of packages was
   # explicitly requested, include their recursive lockfile dependencies as well
   requested <- packages
@@ -241,11 +250,12 @@ restore <- function(project = NULL,
 renv_restore_run_actions <- function(project, actions, current, lockfile, rebuild, strict = FALSE, descriptions = NULL, retry = NULL) {
 
   packages <- names(actions)
+  lockrecords <- renv_lockfile_records(lockfile)
 
   renv_scope_restore(
     project  = project,
     library  = renv_libpaths_active(),
-    records  = renv_lockfile_records(lockfile),
+    records  = lockrecords,
     packages = packages,
     rebuild  = rebuild,
     strict   = strict
@@ -259,15 +269,6 @@ renv_restore_run_actions <- function(project, actions, current, lockfile, rebuil
 
   # next, handle installs
   installs <- actions[actions != "remove"]
-  lockrecords <- renv_lockfile_records(lockfile)
-
-  # ignore packages built for a different operating system; these are
-  # skipped rather than treated as failures, so they can't trigger a
-  # transactional rollback (#2380)
-  incompatible <- map_lgl(names(installs), function(package) {
-    renv_record_ostype_incompatible(lockrecords[[package]])
-  })
-  installs <- installs[!incompatible]
   packages <- names(installs)
 
   # resolve dependency graph using lockfile records as lookup table
@@ -278,16 +279,17 @@ renv_restore_run_actions <- function(project, actions, current, lockfile, rebuil
   records <- renv_graph_install(descriptions)
 
   # check for failed packages; offer to retry with latest versions. packages
-  # discarded by a transactional rollback didn't fail themselves; the retry
-  # re-installs them at their lockfile versions (#2380)
-  rolledback <- attr(records, "rolledback", exact = TRUE)
-  failed <- setdiff(packages, c(names(records), rolledback))
+  # discarded by a transactional rollback didn't fail themselves, but need
+  # to be re-installed at their lockfile versions alongside the retried
+  # packages (#2380)
+  failed <- renv_graph_install_failed(records, packages)
   if (length(failed)) {
+    rolledback <- attr(records, "rolledback", exact = TRUE)
     retrying <- c(failed, rolledback)
     recovered <- renv_restore_recover(failed, project, retry, retrying, lockrecords)
-    if (length(recovered)) {
+    if (!is.null(recovered)) {
       records <- c(records[setdiff(names(records), names(recovered))], recovered)
-      failed <- setdiff(packages, names(records))
+      failed <- renv_graph_install_failed(recovered, retrying)
     }
   }
 
