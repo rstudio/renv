@@ -149,36 +149,34 @@ test_that("restore(packages = <...>) works", {
 
 test_that("restore ignores packages of incompatible architecture", {
 
-  renv_tests_scope(c("unixonly", "windowsonly"))
+  windows <- renv_platform_windows()
+  compatible <- if (windows) "windowsonly" else "unixonly"
+  incompatible <- if (windows) "unixonly" else "windowsonly"
+
+  renv_tests_scope(compatible)
   init()
 
-  if (renv_platform_unix()) {
+  expect_true(renv_package_installed(compatible))
+  lockfile <- renv_lockfile_load(project = getwd())
+  expect_identical(lockfile$Packages[[compatible]]$OS_type, .Platform$OS.type)
 
-    expect_true(renv_package_installed("unixonly"))
-    expect_false(renv_package_installed("windowsonly"))
+  # record a package built for the other operating system, as if the
+  # lockfile had been snapshotted there
+  lockfile$Packages[[incompatible]] <- list(
+    Package = incompatible,
+    Version = "1.0.0",
+    Source  = "Repository",
+    OS_type = if (windows) "unix" else "windows"
+  )
+  renv_lockfile_save(lockfile, project = getwd())
 
-    lockfile <- renv_lockfile_read("renv.lock")
-    package <- lockfile$Packages$unixonly
-    expect_identical(package$OS_type, "unix")
-
-    remove("unixonly")
-    restore()
-    expect_true(renv_package_installed("unixonly"))
-
-  } else {
-
-    expect_true(renv_package_installed("windowsonly"))
-    expect_false(renv_package_installed("unixonly"))
-
-    lockfile <- renv_lockfile_read("renv.lock")
-    package <- lockfile$Packages$windowsonly
-    expect_identical(package$OS_type, "windows")
-
-    remove("windowsonly")
-    restore()
-    expect_true(renv_package_installed("windowsonly"))
-
-  }
+  # the incompatible package should be skipped, rather than treated as a
+  # failure (which would roll back the rest of a transactional restore)
+  # https://github.com/rstudio/renv/issues/2380
+  remove(compatible)
+  restore()
+  expect_true(renv_package_installed(compatible))
+  expect_false(renv_package_installed(incompatible))
 
 })
 

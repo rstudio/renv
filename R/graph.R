@@ -113,6 +113,11 @@ renv_graph_resolve <- function(remote, envir, records = NULL, fields = NULL, ove
   if (package %in% renv_packages_base())
     return(character())
 
+  # skip packages built for a different operating system, e.g. a Windows-only
+  # package recorded in a lockfile being restored on Linux (#2380)
+  if (renv_record_ostype_incompatible(record))
+    return(character())
+
   # skip if already resolved; because we use BFS, top-level remotes
   # are always resolved before transitive dependencies, so the first
   # resolution for a given package name wins.

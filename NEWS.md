@@ -9,6 +9,12 @@
   `renv::install()` no longer lists rolled-back packages among the packages
   which failed to install. (#2380)
 
+* `renv::restore()` once again ignores lockfile records for packages built
+  for a different operating system (for example, a Windows-only package in a
+  lockfile restored on Linux), rather than reporting them as failed installs.
+  With a transactional restore, such a failure previously rolled back the
+  entire restore. (#2380)
+
 * `renv::dependencies()` now follows Quarto's engine-binding rules when
   inferring dependencies for `.qmd` documents. Documents bound to the knitr
   engine, whether via R chunks, an explicit `engine: knitr` declaration, or

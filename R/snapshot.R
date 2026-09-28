@@ -300,14 +300,7 @@ renv_snapshot_preserve <- function(old, new) {
 }
 
 renv_snapshot_preserve_impl <- function(record) {
-
-  ostype <- tolower(record[["OS_type"]] %||% "")
-  if (!nzchar(ostype))
-    return(FALSE)
-
-  altos <- if (renv_platform_unix()) "windows" else "unix"
-  identical(ostype, altos)
-
+  renv_record_ostype_incompatible(record)
 }
 
 renv_snapshot_preflight <- function(project, libpaths) {

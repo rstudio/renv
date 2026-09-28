@@ -259,10 +259,18 @@ renv_restore_run_actions <- function(project, actions, current, lockfile, rebuil
 
   # next, handle installs
   installs <- actions[actions != "remove"]
+  lockrecords <- renv_lockfile_records(lockfile)
+
+  # ignore packages built for a different operating system; these are
+  # skipped rather than treated as failures, so they can't trigger a
+  # transactional rollback (#2380)
+  incompatible <- map_lgl(names(installs), function(package) {
+    renv_record_ostype_incompatible(lockrecords[[package]])
+  })
+  installs <- installs[!incompatible]
   packages <- names(installs)
 
   # resolve dependency graph using lockfile records as lookup table
-  lockrecords <- renv_lockfile_records(lockfile)
   descriptions <- descriptions %||%
     renv_graph_init(packages, records = lockrecords, project = project)
 

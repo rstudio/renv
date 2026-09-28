@@ -94,6 +94,19 @@ renv_record_source_normalize <- function(record, source) {
 
 }
 
+# is this record for a package built for a different operating system?
+# e.g. a Windows-only package recorded in a lockfile restored on Linux
+renv_record_ostype_incompatible <- function(record) {
+
+  ostype <- tolower(record[["OS_type"]] %||% "")
+  if (!nzchar(ostype))
+    return(FALSE)
+
+  altos <- if (renv_platform_unix()) "windows" else "unix"
+  identical(ostype, altos)
+
+}
+
 renv_record_validate <- function(package, record) {
 
   # check for a record -- minimally, a list with a package name
