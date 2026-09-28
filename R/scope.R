@@ -152,6 +152,15 @@ renv_scope_rtools <- function(scope = parent.frame()) {
 # nocov start
 renv_scope_install <- function(scope = parent.frame()) {
 
+  # R CMD INSTALL is invoked with --vanilla, but on Windows (before R 4.3.0;
+  # see PR#18512) 'R CMD' did not forward that to the installer process, which
+  # then sources the profiles named by R_PROFILE and R_PROFILE_USER. such
+  # profiles can reset .libPaths() -- callr's do, e.g. under rcmdcheck -- and
+  # so hide the library paths passed via R_LIBS from the installer, which then
+  # fails to find already-installed dependencies. point them at files which
+  # don't exist, as is already done for R_ENVIRON_USER in renv_install_test()
+  renv_scope_envvars(R_PROFILE = "NULL", R_PROFILE_USER = "NULL", scope = scope)
+
   if (renv_platform_macos())
     renv_scope_install_macos(scope)
 
