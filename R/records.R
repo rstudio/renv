@@ -117,13 +117,19 @@ renv_record_format_remote <- function(record,
                                       versioned = TRUE,
                                       pak = FALSE)
 {
+  source <- renv_record_source(record, normalize = TRUE)
+
+  # pak records a pkgref for git remotes as they were requested, which may not
+  # pin the commit that was installed, so format these from the record instead
+  if (pak && identical(source, "git"))
+    return(renv_record_format_remote_pak_git(record, versioned = versioned))
+
   # if we have a pkgref, we can use that directly
   pkgref <- record$RemotePkgRef
   if (!is.null(pkgref))
     return(pkgref)
 
   # extract some of the commonly used fields up-front
-  source <- renv_record_source(record, normalize = TRUE)
   package <- record[["Package"]]
   version <- record[["Version"]]
 
@@ -269,6 +275,46 @@ renv_record_format_remote_pak_gitlab <- function(record, versioned = TRUE) {
     stk$push("@", sha %||% ref %||% "HEAD")
   else if (length(ref))
     stk$push("@", ref)
+
+  paste(stk$data(), collapse = "")
+
+}
+
+# format a git record using pkgdepends' own remote syntax, as used by pak:
+#
+#   [<package>=]git::<url>[@<commitish>]
+#
+renv_record_format_remote_pak_git <- function(record, versioned = TRUE) {
+
+  package <- record[["Package"]]
+  url     <- record[["RemoteUrl"]]
+  subdir  <- record[["RemoteSubdir"]] %||% ""
+  ref     <- record[["RemoteRef"]] %||% ""
+  sha     <- record[["RemoteSha"]] %||% ""
+
+  # pkgdepends has no syntax for a package within a sub-directory of a git
+  # repository, and would otherwise install from the repository's root
+  if (nzchar(subdir)) {
+    fmt <- "cannot install '%s' with pak: pak does not support packages within a sub-directory of a git repository"
+    stopf(fmt, package %||% url)
+  }
+
+  # pkgdepends uses the default branch when no ref is given, and has no
+  # syntax for pull request refspecs (e.g. 'pull/1/head:pull/1')
+  if (identical(ref, "HEAD") || grepl(":", ref, fixed = TRUE))
+    ref <- ""
+
+  commitish <- if (versioned && nzchar(sha)) sha else ref
+
+  stk <- stack(mode = "character")
+
+  if (!is.null(package))
+    stk$push(package, "=")
+
+  stk$push("git::", url)
+
+  if (nzchar(commitish))
+    stk$push("@", commitish)
 
   paste(stk$data(), collapse = "")
 

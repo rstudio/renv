@@ -52,6 +52,9 @@ record <- function(records,
 
   lockfile <- lockfile %||% renv_lockfile_path(project)
 
+  # share clones of git remotes between resolving a record, and enriching it
+  renv_scope_git_clones()
+
   # track which entries came from a character spec; only those entries
   # are enriched, so caller-supplied list records pass through unchanged
   # (and offline, since enrichment otherwise requires a reachable source)
@@ -121,6 +124,11 @@ renv_record_normalize <- function(record) {
   # drop remotes from records with a repository source
   if (renv_record_cranlike(record))
     record <- record[grep("^Remote", names(record), invert = TRUE)]
+
+  # a 'HEAD' ref just requests the default branch, and is omitted from version
+  # 1 lockfiles, so treat it the same as having no ref
+  if (identical(record$RemoteRef, "HEAD"))
+    record$RemoteRef <- NULL
 
   # keep only specific records for comparison
   remotes <- grep("^Remote", names(record), value = TRUE)
@@ -198,9 +206,9 @@ renv_record_enrich_key <- function(record, source = NULL) {
 
   source <- source %||% renv_record_source(record, normalize = TRUE)
 
-  # include every field that contributes to source identity. plain git
-  # remotes (Source = "git") have no RemoteSha, so distinct URLs would
-  # otherwise alias to the same cache slot.
+  # include every field that contributes to source identity. git records
+  # may have no RemoteSha (e.g. those recorded by older versions of renv),
+  # so distinct URLs would otherwise alias to the same cache slot.
   fields <- c(
     "Package", "Version", "Source", "Repository",
     "RemoteType", "RemoteHost", "RemoteUrl", "RemoteUsername",

@@ -186,6 +186,9 @@ install <- function(packages = NULL,
     )
   }
 
+  # share clones of git remotes across the steps of this install
+  renv_scope_git_clones()
+
   # resolve remotes from explicitly-requested packages
   remotes <- if (length(packages)) {
     remotes <- map(packages, renv_remotes_resolve)

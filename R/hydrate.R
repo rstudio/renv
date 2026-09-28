@@ -110,6 +110,10 @@ hydrate <- function(packages = NULL,
 
   }
 
+  # share clones of git remotes between resolving the project's remotes, and
+  # installing them
+  renv_scope_git_clones()
+
   remotes <- renv_project_remotes(project, filter = filter, resolve = TRUE)
   missing[map_chr(remotes, `[[`, "Package")] <- ""
 

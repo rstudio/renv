@@ -65,3 +65,39 @@ test_that("hydrate succeeds when package installed into user library", {
   expect_true(renv_package_installed("bread"))
 
 })
+
+test_that("hydrate() clones each git remote only once", {
+
+  skip_on_cran()
+  skip_if(!nzchar(Sys.which("git")), "git is not installed")
+
+  # use a separate cache, since the version of 'bread' installed here would
+  # otherwise shadow the one from the test repositories in later tests
+  project <- renv_tests_scope(isolated = TRUE)
+  init()
+
+  remote <- renv_tests_git_remote()
+  shas <- remote$shas
+
+  # a project which uses 'bread' from a git remote
+  writeLines(
+    c(
+      "Type: Project",
+      "Imports: bread",
+      "Remotes: bread@release"
+    ),
+    con = file.path(project, "DESCRIPTION")
+  )
+
+  renv_tests_git_scope_spec("bread@release", list(url = remote$url, repo = "bread", ref = "release"))
+  clones <- renv_tests_git_scope_clones()
+
+  hydrate(prompt = FALSE)
+  expect_equal(clones$count, 1L)
+  expect_null(the$git_clones)
+
+  desc <- renv_description_read(package = "bread")
+  expect_equal(desc$Version, "1.0.0")
+  expect_equal(desc$RemoteSha, shas$release)
+
+})
