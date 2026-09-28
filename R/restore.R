@@ -202,6 +202,11 @@ restore <- function(project = NULL,
   incompatible <- map_lgl(names(diff), function(package) {
     renv_record_ostype_incompatible(lockrecords[[package]])
   })
+  skipped <- intersect(packages, names(diff)[incompatible])
+  if (length(skipped)) {
+    fmt <- "- Skipping %s: built for a different operating system."
+    writef(fmt, paste(shQuote(skipped), collapse = ", "))
+  }
   diff <- diff[!incompatible]
 
   # only take action with requested packages; if a subset of packages was

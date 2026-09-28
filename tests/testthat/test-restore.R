@@ -178,6 +178,12 @@ test_that("restore ignores packages of incompatible architecture", {
   expect_true(renv_package_installed(compatible))
   expect_false(renv_package_installed(incompatible))
 
+  # explicitly requesting the incompatible package should say why it was
+  # skipped, rather than only reporting the library as synchronized
+  renv_scope_options(renv.verbose = TRUE)
+  expect_output(restore(packages = incompatible), "different operating system")
+  expect_false(renv_package_installed(incompatible))
+
 })
 
 test_that("restore handled records without version set", {
