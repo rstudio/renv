@@ -2,6 +2,49 @@
 
 ## renv (development version)
 
+- [`renv::install()`](https://rstudio.github.io/renv/dev/reference/install.md)
+  now records the commit (`RemoteSha`) that a package was installed from
+  when using the `git::` remote pathway, so that
+  [`renv::snapshot()`](https://rstudio.github.io/renv/dev/reference/snapshot.md)
+  pins that package to the installed commit, and
+  [`renv::restore()`](https://rstudio.github.io/renv/dev/reference/restore.md)
+  retrieves that same commit rather than whatever the recorded ref
+  points at when the project is restored (including when pak is
+  enabled). Restoring a git package from a lockfile written by an older
+  version of renv, which has no `RemoteSha`, likewise records the commit
+  that was installed, so the next
+  [`renv::snapshot()`](https://rstudio.github.io/renv/dev/reference/snapshot.md)
+  pins it; until then, the installed package is treated as satisfying
+  the lockfile’s record, rather than being reported as a change. If a
+  git server refuses to serve a pinned commit directly, renv now fetches
+  the recent history of the recorded ref instead (deepening it as
+  needed), and checks out the commit from there. In addition,
+  [`renv::install()`](https://rstudio.github.io/renv/dev/reference/install.md),
+  [`renv::restore()`](https://rstudio.github.io/renv/dev/reference/restore.md),
+  [`renv::hydrate()`](https://rstudio.github.io/renv/dev/reference/hydrate.md),
+  [`renv::update()`](https://rstudio.github.io/renv/dev/reference/update.md),
+  and
+  [`renv::record()`](https://rstudio.github.io/renv/dev/reference/record.md)
+  now clone a given commit at most once, rather than up to three times,
+  and remove those clones once they complete.
+  ([\#2378](https://github.com/rstudio/renv/issues/2378))
+
+- With pak enabled, installing a package from a sub-directory of a git
+  repository now reports that pak does not support this, rather than
+  asking pak to install from the repository’s root.
+  ([\#2378](https://github.com/rstudio/renv/issues/2378))
+
+- [`renv::update()`](https://rstudio.github.io/renv/dev/reference/update.md)
+  now checks for updates to packages that renv installed from `git::`
+  remotes; previously, these packages were skipped. For git packages, it
+  also now resolves a ref to the commit that git itself would fetch,
+  rather than to any ref whose name ends with it (e.g. `feature/main`
+  for `main`), and reports refs that no longer exist as errors. Packages
+  installed from an annotated tag by remotes are no longer reported as
+  out of date, and git packages with no recorded commit are only
+  reported as out of date if a newer version is available.
+  ([\#2378](https://github.com/rstudio/renv/issues/2378))
+
 - Version constraints declared in the project’s `DESCRIPTION` file (for
   example, `Imports: dplyr (>= 1.1.0)`) are now honored by
   [`renv::install()`](https://rstudio.github.io/renv/dev/reference/install.md)
