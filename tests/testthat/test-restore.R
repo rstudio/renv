@@ -178,6 +178,12 @@ test_that("restore ignores packages of incompatible architecture", {
   expect_true(renv_package_installed(compatible))
   expect_false(renv_package_installed(incompatible))
 
+  # explicitly requesting the incompatible package should say why it was
+  # skipped, rather than only reporting the library as synchronized
+  renv_scope_options(renv.verbose = TRUE)
+  expect_output(restore(packages = incompatible), "different operating system")
+  expect_false(renv_package_installed(incompatible))
+
 })
 
 test_that("restore handled records without version set", {
@@ -718,13 +724,21 @@ test_that("restore(retry = TRUE) recovers failed packages end-to-end", {
   # with retry = FALSE, recovery is skipped and restore() fails outright.
   # this is the discriminating case: under tests ask() returns TRUE, so a
   # failure here can only happen if 'retry' was threaded through to the
-  # recover step (otherwise the prompt path would recover and succeed)
-  expect_error(restore(retry = FALSE))
+  # recover step (otherwise the prompt path would recover and succeed).
+  # resolving the fictional bread 9.9.9 falls back to the latest version's
+  # dependencies, which warns; assert it so it doesn't leak from the test
+  expect_warning(
+    expect_error(restore(retry = FALSE)),
+    "using dependencies from the latest version"
+  )
   expect_false(renv_package_installed("bread"))
 
   # with retry = TRUE, restore should fail to install bread 9.9.9, then
   # fall back to the latest available version (1.0.0) without prompting
-  restore(retry = TRUE)
+  expect_warning(
+    restore(retry = TRUE),
+    "using dependencies from the latest version"
+  )
   expect_true(renv_package_installed("bread"))
   expect_equal(renv_package_version("bread"), "1.0.0")
 })
@@ -751,9 +765,64 @@ test_that("restore(retry = TRUE) keeps first-pass packages under a transactional
   # transactional rollback discards oatmeal; the retry must bring it back
   # alongside the latest version of bread
   # https://github.com/rstudio/renv/issues/2380
-  restore(retry = TRUE)
+  expect_warning(
+    restore(retry = TRUE),
+    "using dependencies from the latest version"
+  )
   expect_true(renv_package_installed("oatmeal"))
   expect_equal(renv_package_version("oatmeal"), "1.0.0")
   expect_true(renv_package_installed("bread"))
   expect_equal(renv_package_version("bread"), "1.0.0")
+})
+
+test_that("restore(retry = TRUE) retries failed dependencies outside the requested set", {
+  skip_on_cran()
+  renv_tests_scope("breakfast")
+  init()
+
+  # build from source, so that toast fails when bread is unavailable
+  renv_scope_options(renv.config.cache.enabled = FALSE)
+
+  # record a non-existent version of bread, a dependency of toast
+  lockfile <- renv_lockfile_load(project = getwd())
+  lockfile$Packages$bread$Version <- "9.9.9"
+  renv_lockfile_save(lockfile, project = getwd())
+
+  remove(c("bread", "breakfast", "oatmeal", "toast"))
+
+  # bread is excluded from the requested set, but is still resolved as a
+  # dependency of toast; when it fails at its lockfile version, the retry
+  # must resolve it to the latest available version rather than the same
+  # unavailable lockfile version
+  expect_warning(
+    restore(exclude = "bread", retry = TRUE),
+    "using dependencies from the latest version"
+  )
+  expect_true(renv_package_installed("toast"))
+  expect_true(renv_package_installed("bread"))
+  expect_equal(renv_package_version("bread"), "1.0.0")
+})
+
+test_that("restore installs lockfile versions despite project DESCRIPTION constraints", {
+
+  renv_tests_scope("bread")
+  init(bare = TRUE)
+
+  # snapshot a lockfile pinning an old version of 'bread'
+  install("bread@0.1.0")
+  snapshot()
+  remove("bread")
+
+  # the project now asks for a newer version than the lockfile records;
+  # restore() should still install what the lockfile says
+  desc <- c(
+    "Type: Project",
+    "Package: myproject",
+    "Imports: bread (>= 1.0.0)"
+  )
+  writeLines(desc, con = "DESCRIPTION")
+
+  restore()
+  expect_equal(renv_package_version("bread"), "0.1.0")
+
 })

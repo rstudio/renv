@@ -24,8 +24,10 @@ renv_graph_init <- function(remotes, records = list(), project = NULL, scope = p
   # so that packages specified via the project DESCRIPTION Remotes field
   # are resolved from the correct source (e.g. GitHub) even when the
   # caller doesn't explicitly include them in 'records'
+  pinned <- character()
   if (!is.null(project) && config$install.remotes()) {
     projrecords <- renv_project_remotes(project)
+    pinned <- attr(projrecords, "remotes") %||% character()
     for (name in names(projrecords))
       if (is.null(records[[name]]))
         records[[name]] <- projrecords[[name]]
@@ -42,15 +44,15 @@ renv_graph_init <- function(remotes, records = list(), project = NULL, scope = p
   # if any resolved description indicates Bioconductor is needed (via Source
   # or Bioconductor provenance), activate Bioconductor repos for the rest of
   # resolution -- unless Bioconductor is disabled for this project
-  project <- renv_restore_state(key = "project") %||% renv_project_resolve()
+  bioproject <- renv_restore_state(key = "project") %||% project
   resolved <- as.list(envir)
-  bioc <- renv_bioconductor_enabled(project = project) && any(map_lgl(resolved, function(desc) {
+  bioc <- renv_bioconductor_enabled(project = bioproject) && any(map_lgl(resolved, function(desc) {
     source <- renv_record_source(desc, normalize = TRUE)
     identical(source, "bioconductor") || renv_description_bioconductor(desc)
   }))
 
   if (bioc)
-    renv_scope_bioconductor(project = project, scope = scope)
+    renv_scope_bioconductor(project = bioproject, scope = scope)
 
   # phase 2: resolve transitive dependencies with default fields
   idx <- 1L
@@ -65,16 +67,27 @@ renv_graph_init <- function(remotes, records = list(), project = NULL, scope = p
   # doesn't satisfy constraints from other packages in the graph,
   # try to upgrade it to the latest available version
   descriptions <- as.list(envir)
-  requirements <- renv_graph_requirements(descriptions)
+  requirements <- renv_graph_requirements(descriptions, project = project)
 
   for (package in ls(envir = requirements)) {
 
-    reqs <- requirements[[package]]
-
-    version <- descriptions[[package]]$Version
+    desc <- descriptions[[package]]
+    version <- desc$Version
     if (is.null(version))
       next
 
+    # the project's own constraints shouldn't override a version pinned by
+    # the caller -- a lockfile record during restore(), an explicit
+    # 'pkg@version' request, or a Remotes entry; those are only reported below.
+    # record the decision on the description so that later checks (e.g.
+    # renv_graph_needs_update()) apply the same filter
+    if (renv_graph_pinned(package, records, desc, pinned)) {
+      attr(desc, "pinned") <- TRUE
+      descriptions[[package]] <- desc
+      assign(package, desc, envir = envir)
+    }
+
+    reqs <- renv_graph_requirements_active(requirements[[package]], desc)
     if (renv_graph_compatible(version, reqs))
       next
 
@@ -82,7 +95,6 @@ renv_graph_init <- function(remotes, records = list(), project = NULL, scope = p
     if (inherits(latest, "error"))
       next
 
-    desc <- descriptions[[package]]
     desc$Version <- latest$Version
     descriptions[[package]] <- desc
     assign(package, desc, envir = envir)
@@ -643,7 +655,7 @@ renv_graph_deps <- function(desc, fields = NULL) {
 
 }
 
-renv_graph_requirements <- function(descriptions) {
+renv_graph_requirements <- function(descriptions, project = NULL) {
 
   requirements <- new.env(parent = emptyenv())
 
@@ -657,10 +669,23 @@ renv_graph_requirements <- function(descriptions) {
       if (nrow(explicit) == 0L)
         next
       explicit$RequiredBy <- desc$Package
+      explicit$Project <- FALSE
       for (i in seq_len(nrow(explicit))) {
         pkg <- explicit$Package[[i]]
         requirements[[pkg]] <- c(requirements[[pkg]], list(explicit[i, ]))
       }
+    }
+  }
+
+  # include constraints declared by the project itself
+  explicit <- renv_project_requirements(project)
+  if (NROW(explicit)) {
+    explicit$RequiredBy <- explicit$Source
+    explicit$Source <- NULL
+    explicit$Project <- TRUE
+    for (i in seq_len(nrow(explicit))) {
+      pkg <- explicit$Package[[i]]
+      requirements[[pkg]] <- c(requirements[[pkg]], list(explicit[i, ]))
     }
   }
 
@@ -673,17 +698,52 @@ renv_graph_requirements <- function(descriptions) {
 
 }
 
-renv_graph_compatible <- function(version, requirements) {
+# is this package's version pinned, such that the project's own constraints
+# shouldn't upgrade it? lazy records (from the project DESCRIPTION) resolve
+# on demand, and so don't count as pins by themselves
+renv_graph_pinned <- function(package, records, desc, pinned = character()) {
 
-  if (is.null(requirements) || nrow(requirements) == 0L)
+  # packages declared in the project's Remotes field
+  if (package %in% pinned)
     return(TRUE)
 
-  rversion <- numeric_version(version)
-  all(map_lgl(seq_len(nrow(requirements)), function(i) {
-    expr <- call(requirements$Require[[i]], rversion, requirements$Version[[i]])
-    eval(expr, envir = baseenv())
-  }))
+  # explicit records from the caller, e.g. lockfile records or 'pkg@version'
+  record <- records[[package]]
+  if (!is.null(record) && !is.function(record) && !is.null(record$Version))
+    return(TRUE)
 
+  # packages from a non-repository source (e.g. a Remotes entry) can't be
+  # upgraded by swapping in the latest repository version
+  source <- renv_record_source(desc, normalize = TRUE)
+  !source %in% c("repository", "bioconductor")
+
+}
+
+# the requirements that actually constrain a package: project-level
+# constraints are dropped for pinned packages (see renv_graph_pinned())
+renv_graph_requirements_active <- function(requirements, desc) {
+
+  if (is.null(requirements) || !isTRUE(attr(desc, "pinned", exact = TRUE)))
+    return(requirements)
+
+  requirements[!requirements$Project, ]
+
+}
+
+# which rows of 'requirements' does 'version' fail to satisfy?
+renv_graph_unsatisfied <- function(version, requirements) {
+
+  if (is.null(requirements) || nrow(requirements) == 0L)
+    return(logical())
+
+  !map_lgl(seq_len(nrow(requirements)), function(i) {
+    renv_version_satisfies(version, requirements$Require[[i]], requirements$Version[[i]])
+  })
+
+}
+
+renv_graph_compatible <- function(version, requirements) {
+  !any(renv_graph_unsatisfied(version, requirements))
 }
 
 renv_graph_requirements_check <- function(descriptions, requirements) {
@@ -700,22 +760,15 @@ renv_graph_requirements_check <- function(descriptions, requirements) {
     if (is.null(version))
       next
 
-    if (renv_graph_compatible(version, reqs))
-      next
-
     # find which requirements are unsatisfied
-    rversion <- numeric_version(version)
-    for (i in seq_len(nrow(reqs))) {
-      expr <- call(reqs$Require[[i]], rversion, reqs$Version[[i]])
-      if (!eval(expr, envir = baseenv())) {
-        fmt <- "'%s' requires '%s %s %s', but '%s %s' will be installed"
-        msg <- sprintf(fmt,
-          reqs$RequiredBy[[i]],
-          package, reqs$Require[[i]], reqs$Version[[i]],
-          package, version
-        )
-        messages <- c(messages, msg)
-      }
+    for (i in which(renv_graph_unsatisfied(version, reqs))) {
+      fmt <- "'%s' requires '%s %s %s', but '%s %s' will be installed"
+      msg <- sprintf(fmt,
+        reqs$RequiredBy[[i]],
+        package, reqs$Require[[i]], reqs$Version[[i]],
+        package, version
+      )
+      messages <- c(messages, msg)
     }
 
   }
@@ -824,7 +877,7 @@ renv_graph_needs_update <- function(pkg, record, requirements) {
   if (!(pkg %in% state$packages)) {
     installed <- renv_package_libpath_version(pkg)
     if (!is.null(installed)) {
-      reqs <- requirements[[pkg]]
+      reqs <- renv_graph_requirements_active(requirements[[pkg]], record)
       if (renv_graph_compatible(installed, reqs))
         return(FALSE)
     }
@@ -1271,7 +1324,7 @@ renv_graph_install <- function(descriptions) {
   if (length(packages) == 0L)
     return(invisible(list()))
 
-  project <- renv_project_resolve()
+  project <- renv_restore_state(key = "project") %||% renv_project_resolve()
   library <- renv_libpaths_active()
 
   # set up restore state if not already provided by the caller
@@ -1334,7 +1387,7 @@ renv_graph_install <- function(descriptions) {
 
   # filter out packages that are already correctly installed;
   # safe to do up front since nothing has been installed yet
-  requirements <- renv_graph_requirements(descriptions)
+  requirements <- renv_graph_requirements(descriptions, project = project)
   remaining <- Filter(function(pkg) {
     renv_graph_needs_update(pkg, descriptions[[pkg]], requirements)
   }, packages)
@@ -2003,12 +2056,12 @@ renv_graph_install <- function(descriptions) {
   }
 
   # packages discarded by a transactional rollback never reached the library;
-  # don't report them as installed, but tell the caller what was discarded
-  # and what caused it; see renv_graph_install_failed() (#2380)
+  # don't report them as installed, but tell the caller what was discarded;
+  # see renv_graph_install_failed() (#2380)
   n <- length(all)
   if (rolledback && n > 0L) {
     writef("Rolled back installation of %s due to errors.", nplural("package", n))
-    all <- structure(list(), rolledback = names(all), failed = failed$data())
+    all <- structure(list(), rolledback = names(all))
   } else if (n > 0L) {
     fmt <- "Successfully installed %s in %s."
     elapsed <- timer$tick()
@@ -2018,6 +2071,12 @@ renv_graph_install <- function(descriptions) {
   # clean up old installations after reporting success
   if (!is.null(trash))
     unlink(trash, recursive = TRUE)
+
+  # also report which packages failed directly, so callers can retry them
+  # differently from packages that were merely rolled back; this includes
+  # dependencies outside the requested set, e.g. excluded packages
+  if (!failed$empty())
+    attr(all, "failed") <- failed$data()
 
   # report errors
   renv_graph_install_errors(errors$data(), failed$data(), descriptions)

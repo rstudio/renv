@@ -186,6 +186,9 @@ install <- function(packages = NULL,
     )
   }
 
+  # share clones of git remotes across the steps of this install
+  renv_scope_git_clones()
+
   # resolve remotes from explicitly-requested packages
   remotes <- if (length(packages)) {
     remotes <- map(packages, renv_remotes_resolve)
@@ -263,7 +266,7 @@ install <- function(packages = NULL,
   # the report only lists packages that will actually be installed;
   # renv_graph_install performs the same filtering internally
   library <- renv_libpaths_active()
-  requirements <- renv_graph_requirements(descriptions)
+  requirements <- renv_graph_requirements(descriptions, project = project)
   needed <- Filter(function(pkg) {
     renv_graph_needs_update(pkg, descriptions[[pkg]], requirements)
   }, names(descriptions))

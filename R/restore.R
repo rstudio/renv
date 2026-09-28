@@ -164,6 +164,9 @@ restore <- function(project = NULL,
 
   }
 
+  # share clones of git remotes across the steps of this restore
+  renv_scope_git_clones()
+
   # set up Bioconductor version + repositories
   biocversion <- getOption("renv.bioconductor.version") %||% lockfile$Bioconductor$Version
   if (!is.null(biocversion)) {
@@ -202,6 +205,11 @@ restore <- function(project = NULL,
   incompatible <- map_lgl(names(diff), function(package) {
     renv_record_ostype_incompatible(lockrecords[[package]])
   })
+  skipped <- intersect(packages, names(diff)[incompatible])
+  if (length(skipped)) {
+    fmt <- "- Skipping %s: built for a different operating system."
+    writef(fmt, paste(shQuote(skipped), collapse = ", "))
+  }
   diff <- diff[!incompatible]
 
   # only take action with requested packages; if a subset of packages was
@@ -286,7 +294,13 @@ renv_restore_run_actions <- function(project, actions, current, lockfile, rebuil
   if (length(failed)) {
     rolledback <- attr(records, "rolledback", exact = TRUE)
     retrying <- c(failed, rolledback)
-    recovered <- renv_restore_recover(failed, project, retry, retrying, lockrecords)
+
+    # dependencies outside the requested set that failed directly (e.g. an
+    # excluded package) must also be retried at their latest versions, or
+    # the retry fails the same way the first pass did
+    direct <- attr(records, "failed", exact = TRUE)
+    retryrecords <- lockrecords[setdiff(names(lockrecords), direct)]
+    recovered <- renv_restore_recover(failed, project, retry, retrying, retryrecords)
     if (!is.null(recovered)) {
       records <- c(records[setdiff(names(records), names(recovered))], recovered)
       failed <- renv_graph_install_failed(recovered, retrying)

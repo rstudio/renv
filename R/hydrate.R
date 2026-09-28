@@ -110,6 +110,10 @@ hydrate <- function(packages = NULL,
 
   }
 
+  # share clones of git remotes between resolving the project's remotes, and
+  # installing them
+  renv_scope_git_clones()
+
   remotes <- renv_project_remotes(project, filter = filter, resolve = TRUE)
   missing[map_chr(remotes, `[[`, "Package")] <- ""
 
@@ -370,8 +374,13 @@ renv_hydrate_resolve_missing <- function(project, library, remotes, missing) {
   )
 
   # hydration is best-effort: install what can be installed and report the
-  # rest, rather than rolling everything back on the first failure (#2380)
-  renv_scope_options(renv.config.install.transactional = FALSE)
+  # rest, rather than rolling everything back on the first failure (#2380).
+  # staged installs fall back to the transactional setting when unset, so
+  # pin the effective value first to keep installing via a staging library
+  renv_scope_options(
+    renv.config.install.staged = renv_config_install_staged(),
+    renv.config.install.transactional = FALSE
+  )
 
   # resolve dependency graph and install in parallel waves;
   # renv_graph_install handles error reporting internally

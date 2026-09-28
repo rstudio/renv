@@ -217,6 +217,8 @@ renv_retrieve_impl_one <- function(package) {
       iscompat <- renv_retrieve_incompatible(package, replacement)
       if (NROW(iscompat)) {
         replacement <- renv_available_packages_latest(package, type = "source")
+        if (is.null(replacement))
+          stopf("package '%s' is not available", package)
       }
     }
 
@@ -618,12 +620,14 @@ renv_retrieve_gitlab <- function(record) {
 }
 
 renv_retrieve_git <- function(record) {
+
   # NOTE: This path will later be used during the install step, so we don't
-  # want to clean it up afterwards
-  path <- tempfile("renv-git-")
-  ensure_directory(path)
-  renv_retrieve_git_impl(record, path)
+  # want to clean it up afterwards; clones made during an install or restore
+  # are instead removed once that operation completes
+  path <- renv_git_clone(record)
+  record <- renv_git_record_pin(record, path)
   renv_retrieve_successful(record, path)
+
 }
 
 renv_retrieve_git_impl <- function(record, path) {
@@ -632,53 +636,60 @@ renv_retrieve_git_impl <- function(record, path) {
 
   package <- record$Package
   url     <- record$RemoteUrl
-  ref     <- record$RemoteRef
-  sha     <- record$RemoteSha
-
-  # figure out the default ref
-  gitref <- case(
-    nzchar(sha %||% "") ~ sha,
-    nzchar(ref %||% "") ~ ref,
-    "HEAD"
-  )
+  ref     <- record$RemoteRef %||% ""
+  sha     <- record$RemoteSha %||% ""
 
   # be quiet if requested
   quiet <- getOption("renv.git.quiet", default = TRUE)
-  quiet <- if (quiet) "--quiet" else ""
 
-  template <- heredoc('
+  data <- list(
+    ORIGIN  = url,
+    REF     = renv_git_rev(record),
+    SHA     = sha,
+    HISTORY = renv_git_ref_history(record),
+    QUIET   = if (quiet) "--quiet" else ""
+  )
+
+  init <- heredoc('
     git init ${QUIET}
     git remote add origin "${ORIGIN}"
+  ')
+
+  fetch <- heredoc('
     git fetch ${QUIET} --depth=1 origin "${REF}"
     git reset ${QUIET} --hard FETCH_HEAD
   ')
 
-  data <- list(
-    ORIGIN = url,
-    REF    = gitref,
-    QUIET  = quiet
-  )
-
-  commands <- renv_template_replace(template, data)
-  command <- gsub("\n", " && ", commands, fixed = TRUE)
-  if (renv_platform_windows())
-    command <- paste(comspec(), "/C", command)
+  # some servers refuse to serve a commit by its sha unless a ref points at it
+  # (e.g. once the recorded branch has moved on); in that case, fetch the
+  # history of the recorded ref instead, and check out the commit from there.
+  # the failure to fetch by sha is expected then, so its output is held back
+  # (unless git's output was requested), and shown only if the fallback fails
+  # as well, since it might then explain why (e.g. an authentication failure)
+  fallback <- nzchar(sha) && !identical(sha, ref)
+  errfile <- if (fallback && quiet) renv_scope_tempfile("renv-git-stderr-")
 
   printf("- Cloning '%s' ... ", url)
 
   before <- Sys.time()
 
-  status <- local({
-    ensure_directory(path)
-    renv_scope_wd(path)
-    renv_scope_auth(record)
-    renv_scope_git_auth()
-    system(command)
-  })
+  status <- renv_retrieve_git_exec(record, path, init, data)
+  if (status == 0L) {
+
+    status <- renv_retrieve_git_exec(record, path, fetch, data, errfile = errfile)
+    if (status != 0L && fallback) {
+      status <- withCallingHandlers(
+        renv_retrieve_git_history(record, path, data),
+        error = function(cnd) renv_retrieve_git_stderr(errfile)
+      )
+    }
+
+  }
 
   after <- Sys.time()
 
   if (status != 0L) {
+    renv_retrieve_git_stderr(errfile)
     fmt <- "error cloning '%s' from '%s' [status code %i]"
     stopf(fmt, package, url, status)
   }
@@ -688,6 +699,81 @@ renv_retrieve_git_impl <- function(record, path) {
   writef(fmt, renv_difftime_format(elapsed))
 
   TRUE
+
+}
+
+renv_retrieve_git_history <- function(record, path, data) {
+
+  # the commit is most likely a recent one, so fetch the recent history of the
+  # ref first, and deepen it (by growing amounts) only while the commit isn't
+  # found, so that a commit some way back doesn't require the whole history.
+  # tags aren't needed, and could make these fetches much larger
+  fetch <- 'git fetch ${QUIET} --no-tags ${DEPTH} origin "${HISTORY}"'
+  reset <- 'git reset ${QUIET} --hard "${SHA}"'
+
+  depths <- c("--depth=100", "--deepen=1000", "--deepen=10000", "--unshallow")
+  for (depth in depths) {
+
+    data$DEPTH <- depth
+    status <- renv_retrieve_git_exec(record, path, fetch, data)
+    if (status != 0L)
+      return(status)
+
+    if (renv_git_commit_exists(path, data$SHA))
+      return(renv_retrieve_git_exec(record, path, reset, data))
+
+    # stop if the ref's whole history has already been fetched
+    if (!file.exists(file.path(path, ".git/shallow")))
+      break
+
+  }
+
+  # e.g. the branch was force-pushed, and the commit is no longer part of it
+  fmt <- "commit '%s' was not found in the history of '%s' from '%s'"
+  stopf(fmt, data$SHA, data$HISTORY, data$ORIGIN)
+
+}
+
+# run git commands within a clone; if 'errfile' is given, their stderr is
+# written to that file rather than shown
+renv_retrieve_git_exec <- function(record, path, template, data, errfile = NULL) {
+
+  commands <- renv_template_replace(template, data)
+  command <- gsub("\n", " && ", commands, fixed = TRUE)
+
+  # group the commands, so that the redirection applies to all of them, not
+  # just the last; both the unix shells and cmd.exe accept this form
+  if (!is.null(errfile))
+    command <- sprintf("(%s) 2>%s", command, renv_shell_path(errfile))
+
+  if (renv_platform_windows())
+    command <- paste(comspec(), "/C", command)
+
+  ensure_directory(path)
+  renv_scope_wd(path)
+  renv_scope_auth(record)
+  renv_scope_git_auth()
+  system(command)
+
+}
+
+# show the git output held back by an earlier, failed attempt
+renv_retrieve_git_stderr <- function(errfile) {
+
+  if (is.null(errfile) || !file.exists(errfile))
+    return(invisible(FALSE))
+
+  output <- readLines(errfile, warn = FALSE)
+  output <- output[nzchar(trimws(output))]
+  if (empty(output))
+    return(invisible(FALSE))
+
+  writef("")
+  writef("- The commit could not be fetched directly; git reported:")
+  writef(paste(" ", output))
+  writef("")
+
+  invisible(TRUE)
 
 }
 
@@ -1669,33 +1755,26 @@ renv_retrieve_incompatible <- function(package, record) {
   if (is.null(version))
     return(NULL)
 
-  # for each row, compute whether we're compatible
-  rversion <- numeric_version(version)
-  compatible <- map_lgl(seq_len(nrow(explicit)), function(i) {
-    expr <- call(explicit$Require[[i]], rversion, explicit$Version[[i]])
-    eval(expr, envir = baseenv())
-  })
-
   # keep whatever wasn't compatible
-  explicit[!compatible, ]
+  explicit[renv_graph_unsatisfied(version, explicit), ]
 
 }
 
 renv_retrieve_incompatible_report <- function(package, record, replacement, compat) {
 
-  # only report if the user explicitly requesting installation of a particular
-  # version of a package, but that package isn't actually compatible
-  state <- renv_restore_state()
-  if (!package %in% state$packages)
-    return()
-
   fmt <- "%s (requires %s %s %s)"
   values <- with(compat, sprintf(fmt, Source, Package, Require, Version))
 
-  fmt <- "Installation of '%s %s' was requested, but the following constraints are not met:"
+  fmt <- "Package '%s %s' does not satisfy the following constraints:"
   preamble <- with(record, sprintf(fmt, Package, Version))
 
-  fmt <- "renv will try to install '%s %s' instead."
+  # say so if the replacement doesn't satisfy the constraints either,
+  # so the user isn't surprised when installation or loading fails later
+  fmt <- if (NROW(renv_retrieve_incompatible(package, replacement)))
+    "renv will try to install '%s %s' instead, but it does not satisfy these constraints either."
+  else
+    "renv will try to install '%s %s' instead."
+
   postamble <- with(replacement, sprintf(fmt, Package, Version))
 
   if (!renv_tests_running()) {
