@@ -5,6 +5,9 @@ test_that("we can repair a broken project library", {
   renv_tests_scope("breakfast")
 
   init()
+  renv_scope_options(renv.verbose = TRUE, renv.caution.verbose = TRUE)
+  writeLines(paste("DIAG staging:", renv:::renv_install_staged_library_path_impl()))
+  writeLines(paste("DIAG libpaths:", paste(.libPaths(), collapse = " | ")))
 
   # find breakfast in the cache, and delete it
   record <- list(Package = "breakfast", Version = "1.0.0")

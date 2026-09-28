@@ -830,6 +830,9 @@ test_that("irrelevant R version requirements don't prevent package installation"
 
   renv_tests_scope()
   init()
+  renv_scope_options(renv.verbose = TRUE, renv.caution.verbose = TRUE)
+  writeLines(paste("DIAG staging:", renv:::renv_install_staged_library_path_impl()))
+  writeLines(paste("DIAG libpaths:", paste(.libPaths(), collapse = " | ")))
 
   # package in repository not compatible with this version of R
   expect_error(install("today"))

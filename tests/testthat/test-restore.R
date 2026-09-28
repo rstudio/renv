@@ -267,6 +267,9 @@ test_that("restore() restores packages with broken symlinks", {
   renv_scope_options(renv.settings.cache.enabled = TRUE)
   renv_tests_scope("breakfast")
   init()
+  renv_scope_options(renv.verbose = TRUE, renv.caution.verbose = TRUE)
+  writeLines(paste("DIAG staging:", renv:::renv_install_staged_library_path_impl()))
+  writeLines(paste("DIAG libpaths:", paste(.libPaths(), collapse = " | ")))
 
   # check it's installed
   pkgpath <- renv_package_find("breakfast")
