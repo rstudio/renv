@@ -71,18 +71,23 @@ renv_graph_init <- function(remotes, records = list(), project = NULL, scope = p
 
   for (package in ls(envir = requirements)) {
 
-    reqs <- requirements[[package]]
-
-    version <- descriptions[[package]]$Version
+    desc <- descriptions[[package]]
+    version <- desc$Version
     if (is.null(version))
       next
 
     # the project's own constraints shouldn't override a version pinned by
     # the caller -- a lockfile record during restore(), an explicit
-    # 'pkg@version' request, or a Remotes entry; those are only reported below
-    if (renv_graph_pinned(package, records, descriptions[[package]], pinned))
-      reqs <- reqs[!reqs$Project, ]
+    # 'pkg@version' request, or a Remotes entry; those are only reported below.
+    # record the decision on the description so that later checks (e.g.
+    # renv_graph_needs_update()) apply the same filter
+    if (renv_graph_pinned(package, records, desc, pinned)) {
+      attr(desc, "pinned") <- TRUE
+      descriptions[[package]] <- desc
+      assign(package, desc, envir = envir)
+    }
 
+    reqs <- renv_graph_requirements_active(requirements[[package]], desc)
     if (renv_graph_compatible(version, reqs))
       next
 
@@ -90,7 +95,6 @@ renv_graph_init <- function(remotes, records = list(), project = NULL, scope = p
     if (inherits(latest, "error"))
       next
 
-    desc <- descriptions[[package]]
     desc$Version <- latest$Version
     descriptions[[package]] <- desc
     assign(package, desc, envir = envir)
@@ -710,17 +714,31 @@ renv_graph_pinned <- function(package, records, desc, pinned = character()) {
 
 }
 
-renv_graph_compatible <- function(version, requirements) {
+# the requirements that actually constrain a package: project-level
+# constraints are dropped for pinned packages (see renv_graph_pinned())
+renv_graph_requirements_active <- function(requirements, desc) {
+
+  if (is.null(requirements) || !isTRUE(attr(desc, "pinned", exact = TRUE)))
+    return(requirements)
+
+  requirements[!requirements$Project, ]
+
+}
+
+# which rows of 'requirements' does 'version' fail to satisfy?
+renv_graph_unsatisfied <- function(version, requirements) {
 
   if (is.null(requirements) || nrow(requirements) == 0L)
-    return(TRUE)
+    return(logical())
 
-  rversion <- numeric_version(version)
-  all(map_lgl(seq_len(nrow(requirements)), function(i) {
-    expr <- call(requirements$Require[[i]], rversion, requirements$Version[[i]])
-    eval(expr, envir = baseenv())
-  }))
+  !map_lgl(seq_len(nrow(requirements)), function(i) {
+    renv_version_satisfies(version, requirements$Require[[i]], requirements$Version[[i]])
+  })
 
+}
+
+renv_graph_compatible <- function(version, requirements) {
+  !any(renv_graph_unsatisfied(version, requirements))
 }
 
 renv_graph_requirements_check <- function(descriptions, requirements) {
@@ -737,22 +755,15 @@ renv_graph_requirements_check <- function(descriptions, requirements) {
     if (is.null(version))
       next
 
-    if (renv_graph_compatible(version, reqs))
-      next
-
     # find which requirements are unsatisfied
-    rversion <- numeric_version(version)
-    for (i in seq_len(nrow(reqs))) {
-      expr <- call(reqs$Require[[i]], rversion, reqs$Version[[i]])
-      if (!eval(expr, envir = baseenv())) {
-        fmt <- "'%s' requires '%s %s %s', but '%s %s' will be installed"
-        msg <- sprintf(fmt,
-          reqs$RequiredBy[[i]],
-          package, reqs$Require[[i]], reqs$Version[[i]],
-          package, version
-        )
-        messages <- c(messages, msg)
-      }
+    for (i in which(renv_graph_unsatisfied(version, reqs))) {
+      fmt <- "'%s' requires '%s %s %s', but '%s %s' will be installed"
+      msg <- sprintf(fmt,
+        reqs$RequiredBy[[i]],
+        package, reqs$Require[[i]], reqs$Version[[i]],
+        package, version
+      )
+      messages <- c(messages, msg)
     }
 
   }
@@ -861,7 +872,7 @@ renv_graph_needs_update <- function(pkg, record, requirements) {
   if (!(pkg %in% state$packages)) {
     installed <- renv_package_libpath_version(pkg)
     if (!is.null(installed)) {
-      reqs <- requirements[[pkg]]
+      reqs <- renv_graph_requirements_active(requirements[[pkg]], record)
       if (renv_graph_compatible(installed, reqs))
         return(FALSE)
     }

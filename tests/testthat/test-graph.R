@@ -551,6 +551,43 @@ test_that("renv_graph_compatible returns TRUE for no requirements", {
 
 })
 
+test_that("renv_graph_compatible ignores malformed operators", {
+
+  # a typo in a DESCRIPTION constraint shouldn't abort installation
+  reqs <- data.frame(
+    Package    = "toast",
+    Require    = "=>",
+    Version    = "2.0.0",
+    RequiredBy = "breakfast",
+    stringsAsFactors = FALSE
+  )
+
+  expect_true(renv_graph_compatible("1.0.0", reqs))
+
+})
+
+test_that("renv_graph_requirements_active drops project constraints for pinned packages", {
+
+  reqs <- data.frame(
+    Package    = c("bread", "bread"),
+    Require    = c(">=", ">="),
+    Version    = c("0.1.0", "1.0.0"),
+    RequiredBy = c("toast", "myproject"),
+    Project    = c(FALSE, TRUE),
+    stringsAsFactors = FALSE
+  )
+
+  desc <- list(Package = "bread", Version = "0.1.0")
+  expect_equal(nrow(renv_graph_requirements_active(reqs, desc)), 2L)
+
+  attr(desc, "pinned") <- TRUE
+  active <- renv_graph_requirements_active(reqs, desc)
+  expect_equal(active$RequiredBy, "toast")
+
+  expect_null(renv_graph_requirements_active(NULL, desc))
+
+})
+
 # needs update ----
 
 test_that("renv_graph_needs_update preserves installed transitive deps", {
@@ -616,6 +653,41 @@ test_that("renv_graph_needs_update upgrades when requirements not satisfied", {
 
   # installed bread 1.0.0 doesn't satisfy >= 2.0.0, so update is needed
   expect_true(renv_graph_needs_update("bread", record, requirements))
+
+})
+
+test_that("renv_graph_needs_update ignores project constraints for pinned packages", {
+
+  renv_tests_scope()
+
+  # install bread 1.0.0
+  descriptions <- renv_graph_init("bread")
+  renv_graph_install(descriptions)
+
+  renv_scope_restore(
+    project  = getwd(),
+    library  = renv_libpaths_active(),
+    packages = "breakfast"
+  )
+
+  # the project asks for a newer bread than is installed, but bread
+  # is pinned (e.g. via Remotes), so the project constraint is moot
+  requirements <- new.env(parent = emptyenv())
+  requirements[["bread"]] <- data.frame(
+    Package    = "bread",
+    Require    = ">=",
+    Version    = "2.0.0",
+    RequiredBy = "myproject",
+    Project    = TRUE,
+    stringsAsFactors = FALSE
+  )
+
+  # the graph resolved bread to a version that isn't installed yet
+  record <- list(Package = "bread", Version = "2.0.0", Source = "Repository")
+  expect_true(renv_graph_needs_update("bread", record, requirements))
+
+  attr(record, "pinned") <- TRUE
+  expect_false(renv_graph_needs_update("bread", record, requirements))
 
 })
 

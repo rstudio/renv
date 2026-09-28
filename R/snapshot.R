@@ -585,14 +585,8 @@ renv_snapshot_validate_dependencies_compatible <- function(project, lockfile, li
     # add in requested version
     requirements$Requested <- version
 
-    # generate expressions to evaluate
-    fmt <- "package_version('%s') %s package_version('%s')"
-    code <- with(requirements, sprintf(fmt, Requested, Require, Version))
-    parsed <- parse(text = code)
-    ok <- map_lgl(parsed, eval, envir = baseenv())
-
     # return requirements that weren't satisfied
-    requirements[!ok, ]
+    requirements[renv_graph_unsatisfied(version, requirements), ]
 
   })
 

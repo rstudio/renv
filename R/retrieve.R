@@ -223,6 +223,8 @@ renv_retrieve_impl_one <- function(package) {
       iscompat <- renv_retrieve_incompatible(package, replacement)
       if (NROW(iscompat)) {
         replacement <- renv_available_packages_latest(package, type = "source")
+        if (is.null(replacement))
+          stopf("package '%s' is not available", package)
       }
     }
 
@@ -1675,15 +1677,8 @@ renv_retrieve_incompatible <- function(package, record) {
   if (is.null(version))
     return(NULL)
 
-  # for each row, compute whether we're compatible
-  rversion <- numeric_version(version)
-  compatible <- map_lgl(seq_len(nrow(explicit)), function(i) {
-    expr <- call(explicit$Require[[i]], rversion, explicit$Version[[i]])
-    eval(expr, envir = baseenv())
-  })
-
   # keep whatever wasn't compatible
-  explicit[!compatible, ]
+  explicit[renv_graph_unsatisfied(version, explicit), ]
 
 }
 

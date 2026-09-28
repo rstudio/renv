@@ -37,12 +37,39 @@ renv_version_eq <- function(lhs, rhs, n = NULL) {
   renv_version_compare(lhs, rhs, n) == 0L
 }
 
+renv_version_ne <- function(lhs, rhs, n = NULL) {
+  renv_version_compare(lhs, rhs, n) != 0L
+}
+
 renv_version_gt <- function(lhs, rhs, n = NULL) {
   renv_version_compare(lhs, rhs, n) >  0L
 }
 
 renv_version_ge <- function(lhs, rhs, n = NULL) {
   renv_version_compare(lhs, rhs, n) >= 0L
+}
+
+# does 'version' satisfy the constraint '<op> <required>', as parsed from a
+# DESCRIPTION field? dispatch through a fixed table rather than eval() so
+# that a malformed operator degrades to "unconstrained" instead of an error
+renv_version_satisfies <- function(version, op, required) {
+
+  compare <- switch(
+    op,
+    ">=" = renv_version_ge,
+    ">"  = renv_version_gt,
+    "<=" = renv_version_le,
+    "<"  = renv_version_lt,
+    "==" = renv_version_eq,
+    "!=" = renv_version_ne,
+    NULL
+  )
+
+  if (is.null(compare))
+    return(TRUE)
+
+  compare(version, required)
+
 }
 
 renv_version_match <- function(versions, request) {

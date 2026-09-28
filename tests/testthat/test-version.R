@@ -71,3 +71,29 @@ test_that("renv_version_rank handles mixed-length version components", {
   expect_identical(actual, expected)
 
 })
+
+test_that("renv_version_satisfies dispatches on the operator", {
+
+  expect_true(renv_version_satisfies("1.0.0", ">=", "1.0.0"))
+  expect_true(renv_version_satisfies("1.0.0", ">=", "1.0"))
+  expect_false(renv_version_satisfies("0.9.0", ">=", "1.0.0"))
+  expect_true(renv_version_satisfies("1.0.1", ">", "1.0.0"))
+  expect_false(renv_version_satisfies("1.0.0", ">", "1.0.0"))
+  expect_true(renv_version_satisfies("1.0.0", "<=", "1.0.0"))
+  expect_true(renv_version_satisfies("0.9.0", "<", "1.0.0"))
+  expect_false(renv_version_satisfies("1.0.0", "<", "1.0.0"))
+  expect_true(renv_version_satisfies("1.0", "==", "1.0.0"))
+  expect_false(renv_version_satisfies("1.0.1", "==", "1.0.0"))
+  expect_true(renv_version_satisfies("1.0.1", "!=", "1.0.0"))
+  expect_false(renv_version_satisfies("1.0.0", "!=", "1.0.0"))
+
+})
+
+test_that("renv_version_satisfies treats unknown operators as unconstrained", {
+
+  expect_true(renv_version_satisfies("0.1.0", "=>", "1.0.0"))
+  expect_true(renv_version_satisfies("0.1.0", "=!", "1.0.0"))
+  expect_true(renv_version_satisfies("0.1.0", "!", "1.0.0"))
+  expect_true(renv_version_satisfies("0.1.0", "", "1.0.0"))
+
+})
