@@ -170,8 +170,15 @@ test_that("ensure_directory() works even under contention", {
 
     renv:::summon()
 
+    # wait for the signal to start, without starving the other children
+    # (which may still be starting up) of CPU
+    repeat {
+      if (file.exists(waitfile))
+        break
+      Sys.sleep(0.01)
+    }
+
     # create the directory
-    wait_until(file.exists, waitfile)
     ok <- tryCatch(
       { ensure_directory(target); TRUE },
       error = function(e) FALSE
@@ -184,12 +191,16 @@ test_that("ensure_directory() works even under contention", {
 
   }, list(port = server$port, waitfile = waitfile, target = target))
 
+  # keep the children's output, so that a child which fails to report back
+  # (e.g. because it errored while loading renv) can be diagnosed
+  logs <- tempfile(rep.int("renv-child-", n), fileext = ".log")
+  defer(unlink(logs))
   for (i in 1:n) {
     system2(
       command = R(),
       args = c("--vanilla", "--slave", "-f", renv_shell_path(script)),
-      stdout = FALSE,
-      stderr = FALSE,
+      stdout = logs[[i]],
+      stderr = logs[[i]],
       wait = FALSE
     )
   }
@@ -197,14 +208,31 @@ test_that("ensure_directory() works even under contention", {
   file.create(waitfile)
 
   # allow more time on CI, where spawning + loading renv in the child
-  # processes can take longer than it does locally
-  timeout <- if (ci()) 10 else 3
+  # processes can take much longer than it does locally
+  timeout <- if (ci()) 60 else 3
 
   responses <- stack()
   for (i in 1:n) local({
-    conn <- renv_socket_accept(server$socket, open = "rb", timeout = timeout)
+
+    conn <- tryCatch(
+      renv_socket_accept(server$socket, open = "rb", timeout = timeout),
+      error = function(e) {
+        output <- map(logs, function(log) {
+          if (file.exists(log)) readLines(log, warn = FALSE)
+        })
+        stopf(
+          "%s; %i of %i children reported back\n%s",
+          conditionMessage(e),
+          i - 1L,
+          n,
+          paste(unlist(output), collapse = "\n")
+        )
+      }
+    )
+
     defer(close(conn))
     responses$push(unserialize(conn))
+
   })
 
   expect_true(all(unlist(responses$data())))

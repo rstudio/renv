@@ -98,7 +98,11 @@ renv_update_find_git_impl <- function(record) {
 
   # the clone is handed back to the caller, so that it can be re-used to
   # install the update; it's removed here if there's no update to install,
-  # or if it couldn't be read, since a forked caller can't do so
+  # or if it couldn't be read, since a forked caller can't do so. a clone
+  # made by an earlier check in this process (or by its caller) is shared
+  # through the clone cache, which removes it when the operation completes
+  clone <- the$git_clones$keys[[renv_git_clone_key(current)]]
+  cached <- !is.null(clone) && dir.exists(clone)
   path <- renv_remotes_resolve_git_clone(current)
   result <- catch({
     desc <- renv_description_read(path, subdir = current$RemoteSubdir)
@@ -112,7 +116,8 @@ renv_update_find_git_impl <- function(record) {
   })
 
   if (inherits(result, "error") || !result) {
-    unlink(path, recursive = TRUE, force = TRUE)
+    if (!cached)
+      unlink(path, recursive = TRUE, force = TRUE)
     if (inherits(result, "error"))
       stop(result)
     return(NULL)

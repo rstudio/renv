@@ -516,10 +516,6 @@ test_that("clones made while checking for git updates are kept for install", {
   remote <- renv_tests_git_remote()
   shas <- remote$shas
 
-  # check two records, so that (except on Windows) each is checked in a
-  # forked process, whose changes to the clone cache would otherwise be lost
-  renv_scope_options(renv.config.updates.parallel = 2L)
-
   record <- list(
     Package    = "bread",
     Version    = "0.5.0",
@@ -537,37 +533,47 @@ test_that("clones made while checking for git updates are kept for install", {
     # a record that's current, whose clone isn't needed
     overlay(record, list(RemoteRef = "HEAD", RemoteSha = shas$head)),
 
-    # and one whose clone can't be read
+    # and one whose clone can't be read, but which shares its commit (and so,
+    # when checked in this process, its clone) with the first record
     overlay(record, list(RemoteSubdir = "missing"))
   )
 
   tmpfiles <- list.files(tempdir(), pattern = "^renv-git-")
 
-  paths <- local({
+  # check the records both in forked processes (except on Windows), whose
+  # changes to the clone cache would otherwise be lost, and in this process,
+  # where the checks share a single clone cache
+  for (parallel in list(2L, FALSE)) local({
 
-    clones <- renv_scope_git_clones()
-    updates <- Filter(Negate(is.null), renv_update_find_git(records))
-    expect_equal(map_chr(updates, `[[`, "RemoteSha"), c(bread = shas$release, bread = shas$head))
+    renv_scope_options(renv.config.updates.parallel = parallel)
 
-    # the clones made by the forked processes are adopted by this one
-    expect_length(clones$paths, 2L)
-    expect_true(all(dir.exists(clones$paths)))
-    expect_equal(renv_git_clone(updates[[1L]]), clones$keys[[renv_git_clone_key(updates[[1L]])]])
+    paths <- local({
 
-    # the unreadable clone is reported as an error
-    errors <- the$update_errors$git
-    expect_length(errors, 1L)
-    expect_match(conditionMessage(errors[[1L]]), "missing")
-    renv_update_errors_clear()
+      clones <- renv_scope_git_clones()
+      updates <- Filter(Negate(is.null), renv_update_find_git(records))
+      expect_equal(map_chr(updates, `[[`, "RemoteSha"), c(bread = shas$release, bread = shas$head))
 
-    clones$paths
+      # the clones made by the checks are held by this process's cache
+      expect_length(clones$paths, 2L)
+      expect_true(all(dir.exists(clones$paths)))
+      expect_equal(renv_git_clone(updates[[1L]]), clones$keys[[renv_git_clone_key(updates[[1L]])]])
+
+      # the unreadable clone is reported as an error
+      errors <- the$update_errors$git
+      expect_length(errors, 1L)
+      expect_match(conditionMessage(errors[[1L]]), "missing")
+      renv_update_errors_clear()
+
+      clones$paths
+
+    })
+
+    # and are removed along with the others; the clones which weren't handed
+    # back were removed by the checks themselves
+    expect_false(any(dir.exists(paths)))
+    expect_setequal(list.files(tempdir(), pattern = "^renv-git-"), tmpfiles)
 
   })
-
-  # and are removed along with the others; the clones which weren't handed
-  # back were removed by the checks themselves
-  expect_false(any(dir.exists(paths)))
-  expect_setequal(list.files(tempdir(), pattern = "^renv-git-"), tmpfiles)
 
 })
 
