@@ -1654,6 +1654,36 @@ renv_graph_install <- function(descriptions) {
         "DIAG installdir listing:", list.files(installdir, all.files = TRUE, no.. = TRUE),
         "DIAG parent listing:", list.files(dirname(installdir), all.files = TRUE, no.. = TRUE)
       ))
+
+      # DIAG: re-run the install directly, with stderr merged into stdout via cmd.exe
+      if (renv_platform_windows() && !is.null(entry$prepared$command)) {
+
+        recmd <- paste0('cmd.exe /c "', entry$prepared$command, ' 2>&1"')
+        rerun <- tryCatch(suppressWarnings(system(recmd, intern = TRUE)), error = function(e) conditionMessage(e))
+        writeLines(c(
+          paste("DIAG rerun status:", format(attr(rerun, "status") %||% 0L)),
+          "DIAG rerun output:", rerun
+        ))
+
+        # DIAG: what does a child R process see?
+        probe <- tempfile("renv-probe-", fileext = ".R")
+        writeLines(
+          c(
+            'cat("PROBE R_LIBS:", Sys.getenv("R_LIBS"), "\\n")',
+            'cat("PROBE R_LIBS_USER:", Sys.getenv("R_LIBS_USER"), "R_LIBS_SITE:", Sys.getenv("R_LIBS_SITE"), "\\n")',
+            'cat("PROBE TMPDIR:", Sys.getenv("TMPDIR"), "TEMP:", Sys.getenv("TEMP"), "TMP:", Sys.getenv("TMP"), "tempdir:", tempdir(), "\\n")',
+            'cat("PROBE libPaths:", .libPaths(), sep = "\\n"); cat("\\n")',
+            'for (lib in .libPaths()) cat("PROBE lib", lib, ":", list.files(lib), "\\n")',
+            'print(find.package(c("bread", "oatmeal", "toast", "today"), quiet = TRUE))'
+          ),
+          con = probe
+        )
+        pcmd <- paste0('cmd.exe /c "', renv_shell_path(R()), ' --vanilla -s -f ', renv_shell_path(probe), ' 2>&1"')
+        pout <- tryCatch(suppressWarnings(system(pcmd, intern = TRUE)), error = function(e) conditionMessage(e))
+        writeLines(c("DIAG probe output:", pout))
+
+      }
+
       unlink(installpath, recursive = TRUE)
       renv_install_step_error(entry$record)
       if (verbose) writeLines(result$output)
@@ -2327,7 +2357,7 @@ renv_graph_install_launch_socket <- function(prepared, port) {
       # on success 'output' is a character vector with a "status"
       # attribute; on error it's a condition object
       output <- tryCatch(
-        suppressWarnings(if (.Platform$OS.type == "windows") shell(!!command, intern = TRUE) else system(!!command, intern = TRUE)),
+        suppressWarnings(if (.Platform$OS.type == "windows") system(paste0('cmd.exe /c "', !!command, '"'), intern = TRUE) else system(!!command, intern = TRUE)),
         error = identity
       )
 
