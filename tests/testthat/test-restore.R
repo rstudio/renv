@@ -721,13 +721,21 @@ test_that("restore(retry = TRUE) recovers failed packages end-to-end", {
   # with retry = FALSE, recovery is skipped and restore() fails outright.
   # this is the discriminating case: under tests ask() returns TRUE, so a
   # failure here can only happen if 'retry' was threaded through to the
-  # recover step (otherwise the prompt path would recover and succeed)
-  expect_error(restore(retry = FALSE))
+  # recover step (otherwise the prompt path would recover and succeed).
+  # resolving the fictional bread 9.9.9 falls back to the latest version's
+  # dependencies, which warns; assert it so it doesn't leak from the test
+  expect_warning(
+    expect_error(restore(retry = FALSE)),
+    "using dependencies from the latest version"
+  )
   expect_false(renv_package_installed("bread"))
 
   # with retry = TRUE, restore should fail to install bread 9.9.9, then
   # fall back to the latest available version (1.0.0) without prompting
-  restore(retry = TRUE)
+  expect_warning(
+    restore(retry = TRUE),
+    "using dependencies from the latest version"
+  )
   expect_true(renv_package_installed("bread"))
   expect_equal(renv_package_version("bread"), "1.0.0")
 })
@@ -754,7 +762,10 @@ test_that("restore(retry = TRUE) keeps first-pass packages under a transactional
   # transactional rollback discards oatmeal; the retry must bring it back
   # alongside the latest version of bread
   # https://github.com/rstudio/renv/issues/2380
-  restore(retry = TRUE)
+  expect_warning(
+    restore(retry = TRUE),
+    "using dependencies from the latest version"
+  )
   expect_true(renv_package_installed("oatmeal"))
   expect_equal(renv_package_version("oatmeal"), "1.0.0")
   expect_true(renv_package_installed("bread"))
@@ -780,7 +791,10 @@ test_that("restore(retry = TRUE) retries failed dependencies outside the request
   # dependency of toast; when it fails at its lockfile version, the retry
   # must resolve it to the latest available version rather than the same
   # unavailable lockfile version
-  restore(exclude = "bread", retry = TRUE)
+  expect_warning(
+    restore(exclude = "bread", retry = TRUE),
+    "using dependencies from the latest version"
+  )
   expect_true(renv_package_installed("toast"))
   expect_true(renv_package_installed("bread"))
   expect_equal(renv_package_version("bread"), "1.0.0")
