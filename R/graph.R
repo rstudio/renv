@@ -1682,6 +1682,31 @@ renv_graph_install <- function(descriptions) {
         pout <- tryCatch(suppressWarnings(system(pcmd, intern = TRUE)), error = function(e) conditionMessage(e))
         writeLines(c("DIAG probe output:", pout))
 
+        # DIAG: mimic the installer's Rterm startup (no --vanilla) from the same cwd
+        probe2 <- tempfile("renv-probe2-", fileext = ".R")
+        writeLines(
+          c(
+            'cat("PROBE2 cwd:", getwd(), "\\n")',
+            'cat("PROBE2 R_LIBS:", Sys.getenv("R_LIBS"), "\\n")',
+            'cat("PROBE2 RENV_PROJECT:", Sys.getenv("RENV_PROJECT"), "R_PROFILE_USER:", Sys.getenv("R_PROFILE_USER"), "R_ENVIRON_USER:", Sys.getenv("R_ENVIRON_USER"), "\\n")',
+            'cat("PROBE2 libPaths:", .libPaths(), sep = "\\n"); cat("\\n")',
+            'cat("PROBE2 loaded:", loadedNamespaces(), "\\n")',
+            'cat("PROBE2 search:", search(), "\\n")',
+            'cat("PROBE2 .Rprofile exists:", file.exists(".Rprofile"), "\\n")',
+            'if (file.exists(".Rprofile")) writeLines(paste("PROBE2 .Rprofile:", readLines(".Rprofile")))',
+            'if (file.exists("~/.Rprofile")) writeLines(paste("PROBE2 ~/.Rprofile:", readLines("~/.Rprofile")))',
+            'if (file.exists("~/.Renviron")) writeLines(paste("PROBE2 ~/.Renviron:", readLines("~/.Renviron")))',
+            'print(find.package(c("bread", "oatmeal", "toast", "today"), quiet = TRUE))'
+          ),
+          con = probe2
+        )
+        rterm <- renv_shell_path(file.path(R.home("bin"), "Rterm.exe"))
+        for (flags in c("--no-restore --no-echo", "--no-restore --no-echo --no-init-file", "--no-restore --no-echo --no-environ")) {
+          pcmd2 <- paste0('cmd.exe /c "', rterm, ' ', flags, ' -f ', renv_shell_path(probe2), ' 2>&1"')
+          pout2 <- tryCatch(suppressWarnings(system(pcmd2, intern = TRUE)), error = function(e) conditionMessage(e))
+          writeLines(c(paste("DIAG probe2 [", flags, "] output:"), pout2))
+        }
+
       }
 
       unlink(installpath, recursive = TRUE)
