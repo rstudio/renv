@@ -1586,6 +1586,16 @@ renv_graph_install <- function(descriptions) {
       renv_graph_install_finalize(entry$record, entry$prepared, installdir, project, linkable)
       all[[pkg]] <<- entry$record
     } else {
+      writeLines(c(
+        "DIAG command:", entry$prepared$command %||% "<none>",
+        paste("DIAG success:", format(result$success)),
+        paste("DIAG output length:", length(result$output)),
+        paste("DIAG status attr:", format(attr(result$output, "status") %||% "<none>")),
+        "DIAG output:", result$output,
+        paste("DIAG installpath exists:", format(file.exists(installpath))),
+        "DIAG installdir listing:", list.files(installdir, all.files = TRUE, no.. = TRUE),
+        "DIAG parent listing:", list.files(dirname(installdir), all.files = TRUE, no.. = TRUE)
+      ))
       unlink(installpath, recursive = TRUE)
       renv_install_step_error(entry$record)
       if (verbose) writeLines(result$output)
@@ -2292,6 +2302,7 @@ renv_graph_install_parse_result <- function(data, elapsed) {
   # otherwise, data is the character vector from system(intern = TRUE);
   # the exit code lives in attr(data, "status")
   status <- as.integer(attr(data, "status") %||% 0L)
+  writeLines(c(paste("DIAG worker status:", status), paste("DIAG worker class:", paste(class(data), collapse = ","))))
 
   list(
     success = identical(status, 0L),
