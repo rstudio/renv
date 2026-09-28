@@ -70,8 +70,11 @@ test_that("other processes cannot lock our owned locks", {
   renv_lock_acquire(path)
 
   script <- renv_test_code(
-    print(renv:::renv_lock_acquire(path)),
-    list(path = path)
+    {
+      preamble
+      print(renv:::renv_lock_acquire(path))
+    },
+    list(preamble = renv_tests_child_preamble(), path = path)
   )
 
   args <- c("--vanilla", "-s", "-f", shQuote(script))
@@ -100,6 +103,7 @@ test_that("lock acquisition backs off, and remains interruptible", {
   limit <- 2
   script <- renv_test_code(
     {
+      preamble
       options(renv.config.locking.enabled = TRUE)
       options(renv.lock.timeout = 1e6)
       timing <- system.time(
@@ -111,7 +115,12 @@ test_that("lock acquisition backs off, and remains interruptible", {
       setTimeLimit()
       saveRDS(timing, result)
     },
-    list(path = path, limit = limit, result = result)
+    list(
+      preamble = renv_tests_child_preamble(),
+      path     = path,
+      limit    = limit,
+      result   = result
+    )
   )
 
   args <- c("--vanilla", "-s", "-f", shQuote(script))
@@ -165,6 +174,7 @@ test_that("an unremovable lock fails rather than hanging", {
   result <- renv_scope_tempfile(fileext = ".rds")
   script <- renv_test_code(
     {
+      preamble
       options(renv.config.locking.enabled = TRUE)
       options(renv.lock.timeout = -1L)
       cnd <- tryCatch(
@@ -173,7 +183,7 @@ test_that("an unremovable lock fails rather than hanging", {
       )
       saveRDS(cnd, result)
     },
-    list(path = path, result = result)
+    list(preamble = renv_tests_child_preamble(), path = path, result = result)
   )
 
   args <- c("--vanilla", "-s", "-f", shQuote(script))
