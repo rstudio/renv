@@ -754,3 +754,28 @@ test_that("restore(retry = TRUE) keeps first-pass packages under a transactional
   expect_true(renv_package_installed("bread"))
   expect_equal(renv_package_version("bread"), "1.0.0")
 })
+
+test_that("restore(retry = TRUE) retries failed dependencies outside the requested set", {
+  skip_on_cran()
+  renv_tests_scope("breakfast")
+  init()
+
+  # build from source, so that toast fails when bread is unavailable
+  renv_scope_options(renv.config.cache.enabled = FALSE)
+
+  # record a non-existent version of bread, a dependency of toast
+  lockfile <- renv_lockfile_load(project = getwd())
+  lockfile$Packages$bread$Version <- "9.9.9"
+  renv_lockfile_save(lockfile, project = getwd())
+
+  remove(c("bread", "breakfast", "oatmeal", "toast"))
+
+  # bread is excluded from the requested set, but is still resolved as a
+  # dependency of toast; when it fails at its lockfile version, the retry
+  # must resolve it to the latest available version rather than the same
+  # unavailable lockfile version
+  restore(exclude = "bread", retry = TRUE)
+  expect_true(renv_package_installed("toast"))
+  expect_true(renv_package_installed("bread"))
+  expect_equal(renv_package_version("bread"), "1.0.0")
+})

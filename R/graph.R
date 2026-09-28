@@ -1988,12 +1988,12 @@ renv_graph_install <- function(descriptions) {
   }
 
   # packages discarded by a transactional rollback never reached the library;
-  # don't report them as installed, but tell the caller what was discarded
-  # and what caused it; see renv_graph_install_failed() (#2380)
+  # don't report them as installed, but tell the caller what was discarded;
+  # see renv_graph_install_failed() (#2380)
   n <- length(all)
   if (rolledback && n > 0L) {
     writef("Rolled back installation of %s due to errors.", nplural("package", n))
-    all <- structure(list(), rolledback = names(all), failed = failed$data())
+    all <- structure(list(), rolledback = names(all))
   } else if (n > 0L) {
     fmt <- "Successfully installed %s in %s."
     elapsed <- timer$tick()
@@ -2003,6 +2003,12 @@ renv_graph_install <- function(descriptions) {
   # clean up old installations after reporting success
   if (!is.null(trash))
     unlink(trash, recursive = TRUE)
+
+  # also report which packages failed directly, so callers can retry them
+  # differently from packages that were merely rolled back; this includes
+  # dependencies outside the requested set, e.g. excluded packages
+  if (!failed$empty())
+    attr(all, "failed") <- failed$data()
 
   # report errors
   renv_graph_install_errors(errors$data(), failed$data(), descriptions)
