@@ -2,6 +2,26 @@
 
 ## renv (development version)
 
+- Version constraints declared in the project’s `DESCRIPTION` file (for
+  example, `Imports: dplyr (>= 1.1.0)`) are now honored by
+  [`renv::install()`](https://rstudio.github.io/renv/dev/reference/install.md)
+  and validated by
+  [`renv::snapshot()`](https://rstudio.github.io/renv/dev/reference/snapshot.md).
+  Previously, these constraints were only used when they pinned an exact
+  version with `==`; other constraints were silently ignored, so an
+  installed dependency could be older than the version the project
+  declared it required. Versions pinned by the lockfile during
+  [`renv::restore()`](https://rstudio.github.io/renv/dev/reference/restore.md),
+  or requested explicitly via `pkg@version`, or declared in the
+  project’s `Remotes` field, are never overridden by these constraints;
+  renv reports the unmet constraint instead. When renv retrieves
+  packages one at a time (for example, in
+  [`renv::upgrade()`](https://rstudio.github.io/renv/dev/reference/upgrade.md)),
+  it also now reports whenever it replaces a package version that didn’t
+  satisfy the constraints of other packages, rather than only when that
+  package was explicitly requested. `!=` constraints are now parsed as
+  well.
+
 - [`renv::dependencies()`](https://rstudio.github.io/renv/dev/reference/dependencies.md)
   now follows Quarto’s engine-binding rules when inferring dependencies
   for `.qmd` documents. Documents bound to the knitr engine, whether via
