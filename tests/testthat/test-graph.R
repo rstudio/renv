@@ -1056,6 +1056,56 @@ test_that("renv_graph_install with staged install", {
 
 })
 
+test_that("renv_graph_install reports packages discarded by a transactional rollback", {
+
+  renv_tests_scope()
+
+  # use a fresh cache so that breakfast is actually built (and fails)
+  # rather than being copied from the cache
+  renv_scope_envvars(RENV_PATHS_CACHE = renv_scope_tempfile())
+
+  # breakfast fails to install after its dependencies have been built
+  renv_scope_options(
+    renv.verbose = TRUE,
+    renv.config.install.transactional = TRUE,
+    install.opts = list(breakfast = "--version")
+  )
+
+  descriptions <- renv_graph_init("breakfast")
+  expect_output(
+    records <- renv_graph_install(descriptions),
+    "Rolled back installation of 3 packages"
+  )
+
+  # nothing was installed, but the rolled-back packages are reported
+  # so callers can tell them apart from the packages which failed
+  # https://github.com/rstudio/renv/issues/2380
+  expect_length(records, 0L)
+  expect_setequal(attr(records, "rolledback"), c("bread", "oatmeal", "toast"))
+  expect_setequal(attr(records, "failed"), "breakfast")
+
+  library <- renv_libpaths_active()
+  for (pkg in names(descriptions))
+    expect_false(renv_package_installed(pkg, lib.loc = library), info = pkg)
+
+})
+
+test_that("renv_graph_install_failed reports the cause of a rollback", {
+
+  # requested packages which failed, or are otherwise missing, are reported
+  records <- list(A = list(Package = "A"))
+  expect_equal(renv_graph_install_failed(records, c("A", "B")), "B")
+
+  # rolled-back packages didn't fail themselves ...
+  records <- structure(list(), rolledback = c("A", "B"), failed = "C")
+  expect_equal(renv_graph_install_failed(records, c("A", "B", "C")), "C")
+
+  # ... so when only they are missing, the packages which caused the
+  # rollback are reported instead, even if they weren't requested
+  expect_equal(renv_graph_install_failed(records, c("A", "B")), "C")
+
+})
+
 test_that("renv_graph_install respects dependency ordering", {
 
   renv_tests_scope(isolated = TRUE)

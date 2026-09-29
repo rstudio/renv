@@ -66,6 +66,24 @@ test_that("hydrate succeeds when package installed into user library", {
 
 })
 
+test_that("hydrate() installs what it can when a dependency cannot be resolved", {
+
+  windows <- renv_platform_windows()
+  compatible <- if (windows) "windowsonly" else "unixonly"
+  incompatible <- if (windows) "unixonly" else "windowsonly"
+
+  # a package built for the other operating system isn't available here,
+  # so it can't be resolved; the other packages should still be hydrated
+  # rather than being rolled back with it (#2380)
+  renv_tests_scope(c(compatible, incompatible))
+  renv_scope_options(renv.config.install.transactional = TRUE)
+  init()
+
+  expect_true(renv_package_installed(compatible))
+  expect_false(renv_package_installed(incompatible))
+
+})
+
 test_that("hydrate() clones each git remote only once", {
 
   skip_on_cran()
