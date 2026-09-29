@@ -21,12 +21,13 @@ test_that("an existing lockfile can be updated", {
   expect_equal(records$bread$Version, "0.1.0")
   expect_equal(records$toast$Version, "1.0.0")
 
-  # use short-hand
-  lockfile <- record("toast@1.0.1", lockfile = lockfile)
+  # use short-hand; these versions aren't available from the repository,
+  # so their records can't be enriched
+  lockfile <- record("toast@1.0.1", lockfile = lockfile, enrich = FALSE)
   records <- renv_lockfile_records(lockfile)
   expect_equal(records$toast$Version, "1.0.1")
 
-  lockfile <- record(list(toast = "1.0.2"), lockfile = lockfile)
+  lockfile <- record(list(toast = "1.0.2"), lockfile = lockfile, enrich = FALSE)
   records <- renv_lockfile_records(lockfile)
   expect_equal(records$toast$Version, "1.0.2")
 
@@ -172,7 +173,7 @@ test_that("record() stores Repository as the named form, not the URL", {
   # spurious repo mismatch against an installed library.
   renv_tests_scope("egg")
   init()
-  record("egg@2.0.0")
+  record("egg@1.0.0")
 
   lockfile <- renv_lockfile_read("renv.lock")
   egg <- renv_lockfile_records(lockfile)$egg
