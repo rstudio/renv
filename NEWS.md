@@ -1,5 +1,11 @@
 # renv (development version)
 
+* On Windows, the output reported for a failed package installation now
+  includes what `R CMD INSTALL` wrote to stderr, which is where it reports
+  the reason for the failure (for example, "dependency 'x' is not available").
+  Previously, only stdout was captured, so such failures were reported with
+  no output at all.
+
 * `renv::install()` now records the commit (`RemoteSha`) that a package was
   installed from when using the `git::` remote pathway, so that
   `renv::snapshot()` pins that package to the installed commit, and
