@@ -53,7 +53,7 @@ test_that("load() reports on problems", {
 
   renv_tests_scope("egg")
   init()
-  record("egg@2.0.0")
+  record("egg@2.0.0", enrich = FALSE)
 
   expect_snapshot(load())
 

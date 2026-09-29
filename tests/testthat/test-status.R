@@ -52,8 +52,14 @@ test_that("reports version differences", {
 
   renv_tests_scope(c("egg", "oatmeal"))
   init()
-  record("egg@2.0.0")
-  record("oatmeal@0.9.0")
+
+  # these versions aren't available from the repository, so change the
+  # versions of the existing records, rather than resolving new ones
+  lockfile <- renv_lockfile_read("renv.lock")
+  records <- renv_lockfile_records(lockfile)
+  records$egg$Version <- "2.0.0"
+  records$oatmeal$Version <- "0.9.0"
+  record(records[c("egg", "oatmeal")])
 
   expect_snapshot(. <- status())
 
