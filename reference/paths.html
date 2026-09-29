@@ -29,7 +29,7 @@ users to be able to share a single global cache."><meta property="og:image" cont
 
     <a class="navbar-brand me-2" href="../index.html">renv</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">1.2.4</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">1.3.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -70,7 +70,7 @@ users to be able to share a single global cache."><meta property="og:image" cont
 <div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
       <img src="../logo.svg" class="logo" alt=""><h1>Path for storing global state</h1>
-      <small class="dont-index">Source: <a href="https://github.com/rstudio/renv/blob/main/R/paths.R" class="external-link"><code>R/paths.R</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/rstudio/renv/blob/v1.3.0/R/paths.R" class="external-link"><code>R/paths.R</code></a></small>
       <div class="d-none name"><code>paths.Rd</code></div>
     </div>
 
@@ -97,6 +97,10 @@ you add these to an appropriate <span style="R">R</span> startup file. For examp
 set in: a project-local <code>.Renviron</code>, the user-level <code>.Renviron</code>, or a
 site-wide file at <code>file.path(R.home("etc"), "Renviron.site")</code>. See
 <a href="https://rdrr.io/r/base/Startup.html" class="external-link">Startup</a> for more details).</p>
+<p>Staged package installations use a temporary directory within the project
+library root by default. When installing into a different library, or without
+an active project, staging takes place within the destination library instead.
+Set <code>RENV_PATHS_LIBRARY_STAGING</code> to override the staging location.</p>
 <p>Note that renv will append platform-specific and version-specific entries
 to the set paths as appropriate. For example, if you have set:</p>
 <p></p><div class="sourceCode"><pre><code><span id="cb1-1"><a href="#cb1-1" tabindex="-1"></a><span class="fu">Sys.setenv</span>(<span class="at">RENV_PATHS_CACHE =</span> <span class="st">"/mnt/shared/renv/cache"</span>)</span></code></pre><p></p></div>
