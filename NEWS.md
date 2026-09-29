@@ -4,15 +4,16 @@
   to `git`, and rejects records whose values `git` could read as an option
   (for example, a ref of `--upload-pack=<command>`) or as a request to run a
   transport helper. Previously, a crafted lockfile record or `git::` remote
-  could have these values run as shell commands.
+  could have these values run as shell commands. (#2389)
 
 * Fixed an error when detecting the Posit Package Manager platform on an
   Enterprise Linux distribution whose `/etc/os-release` declares an empty
   `VERSION_ID`; renv now falls back to the untransformed repository URL.
+  (#2386)
 
 * A trailing YAML comment on the `engine:` field of a Quarto document's header
   (for example, `engine: knitr # comment`) no longer prevents renv from
-  inferring that the document is bound to knitr.
+  inferring that the document is bound to knitr. (#2386)
 
 * `renv::restore(retry = TRUE)` (and the interactive retry prompt) now keeps
   the packages which installed successfully in the first pass when the restore
@@ -40,16 +41,17 @@
   does, e.g. when renv is run under rcmdcheck) could hide already-installed
   dependencies from the installer, causing installs to fail with
   "dependency is not available". (#2380)
+
 * On Windows, the output reported for a failed package installation now
   includes what `R CMD INSTALL` wrote to stderr, which is where it reports
   the reason for the failure (for example, "dependency 'x' is not available").
   Previously, only stdout was captured, so such failures were reported with
-  no output at all.
+  no output at all. (#2385)
 
 * `HEAD` requests made with the `wget` download method now work. The request
   omitted the URL, and relied on shell redirection to capture the response
   headers, which was ignored on Windows; the headers wget reports are also
-  now parsed correctly.
+  now parsed correctly. (#2385)
 
 * `renv::install()` now records the commit (`RemoteSha`) that a package was
   installed from when using the `git::` remote pathway, so that
@@ -94,7 +96,7 @@
   `renv::upgrade()`), it also now reports whenever it replaces a package
   version that didn't satisfy the constraints of other packages, rather
   than only when that package was explicitly requested. `!=` constraints
-  are now parsed as well.
+  are now parsed as well. (#2377)
 
 * `renv::dependencies()` now follows Quarto's engine-binding rules when
   inferring dependencies for `.qmd` documents. Documents bound to the knitr
@@ -182,13 +184,14 @@
   the package, rather than querying every source and discarding the extra
   answers. Repositories still take precedence over P3M, crandb, and the archive,
   so renv no longer makes fallback requests whose results it cannot use.
+  (#2357)
 
 * On Windows and macOS, the available-package lookup once again consults the
   P3M historical-binary database when configured repositories have no
   candidate. P3M binaries are preferred over crandb version hints and enabled
   repository archives, while source-only requests do not consult P3M. Missing
   records for newer R or platform versions are treated as an ordinary miss
-  while the database catches up.
+  while the database catches up. (#2360)
 
 * Fixed an issue where `renv::sysreqs()` (and the system requirement checks
   performed during install and restore) would only report the first system
