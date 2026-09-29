@@ -29,13 +29,16 @@ copy_repeatedly <- function(source, dates, n) {
 writeLines(R.version.string)
 
 # 1. is the file time copied when the source file is open elsewhere?
+# copy into an existing directory, so that the internal copy code is used
 src <- tempfile("source-")
-dst <- tempfile("target-")
+dir <- tempfile("target-")
+dst <- file.path(dir, basename(src))
 writeLines("hello", src)
+dir.create(dir)
 Sys.setFileTime(src, as.POSIXct("2020-01-01 12:00:00", tz = "UTC"))
 
 con <- file(src, "rb")
-ok <- file.copy(src, dst, copy.date = TRUE)
+ok <- file.copy(src, dir, copy.date = TRUE)
 close(con)
 
 writeLines("")
