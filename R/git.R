@@ -42,6 +42,43 @@ renv_git_commit_exists <- function(path, sha) {
 
 }
 
+# the fields of a git record are quoted when passed through the shell, but
+# some values are unsafe for git itself: a leading '-' is read as an option
+# (e.g. '--upload-pack=<command>'), and the '<transport>::<address>' form of
+# a url can have git run arbitrary helpers. double quotes can't be reliably
+# quoted for cmd.exe, and git accepts none of these in a ref name anyhow
+renv_git_record_validate <- function(record) {
+
+  package <- record$Package %||% "<unknown>"
+  url <- record$RemoteUrl %||% ""
+  ref <- record$RemoteRef %||% ""
+  sha <- record$RemoteSha %||% ""
+
+  unsafe <- "^-|[[:cntrl:]\"]"
+
+  ok <-
+    is.character(url) && length(url) == 1L && nzchar(url) &&
+    !grepl(unsafe, url) &&
+    !grepl("^[[:alnum:]+.-]+::", url)
+
+  if (!ok)
+    stopf("record for package '%s' has invalid git url '%s'", package, url)
+
+  ok <- is.character(ref) && length(ref) == 1L && !grepl(unsafe, ref)
+  if (!ok)
+    stopf("record for package '%s' has invalid git ref '%s'", package, ref)
+
+  ok <- is.character(sha) && length(sha) == 1L
+  if (ok && nzchar(sha))
+    ok <- grepl("^[[:xdigit:]]{7,64}$", sha)
+
+  if (!ok)
+    stopf("record for package '%s' has invalid git commit '%s'", package, sha)
+
+  invisible(record)
+
+}
+
 # the ref requested by a git record; records may carry no ref: older versions
 # of renv recorded an empty ref for the default branch, and version 1 lockfiles
 # omit 'HEAD' refs. these request the remote's default branch

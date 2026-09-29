@@ -793,6 +793,7 @@ renv_remotes_resolve_git <- function(remote) {
 renv_remotes_resolve_git_sha_ref <- function(record) {
 
   renv_git_preflight()
+  renv_git_record_validate(record)
 
   # pull request refs are recorded as refspecs, e.g. 'pull/1/head:pull/1';
   # 'ls-remote' only needs the remote side of these
