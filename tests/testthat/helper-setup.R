@@ -169,11 +169,19 @@ renv_tests_setup_repos <- function(scope = parent.frame()) {
   ensure_directory(contrib)
 
   # copy package stuff to tempdir (because we'll mutate them a bit)
+  #
+  # don't copy file times here: on Windows, R opens the source file
+  # exclusively to read its timestamp, so parallel test workers copying
+  # these files at the same time can fail with 'Permission denied'
   source <- renv_tests_path("packages")
   target <- renv_scope_tempfile("renv-packages-", scope = scope)
-  renv_file_copy(source, target)
-  if (!file.exists(target))
+  ensure_directory(target)
+
+  sources <- list.files(source, full.names = TRUE)
+  copied <- file.copy(sources, target, recursive = TRUE)
+  if (!all(copied))
     stopf("failed to copy '%s' to '%s'", source, target)
+
   renv_scope_wd(target)
 
   # update the local packrat package version to match what's available
