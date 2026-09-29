@@ -207,8 +207,6 @@ renv_retrieve_impl_one <- function(package) {
 
     # get the latest available package version
     replacement <- renv_available_packages_latest(package)
-    if (is.null(replacement))
-      stopf("package '%s' is not available", package)
 
     # if it's not compatible, then we might need to try again with
     # a source version (assuming type = "both")
@@ -217,8 +215,6 @@ renv_retrieve_impl_one <- function(package) {
       iscompat <- renv_retrieve_incompatible(package, replacement)
       if (NROW(iscompat)) {
         replacement <- renv_available_packages_latest(package, type = "source")
-        if (is.null(replacement))
-          stopf("package '%s' is not available", package)
       }
     }
 
