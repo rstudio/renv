@@ -19,6 +19,14 @@
   non-transactionally, so a package that cannot be installed no longer causes
   the other packages being hydrated to be rolled back. (#2380)
 
+* On Windows, `renv::install()` and `renv::restore()` no longer let profiles
+  named by `R_PROFILE` or `R_PROFILE_USER` be sourced by the `R CMD INSTALL`
+  processes they launch. Before R 4.3.0, `R CMD` did not honor `--vanilla`
+  for those processes, so a profile which reset `.libPaths()` (as callr's
+  does, e.g. when renv is run under rcmdcheck) could hide already-installed
+  dependencies from the installer, causing installs to fail with
+  "dependency is not available". (#2380)
+
 * `renv::install()` now records the commit (`RemoteSha`) that a package was
   installed from when using the `git::` remote pathway, so that
   `renv::snapshot()` pins that package to the installed commit, and
