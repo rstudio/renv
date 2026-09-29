@@ -6,6 +6,11 @@
   Previously, only stdout was captured, so such failures were reported with
   no output at all.
 
+* `HEAD` requests made with the `wget` download method now work. The request
+  omitted the URL, and relied on shell redirection to capture the response
+  headers, which was ignored on Windows; the headers wget reports are also
+  now parsed correctly.
+
 * `renv::install()` now records the commit (`RemoteSha`) that a package was
   installed from when using the `git::` remote pathway, so that
   `renv::snapshot()` pins that package to the installed commit, and
