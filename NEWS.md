@@ -1,5 +1,13 @@
 # renv (development version)
 
+* Fixed an error when detecting the Posit Package Manager platform on an
+  Enterprise Linux distribution whose `/etc/os-release` declares an empty
+  `VERSION_ID`; renv now falls back to the untransformed repository URL.
+
+* A trailing YAML comment on the `engine:` field of a Quarto document's header
+  (for example, `engine: knitr # comment`) no longer prevents renv from
+  inferring that the document is bound to knitr.
+
 * `renv::restore(retry = TRUE)` (and the interactive retry prompt) now keeps
   the packages which installed successfully in the first pass when the restore
   is transactional. Previously, the transactional rollback of the first pass

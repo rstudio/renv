@@ -194,6 +194,25 @@ test_that("renv correctly detects CentOS Stream 10 as rhel10 for PPM", {
 
 })
 
+test_that("an empty VERSION_ID on an EL distribution is not an error", {
+  skip_on_cran()
+  skip_on_os("windows")
+
+  release <- heredoc('
+    NAME="Rocky Linux"
+    ID="rocky"
+    ID_LIKE="rhel centos fedora"
+    VERSION_ID=""
+  ')
+
+  file <- renv_scope_tempfile()
+  writeLines(release, con = file)
+
+  platform <- renv_ppm_platform_impl(file = file)
+  expect_null(platform)
+
+})
+
 test_that("renv correctly detects Rocky Linux 8 as centos8 for PPM", {
   skip_on_cran()
   skip_on_os("windows")
