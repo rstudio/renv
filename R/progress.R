@@ -7,7 +7,8 @@ renv_progress_create <- function(max, wait = 1.0) {
   message <- ""
   start <- Sys.time()
 
-  function() {
+  # 'total' can be supplied when the amount of work isn't known up front
+  function(total = max) {
 
     # check for and print progress
     count <<- count + 1L
@@ -18,7 +19,7 @@ renv_progress_create <- function(max, wait = 1.0) {
 
     # create message
     backspaces <- paste(rep("\b", nchar(message)), collapse = "")
-    message <<- sprintf("[%i/%i] ", count, max)
+    message <<- sprintf("[%i/%i] ", count, total)
     all <- paste(backspaces, message, sep = "")
     cat(all, file = stdout(), sep = "")
 

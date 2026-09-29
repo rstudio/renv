@@ -1,19 +1,30 @@
 # renv (development version)
 
-* `renv::sysreqs()` gains a `source` argument, controlling how package
-  records are resolved when computing system requirements. For each package,
-  the requested sources are tried in order: `"lockfile"` uses the record in
-  the project lockfile, `"library"` uses the installed package's DESCRIPTION,
-  and `"crandb"` queries <https://crandb.r-pkg.org>. The default consults all
-  three, in that order. In particular, when the project contains a lockfile,
-  `sysreqs()` now reports on all packages recorded in the lockfile -- the
-  same set that `renv::restore()` would install -- at their recorded
-  versions, so the full set of system requirements for a project can be
-  computed from `renv.lock` alone, e.g. when authoring a Dockerfile, before
-  any R packages have been installed. When falling back to crandb for a
-  package whose version is known, the query is now made for that version,
-  rather than the latest available version. The `local` argument is
-  superseded by `source = "library"`. (#2352)
+* `renv::sysreqs()` now reports the system requirements of the recursive
+  dependencies of the requested packages as well. Previously, only the
+  requested packages themselves were considered, so that (for example)
+  `renv::sysreqs("ragg")` did not report the system libraries required by
+  `systemfonts` and `textshaping`, even though `ragg` cannot be installed
+  without them. Use `recursive = FALSE` to restore the old behavior. (#2352)
+
+* `renv::sysreqs()` now reports on the packages recorded in the project
+  lockfile by default, together with the packages used in the project.
+  This is the same set of packages that `renv::restore()` would install, so
+  the system requirements for a project can be computed from `renv.lock`
+  alone -- for example, when authoring a Dockerfile, before any R packages
+  have been installed. (#2352)
+
+* `renv::sysreqs()` gains a `source` argument, controlling which version of
+  each package is used when computing system requirements. System
+  requirements (and package dependencies) are specific to a particular
+  version of a package, so the versions used matter. For each package, the
+  requested sources are tried in order: `"lockfile"` uses the version
+  recorded in the project lockfile, `"library"` uses the installed version of
+  the package, and `"crandb"` queries <https://crandb.r-pkg.org> for the
+  latest version available from the active package repositories. The default
+  consults all three, in that order. Previously, the latest CRAN release of
+  each package was always used. The `local` argument is superseded by
+  `source = "library"`. See `?renv::sysreqs` for more details. (#2352)
 
 # renv 1.3.0
 
