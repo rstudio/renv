@@ -2,6 +2,13 @@
 
 ## renv (development version)
 
+- renv now quotes the URL, ref, and commit of a git record when passing
+  them to `git`, and rejects records whose values `git` could read as an
+  option (for example, a ref of `--upload-pack=<command>`) or as a
+  request to run a transport helper. Previously, a crafted lockfile
+  record or `git::` remote could have these values run as shell
+  commands.
+
 - Fixed an error when detecting the Posit Package Manager platform on an
   Enterprise Linux distribution whose `/etc/os-release` declares an
   empty `VERSION_ID`; renv now falls back to the untransformed
