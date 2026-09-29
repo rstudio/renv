@@ -125,6 +125,11 @@ renv_graph_resolve <- function(remote, envir, records = NULL, fields = NULL, ove
   if (package %in% renv_packages_base())
     return(character())
 
+  # skip packages built for a different operating system, e.g. a Windows-only
+  # package recorded in a lockfile being restored on Linux (#2380)
+  if (renv_record_ostype_incompatible(record))
+    return(character())
+
   # skip if already resolved; because we use BFS, top-level remotes
   # are always resolved before transitive dependencies, so the first
   # resolution for a given package name wins.
@@ -2004,7 +2009,8 @@ renv_graph_install <- function(descriptions) {
   # library unchanged for a clean rollback)
   trash <- NULL
   transactional <- config$install.transactional()
-  if (staged && length(all) > 0L && !(transactional && !failed$empty())) {
+  rolledback <- staged && transactional && !failed$empty()
+  if (staged && length(all) > 0L && !rolledback) {
 
     stagepaths <- file.path(templib, names(all))
     stagepaths <- stagepaths[file.exists(stagepaths)]
@@ -2034,8 +2040,14 @@ renv_graph_install <- function(descriptions) {
     renv_filebacked_clear("renv_hash_description", descpaths)
   }
 
+  # packages discarded by a transactional rollback never reached the library;
+  # don't report them as installed, but tell the caller what was discarded;
+  # see renv_graph_install_failed() (#2380)
   n <- length(all)
-  if (n > 0L) {
+  if (rolledback && n > 0L) {
+    writef("Rolled back installation of %s due to errors.", nplural("package", n))
+    all <- structure(list(), rolledback = names(all))
+  } else if (n > 0L) {
     fmt <- "Successfully installed %s in %s."
     elapsed <- timer$tick()
     writef(fmt, nplural("package", n), renv_difftime_format(elapsed))
@@ -2045,10 +2057,32 @@ renv_graph_install <- function(descriptions) {
   if (!is.null(trash))
     unlink(trash, recursive = TRUE)
 
+  # also report which packages failed directly, so callers can retry them
+  # differently from packages that were merely rolled back; this includes
+  # dependencies outside the requested set, e.g. excluded packages
+  if (!failed$empty())
+    attr(all, "failed") <- failed$data()
+
   # report errors
   renv_graph_install_errors(errors$data(), failed$data(), descriptions)
 
   invisible(all)
+
+}
+
+# determine which of the requested 'packages' failed to install, given the
+# result of renv_graph_install(). packages discarded by a transactional
+# rollback didn't fail themselves; when only such packages are missing, the
+# rollback was caused by something outside the requested set (for example, a
+# dependency discovered during resolution), so report those failures instead
+renv_graph_install_failed <- function(records, packages) {
+
+  rolledback <- attr(records, "rolledback", exact = TRUE)
+  failed <- setdiff(packages, c(names(records), rolledback))
+  if (length(rolledback) && length(failed) == 0L)
+    failed <- attr(records, "failed", exact = TRUE)
+
+  failed
 
 }
 

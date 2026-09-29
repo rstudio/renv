@@ -1,5 +1,31 @@
 # renv (development version)
 
+* `renv::restore(retry = TRUE)` (and the interactive retry prompt) now keeps
+  the packages which installed successfully in the first pass when the restore
+  is transactional. Previously, the transactional rollback of the first pass
+  discarded those packages, but the retry only re-installed the packages which
+  had failed, leaving the library incomplete. A transactional rollback is now
+  also reported as such, rather than as a successful installation, and
+  `renv::install()` no longer lists rolled-back packages among the packages
+  which failed to install. (#2380)
+
+* `renv::restore()` once again ignores lockfile records for packages built
+  for a different operating system (for example, a Windows-only package in a
+  lockfile restored on Linux), rather than reporting them as failed installs.
+  With a transactional restore, such a failure previously rolled back the
+  entire restore. (#2380)
+
+* `renv::hydrate()` (and so `renv::init()`) now installs packages
+  non-transactionally, so a package that cannot be installed no longer causes
+  the other packages being hydrated to be rolled back. (#2380)
+
+* On Windows, `renv::install()` and `renv::restore()` no longer let profiles
+  named by `R_PROFILE` or `R_PROFILE_USER` be sourced by the `R CMD INSTALL`
+  processes they launch. Before R 4.3.0, `R CMD` did not honor `--vanilla`
+  for those processes, so a profile which reset `.libPaths()` (as callr's
+  does, e.g. when renv is run under rcmdcheck) could hide already-installed
+  dependencies from the installer, causing installs to fail with
+  "dependency is not available". (#2380)
 * On Windows, the output reported for a failed package installation now
   includes what `R CMD INSTALL` wrote to stderr, which is where it reports
   the reason for the failure (for example, "dependency 'x' is not available").

@@ -295,7 +295,7 @@ install <- function(packages = NULL,
   # but don't error for packages that are already installed —
   # unless resolution itself failed (e.g. incompatible R version)
   requested <- names(remotes) %||% packages
-  failed <- setdiff(requested, names(records))
+  failed <- renv_graph_install_failed(records, requested)
   failed <- intersect(failed, names(descriptions))
   library <- renv_libpaths_active()
   failed <- Filter(function(pkg) {

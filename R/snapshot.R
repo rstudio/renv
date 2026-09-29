@@ -293,21 +293,10 @@ snapshot <- function(project  = NULL,
 }
 
 renv_snapshot_preserve <- function(old, new) {
-  records <- filter(old$Packages, renv_snapshot_preserve_impl)
+  records <- filter(old$Packages, renv_record_ostype_incompatible)
   if (length(records))
     new$Packages[names(records)] <- records
   new
-}
-
-renv_snapshot_preserve_impl <- function(record) {
-
-  ostype <- tolower(record[["OS_type"]] %||% "")
-  if (!nzchar(ostype))
-    return(FALSE)
-
-  altos <- if (renv_platform_unix()) "windows" else "unix"
-  identical(ostype, altos)
-
 }
 
 renv_snapshot_preflight <- function(project, libpaths) {
