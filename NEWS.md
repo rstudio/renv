@@ -1,5 +1,13 @@
 # renv (development version)
 
+* Fixed an error when detecting the Posit Package Manager platform on an
+  Enterprise Linux distribution whose `/etc/os-release` declares an empty
+  `VERSION_ID`; renv now falls back to the untransformed repository URL.
+
+* A trailing YAML comment on the `engine:` field of a Quarto document's header
+  (for example, `engine: knitr # comment`) no longer prevents renv from
+  inferring that the document is bound to knitr.
+
 * On Windows, the output reported for a failed package installation now
   includes what `R CMD INSTALL` wrote to stderr, which is where it reports
   the reason for the failure (for example, "dependency 'x' is not available").

@@ -429,6 +429,24 @@ test_that("an explicit knitr engine binds Python-only .qmd to knitr", {
 
 })
 
+test_that("a trailing YAML comment on 'engine:' is ignored", {
+
+  path <- renv_scope_tempfile(fileext = ".qmd")
+  writeLines(con = path, c(
+    "---",
+    "engine: knitr  # force knitr",
+    "---",
+    "",
+    "```{python}",
+    "import os",
+    "```"
+  ))
+
+  deps <- dependencies(path)
+  expect_true(all(c("rmarkdown", "reticulate") %in% deps$Package))
+
+})
+
 test_that("knitr options in the YAML header bind a .qmd to knitr", {
 
   path <- renv_scope_tempfile(fileext = ".qmd")

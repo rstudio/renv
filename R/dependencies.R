@@ -1067,6 +1067,7 @@ renv_dependencies_discover_chunks_quarto_knitr <- function(contents, engines) {
   line <- grep("^engine\\s*:", header, value = TRUE)
   if (length(line)) {
     engine <- sub("^engine\\s*:", "", line[[1L]])
+    engine <- sub("#.*$", "", engine)  # drop a trailing YAML comment
     engine <- tolower(gsub("[\"'[:space:]]", "", engine))
     if (nzchar(engine))
       return(identical(engine, "knitr"))

@@ -243,8 +243,9 @@ renv_ppm_platform_ubuntu <- function(properties) {
 # under a 'centos' prefix for releases before 9 and 'rhel' from 9 onwards.
 renv_ppm_platform_el <- function(properties) {
 
+  # VERSION_ID may be absent or empty on some minimal images
   id <- properties$VERSION_ID
-  if (is.null(id))
+  if (is.null(id) || !nzchar(id))
     return(NULL)
 
   # take just the major version; VERSION_ID may include a minor part (e.g. 9.2)
