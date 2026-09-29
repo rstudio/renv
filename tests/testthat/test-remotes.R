@@ -656,3 +656,109 @@ test_that("restore() finds a pinned commit deep within the history of a ref", {
   expect_equal(renv_git_sha(path), shas$release)
 
 })
+
+test_that("git records unsafe for use with git are rejected", {
+
+  record <- list(
+    Package    = "bread",
+    Version    = "1.0.0",
+    Source     = "git",
+    RemoteType = "git",
+    RemoteUrl  = "https://example.com/bread",
+    RemoteRef  = "main",
+    RemoteSha  = "abcdef0"
+  )
+
+  expect_silent(renv_git_record_validate(record))
+
+  # refs and commits are optional
+  expect_silent(renv_git_record_validate(record[c("Package", "RemoteUrl")]))
+
+  # forms of url that git accepts
+  urls <- c(
+    "git@example.com:user/bread.git",
+    "https://user@example.com/my%20project/_git/bread",
+    "http://[::1]/bread",
+    "file:///path/to/my repo",
+    "C:\\Users\\user\\bread"
+  )
+
+  for (url in urls)
+    expect_silent(renv_git_record_validate(overlay(record, list(RemoteUrl = url))))
+
+  urls <- c(
+    "",
+    "--upload-pack=oops",
+    "ext::sh -c oops",
+    "https://example.com/bread\"; echo oops",
+    "https://example.com/bread\necho oops"
+  )
+
+  for (url in urls) {
+    unsafe <- overlay(record, list(RemoteUrl = url))
+    expect_error(renv_git_record_validate(unsafe), "invalid git url")
+  }
+
+  # pull requests are recorded as refspecs
+  refs <- c("feature/branch", "v1.0.0", "pull/1/head:pull/1")
+  for (ref in refs)
+    expect_silent(renv_git_record_validate(overlay(record, list(RemoteRef = ref))))
+
+  refs <- c("--upload-pack=oops", "main\"; echo oops", "main\necho oops")
+  for (ref in refs) {
+    unsafe <- overlay(record, list(RemoteRef = ref))
+    expect_error(renv_git_record_validate(unsafe), "invalid git ref")
+  }
+
+  shas <- c("main", "abcdef0; echo oops", "--upload-pack=oops")
+  for (sha in shas) {
+    unsafe <- overlay(record, list(RemoteSha = sha))
+    expect_error(renv_git_record_validate(unsafe), "invalid git commit")
+  }
+
+  # unsafe records are rejected before git is invoked
+  unsafe <- overlay(record, list(RemoteRef = "--upload-pack=oops"))
+  path <- renv_scope_tempfile("renv-clone-")
+  expect_error(renv_retrieve_git_impl(unsafe, path), "invalid git ref")
+  expect_error(renv_remotes_resolve_git_sha_ref(unsafe), "invalid git ref")
+  expect_false(file.exists(path))
+
+})
+
+test_that("the fields of a git record are not interpreted by the shell", {
+
+  skip_on_cran()
+  skip_on_os("windows")
+  skip_if(!nzchar(Sys.which("git")), "git is not installed")
+
+  renv_tests_scope()
+  remote <- renv_tests_git_remote()
+
+  # a branch whose name would create a file in the clone, were it interpreted;
+  # the branch exists, so that git has nothing to complain about
+  ref <- "$(touch${IFS}marker)"
+  local({
+    renv_scope_wd(remote$repo)
+    renv_system_exec("git", c("branch", shQuote(ref), "release"), action = "git branch")
+  })
+
+  # a repository whose path has characters special to the shell
+  repo <- file.path(renv_scope_tempfile("renv-repos-"), "it's $HOME `here`")
+  ensure_directory(dirname(repo))
+  file.rename(remote$repo, repo)
+
+  record <- list(
+    Package    = "bread",
+    Version    = "1.0.0",
+    Source     = "git",
+    RemoteType = "git",
+    RemoteUrl  = paste0("file://", renv_path_normalize(repo)),
+    RemoteRef  = ref
+  )
+
+  path <- renv_scope_tempfile("renv-clone-")
+  renv_retrieve_git_impl(record, path)
+  expect_equal(renv_git_sha(path), remote$shas$release)
+  expect_false(file.exists(file.path(path, "marker")))
+
+})

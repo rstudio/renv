@@ -629,6 +629,7 @@ renv_retrieve_git <- function(record) {
 renv_retrieve_git_impl <- function(record, path) {
 
   renv_git_preflight()
+  renv_git_record_validate(record)
 
   package <- record$Package
   url     <- record$RemoteUrl
@@ -648,11 +649,11 @@ renv_retrieve_git_impl <- function(record, path) {
 
   init <- heredoc('
     git init ${QUIET}
-    git remote add origin "${ORIGIN}"
+    git remote add origin ${ORIGIN}
   ')
 
   fetch <- heredoc('
-    git fetch ${QUIET} --depth=1 origin "${REF}"
+    git fetch ${QUIET} --depth=1 origin ${REF}
     git reset ${QUIET} --hard FETCH_HEAD
   ')
 
@@ -704,8 +705,8 @@ renv_retrieve_git_history <- function(record, path, data) {
   # ref first, and deepen it (by growing amounts) only while the commit isn't
   # found, so that a commit some way back doesn't require the whole history.
   # tags aren't needed, and could make these fetches much larger
-  fetch <- 'git fetch ${QUIET} --no-tags ${DEPTH} origin "${HISTORY}"'
-  reset <- 'git reset ${QUIET} --hard "${SHA}"'
+  fetch <- 'git fetch ${QUIET} --no-tags ${DEPTH} origin ${HISTORY}'
+  reset <- 'git reset ${QUIET} --hard ${SHA}'
 
   depths <- c("--depth=100", "--deepen=1000", "--deepen=10000", "--unshallow")
   for (depth in depths) {
@@ -733,6 +734,11 @@ renv_retrieve_git_history <- function(record, path, data) {
 # run git commands within a clone; if 'errfile' is given, their stderr is
 # written to that file rather than shown
 renv_retrieve_git_exec <- function(record, path, template, data, errfile = NULL) {
+
+  # these come from the record, and could contain characters that the shell
+  # would interpret; the others are options of our own, which may be empty
+  fields <- intersect(c("ORIGIN", "REF", "SHA", "HISTORY"), names(data))
+  data[fields] <- lapply(data[fields], renv_shell_quote)
 
   commands <- renv_template_replace(template, data)
   command <- gsub("\n", " && ", commands, fixed = TRUE)
