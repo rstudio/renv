@@ -2281,7 +2281,18 @@ renv_graph_install_collect <- function(worker) {
 
 renv_graph_install_launch_socket <- function(prepared, port) {
 
+  # merge stderr into stdout, as R CMD INSTALL writes its diagnostics
+  # (including the reason an install failed) to stderr
   command <- paste(prepared$command, "2>&1")
+
+  # on Windows, system() runs the command directly rather than via a shell,
+  # so the redirection above would be passed to R.exe as a literal argument
+  # and the installer's stderr silently dropped. route the command through
+  # cmd.exe instead, wrapped in an extra pair of quotes so that cmd.exe does
+  # not strip the quotes around the paths within (see renv_pipe_create())
+  if (renv_platform_windows())
+    command <- paste0("cmd.exe /c \"", command, "\"")
+
   package <- prepared$package
 
   # build a self-contained R script that:

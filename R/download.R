@@ -827,12 +827,14 @@ renv_download_wget <- function(url, destfile, type, request, headers) {
   args$push("--config", renv_shell_path(configfile))
 
   # NOTE: '-O' does not write headers to file; we need to manually redirect
-  # in that case
-  status <- if (request == "HEAD") {
-    args$push("--server-response", "--spider")
-    args$push(">", renv_shell_path(destfile), "2>&1")
-    cmdline <- paste("wget", paste(args$data(), collapse = " "))
-    return(suppressWarnings(system(cmdline)))
+  # in that case. let system2() perform the redirection, as system() doesn't
+  # use a shell on Windows and so would pass '>' and '2>&1' to wget verbatim
+  if (request == "HEAD") {
+    args$push("--server-response", "--spider", renv_shell_quote(url))
+    status <- suppressWarnings(
+      system2("wget", args$data(), stdout = destfile, stderr = destfile)
+    )
+    return(status)
   }
 
   args$push("-O", renv_shell_path(destfile))
@@ -1022,9 +1024,10 @@ renv_download_headers <- function(url, type = NULL, headers = NULL) {
   splat <- strsplit(contents, "\n\n", fixed = TRUE)[[1]]
   text <- strsplit(splat[[length(splat)]], "\n", fixed = TRUE)[[1]]
 
-  # keep only header lines
+  # keep only header lines; wget indents its header lines, which the
+  # properties reader would otherwise treat as continuation lines
   lines <- grep(":", text, fixed = TRUE, value = TRUE)
-  headers <- catch(renv_properties_read(text = lines))
+  headers <- catch(renv_properties_read(text = trimws(lines)))
   names(headers) <- tolower(names(headers))
   if (inherits(headers, "error"))
     return(list())
