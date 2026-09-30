@@ -1,5 +1,10 @@
 # renv (development version)
 
+* `renv::install()` now signals an error when a requested package fails to
+  install, even if an older version of that package remains installed.
+  Previously, a failed upgrade, or a transactional install that was rolled
+  back, could return without an error. (#2384)
+
 # renv 1.3.0
 
 * renv now quotes the URL, ref, and commit of a git record when passing them

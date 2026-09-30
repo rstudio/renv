@@ -1002,3 +1002,49 @@ test_that("install() doesn't report rolled-back packages as failures", {
   expect_false(renv_package_installed("breakfast"))
 
 })
+
+test_that("install() reports failures when an older version remains installed", {
+
+  renv_tests_scope()
+  install("bread")
+
+  # use a fresh cache so that bread is actually re-built (and fails)
+  # rather than being copied from the cache
+  renv_scope_envvars(RENV_PATHS_CACHE = renv_scope_tempfile())
+  renv_scope_options(install.opts = list(bread = "--version"))
+
+  # the rollback keeps the old bread, but the requested install still failed
+  # https://github.com/rstudio/renv/issues/2384
+  error <- expect_error(install(c("oatmeal", "bread"), transactional = TRUE))
+  expect_match(conditionMessage(error), "bread")
+  expect_false(grepl("oatmeal", conditionMessage(error)))
+  expect_false(renv_package_installed("oatmeal"))
+  expect_true(renv_package_installed("bread"))
+
+  # likewise when nothing else was installed, so nothing was rolled back
+  error <- expect_error(install("bread", transactional = TRUE))
+  expect_match(conditionMessage(error), "bread")
+  expect_true(renv_package_installed("bread"))
+
+  # and for non-transactional installs
+  error <- expect_error(install("bread", transactional = FALSE))
+  expect_match(conditionMessage(error), "bread")
+  expect_true(renv_package_installed("bread"))
+
+})
+
+test_that("install() doesn't report up-to-date packages as failures after a rollback", {
+
+  renv_tests_scope(c("bread", "oatmeal", "breakfast"))
+  install("bread")
+
+  renv_scope_envvars(RENV_PATHS_CACHE = renv_scope_tempfile())
+  renv_scope_options(install.opts = list(breakfast = "--version"))
+
+  # bread is already up to date, so it was never attempted
+  error <- expect_error(install(transactional = TRUE))
+  expect_match(conditionMessage(error), "breakfast")
+  expect_false(grepl("- bread", conditionMessage(error), fixed = TRUE))
+  expect_false(grepl("oatmeal", conditionMessage(error)))
+
+})
