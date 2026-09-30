@@ -298,11 +298,13 @@ install <- function(packages = NULL,
   failed <- renv_graph_install_failed(records, requested)
   failed <- intersect(failed, names(descriptions))
   library <- renv_libpaths_active()
-  failed <- Filter(function(pkg) {
-    if (isTRUE(attr(descriptions[[pkg]], "resolution_failed")))
-      return(TRUE)
-    !renv_package_installed(pkg, lib.loc = library)
-  }, failed)
+  if (length(attr(records, "rolledback", exact = TRUE)) == 0L) {
+    failed <- Filter(function(pkg) {
+      if (isTRUE(attr(descriptions[[pkg]], "resolution_failed")))
+        return(TRUE)
+      !renv_package_installed(pkg, lib.loc = library)
+    }, failed)
+  }
   if (length(failed)) {
     reasons <- vapply(failed, function(pkg) {
       attr(descriptions[[pkg]], "resolution_error") %||% ""

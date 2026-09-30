@@ -1,5 +1,11 @@
 # renv (development version)
 
+* `renv::install()` now reports an error when a transactional installation is
+  rolled back, even if the package whose installation failed is already
+  present in the library. Previously, the installed-package check could hide
+  the failure after the transaction installed none of the requested packages.
+  (#2384)
+
 # renv 1.3.0
 
 * renv now quotes the URL, ref, and commit of a git record when passing them
