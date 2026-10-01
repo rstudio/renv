@@ -260,13 +260,16 @@ renv_restore_run_actions <- function(project, actions, current, lockfile, rebuil
   packages <- names(actions)
   lockrecords <- renv_lockfile_records(lockfile)
 
+  # the dependency graph resolves dependencies below, so legacy retrieval
+  # must not crawl them again
   renv_scope_restore(
-    project  = project,
-    library  = renv_libpaths_active(),
-    records  = lockrecords,
-    packages = packages,
-    rebuild  = rebuild,
-    strict   = strict
+    project   = project,
+    library   = renv_libpaths_active(),
+    records   = lockrecords,
+    packages  = packages,
+    rebuild   = rebuild,
+    strict    = strict,
+    recursive = FALSE
   )
 
   # first, handle package removals

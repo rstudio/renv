@@ -1,5 +1,27 @@
 # renv (development version)
 
+* `renv::restore()` now installs the versions recorded in the lockfile even
+  when another package declares one of those dependencies in the `Remotes:`
+  field of its DESCRIPTION. Previously, the `Remotes:` entry took precedence,
+  so restore could install (or record) the remote's latest commit instead,
+  and then report that the dependency tree was repaired. Similarly,
+  `renv::install()` now prefers the project's own `Remotes:` entries, and
+  exact version requirements such as `bread (== 1.0.0)`, over another
+  package's `Remotes:` entry for the same package. This was a regression in
+  renv 1.2.0. The project's `Remotes:` entries now also apply to packages
+  that are only indirect dependencies. (#2395)
+
+* When another package's `Remotes:` entry supplies a dependency,
+  `renv::install()` and `renv::restore()` now install that dependency from
+  the remote. Previously, a dependency from a git remote could be installed
+  from the package repositories (or the lockfile) instead, while being
+  recorded as coming from the remote. Relatedly, when another package
+  requires a newer version of a package from a git remote (or another
+  non-repository source), renv no longer reports that package at the latest
+  repository version while installing the recorded one; the unsatisfied
+  requirement is reported instead. This was a regression in renv 1.2.0.
+  (#2395)
+
 # renv 1.3.0
 
 * renv now quotes the URL, ref, and commit of a git record when passing them

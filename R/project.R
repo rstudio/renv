@@ -118,11 +118,9 @@ renv_project_remotes <- function(project, filter = NULL, resolve = FALSE) {
     project = project
   )
 
-  if (empty(deps))
-    return(list())
-
-  # split according to package
-  specs <- split(deps, deps$Package)
+  # split according to package; a DESCRIPTION without dependencies can still
+  # pin packages through its Remotes field, so carry on with no specs
+  specs <- if (empty(deps)) list() else split(deps, deps$Package)
 
   # drop ignored specs
   ignored <- renv_project_ignored_packages(project = project)
@@ -148,6 +146,9 @@ renv_project_remotes <- function(project, filter = NULL, resolve = FALSE) {
   if (!is.null(filter))
     specs <- filter(specs, remotes)
 
+  # exact version requirements, e.g. 'bread (== 1.0.0)'
+  versions <- map(specs, renv_project_remotes_version)
+
   # now, try to resolve the packages
   records <- enumerate(specs, function(package, spec) {
 
@@ -164,13 +165,10 @@ renv_project_remotes <- function(project, filter = NULL, resolve = FALSE) {
       }
 
       # check for explicit version requirement
-      explicit <- spec[spec$Require == "==", ]
-      if (nrow(explicit)) {
-        version <- explicit$Version[[1L]]
-        if (nzchar(version)) {
-          entry <- paste(package, version, sep = "@")
-          return(renv_remotes_resolve(entry))
-        }
+      version <- versions[[package]]
+      if (!is.null(version)) {
+        entry <- paste(package, version, sep = "@")
+        return(renv_remotes_resolve(entry))
       }
 
       # check if we're being invoked during restore or install
@@ -185,10 +183,26 @@ renv_project_remotes <- function(project, filter = NULL, resolve = FALSE) {
 
   records <- if (resolve) map(records, resolve) else records
 
-  # note which packages came from the Remotes field; the graph treats
-  # these as pinned when applying the project's own version constraints
-  attr(records, "remotes") <- names(remotes)
+  # pass along the project's Remotes, including those for packages that are
+  # only indirect dependencies; the graph treats these as pinned
+  attr(records, "remotes") <- remotes[setdiff(names(remotes), ignored)]
+
+  # note which packages have an exact version requirement; the graph prefers
+  # these over a dependency's Remotes
+  exact <- !map_lgl(versions, is.null)
+  attr(records, "exact") <- names(specs)[exact]
+
   records
+
+}
+
+# the version a project DESCRIPTION pins a package to via an exact
+# requirement, e.g. 'Imports: bread (== 1.0.0)'; NULL if there is none
+renv_project_remotes_version <- function(spec) {
+
+  explicit <- spec[spec$Require == "==" & nzchar(spec$Version), ]
+  if (nrow(explicit))
+    explicit$Version[[1L]]
 
 }
 

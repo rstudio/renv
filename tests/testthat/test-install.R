@@ -908,6 +908,302 @@ test_that("the remotes field in a package's DESCRIPTION is honoured", {
 
 })
 
+test_that("the project's Remotes take precedence over a dependency's Remotes", {
+
+  skip_on_cran()
+  skip_if(!nzchar(Sys.which("git")), "git is not installed")
+
+  # use a separate cache, since the git version of 'bread' installed here would
+  # otherwise shadow the one from the test repositories in later tests
+  renv_tests_scope(isolated = TRUE)
+  init()
+
+  remotes <- renv_tests_git_remotes_unpinned()
+
+  # the project pins 'bread' to 0.5.0, while 'bagel' asks for it without a ref
+  # https://github.com/rstudio/renv/issues/2395
+  desc <- c(
+    "Type: Project",
+    "Imports: bagel, bread",
+    "Remotes: baker/bread@v0.5.0"
+  )
+
+  writeLines(desc, con = "DESCRIPTION")
+  install("baker/bagel")
+
+  desc <- renv_description_read(package = "bread")
+  expect_equal(desc$Version, "0.5.0")
+  expect_equal(desc$RemoteSha, remotes$bread$shas$old)
+
+})
+
+test_that("the project's Remotes apply to indirect dependencies", {
+
+  skip_on_cran()
+  skip_if(!nzchar(Sys.which("git")), "git is not installed")
+
+  # use a separate cache, since the git version of 'bread' installed here would
+  # otherwise shadow the one from the test repositories in later tests
+  renv_tests_scope(isolated = TRUE)
+  init()
+
+  remotes <- renv_tests_git_remotes_unpinned()
+
+  # the project only uses 'bread' through 'bagel', but still pins it
+  desc <- c(
+    "Type: Project",
+    "Imports: bagel",
+    "Remotes: baker/bread@v0.5.0"
+  )
+
+  writeLines(desc, con = "DESCRIPTION")
+  install("baker/bagel")
+
+  desc <- renv_description_read(package = "bread")
+  expect_equal(desc$Version, "0.5.0")
+  expect_equal(desc$RemoteSha, remotes$bread$shas$old)
+
+})
+
+test_that("the project's Remotes apply when the DESCRIPTION declares no dependencies", {
+
+  skip_on_cran()
+  skip_if(!nzchar(Sys.which("git")), "git is not installed")
+
+  # use a separate cache, since the git version of 'bread' installed here would
+  # otherwise shadow the one from the test repositories in later tests
+  renv_tests_scope(isolated = TRUE)
+  init()
+
+  remotes <- renv_tests_git_remotes_unpinned()
+
+  # the project pins 'bread' without depending on anything itself
+  desc <- c(
+    "Type: Project",
+    "Remotes: baker/bread@v0.5.0"
+  )
+
+  writeLines(desc, con = "DESCRIPTION")
+  install("baker/bagel")
+
+  desc <- renv_description_read(package = "bread")
+  expect_equal(desc$Version, "0.5.0")
+  expect_equal(desc$RemoteSha, remotes$bread$shas$old)
+
+})
+
+test_that("a dependency's Remotes entry for a pinned package is not resolved", {
+
+  skip_on_cran()
+  skip_if(!nzchar(Sys.which("git")), "git is not installed")
+
+  # use a separate cache, since the git version of 'bread' installed here would
+  # otherwise shadow the one from the test repositories in later tests
+  renv_tests_scope(isolated = TRUE)
+  init()
+
+  remotes <- renv_tests_git_remotes_unpinned()
+
+  # record the specs that get resolved
+  resolve <- get("renv_remotes_resolve", envir = asNamespace("renv"))
+  resolved <- character()
+  renv_scope_binding(
+    envir = asNamespace("renv"),
+    symbol = "renv_remotes_resolve",
+    replacement = function(spec, ...) {
+      if (is.character(spec))
+        resolved <<- c(resolved, spec)
+      resolve(spec, ...)
+    }
+  )
+
+  desc <- c(
+    "Type: Project",
+    "Imports: bagel",
+    "Remotes: baker/bread@v0.5.0"
+  )
+
+  writeLines(desc, con = "DESCRIPTION")
+  install("baker/bagel")
+
+  # the project's pin wins, so there is no need to resolve (here, clone) the
+  # remote that 'bagel' declares for 'bread'
+  expect_false("baker/bread" %in% resolved)
+
+  desc <- renv_description_read(package = "bread")
+  expect_equal(desc$RemoteSha, remotes$bread$shas$old)
+
+})
+
+test_that("a dependency's Remotes entry is resolved when its repository is named after a pinned package", {
+
+  skip_on_cran()
+  skip_if(!nzchar(Sys.which("git")), "git is not installed")
+
+  renv_tests_scope(isolated = TRUE)
+  init()
+
+  # a repository named 'bread' that actually holds 'crumpet'
+  crumpet <- renv_tests_git_init("bread")
+  renv_tests_git_commit(crumpet, "1.0.0", package = "crumpet")
+  crumpeturl <- paste0("file://", renv_path_normalize(crumpet))
+  renv_tests_git_scope_spec("baker/bread", list(url = crumpeturl, repo = "bread"))
+
+  bagel <- renv_tests_git_init("bagel")
+  renv_tests_git_commit(
+    repo    = bagel,
+    version = "1.0.0",
+    depends = "crumpet, bread",
+    remotes = "baker/bread",
+    package = "bagel"
+  )
+  bagelurl <- paste0("file://", renv_path_normalize(bagel))
+  renv_tests_git_scope_spec("baker/bagel", list(url = bagelurl, repo = "bagel"))
+
+  # the project pins 'bread' from the repositories; that must not stop the
+  # remote named 'bread' from being resolved, as it provides 'crumpet'
+  desc <- c(
+    "Type: Project",
+    "Imports: bagel, bread (== 0.1.0)"
+  )
+
+  writeLines(desc, con = "DESCRIPTION")
+  install("baker/bagel")
+
+  desc <- renv_description_read(package = "crumpet")
+  expect_equal(desc$RemoteUrl, crumpeturl)
+
+  desc <- renv_description_read(package = "bread")
+  expect_equal(desc$Version, "0.1.0")
+  expect_null(desc$RemoteUrl)
+
+})
+
+test_that("fallback retrieval respects indirect pins when retrieving a dependent first", {
+
+  skip_on_cran()
+  skip_if(!nzchar(Sys.which("git")), "git is not installed")
+
+  renv_tests_scope(isolated = TRUE)
+  init()
+
+  remotes <- renv_tests_git_remotes_unpinned()
+
+  # retrieve 'bagel' before 'bread', rather than relying on the order of
+  # descriptions in the graph's environment. the fallback for 'bread' must
+  # use the pinned record chosen by the graph
+  graph_install <- get("renv_graph_install", envir = asNamespace("renv"))
+  renv_scope_binding(
+    envir = asNamespace("renv"),
+    symbol = "renv_graph_install",
+    replacement = function(descriptions) {
+      graph_install(descriptions[c("bagel", "bread")])
+    }
+  )
+
+  desc <- c(
+    "Type: Project",
+    "Imports: bagel",
+    "Remotes: baker/bread@v0.5.0"
+  )
+
+  writeLines(desc, con = "DESCRIPTION")
+  install("baker/bagel")
+
+  desc <- renv_description_read(package = "bread")
+  expect_equal(desc$Version, "0.5.0")
+  expect_equal(desc$RemoteSha, remotes$bread$shas$old)
+
+})
+
+test_that("fallback retrieval reuses compatible installed dependencies without repositories", {
+
+  skip_on_cran()
+  skip_if(!nzchar(Sys.which("git")), "git is not installed")
+
+  renv_tests_scope(isolated = TRUE)
+  init(bare = TRUE)
+  install("bread@0.1.0")
+
+  repo <- renv_tests_git_init("bagel")
+  renv_tests_git_commit(repo, "1.0.0", depends = "bread", package = "bagel")
+  url <- paste0("file://", renv_path_normalize(repo))
+  renv_tests_git_scope_spec("baker/bagel", list(url = url, repo = "bagel"))
+
+  # the installed 'bread' satisfies 'bagel', so installing the git remote
+  # must not try to retrieve 'bread' from the now-empty repositories
+  repository <- renv_scope_tempfile("renv-repository-")
+  contrib <- file.path(repository, "src/contrib")
+  ensure_directory(contrib)
+  writeLines("", con = file.path(contrib, "PACKAGES"))
+
+  fmt <- if (renv_platform_windows()) "file:///%s" else "file://%s"
+  repos <- c(CRAN = sprintf(fmt, renv_path_normalize(repository)))
+  renv_scope_options(repos = repos)
+
+  install("baker/bagel")
+
+  expect_true(renv_package_installed("bagel"))
+  expect_equal(renv_package_version("bread"), "0.1.0")
+
+})
+
+test_that("the project's exact version requirements take precedence over a dependency's Remotes", {
+
+  skip_on_cran()
+  skip_if(!nzchar(Sys.which("git")), "git is not installed")
+
+  # use a separate cache, since the git version of 'bread' installed here would
+  # otherwise shadow the one from the test repositories in later tests
+  renv_tests_scope(isolated = TRUE)
+  init()
+
+  renv_tests_git_remotes_unpinned()
+
+  desc <- c(
+    "Type: Project",
+    "Imports: bagel, bread (== 0.1.0)"
+  )
+
+  writeLines(desc, con = "DESCRIPTION")
+  install("baker/bagel")
+
+  desc <- renv_description_read(package = "bread")
+  expect_equal(desc$Version, "0.1.0")
+  expect_null(desc$RemoteUrl)
+
+})
+
+test_that("a dependency's Remotes apply to project dependencies without a Remotes entry", {
+
+  skip_on_cran()
+  skip_if(!nzchar(Sys.which("git")), "git is not installed")
+
+  # use a separate cache, since the git version of 'bread' installed here would
+  # otherwise shadow the one from the test repositories in later tests
+  renv_tests_scope(isolated = TRUE)
+  init()
+
+  remotes <- renv_tests_git_remotes_unpinned()
+
+  # the project uses 'bread' without saying where it comes from, so the
+  # Remotes field of 'bagel' decides, rather than the package repositories
+  desc <- c(
+    "Type: Project",
+    "Imports: bagel, bread"
+  )
+
+  writeLines(desc, con = "DESCRIPTION")
+  install("baker/bagel")
+
+  # the package itself must come from git too, not just its metadata; the
+  # package from the repositories declares its repository
+  desc <- renv_description_read(package = "bread")
+  expect_equal(desc$RemoteSha, remotes$bread$shas$new)
+  expect_null(desc$Repository)
+
+})
+
 # https://github.com/rstudio/renv/issues/2251
 test_that("install() report doesn't crash when a package has no version", {
 
