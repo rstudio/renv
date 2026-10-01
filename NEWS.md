@@ -1,5 +1,11 @@
 # renv (development version)
 
+* A vendored copy of renv (created with `renv:::vendor()`) now bundles the
+  files it reads at runtime, so that system requirements checks, git
+  credential helpers, and discovery of `renv::use()` calls work when renv
+  itself is not installed. Previously these looked the files up in an
+  installed copy of renv.
+
 * `renv::sysreqs()` now reports the system requirements of the recursive
   dependencies of the requested packages as well. Previously, only the
   requested packages themselves were considered, so that (for example)

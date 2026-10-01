@@ -122,3 +122,31 @@ test_that("can temporarily replace locked binding", {
 
   expect_equal(utils::adist, original)
 })
+
+test_that("renv_scope_git_auth() doesn't export an empty GIT_ASKPASS", {
+
+  # reset the once() state, in case an earlier test already warned
+  renv_scope_binding(the$once, "renv_scope_git_auth", NULL)
+
+  renv_scope_envvars(
+    GIT_USERNAME = "user",
+    GIT_PASSWORD = "pass",
+    GIT_ASKPASS  = NULL
+  )
+
+  # pretend the askpass script couldn't be located
+  renv_scope_binding(
+    envir       = asNamespace("renv"),
+    symbol      = "system.file",
+    replacement = function(...) ""
+  )
+
+  expect_warning(result <- renv_scope_git_auth(scope = environment()))
+  expect_false(result)
+  expect_false(identical(Sys.getenv("GIT_ASKPASS", unset = NA), ""))
+
+  # the warning is only emitted once per session
+  expect_no_warning(result <- renv_scope_git_auth(scope = environment()))
+  expect_false(result)
+
+})

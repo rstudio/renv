@@ -5,6 +5,7 @@
 #' Calling `renv:::vendor()` will:
 #'
 #' - Compile a vendored copy of renv to `inst/vendor/renv.R`,
+#' - Copy the contents of renv's `inst` directory into `inst/vendor`,
 #' - Generate an renv auto-loader at `R/renv.R`.
 #'
 #' Using this, projects can take a dependency on renv, and use renv
@@ -55,6 +56,9 @@ vendor <- function(version = "main", project = getwd()) {
     header     = header
   )
 
+  # copy the resources renv reads at runtime
+  resources <- renv_vendor_resources(project, sources)
+
   # create the loader
   loader <- renv_vendor_loader(project, remote, header)
 
@@ -62,6 +66,7 @@ vendor <- function(version = "main", project = getwd()) {
   template <- heredoc("
     #
     # A vendored copy of renv was created at: %s
+    # Resources used by renv were copied to:  %s
     # The renv auto-loader was generated at:  %s
     #
     # Please add `renv$initialize(libname, pkgname)` to your package's
@@ -69,7 +74,12 @@ vendor <- function(version = "main", project = getwd()) {
     #
   ")
 
-  writef(template, renv_path_pretty(embed), renv_path_pretty(loader))
+  writef(
+    template,
+    renv_path_pretty(embed),
+    renv_path_pretty(resources),
+    renv_path_pretty(loader)
+  )
 
   invisible(TRUE)
 }
@@ -98,6 +108,25 @@ renv_vendor_create <- function(project, sources, header) {
 
   # return generated bundle
   invisible(target)
+
+}
+
+renv_vendor_resources <- function(project, sources) {
+
+  # copy the whole 'inst' tree, rather than only the files renv is known to
+  # read at runtime, so that new system.file() call sites in renv don't need
+  # to be mirrored here
+  vendor <- file.path(project, "inst/vendor")
+  ensure_directory(vendor)
+
+  entries <- list.files(file.path(sources, "inst"), full.names = TRUE)
+  for (source in entries) {
+    target <- file.path(vendor, basename(source))
+    unlink(target, recursive = TRUE)
+    renv_file_copy(source, target)
+  }
+
+  invisible(vendor)
 
 }
 
