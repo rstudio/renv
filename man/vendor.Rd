@@ -17,6 +17,7 @@ branch name.}
 Calling \code{renv:::vendor()} will:
 \itemize{
 \item Compile a vendored copy of renv to \code{inst/vendor/renv.R},
+\item Copy the resources renv reads at runtime into \code{inst/vendor},
 \item Generate an renv auto-loader at \code{R/renv.R}.
 }
 

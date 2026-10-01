@@ -5,6 +5,7 @@
 #' Calling `renv:::vendor()` will:
 #'
 #' - Compile a vendored copy of renv to `inst/vendor/renv.R`,
+#' - Copy the resources renv reads at runtime into `inst/vendor`,
 #' - Generate an renv auto-loader at `R/renv.R`.
 #'
 #' Using this, projects can take a dependency on renv, and use renv
@@ -55,6 +56,9 @@ vendor <- function(version = "main", project = getwd()) {
     header     = header
   )
 
+  # copy the resources renv needs at runtime
+  renv_vendor_resources(project, sources)
+
   # create the loader
   loader <- renv_vendor_loader(project, remote, header)
 
@@ -62,6 +66,7 @@ vendor <- function(version = "main", project = getwd()) {
   template <- heredoc("
     #
     # A vendored copy of renv was created at: %s
+    # Resources used by renv were copied to:  %s
     # The renv auto-loader was generated at:  %s
     #
     # Please add `renv$initialize(libname, pkgname)` to your package's
@@ -69,7 +74,12 @@ vendor <- function(version = "main", project = getwd()) {
     #
   ")
 
-  writef(template, renv_path_pretty(embed), renv_path_pretty(loader))
+  writef(
+    template,
+    renv_path_pretty(embed),
+    renv_path_pretty(file.path(project, "inst/vendor")),
+    renv_path_pretty(loader)
+  )
 
   invisible(TRUE)
 }
@@ -98,6 +108,27 @@ renv_vendor_create <- function(project, sources, header) {
 
   # return generated bundle
   invisible(target)
+
+}
+
+renv_vendor_resources <- function(project, sources) {
+
+  # only the files renv reads at runtime; the rest of 'inst' serves
+  # stand-alone installations of renv
+  resources <- c(
+    "resources/scripts-git-askpass.cmd",
+    "resources/scripts-git-askpass.sh",
+    "sysreqs/sysreqs.json"
+  )
+
+  for (resource in resources) {
+    source <- file.path(sources, "inst", resource)
+    target <- file.path(project, "inst/vendor", resource)
+    ensure_parent_directory(target)
+    renv_file_copy(source, target, overwrite = TRUE)
+  }
+
+  invisible(file.path(project, "inst/vendor"))
 
 }
 

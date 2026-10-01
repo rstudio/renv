@@ -27,6 +27,23 @@ unique <- function(x) {
   base::unique(x)
 }
 
+# when renv is embedded, renv itself might not be installed; vendor() copies the
+# resources renv reads at runtime into the host package's 'inst/vendor'
+# directory, so look there for renv's own files
+system.file <- function(..., package = "base", lib.loc = NULL, mustWork = FALSE) {
+
+  # find the next system.file() up the chain, rather than calling
+  # base::system.file() directly, so that pkgload's shim is used under
+  # devtools::load_all()
+  impl <- get("system.file", envir = parent.env(renv_envir_self()))
+
+  if (identical(package, "renv") && isTRUE(the$metadata$embedded))
+    impl("vendor", ..., package = .packageName, lib.loc = lib.loc, mustWork = mustWork)
+  else
+    impl(..., package = package, lib.loc = lib.loc, mustWork = mustWork)
+
+}
+
 # a wrapper for 'utils::untar()' that throws an error if untar fails
 untar <- function(tarfile,
                   files = NULL,

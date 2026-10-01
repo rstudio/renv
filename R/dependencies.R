@@ -1653,7 +1653,7 @@ renv_dependencies_discover_r_use <- function(node, envir) {
   # `renv::use()`
   m <- renv_call_expect(node, "renv", "use")
   if (length(m)) {
-    pkgs <- setdiff(names(m), names(formals(renv::use)))
+    pkgs <- setdiff(names(m), names(formals(use)))
     for (pkg in pkgs)
       if (nzchar(pkg))
         envir[[pkg]] <- TRUE

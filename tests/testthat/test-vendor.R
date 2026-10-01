@@ -23,8 +23,22 @@ test_that("renv can be vendored into an R package", {
   writeLines(desc, con = "DESCRIPTION")
   file.create("NAMESPACE")
 
+  # vendor the sources under test, rather than the latest sources on GitHub
+  sources <- renv_tests_vendor_sources()
+  if (!is.null(sources)) {
+    renv_scope_binding(
+      envir       = asNamespace("renv"),
+      symbol      = "renv_vendor_sources",
+      replacement = function(version) sources
+    )
+  }
+
   # vendor renv
   vendor()
+
+  # the resources renv reads at runtime should be bundled alongside
+  expect_true(file.exists("inst/vendor/sysreqs/sysreqs.json"))
+  expect_true(file.exists("inst/vendor/resources/scripts-git-askpass.sh"))
 
   # make sure renv is initializes in .onLoad()
   code <- heredoc('
@@ -84,5 +98,38 @@ test_that("renv can be vendored into an R package", {
   # attempt to run script
   output <- renv_system_exec(R(), c("--vanilla", "-s", "-f", renv_shell_path(script)), quiet = FALSE)
   expect_true(file.exists("dependencies.rds"))
+
+  # test that the embedded renv finds its own resources, and can resolve
+  # `renv::use()` calls, without an installed copy of renv
+  writeLines("renv::use(digest = \"eddelbuettel/digest\")", con = "use.R")
+
+  code <- substitute({
+
+    # make sure renv isn't visible on library paths
+    base <- .BaseNamespaceEnv
+    base$.libPaths(path)
+
+    ns <- base$asNamespace("test.renv.embedding")
+    result <- list(
+      rules   = ns$renv$system.file("sysreqs/sysreqs.json", package = "renv"),
+      askpass = ns$renv$system.file("resources/scripts-git-askpass.sh", package = "renv"),
+      nrules  = length(ns$renv$renv_sysreqs_rules()),
+      deps    = ns$renv$dependencies("use.R", quiet = TRUE)$Package
+    )
+
+    saveRDS(result, file = "embedded.rds")
+
+  }, list(path = .libPaths()[1]))
+
+  script <- renv_scope_tempfile("renv-script-", fileext = ".R")
+  writeLines(deparse(code), con = script)
+
+  output <- renv_system_exec(R(), c("--vanilla", "-s", "-f", renv_shell_path(script)), quiet = FALSE)
+  result <- readRDS("embedded.rds")
+
+  expect_true(file.exists(result$rules))
+  expect_true(file.exists(result$askpass))
+  expect_true(result$nrules > 0L)
+  expect_true("digest" %in% result$deps)
 
 })
