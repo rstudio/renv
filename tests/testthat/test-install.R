@@ -965,6 +965,76 @@ test_that("the project's Remotes apply to indirect dependencies", {
 
 })
 
+test_that("the project's Remotes apply when the DESCRIPTION declares no dependencies", {
+
+  skip_on_cran()
+  skip_if(!nzchar(Sys.which("git")), "git is not installed")
+
+  # use a separate cache, since the git version of 'bread' installed here would
+  # otherwise shadow the one from the test repositories in later tests
+  renv_tests_scope(isolated = TRUE)
+  init()
+
+  remotes <- renv_tests_git_remotes_unpinned()
+
+  # the project pins 'bread' without depending on anything itself
+  desc <- c(
+    "Type: Project",
+    "Remotes: baker/bread@v0.5.0"
+  )
+
+  writeLines(desc, con = "DESCRIPTION")
+  install("baker/bagel")
+
+  desc <- renv_description_read(package = "bread")
+  expect_equal(desc$Version, "0.5.0")
+  expect_equal(desc$RemoteSha, remotes$bread$shas$old)
+
+})
+
+test_that("a dependency's Remotes entry for a pinned package is not resolved", {
+
+  skip_on_cran()
+  skip_if(!nzchar(Sys.which("git")), "git is not installed")
+
+  # use a separate cache, since the git version of 'bread' installed here would
+  # otherwise shadow the one from the test repositories in later tests
+  renv_tests_scope(isolated = TRUE)
+  init()
+
+  remotes <- renv_tests_git_remotes_unpinned()
+
+  # record the specs that get resolved
+  resolve <- get("renv_remotes_resolve", envir = asNamespace("renv"))
+  resolved <- character()
+  renv_scope_binding(
+    envir = asNamespace("renv"),
+    symbol = "renv_remotes_resolve",
+    replacement = function(spec, ...) {
+      if (is.character(spec))
+        resolved <<- c(resolved, spec)
+      resolve(spec, ...)
+    }
+  )
+
+  desc <- c(
+    "Type: Project",
+    "Imports: bagel",
+    "Remotes: baker/bread@v0.5.0"
+  )
+
+  writeLines(desc, con = "DESCRIPTION")
+  install("baker/bagel")
+
+  # the project's pin wins, so there is no need to resolve (here, clone) the
+  # remote that 'bagel' declares for 'bread'
+  expect_false("baker/bread" %in% resolved)
+
+  desc <- renv_description_read(package = "bread")
+  expect_equal(desc$RemoteSha, remotes$bread$shas$old)
+
+})
+
 test_that("fallback retrieval respects indirect pins when retrieving a dependent first", {
 
   skip_on_cran()

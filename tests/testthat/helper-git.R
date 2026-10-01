@@ -65,9 +65,10 @@ renv_tests_git_remote <- function(scope = parent.frame()) {
 
 # local git repositories for 'bread', whose default branch has moved on from
 # 0.5.0 (tagged 'v0.5.0') to 1.0.0, and for 'bagel', which depends on 'bread'
-# and declares it in its Remotes field without a ref. the remote specs
-# 'baker/bagel', 'baker/bread' and 'baker/bread@v0.5.0' resolve to these
-renv_tests_git_remotes_unpinned <- function(scope = parent.frame()) {
+# (with the requirement in 'depends') and declares it in its Remotes field
+# without a ref. the remote specs 'baker/bagel', 'baker/bread' and
+# 'baker/bread@v0.5.0' resolve to these
+renv_tests_git_remotes_unpinned <- function(depends = "bread", scope = parent.frame()) {
 
   bread <- renv_tests_git_init(scope = scope)
   old <- renv_tests_git_commit(bread, "0.5.0")
@@ -82,7 +83,7 @@ renv_tests_git_remotes_unpinned <- function(scope = parent.frame()) {
   sha <- renv_tests_git_commit(
     repo    = bagel,
     version = "1.0.0",
-    depends = "bread",
+    depends = depends,
     remotes = "baker/bread",
     package = "bagel"
   )

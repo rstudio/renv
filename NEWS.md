@@ -15,7 +15,11 @@
   `renv::install()` and `renv::restore()` now install that dependency from
   the remote. Previously, a dependency from a git remote could be installed
   from the package repositories (or the lockfile) instead, while being
-  recorded as coming from the remote. This was a regression in renv 1.2.0.
+  recorded as coming from the remote. Relatedly, when another package
+  requires a newer version of a package from a git remote (or another
+  non-repository source), renv no longer reports that package at the latest
+  repository version while installing the recorded one; the unsatisfied
+  requirement is reported instead. This was a regression in renv 1.2.0.
   (#2395)
 
 # renv 1.3.0

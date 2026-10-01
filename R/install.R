@@ -245,13 +245,15 @@ install <- function(packages = NULL,
   if (!renv_install_preflight(project, libpaths, records))
     cancel_if(prompt && !proceed())
 
-  # we're now ready to start installation
+  # we're now ready to start installation; the dependency graph resolves
+  # dependencies below, so legacy retrieval must not crawl them again
   renv_scope_restore(
-    project  = project,
-    library  = renv_libpaths_active(),
-    packages = names(remotes),
-    records  = records,
-    rebuild  = rebuild
+    project   = project,
+    library   = renv_libpaths_active(),
+    packages  = names(remotes),
+    records   = records,
+    rebuild   = rebuild,
+    recursive = FALSE
   )
 
   # build dependency graph; this resolves transitive dependencies

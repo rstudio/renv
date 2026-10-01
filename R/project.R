@@ -118,11 +118,9 @@ renv_project_remotes <- function(project, filter = NULL, resolve = FALSE) {
     project = project
   )
 
-  if (empty(deps))
-    return(list())
-
-  # split according to package
-  specs <- split(deps, deps$Package)
+  # split according to package; a DESCRIPTION without dependencies can still
+  # pin packages through its Remotes field, so carry on with no specs
+  specs <- if (empty(deps)) list() else split(deps, deps$Package)
 
   # drop ignored specs
   ignored <- renv_project_ignored_packages(project = project)
@@ -148,6 +146,9 @@ renv_project_remotes <- function(project, filter = NULL, resolve = FALSE) {
   if (!is.null(filter))
     specs <- filter(specs, remotes)
 
+  # exact version requirements, e.g. 'bread (== 1.0.0)'
+  versions <- map(specs, renv_project_remotes_version)
+
   # now, try to resolve the packages
   records <- enumerate(specs, function(package, spec) {
 
@@ -164,13 +165,10 @@ renv_project_remotes <- function(project, filter = NULL, resolve = FALSE) {
       }
 
       # check for explicit version requirement
-      explicit <- spec[spec$Require == "==", ]
-      if (nrow(explicit)) {
-        version <- explicit$Version[[1L]]
-        if (nzchar(version)) {
-          entry <- paste(package, version, sep = "@")
-          return(renv_remotes_resolve(entry))
-        }
+      version <- versions[[package]]
+      if (!is.null(version)) {
+        entry <- paste(package, version, sep = "@")
+        return(renv_remotes_resolve(entry))
       }
 
       # check if we're being invoked during restore or install
@@ -191,12 +189,20 @@ renv_project_remotes <- function(project, filter = NULL, resolve = FALSE) {
 
   # note which packages have an exact version requirement; the graph prefers
   # these over a dependency's Remotes
-  exact <- map_lgl(specs, function(spec) {
-    any(spec$Require == "==" & nzchar(spec$Version))
-  })
-
+  exact <- !map_lgl(versions, is.null)
   attr(records, "exact") <- names(specs)[exact]
+
   records
+
+}
+
+# the version a project DESCRIPTION pins a package to via an exact
+# requirement, e.g. 'Imports: bread (== 1.0.0)'; NULL if there is none
+renv_project_remotes_version <- function(spec) {
+
+  explicit <- spec[spec$Require == "==" & nzchar(spec$Version), ]
+  if (nrow(explicit))
+    explicit$Version[[1L]]
 
 }
 

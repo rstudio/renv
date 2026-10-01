@@ -877,3 +877,107 @@ test_that("restore() prefers lockfile records over a dependency's Remotes", {
   expect_equal(desc$RemoteSha, remotes$bread$shas$old)
 
 })
+
+test_that("restore() keeps a lockfile record that another package's requirements reject", {
+
+  skip_on_cran()
+  skip_if(!nzchar(Sys.which("git")), "git is not installed")
+
+  # use a separate cache, since the git version of 'bread' installed here would
+  # otherwise shadow the one from the test repositories in later tests
+  project <- renv_tests_scope(isolated = TRUE)
+  init()
+
+  remotes <- renv_tests_git_remotes_unpinned(depends = "bread (>= 1.0.0)")
+
+  # the lockfile pins 'bread' to 0.5.0, even though 'bagel' requires a newer
+  # version. restore() must still install the recorded 'bread', and report
+  # that 'bagel' can't be installed, rather than install the latest 'bread'
+  # from the repositories under the lockfile's git metadata
+  bagel <- list(
+    Package    = "bagel",
+    Version    = "1.0.0",
+    Source     = "git",
+    RemoteType = "git",
+    RemoteUrl  = remotes$bagel$url,
+    RemoteRef  = "HEAD",
+    RemoteSha  = remotes$bagel$sha
+  )
+
+  bread <- list(
+    Package    = "bread",
+    Version    = "0.5.0",
+    Source     = "git",
+    RemoteType = "git",
+    RemoteUrl  = remotes$bread$url,
+    RemoteRef  = "HEAD",
+    RemoteSha  = remotes$bread$shas$old
+  )
+
+  records <- list(bagel = bagel, bread = bread)
+
+  # a git package can't be upgraded by swapping in a repository version
+  descriptions <- renv_graph_init(c("bagel", "bread"), records = records, project = project)
+  expect_equal(descriptions$bread$Version, "0.5.0")
+
+  # retrieve 'bagel' first, so that its requirements are known by the time
+  # 'bread' is retrieved
+  graph_install <- get("renv_graph_install", envir = asNamespace("renv"))
+  renv_scope_binding(
+    envir = asNamespace("renv"),
+    symbol = "renv_graph_install",
+    replacement = function(descriptions) {
+      graph_install(descriptions[c("bagel", "bread")])
+    }
+  )
+
+  lockfile <- renv_lockfile_init(project = project)
+  lockfile$Packages <- records
+  renv_lockfile_write(lockfile, file = "renv.lock")
+
+  # keep 'bread' installed when 'bagel' fails
+  renv_scope_options(renv.config.install.transactional = FALSE)
+  expect_error(restore(prompt = FALSE, retry = FALSE))
+
+  desc <- renv_description_read(package = "bread")
+  expect_equal(desc$Version, "0.5.0")
+  expect_equal(desc$RemoteSha, remotes$bread$shas$old)
+
+})
+
+test_that("a lockfile record upgraded by the graph is retrieved at the new version", {
+
+  skip_on_cran()
+  skip_if(!nzchar(Sys.which("git")), "git is not installed")
+
+  project <- renv_tests_scope()
+  remotes <- renv_tests_git_remotes_unpinned(depends = "bread (>= 1.0.0)")
+
+  # the lockfile records an old 'bread' from the repositories, but 'bagel'
+  # requires a newer version, so the graph upgrades it to the latest
+  bagel <- list(
+    Package    = "bagel",
+    Version    = "1.0.0",
+    Source     = "git",
+    RemoteType = "git",
+    RemoteUrl  = remotes$bagel$url,
+    RemoteRef  = "HEAD",
+    RemoteSha  = remotes$bagel$sha
+  )
+
+  bread <- list(
+    Package    = "bread",
+    Version    = "0.1.0",
+    Source     = "Repository",
+    Repository = "CRAN"
+  )
+
+  records <- list(bagel = bagel, bread = bread)
+  descriptions <- renv_graph_init(c("bagel", "bread"), records = records, project = project)
+  expect_equal(descriptions$bread$Version, "1.0.0")
+
+  # a fallback retrieval must then fetch that version, not the lockfile's
+  record <- attr(descriptions$bread, "record", exact = TRUE)
+  expect_equal(record$Version, "1.0.0")
+
+})

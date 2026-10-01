@@ -106,11 +106,21 @@ renv_graph_init <- function(remotes, records = list(), project = NULL, scope = p
     if (renv_graph_compatible(version, reqs))
       next
 
+    # only a repository package can be upgraded by swapping in the latest
+    # repository version; for other sources, the unsatisfied requirement is
+    # reported below instead
+    source <- renv_record_source(desc, normalize = TRUE)
+    if (!source %in% c("repository", "bioconductor"))
+      next
+
     latest <- catch(renv_available_packages_latest(package))
     if (inherits(latest, "error"))
       next
 
+    # the package now comes from the repositories at the latest version, so a
+    # fallback retrieval must use that record rather than the caller's
     desc$Version <- latest$Version
+    attr(desc, "record") <- latest
     descriptions[[package]] <- desc
     assign(package, desc, envir = envir)
 
@@ -130,6 +140,17 @@ renv_graph_resolve <- function(remote,
                                override = FALSE,
                                pinned = character())
 {
+  # a package's Remotes shouldn't replace a record pinned by the caller, e.g.
+  # a lockfile record during restore(), a project-level Remotes entry, or an
+  # exact version requirement in the project. check the spec before resolving
+  # it, since resolution can mean an API call or a clone
+  # https://github.com/rstudio/renv/issues/2395
+  if (override) {
+    package <- renv_graph_remote_package(remote)
+    if (!is.null(package) && renv_graph_pinned_record(package, records, pinned))
+      return(character())
+  }
+
   # resolve the record; use pre-resolved record if available
   record <- if (is.character(remote) && !is.null(records[[remote]]))
     records[[remote]]
@@ -145,10 +166,8 @@ renv_graph_resolve <- function(remote,
   if (package %in% renv_packages_base())
     return(character())
 
-  # a package's Remotes shouldn't replace a record pinned by the caller, e.g.
-  # a lockfile record during restore(), a project-level Remotes entry, or an
-  # exact version requirement in the project
-  # https://github.com/rstudio/renv/issues/2395
+  # the spec might not name the package (e.g. a repository named differently
+  # from the package it contains), so check the resolved record as well
   if (override && renv_graph_pinned_record(package, records, pinned))
     return(character())
 
@@ -761,6 +780,28 @@ renv_graph_pinned_record <- function(package, records, pinned = character()) {
   # explicit records from the caller, e.g. lockfile records or 'pkg@version'
   record <- records[[package]]
   !is.null(record) && !is.function(record) && !is.null(record$Version)
+
+}
+
+# the package a remote spec refers to, when the spec itself says: a 'pkg='
+# prefix or a repository spec names the package directly, and a git repository
+# (or the sub-directory within it) is normally named after the package it
+# contains. NULL when it can't be told
+renv_graph_remote_package <- function(remote) {
+
+  if (!is.character(remote))
+    return(NULL)
+
+  parsed <- catch(renv_remotes_parse(remote))
+  if (inherits(parsed, "error"))
+    return(NULL)
+
+  if (!is.null(parsed$package))
+    return(parsed$package)
+
+  path <- parsed$subdir %||% parsed$repo
+  if (!is.null(path))
+    sub("\\.git$", "", basename(path))
 
 }
 
@@ -1569,9 +1610,6 @@ renv_graph_install <- function(descriptions) {
       status <- catch({
         renv_scope_options(renv.download.headers = NULL)
         renv_scope_options(renv.verbose = FALSE)
-        # the graph manages dependencies, including those already satisfied
-        # by the library; legacy retrieval must not download them again
-        renv_scope_binding(restore, "recursive", FALSE)
         renv_retrieve_impl_one(pkg)
       })
 
