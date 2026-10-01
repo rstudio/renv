@@ -14,3 +14,22 @@ renv_tests_vendor_sources <- function() {
   NULL
 
 }
+
+# a stand-in for the record renv_remotes_resolve() would produce for the
+# sources above, so that vendor() needn't reach GitHub during tests
+renv_tests_vendor_remote <- function(sources) {
+
+  desc <- renv_description_read(file.path(sources, "DESCRIPTION"))
+
+  list(
+    Package        = "renv",
+    Version        = desc[["Version"]],
+    Source         = "GitHub",
+    RemoteType     = "github",
+    RemoteHost     = "api.github.com",
+    RemoteUsername = "rstudio",
+    RemoteRepo     = "renv",
+    RemoteSha      = desc[["RemoteSha"]] %||% strrep("0", 40L)
+  )
+
+}

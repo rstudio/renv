@@ -29,7 +29,7 @@ unique <- function(x) {
 
 # when renv is embedded, renv itself might not be installed; vendor() copies the
 # resources renv reads at runtime into the host package's 'inst/vendor'
-# directory, so look there for renv's own files
+# directory, so prefer those when looking up renv's own files
 system.file <- function(..., package = "base", lib.loc = NULL, mustWork = FALSE) {
 
   # find the next system.file() up the chain, rather than calling
@@ -37,10 +37,15 @@ system.file <- function(..., package = "base", lib.loc = NULL, mustWork = FALSE)
   # devtools::load_all()
   impl <- get("system.file", envir = parent.env(renv_envir_self()))
 
-  if (identical(package, "renv") && isTRUE(the$metadata$embedded))
-    impl("vendor", ..., package = .packageName, lib.loc = lib.loc, mustWork = mustWork)
-  else
-    impl(..., package = package, lib.loc = lib.loc, mustWork = mustWork)
+  # fall through to the regular lookup for files vendor() doesn't bundle,
+  # so that those still resolve against an installed copy of renv
+  if (identical(package, "renv") && isTRUE(renv_metadata_embedded())) {
+    path <- impl("vendor", ..., package = .packageName, lib.loc = lib.loc)
+    if (nzchar(path))
+      return(path)
+  }
+
+  impl(..., package = package, lib.loc = lib.loc, mustWork = mustWork)
 
 }
 

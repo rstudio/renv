@@ -57,7 +57,7 @@ vendor <- function(version = "main", project = getwd()) {
   )
 
   # copy the resources renv needs at runtime
-  renv_vendor_resources(project, sources)
+  resources <- renv_vendor_resources(project, sources)
 
   # create the loader
   loader <- renv_vendor_loader(project, remote, header)
@@ -77,7 +77,7 @@ vendor <- function(version = "main", project = getwd()) {
   writef(
     template,
     renv_path_pretty(embed),
-    renv_path_pretty(file.path(project, "inst/vendor")),
+    renv_path_pretty(resources),
     renv_path_pretty(loader)
   )
 
@@ -121,11 +121,15 @@ renv_vendor_resources <- function(project, sources) {
     "sysreqs/sysreqs.json"
   )
 
-  for (resource in resources) {
-    source <- file.path(sources, "inst", resource)
-    target <- file.path(project, "inst/vendor", resource)
-    ensure_parent_directory(target)
-    renv_file_copy(source, target, overwrite = TRUE)
+  # older versions of renv may predate some of these resources; a version
+  # that lacks a resource also doesn't read it, so skip those
+  sources <- file.path(sources, "inst", resources)
+  targets <- file.path(project, "inst/vendor", resources)
+  exists <- file.exists(sources)
+
+  for (i in which(exists)) {
+    ensure_parent_directory(targets[[i]])
+    renv_file_copy(sources[[i]], targets[[i]], overwrite = TRUE)
   }
 
   invisible(file.path(project, "inst/vendor"))

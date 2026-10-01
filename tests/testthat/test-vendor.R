@@ -7,6 +7,41 @@ test_that("renv itself doesn't mark itself as embedded", {
   )
 })
 
+test_that("system.file() falls through for resources vendor() doesn't bundle", {
+
+  # renv has no 'inst/vendor' directory of its own, so with 'embedded' set
+  # the vendored lookup fails and we should fall back to the regular lookup
+  metadata <- renv_metadata_create(embedded = TRUE, version = the$metadata$version)
+  renv_scope_binding(the, "metadata", metadata)
+
+  schema <- system.file(
+    "schema",
+    "draft-07.renv.lock.schema.json",
+    package  = "renv",
+    mustWork = TRUE
+  )
+
+  expect_true(file.exists(schema))
+
+})
+
+test_that("vendor() skips resources older versions of renv don't have", {
+
+  sources <- renv_scope_tempfile("renv-sources-")
+  askpass <- file.path(sources, "inst/resources/scripts-git-askpass.sh")
+  ensure_parent_directory(askpass)
+  file.create(askpass)
+
+  project <- renv_scope_tempfile("renv-project-")
+  ensure_directory(project)
+
+  resources <- renv_vendor_resources(project, sources)
+  expect_equal(resources, file.path(project, "inst/vendor"))
+  expect_true(file.exists(file.path(resources, "resources/scripts-git-askpass.sh")))
+  expect_false(file.exists(file.path(resources, "sysreqs/sysreqs.json")))
+
+})
+
 test_that("renv can be vendored into an R package", {
   skip_on_cran()
   skip_slow()
@@ -26,11 +61,20 @@ test_that("renv can be vendored into an R package", {
   # vendor the sources under test, rather than the latest sources on GitHub
   sources <- renv_tests_vendor_sources()
   if (!is.null(sources)) {
+
     renv_scope_binding(
       envir       = asNamespace("renv"),
       symbol      = "renv_vendor_sources",
       replacement = function(version) sources
     )
+
+    remote <- renv_tests_vendor_remote(sources)
+    renv_scope_binding(
+      envir       = asNamespace("renv"),
+      symbol      = "renv_remotes_resolve",
+      replacement = function(spec, ...) remote
+    )
+
   }
 
   # vendor renv
