@@ -274,6 +274,25 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     && rm -rf /var/lib/apt/lists/*
 ```
 
+[`sysreqs()`](https://rstudio.github.io/renv/dev/reference/sysreqs.md)
+reports on all of the packages recorded in the lockfile, together with
+their recursive dependencies – the same set of packages that
+[`renv::restore()`](https://rstudio.github.io/renv/dev/reference/restore.md)
+will install. This means the command above can be run anywhere
+`renv.lock` is available (for example, on a CI runner, or within the
+container itself), even before any R packages have been installed.
+
+Note that system requirements are specific to a particular version of a
+package: a newer release of a package might require system libraries
+that an older release did not.
+[`sysreqs()`](https://rstudio.github.io/renv/dev/reference/sysreqs.md)
+uses the package versions recorded in the lockfile, so you should call
+[`sysreqs()`](https://rstudio.github.io/renv/dev/reference/sysreqs.md)
+again, and update your Dockerfile if necessary, whenever the lockfile
+changes. If a required system package is still missing,
+[`renv::restore()`](https://rstudio.github.io/renv/dev/reference/restore.md)
+will report this before it attempts to install any packages.
+
 ## Multi-stage builds
 
 For production images, a multi-stage build can separate the build

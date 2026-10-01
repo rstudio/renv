@@ -300,8 +300,9 @@ the offending packages and the paths they were loaded from. Defaults to
 
 ### renv.config.pak.enabled
 
-Use the [pak](https://pak.r-lib.org/) package to install packages?
-Defaults to `FALSE`.
+Use the [pak](https://pak.r-lib.org/) package to install packages? If
+`pak` is itself recorded in the lockfile, renv will install and use that
+version of `pak` when possible. Defaults to `FALSE`.
 
 ### renv.config.ppm.enabled
 
