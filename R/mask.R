@@ -36,18 +36,17 @@ system.file <- function(..., package = "base", lib.loc = NULL, mustWork = FALSE)
   # base::system.file() directly, so that pkgload's shim is used under
   # devtools::load_all(). pkgload installs that shim before any renv code
   # runs, so it only needs to be resolved once per load
-  impl <- the$system_file <- the$system_file %||%
-    get("system.file", envir = parent.env(renv_envir_self()))
+  system.file <- the$system_file
 
   # fall through to the regular lookup for files vendor() doesn't bundle,
   # so that those still resolve against an installed copy of renv
   if (identical(package, "renv") && isTRUE(renv_metadata_embedded())) {
-    path <- impl("vendor", ..., package = .packageName, lib.loc = lib.loc)
+    path <- system.file("vendor", ..., package = .packageName, lib.loc = lib.loc)
     if (nzchar(path))
       return(path)
   }
 
-  impl(..., package = package, lib.loc = lib.loc, mustWork = mustWork)
+  system.file(..., package = package, lib.loc = lib.loc, mustWork = mustWork)
 
 }
 
