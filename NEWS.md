@@ -1,5 +1,12 @@
 # renv (development version)
 
+* When pak integration is enabled (via the `renv.config.pak.enabled` option)
+  and `pak` is itself recorded in the lockfile, renv now installs and uses the
+  recorded version of `pak`, rather than the latest version available from the
+  pak repositories. Lockfile records for versions of `pak` older than the
+  minimum version supported by renv are ignored, and renv falls back to the
+  previous behavior if the recorded version cannot be installed. (#2169)
+
 * `renv::install()` now signals an error when a requested package fails to
   install, even if an older version of that package remains installed.
   Previously, a failed upgrade, or a transactional install that was rolled
