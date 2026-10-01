@@ -32,10 +32,12 @@ unique <- function(x) {
 # directory, so prefer those when looking up renv's own files
 system.file <- function(..., package = "base", lib.loc = NULL, mustWork = FALSE) {
 
-  # find the next system.file() up the chain, rather than calling
+  # delegate to the next system.file() up the chain, rather than to
   # base::system.file() directly, so that pkgload's shim is used under
-  # devtools::load_all()
-  impl <- get("system.file", envir = parent.env(renv_envir_self()))
+  # devtools::load_all(). pkgload installs that shim before any renv code
+  # runs, so it only needs to be resolved once per load
+  impl <- the$system_file <- the$system_file %||%
+    get("system.file", envir = parent.env(renv_envir_self()))
 
   # fall through to the regular lookup for files vendor() doesn't bundle,
   # so that those still resolve against an installed copy of renv
