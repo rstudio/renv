@@ -1,5 +1,10 @@
 # renv (development version)
 
+* `renv::install()` now signals an error when a requested package fails to
+  install, even if an older version of that package remains installed.
+  Previously, a failed upgrade, or a transactional install that was rolled
+  back, could return without an error. (#2384)
+
 * `renv::restore()` now installs the versions recorded in the lockfile even
   when another package declares one of those dependencies in the `Remotes:`
   field of its DESCRIPTION. Previously, the `Remotes:` entry took precedence,

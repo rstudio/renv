@@ -292,19 +292,18 @@ install <- function(packages = NULL,
   # download and install packages in dependency-wave order
   records <- renv_graph_install(descriptions)
 
-  # if any explicitly-requested packages failed, signal an error
-  # (this preserves the old behavior where install("nonexistent") errors)
-  # but don't error for packages that are already installed —
-  # unless resolution itself failed (e.g. incompatible R version)
+  # if any requested packages failed to install, signal an error
+  # (this preserves the old behavior where install("nonexistent") errors);
+  # check only the packages that needed installing, rather than whether
+  # some version is installed, as a failed or rolled-back install leaves
+  # the old version in place (#2384). packages whose resolution failed
+  # (e.g. incompatible R version) are always checked
   requested <- names(remotes) %||% packages
-  failed <- renv_graph_install_failed(records, requested)
-  failed <- intersect(failed, names(descriptions))
-  library <- renv_libpaths_active()
-  failed <- Filter(function(pkg) {
-    if (isTRUE(attr(descriptions[[pkg]], "resolution_failed")))
-      return(TRUE)
-    !renv_package_installed(pkg, lib.loc = library)
-  }, failed)
+  expected <- Filter(function(pkg) {
+    pkg %in% needed || isTRUE(attr(descriptions[[pkg]], "resolution_failed"))
+  }, intersect(requested, names(descriptions)))
+
+  failed <- renv_graph_install_failed(records, expected)
   if (length(failed)) {
     reasons <- vapply(failed, function(pkg) {
       attr(descriptions[[pkg]], "resolution_error") %||% ""
