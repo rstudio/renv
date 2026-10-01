@@ -90,9 +90,23 @@ renv_tests_git_remotes_unpinned <- function(scope = parent.frame()) {
   breadurl <- paste0("file://", renv_path_normalize(bread))
   bagelurl <- paste0("file://", renv_path_normalize(bagel))
 
-  renv_tests_git_scope_spec("baker/bagel", list(url = bagelurl, repo = "bagel"), scope = scope)
-  renv_tests_git_scope_spec("baker/bread", list(url = breadurl, repo = "bread"), scope = scope)
-  renv_tests_git_scope_spec("baker/bread@v0.5.0", list(url = breadurl, repo = "bread", ref = "v0.5.0"), scope = scope)
+  renv_tests_git_scope_spec(
+    spec   = "baker/bagel",
+    remote = list(url = bagelurl, repo = "bagel"),
+    scope  = scope
+  )
+
+  renv_tests_git_scope_spec(
+    spec   = "baker/bread",
+    remote = list(url = breadurl, repo = "bread"),
+    scope  = scope
+  )
+
+  renv_tests_git_scope_spec(
+    spec   = "baker/bread@v0.5.0",
+    remote = list(url = breadurl, repo = "bread", ref = "v0.5.0"),
+    scope  = scope
+  )
 
   list(
     bagel = list(url = bagelurl, sha = sha),

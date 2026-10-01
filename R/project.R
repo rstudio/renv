@@ -185,9 +185,17 @@ renv_project_remotes <- function(project, filter = NULL, resolve = FALSE) {
 
   records <- if (resolve) map(records, resolve) else records
 
-  # note which packages came from the Remotes field; the graph treats
-  # these as pinned when applying the project's own version constraints
-  attr(records, "remotes") <- names(remotes)
+  # pass along the project's Remotes, including those for packages that are
+  # only indirect dependencies; the graph treats these as pinned
+  attr(records, "remotes") <- remotes[setdiff(names(remotes), ignored)]
+
+  # note which packages have an exact version requirement; the graph prefers
+  # these over a dependency's Remotes
+  exact <- map_lgl(specs, function(spec) {
+    any(spec$Require == "==" & nzchar(spec$Version))
+  })
+
+  attr(records, "exact") <- names(specs)[exact]
   records
 
 }

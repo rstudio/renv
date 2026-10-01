@@ -837,7 +837,7 @@ test_that("restore() prefers lockfile records over a dependency's Remotes", {
   remotes <- renv_tests_git_remotes_unpinned()
 
   # the lockfile pins 'bread' to 0.5.0, while 'bagel' asks for it without a
-  # ref; 'bagel' is resolved first, so its Remotes must not win
+  # ref; when 'bagel' is resolved first, its Remotes must not win
   # https://github.com/rstudio/renv/issues/2395
   bagel <- list(
     Package    = "bagel",
@@ -859,8 +859,15 @@ test_that("restore() prefers lockfile records over a dependency's Remotes", {
     RemoteSha  = remotes$bread$shas$old
   )
 
+  records <- list(bagel = bagel, bread = bread)
+
+  # resolve 'bagel' first explicitly, rather than relying on the order that
+  # restore() happens to use
+  descriptions <- renv_graph_init(c("bagel", "bread"), records = records, project = project)
+  expect_equal(descriptions$bread$RemoteSha, remotes$bread$shas$old)
+
   lockfile <- renv_lockfile_init(project = project)
-  lockfile$Packages <- list(bagel = bagel, bread = bread)
+  lockfile$Packages <- records
   renv_lockfile_write(lockfile, file = "renv.lock")
 
   restore(prompt = FALSE)

@@ -5,9 +5,18 @@
   field of its DESCRIPTION. Previously, the `Remotes:` entry took precedence,
   so restore could install (or record) the remote's latest commit instead,
   and then report that the dependency tree was repaired. Similarly,
-  `renv::install()` now prefers a dependency declared in the project's own
-  `Remotes:` field over another package's `Remotes:` entry for it. This was a
-  regression in renv 1.2.0. (#2395)
+  `renv::install()` now prefers the project's own `Remotes:` entries, and
+  exact version requirements such as `bread (== 1.0.0)`, over another
+  package's `Remotes:` entry for the same package. This was a regression in
+  renv 1.2.0. The project's `Remotes:` entries now also apply to packages
+  that are only indirect dependencies. (#2395)
+
+* When another package's `Remotes:` entry supplies a dependency,
+  `renv::install()` and `renv::restore()` now install that dependency from
+  the remote. Previously, a dependency from a git remote could be installed
+  from the package repositories (or the lockfile) instead, while being
+  recorded as coming from the remote. This was a regression in renv 1.2.0.
+  (#2395)
 
 # renv 1.3.0
 

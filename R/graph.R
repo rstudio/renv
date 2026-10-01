@@ -23,21 +23,36 @@ renv_graph_init <- function(remotes, records = list(), project = NULL, scope = p
   # pre-seed with project-level Remotes; these act as fallback records
   # so that packages specified via the project DESCRIPTION Remotes field
   # are resolved from the correct source (e.g. GitHub) even when the
-  # caller doesn't explicitly include them in 'records'
-  pinned <- character()
+  # caller doesn't explicitly include them in 'records'. this includes
+  # Remotes for packages that are only indirect dependencies
+  pinned <- exact <- character()
   if (!is.null(project) && config$install.remotes()) {
     projrecords <- renv_project_remotes(project)
-    pinned <- attr(projrecords, "remotes") %||% character()
+    projremotes <- attr(projrecords, "remotes")
+    pinned <- names(projremotes) %||% character()
+    exact <- attr(projrecords, "exact") %||% character()
+    indirect <- setdiff(names(projremotes), names(projrecords))
+    projrecords <- c(projrecords, projremotes[indirect])
     for (name in names(projrecords))
       if (is.null(records[[name]]))
         records[[name]] <- projrecords[[name]]
   }
 
+  # a dependency's Remotes shouldn't replace a pinned package, nor one with
+  # an exact version requirement in the project
+  fixed <- union(pinned, exact)
+
   # phase 1: resolve top-level remotes with extended dependency fields;
   # BFS ensures explicit user requests take priority over implicit lookups
   queue <- list()
   for (remote in remotes) {
-    deps <- renv_graph_resolve(remote, envir, records = records, fields = fields, pinned = pinned)
+    deps <- renv_graph_resolve(
+      remote  = remote,
+      envir   = envir,
+      records = records,
+      fields  = fields,
+      pinned  = fixed
+    )
     queue <- c(queue, as.list(deps))
   }
 
@@ -59,7 +74,7 @@ renv_graph_init <- function(remotes, records = list(), project = NULL, scope = p
   while (idx <= length(queue)) {
     remote <- queue[[idx]]
     idx <- idx + 1L
-    deps <- renv_graph_resolve(remote, envir, records = records, pinned = pinned)
+    deps <- renv_graph_resolve(remote, envir, records = records, pinned = fixed)
     queue <- c(queue, as.list(deps))
   }
 
@@ -131,7 +146,8 @@ renv_graph_resolve <- function(remote,
     return(character())
 
   # a package's Remotes shouldn't replace a record pinned by the caller, e.g.
-  # a lockfile record during restore() or a project-level Remotes entry
+  # a lockfile record during restore(), a project-level Remotes entry, or an
+  # exact version requirement in the project
   # https://github.com/rstudio/renv/issues/2395
   if (override && renv_graph_pinned_record(package, records, pinned))
     return(character())
@@ -206,6 +222,11 @@ renv_graph_resolve <- function(remote,
     }
   }
 
+  # remember the record this package was resolved from, so that it can be
+  # retrieved from the same record; the caller's record can differ, e.g. when
+  # a dependency's Remotes replaced it or the project's Remotes supplied it
+  attr(desc, "record") <- record
+
   # store the resolved description
   assign(package, desc, envir = envir)
 
@@ -221,7 +242,13 @@ renv_graph_resolve <- function(remote,
     remotes <- paste(exclude(desc[["Remotes"]], NA), collapse = ", ")
     specs <- strsplit(remotes, "\\s*,\\s*")[[1L]]
     for (spec in specs) {
-      rdeps <- catch(renv_graph_resolve(spec, envir, records = records, override = TRUE, pinned = pinned))
+      rdeps <- catch(renv_graph_resolve(
+        remote   = spec,
+        envir    = envir,
+        records  = records,
+        override = TRUE,
+        pinned   = pinned
+      ))
       if (!inherits(rdeps, "error"))
         deps <- c(deps, rdeps)
     }
@@ -727,7 +754,7 @@ renv_graph_pinned <- function(package, records, desc, pinned = character()) {
 # did the caller pin this package to a particular record?
 renv_graph_pinned_record <- function(package, records, pinned = character()) {
 
-  # packages declared in the project's Remotes field
+  # packages the project pins, e.g. via its Remotes field
   if (package %in% pinned)
     return(TRUE)
 
@@ -1529,6 +1556,15 @@ renv_graph_install <- function(descriptions) {
     # https://github.com/rstudio/renv/issues/2340
     downloaderrors <- list()
     for (pkg in fallbacks) {
+
+      # retrieve the record the graph resolved, rather than the caller's;
+      # otherwise, the package could be retrieved from one source but
+      # recorded as coming from another
+      resolved <- attr(descriptions[[pkg]], "record", exact = TRUE)
+      if (!is.null(resolved)) {
+        restore <- renv_restore_state()
+        restore$records[[pkg]] <- resolved
+      }
 
       status <- catch({
         renv_scope_options(renv.download.headers = NULL)

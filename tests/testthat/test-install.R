@@ -937,6 +937,60 @@ test_that("the project's Remotes take precedence over a dependency's Remotes", {
 
 })
 
+test_that("the project's Remotes apply to indirect dependencies", {
+
+  skip_on_cran()
+  skip_if(!nzchar(Sys.which("git")), "git is not installed")
+
+  # use a separate cache, since the git version of 'bread' installed here would
+  # otherwise shadow the one from the test repositories in later tests
+  renv_tests_scope(isolated = TRUE)
+  init()
+
+  remotes <- renv_tests_git_remotes_unpinned()
+
+  # the project only uses 'bread' through 'bagel', but still pins it
+  desc <- c(
+    "Type: Project",
+    "Imports: bagel",
+    "Remotes: baker/bread@v0.5.0"
+  )
+
+  writeLines(desc, con = "DESCRIPTION")
+  install("baker/bagel")
+
+  desc <- renv_description_read(package = "bread")
+  expect_equal(desc$Version, "0.5.0")
+  expect_equal(desc$RemoteSha, remotes$bread$shas$old)
+
+})
+
+test_that("the project's exact version requirements take precedence over a dependency's Remotes", {
+
+  skip_on_cran()
+  skip_if(!nzchar(Sys.which("git")), "git is not installed")
+
+  # use a separate cache, since the git version of 'bread' installed here would
+  # otherwise shadow the one from the test repositories in later tests
+  renv_tests_scope(isolated = TRUE)
+  init()
+
+  renv_tests_git_remotes_unpinned()
+
+  desc <- c(
+    "Type: Project",
+    "Imports: bagel, bread (== 0.1.0)"
+  )
+
+  writeLines(desc, con = "DESCRIPTION")
+  install("baker/bagel")
+
+  desc <- renv_description_read(package = "bread")
+  expect_equal(desc$Version, "0.1.0")
+  expect_null(desc$RemoteUrl)
+
+})
+
 test_that("a dependency's Remotes apply to project dependencies without a Remotes entry", {
 
   skip_on_cran()
@@ -959,8 +1013,11 @@ test_that("a dependency's Remotes apply to project dependencies without a Remote
   writeLines(desc, con = "DESCRIPTION")
   install("baker/bagel")
 
+  # the package itself must come from git too, not just its metadata; the
+  # package from the repositories declares its repository
   desc <- renv_description_read(package = "bread")
   expect_equal(desc$RemoteSha, remotes$bread$shas$new)
+  expect_null(desc$Repository)
 
 })
 
