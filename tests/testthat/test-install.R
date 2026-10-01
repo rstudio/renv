@@ -965,6 +965,43 @@ test_that("the project's Remotes apply to indirect dependencies", {
 
 })
 
+test_that("fallback retrieval respects indirect pins when retrieving a dependent first", {
+
+  skip_on_cran()
+  skip_if(!nzchar(Sys.which("git")), "git is not installed")
+
+  renv_tests_scope(isolated = TRUE)
+  init()
+
+  remotes <- renv_tests_git_remotes_unpinned()
+
+  # retrieve 'bagel' before 'bread', rather than relying on the order of
+  # descriptions in the graph's environment. legacy retrieval recurses into
+  # 'bread', so its pinned record must already be available at that point
+  graph_install <- get("renv_graph_install", envir = asNamespace("renv"))
+  renv_scope_binding(
+    envir = asNamespace("renv"),
+    symbol = "renv_graph_install",
+    replacement = function(descriptions) {
+      graph_install(descriptions[c("bagel", "bread")])
+    }
+  )
+
+  desc <- c(
+    "Type: Project",
+    "Imports: bagel",
+    "Remotes: baker/bread@v0.5.0"
+  )
+
+  writeLines(desc, con = "DESCRIPTION")
+  install("baker/bagel")
+
+  desc <- renv_description_read(package = "bread")
+  expect_equal(desc$Version, "0.5.0")
+  expect_equal(desc$RemoteSha, remotes$bread$shas$old)
+
+})
+
 test_that("the project's exact version requirements take precedence over a dependency's Remotes", {
 
   skip_on_cran()

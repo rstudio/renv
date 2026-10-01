@@ -1551,20 +1551,21 @@ renv_graph_install <- function(descriptions) {
 
     }
 
+    # seed every resolved record before retrieving any fallbacks: legacy
+    # retrieval can recurse into dependencies before their turn in the loop,
+    # and their packages must come from the same records as their metadata
+    restore <- renv_restore_state()
+    for (pkg in packages) {
+      resolved <- attr(descriptions[[pkg]], "record", exact = TRUE)
+      if (!is.null(resolved))
+        restore$records[[pkg]] <- resolved
+    }
+
     # sequential fallback for unsupported sources or failed parallel downloads;
     # remember why each retrieval failed, so the reason can be reported
     # https://github.com/rstudio/renv/issues/2340
     downloaderrors <- list()
     for (pkg in fallbacks) {
-
-      # retrieve the record the graph resolved, rather than the caller's;
-      # otherwise, the package could be retrieved from one source but
-      # recorded as coming from another
-      resolved <- attr(descriptions[[pkg]], "record", exact = TRUE)
-      if (!is.null(resolved)) {
-        restore <- renv_restore_state()
-        restore$records[[pkg]] <- resolved
-      }
 
       status <- catch({
         renv_scope_options(renv.download.headers = NULL)
