@@ -199,10 +199,17 @@ renv_retrieve_impl_one <- function(package) {
   # of requested package versions thus far, request the
   # latest version on the R package repositories
   #
+  # when the caller resolved the dependency graph itself (recursive = FALSE),
+  # its records already account for version requirements, and the ones
+  # collected here cover only the packages retrieved so far; keep the record
+  #
   # TODO: handle more explicit dependency requirements
   # TODO: report to the user if they have explicitly requested
   # installation of this package version despite it being incompatible
-  compat <- renv_retrieve_incompatible(package, record)
+  compat <- NULL
+  if (state$recursive)
+    compat <- renv_retrieve_incompatible(package, record)
+
   if (NROW(compat)) {
 
     # get the latest available package version
@@ -1502,9 +1509,10 @@ renv_retrieve_successful <- function(record, path, install = TRUE) {
     requirements[[package]]$push(dep)
   })
 
-  # read and handle remotes declared by this package
+  # read and handle remotes declared by this package; when the caller resolved
+  # the dependency graph itself, its records already reflect these
   remotes <- desc$Remotes
-  if (length(remotes) && config$install.remotes())
+  if (state$recursive && length(remotes) && config$install.remotes())
     renv_retrieve_remotes(remotes)
 
   # split into strong + weak dependencies

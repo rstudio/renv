@@ -23,21 +23,36 @@ renv_graph_init <- function(remotes, records = list(), project = NULL, scope = p
   # pre-seed with project-level Remotes; these act as fallback records
   # so that packages specified via the project DESCRIPTION Remotes field
   # are resolved from the correct source (e.g. GitHub) even when the
-  # caller doesn't explicitly include them in 'records'
-  pinned <- character()
+  # caller doesn't explicitly include them in 'records'. this includes
+  # Remotes for packages that are only indirect dependencies
+  pinned <- exact <- character()
   if (!is.null(project) && config$install.remotes()) {
     projrecords <- renv_project_remotes(project)
-    pinned <- attr(projrecords, "remotes") %||% character()
+    projremotes <- attr(projrecords, "remotes")
+    pinned <- names(projremotes) %||% character()
+    exact <- attr(projrecords, "exact") %||% character()
+    indirect <- setdiff(names(projremotes), names(projrecords))
+    projrecords <- c(projrecords, projremotes[indirect])
     for (name in names(projrecords))
       if (is.null(records[[name]]))
         records[[name]] <- projrecords[[name]]
   }
 
+  # a dependency's Remotes shouldn't replace a pinned package, nor one with
+  # an exact version requirement in the project
+  fixed <- union(pinned, exact)
+
   # phase 1: resolve top-level remotes with extended dependency fields;
   # BFS ensures explicit user requests take priority over implicit lookups
   queue <- list()
   for (remote in remotes) {
-    deps <- renv_graph_resolve(remote, envir, records = records, fields = fields)
+    deps <- renv_graph_resolve(
+      remote  = remote,
+      envir   = envir,
+      records = records,
+      fields  = fields,
+      pinned  = fixed
+    )
     queue <- c(queue, as.list(deps))
   }
 
@@ -59,7 +74,7 @@ renv_graph_init <- function(remotes, records = list(), project = NULL, scope = p
   while (idx <= length(queue)) {
     remote <- queue[[idx]]
     idx <- idx + 1L
-    deps <- renv_graph_resolve(remote, envir, records = records)
+    deps <- renv_graph_resolve(remote, envir, records = records, pinned = fixed)
     queue <- c(queue, as.list(deps))
   }
 
@@ -91,11 +106,21 @@ renv_graph_init <- function(remotes, records = list(), project = NULL, scope = p
     if (renv_graph_compatible(version, reqs))
       next
 
+    # only a repository package can be upgraded by swapping in the latest
+    # repository version; for other sources, the unsatisfied requirement is
+    # reported below instead
+    source <- renv_record_source(desc, normalize = TRUE)
+    if (!source %in% c("repository", "bioconductor"))
+      next
+
     latest <- catch(renv_available_packages_latest(package))
     if (inherits(latest, "error"))
       next
 
+    # the package now comes from the repositories at the latest version, so a
+    # fallback retrieval must use that record rather than the caller's
     desc$Version <- latest$Version
+    attr(desc, "record") <- latest
     descriptions[[package]] <- desc
     assign(package, desc, envir = envir)
 
@@ -108,7 +133,23 @@ renv_graph_init <- function(remotes, records = list(), project = NULL, scope = p
 
 }
 
-renv_graph_resolve <- function(remote, envir, records = NULL, fields = NULL, override = FALSE) {
+renv_graph_resolve <- function(remote,
+                               envir,
+                               records = NULL,
+                               fields = NULL,
+                               override = FALSE,
+                               pinned = character())
+{
+  # a package's Remotes shouldn't replace a record pinned by the caller, e.g.
+  # a lockfile record during restore(), a project-level Remotes entry, or an
+  # exact version requirement in the project. check the spec before resolving
+  # it, since resolution can mean an API call or a clone
+  # https://github.com/rstudio/renv/issues/2395
+  if (override) {
+    package <- renv_graph_remote_package(remote, records)
+    if (!is.null(package) && renv_graph_pinned_record(package, records, pinned))
+      return(character())
+  }
 
   # resolve the record; use pre-resolved record if available
   record <- if (is.character(remote) && !is.null(records[[remote]]))
@@ -123,6 +164,11 @@ renv_graph_resolve <- function(remote, envir, records = NULL, fields = NULL, ove
   # skip base packages (utils, methods, etc.) -- they can't be installed
   package <- record$Package
   if (package %in% renv_packages_base())
+    return(character())
+
+  # the spec might not name the package (e.g. a repository named differently
+  # from the package it contains), so check the resolved record as well
+  if (override && renv_graph_pinned_record(package, records, pinned))
     return(character())
 
   # skip packages built for a different operating system, e.g. a Windows-only
@@ -195,6 +241,11 @@ renv_graph_resolve <- function(remote, envir, records = NULL, fields = NULL, ove
     }
   }
 
+  # remember the record this package was resolved from, so that it can be
+  # retrieved from the same record; the caller's record can differ, e.g. when
+  # a dependency's Remotes replaced it or the project's Remotes supplied it
+  attr(desc, "record") <- record
+
   # store the resolved description
   assign(package, desc, envir = envir)
 
@@ -210,7 +261,13 @@ renv_graph_resolve <- function(remote, envir, records = NULL, fields = NULL, ove
     remotes <- paste(exclude(desc[["Remotes"]], NA), collapse = ", ")
     specs <- strsplit(remotes, "\\s*,\\s*")[[1L]]
     for (spec in specs) {
-      rdeps <- catch(renv_graph_resolve(spec, envir, records = records, override = TRUE))
+      rdeps <- catch(renv_graph_resolve(
+        remote   = spec,
+        envir    = envir,
+        records  = records,
+        override = TRUE,
+        pinned   = pinned
+      ))
       if (!inherits(rdeps, "error"))
         deps <- c(deps, rdeps)
     }
@@ -703,13 +760,7 @@ renv_graph_requirements <- function(descriptions, project = NULL) {
 # on demand, and so don't count as pins by themselves
 renv_graph_pinned <- function(package, records, desc, pinned = character()) {
 
-  # packages declared in the project's Remotes field
-  if (package %in% pinned)
-    return(TRUE)
-
-  # explicit records from the caller, e.g. lockfile records or 'pkg@version'
-  record <- records[[package]]
-  if (!is.null(record) && !is.function(record) && !is.null(record$Version))
+  if (renv_graph_pinned_record(package, records, pinned))
     return(TRUE)
 
   # packages from a non-repository source (e.g. a Remotes entry) can't be
@@ -717,6 +768,58 @@ renv_graph_pinned <- function(package, records, desc, pinned = character()) {
   source <- renv_record_source(desc, normalize = TRUE)
   !source %in% c("repository", "bioconductor")
 
+}
+
+# did the caller pin this package to a particular record?
+renv_graph_pinned_record <- function(package, records, pinned = character()) {
+
+  # packages the project pins, e.g. via its Remotes field
+  if (package %in% pinned)
+    return(TRUE)
+
+  # explicit records from the caller, e.g. lockfile records or 'pkg@version'
+  record <- records[[package]]
+  !is.null(record) && !is.function(record) && !is.null(record$Version)
+
+}
+
+# the package a remote spec refers to, when that can be told without resolving
+# the spec: a 'pkg=' prefix or a repository spec names the package directly.
+# a git repository (or the sub-directory within it) is normally named after
+# the package it contains, but not always, so that guess is only trusted when
+# the caller's record for the guessed package comes from a repository of the
+# same name. NULL when it can't be told
+renv_graph_remote_package <- function(remote, records = NULL) {
+
+  if (!is.character(remote))
+    return(NULL)
+
+  parsed <- catch(renv_remotes_parse(remote))
+  if (inherits(parsed, "error"))
+    return(NULL)
+
+  if (!is.null(parsed$package))
+    return(parsed$package)
+
+  path <- parsed$subdir %||% parsed$repo
+  if (is.null(path))
+    return(NULL)
+
+  guess <- renv_graph_repository_name(path)
+  record <- records[[guess]]
+  if (is.null(record) || is.function(record))
+    return(NULL)
+
+  repo <- record$RemoteSubdir %||% record$RemoteRepo %||% record$RemoteUrl
+  if (!is.null(repo) && identical(renv_graph_repository_name(repo), guess))
+    guess
+
+}
+
+# the name of a git repository (or of a sub-directory within it) given its
+# path or URL, e.g. 'bread' for 'git@gitlab.com:baker/bread.git'
+renv_graph_repository_name <- function(path) {
+  sub("\\.git$", "", basename(path))
 }
 
 # the requirements that actually constrain a package: project-level
@@ -1504,6 +1607,15 @@ renv_graph_install <- function(descriptions) {
           fallbacks <- c(fallbacks, pkg)
       }
 
+    }
+
+    # make legacy retrieval use the records chosen by the graph, so each
+    # package comes from the same source as its metadata
+    restore <- renv_restore_state()
+    for (pkg in packages) {
+      resolved <- attr(descriptions[[pkg]], "record", exact = TRUE)
+      if (!is.null(resolved))
+        restore$records[[pkg]] <- resolved
     }
 
     # sequential fallback for unsupported sources or failed parallel downloads;

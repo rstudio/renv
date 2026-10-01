@@ -35,11 +35,11 @@
 #' This can be useful in projects where you'd like to associate different
 #' lockfiles with different documents, as in a blog where you want each
 #' post to capture the dependencies at the time of writing. Once you've
-#' finished writing each, the post, you can use
+#' finished writing each post, you can use
 #' `renv::snapshot(lockfile = "/path/to/renv.lock")`
-#' to "save" the state that was active while authoring that bost, and then use
+#' to "save" the state that was active while authoring that post, and then use
 #' `renv::use(lockfile = "/path/to/renv.lock")` in that document to ensure the
-#' blog post always uses those dependencies onfuture renders.
+#' blog post always uses those dependencies on future renders.
 #'
 #' `renv::use()` is inspired in part by the [groundhog](https://groundhogr.com/)
 #' package, which also allows one to specify a script's \R package requirements
