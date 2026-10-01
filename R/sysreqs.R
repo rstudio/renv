@@ -28,16 +28,76 @@ the$sysreqs <- NULL
 #' whose installation would satisfy the `libcurl` dependency.
 #'
 #'
+#' # Package versions
+#'
+#' System requirements belong to a specific *version* of a package, not to
+#' the package in general. Each version of a package declares its own
+#' `SystemRequirements`, and its own \R package dependencies, and both can
+#' change from one release to the next. For example, `ragg 1.3.0` declares:
+#'
+#' - freetype2, libpng, libtiff, libjpeg
+#'
+#' whereas `ragg 1.5.2` declares:
+#'
+#' - freetype2, libpng, libtiff, libjpeg, libwebp, libwebpmux
+#'
+#' This means that the system packages reported by `sysreqs()` are only
+#' accurate for the package versions that were used to compute them. The same
+#' call can give different results in different projects, or in the same
+#' project after its packages have been updated.
+#'
+#' For each package, including those found as recursive dependencies,
+#' `sysreqs()` uses the first of the following versions which is available:
+#'
+#' 1. The version recorded in the project lockfile,
+#' 2. The version installed in the active library paths,
+#' 3. The latest version available from the active package repositories.
+#'
+#' These correspond to the `"lockfile"`, `"library"`, and `"crandb"` sources;
+#' see the `source` argument for more details. Each package is resolved
+#' independently, so the versions used need not come from the same source.
+#'
+#' If you are using `sysreqs()` to prepare a system for [renv::restore()], make
+#' sure the lockfile is up-to-date, so that `sysreqs()` reports on the same
+#' package versions that `restore()` will later install.
+#'
+#'
 #' @inheritParams renv-params
 #'
 #' @param packages A vector of \R package names. When `NULL`
-#'   (the default), the project's package dependencies as reported via
-#'   [renv::dependencies()] are used.
+#'   (the default), the packages recorded in the project lockfile are used,
+#'   together with the project's package dependencies as reported via
+#'   [renv::dependencies()].
 #'
-#' @param local Boolean; should `renv` rely on locally-installed copies of
-#'   packages when resolving system requirements? When `FALSE`, `renv` will
-#'   use <https://crandb.r-pkg.org> to resolve the system requirements
-#'   for these packages.
+#' @param source The sources to consult when resolving package records for
+#'   system requirement lookup. For each package, the sources are tried in
+#'   order, and the first source able to provide a record for that package
+#'   is used:
+#'
+#'   - `"lockfile"`: use the record in the project lockfile,
+#'   - `"library"`: use the `DESCRIPTION` of the installed package,
+#'   - `"crandb"`: query <https://crandb.r-pkg.org> for the package.
+#'
+#'   The default consults all three, in the order listed above. Note that
+#'   lockfiles produced by older versions of `renv` may not include the
+#'   `SystemRequirements` field in their records; such records are used only
+#'   to infer the package version. When the package version is known, an
+#'   installed copy of the package is only used if its version matches, and
+#'   crandb is queried for that specific version. Otherwise, crandb is queried
+#'   for the latest version available from the active package repositories,
+#'   or the latest CRAN release if the repositories do not provide the
+#'   package.
+#'
+#' @param recursive Boolean; should the system requirements of the recursive
+#'   dependencies of `packages` be included as well? Only the dependencies
+#'   required to install a package (`Depends`, `Imports`, and `LinkingTo`) are
+#'   considered. Note that the dependencies of a package are determined from
+#'   the version of that package being used; see **Package versions** for
+#'   more details.
+#'
+#' @param local Boolean; superseded by `source`. `local = TRUE` is
+#'   equivalent to `source = "library"`; that is, only locally-installed
+#'   copies of packages are used when resolving system requirements.
 #'
 #' @param check Boolean; should `renv` also check whether the requires system
 #'   packages appear to be installed on the current system? Ignored when
@@ -64,19 +124,25 @@ the$sysreqs <- NULL
 #' sysreqs()
 #'
 #' # report the required system packages for a specific OS
-#' sysreqs(platform = "ubuntu")
+#' sysreqs(distro = "ubuntu:24.04")
+#'
+#' # report the system packages required by a package, using
+#' # the latest version available from the package repositories
+#' sysreqs("ragg", source = "crandb", distro = "ubuntu:24.04")
 #'
 #' }
 #'
 #' @export
 sysreqs <- function(packages = NULL,
                     ...,
-                    local    = FALSE,
-                    check    = NULL,
-                    report   = TRUE,
-                    distro   = NULL,
-                    collapse = FALSE,
-                    project  = NULL)
+                    source    = NULL,
+                    recursive = TRUE,
+                    local     = FALSE,
+                    check     = NULL,
+                    report    = TRUE,
+                    distro    = NULL,
+                    collapse  = FALSE,
+                    project   = NULL)
 {
   # allow user to provide additional package names as part of '...'
   if (!missing(...)) {
@@ -85,17 +151,40 @@ sysreqs <- function(packages = NULL,
     packages <- c(packages, dots[!nzchar(names(dots))])
   }
 
+  project <- renv_project_resolve(project)
+
+  # resolve sources -- 'local' is a legacy alias for 'source = "library"'
+  source <- source %||% (if (local) "library" else c("lockfile", "library", "crandb"))
+  source <- unique(match.arg(source, c("lockfile", "library", "crandb"), several.ok = TRUE))
+
+  # read records from the project lockfile, if any
+  lockfile <- NULL
+  if ("lockfile" %in% source) {
+
+    path <- renv_lockfile_path(project)
+    if (file.exists(path))
+      lockfile <- renv_lockfile_records(renv_lockfile_read(path))
+    else if (identical(source, "lockfile"))
+      abort(c(
+        "This project does not contain a lockfile.",
+        i = "Have you called `snapshot()` yet?"
+      ))
+
+  }
+
   # resolve packages
   packages <- packages %||% {
-    project <- renv_project_resolve(project)
-    deps <- dependencies(project, dev = TRUE)
-    sort(unique(deps$Package))
+    if (local) {
+      snapshot <- renv_lockfile_create(project, dev = TRUE)
+      names(renv_lockfile_records(snapshot))
+    } else {
+      deps <- dependencies(project, dev = TRUE)
+      sort(unique(c(deps$Package, names(lockfile))))
+    }
   }
 
   # remove 'base' packages
-  base <- installed_packages(priority = "base")
-  packages <- setdiff(packages, base$Package)
-  names(packages) <- packages
+  packages <- setdiff(packages, renv_packages_base())
 
   # resolve check
   check <- check %||% is.null(distro)
@@ -112,13 +201,7 @@ sysreqs <- function(packages = NULL,
   }
 
   # compute package records
-  if (local) {
-    lockfile <- renv_lockfile_create(project, dev = TRUE)
-    records <- renv_lockfile_records(lockfile)
-  } else {
-    callback <- renv_progress_callback(renv_sysreqs_crandb, length(packages))
-    records <- map(packages, callback)
-  }
+  records <- renv_sysreqs_records(packages, source, lockfile, recursive)
 
   # extract and resolve the system requirements
   sysreqs <- map(records, `[[`, "SystemRequirements")
@@ -146,7 +229,7 @@ renv_sysreqs_report <- function(sysdeps, distro, collapse) {
     return()
 
   # include pre-install commands as well, if any
-  preinstall <- unlist(map(sysdeps, `[[`, "pre_install"))
+  preinstall <- unique(unlist(map(sysdeps, `[[`, "pre_install")))
   if (length(preinstall)) {
     if (interactive()) {
       preamble <- "System pre-requisites can be installed with:"
@@ -170,26 +253,142 @@ renv_sysreqs_report <- function(sysdeps, distro, collapse) {
 
 }
 
-renv_sysreqs_crandb <- function(package) {
+renv_sysreqs_records <- function(packages, sources, lockfile, recursive) {
+
+  records <- list()
+  queue <- as.character(packages)
+  tick <- renv_progress_create(length(queue))
+
+  while (length(queue)) {
+
+    package <- queue[[1L]]
+    queue <- queue[-1L]
+    tick(length(records) + length(queue) + 1L)
+
+    # keep an entry even for packages which could not be resolved
+    record <- renv_sysreqs_lookup(package, sources, lockfile)
+    records[package] <- list(record)
+
+    # dependencies are taken from the record just resolved, since they
+    # can differ between versions of a package
+    if (recursive) {
+      deps <- renv_graph_deps(record)
+      queue <- union(queue, setdiff(deps, names(records)))
+    }
+
+  }
+
+  records
+
+}
+
+renv_sysreqs_lookup <- function(package, sources, lockfile) {
+
+  version <- NULL
+  fallback <- NULL
+
+  for (source in sources) {
+
+    if (source == "lockfile") {
+
+      record <- lockfile[[package]]
+      if (is.null(record))
+        next
+
+      # older lockfiles don't preserve SystemRequirements in their records,
+      # so use those records only as a version hint for the other sources
+      if (renv_sysreqs_record_authoritative(record))
+        return(record)
+
+      version <- version %||% record[["Version"]]
+
+    } else if (source == "library") {
+
+      record <- catch(renv_snapshot_description(package = package))
+      if (inherits(record, "error"))
+        next
+
+      # when the package version is known, only use the installed copy if the
+      # versions match; keep mismatched copies as a last-resort fallback
+      if (is.null(version) || identical(record[["Version"]], version))
+        return(record)
+
+      fallback <- fallback %||% record
+
+    } else if (source == "crandb") {
+
+      # without a known version, use what the repositories would provide
+      version <- version %||% renv_sysreqs_version(package)
+      record <- renv_sysreqs_crandb(package, version)
+      if (!is.null(record))
+        return(record)
+
+    }
+
+  }
+
+  fallback
+
+}
+
+renv_sysreqs_record_authoritative <- function(record) {
+
+  # records with an explicit SystemRequirements field are always authoritative
+  if (!is.null(record[["SystemRequirements"]]))
+    return(TRUE)
+
+  # v2 lockfile records preserve all DESCRIPTION fields, so the absence of
+  # SystemRequirements implies the package doesn't declare any; detect such
+  # records via the presence of fields the v1 format doesn't preserve
+  v1fields <- c("Package", "Version", "Source", "Repository", "OS_type", "Requirements", "Hash")
+  extra <- setdiff(names(record), v1fields)
+  extra <- grep("^(?:Remote|git)", extra, perl = TRUE, invert = TRUE, value = TRUE)
+
+  length(extra) > 0L
+
+}
+
+renv_sysreqs_version <- function(package) {
+
+  # Linux installs packages as type 'source', so ignore binary repositories
+  entry <- catch(renv_available_packages_latest_repos(package, type = "source"))
+  if (inherits(entry, "error"))
+    return(NULL)
+
+  entry[["Version"]]
+
+}
+
+renv_sysreqs_crandb <- function(package, version = NULL) {
   tryCatch(
-    renv_sysreqs_crandb_impl(package),
+    renv_sysreqs_crandb_impl(package, version),
     error = warnify
   )
 }
 
-renv_sysreqs_crandb_impl <- function(package) {
+renv_sysreqs_crandb_impl <- function(package, version) {
   memoize(
-    key   = package,
-    value = renv_sysreqs_crandb_impl_one(package),
+    key   = paste(package, version %||% "latest"),
+    value = renv_sysreqs_crandb_impl_one(package, version),
     scope = "sysreqs"
   )
 }
 
-renv_sysreqs_crandb_impl_one <- function(package) {
-  url <- paste("https://crandb.r-pkg.org", package, sep = "/")
+renv_sysreqs_crandb_impl_one <- function(package, version) {
+  url <- paste(c("https://crandb.r-pkg.org", package, version), collapse = "/")
   destfile <- tempfile("renv-crandb-", fileext = ".json")
   download(url, destfile = destfile, quiet = TRUE)
-  renv_json_read(destfile)
+  record <- renv_json_read(destfile)
+
+  # crandb provides dependencies as objects mapping packages to constraints
+  for (field in c("Depends", "Imports", "LinkingTo")) {
+    value <- record[[field]]
+    if (!is.null(value))
+      record[[field]] <- renv_graph_description_crandb_convert(value)
+  }
+
+  record
+
 }
 
 renv_sysreqs_resolve <- function(sysreqs, rules = renv_sysreqs_rules()) {

@@ -7,6 +7,8 @@
 sysreqs(
   packages = NULL,
   ...,
+  source = NULL,
+  recursive = TRUE,
   local = FALSE,
   check = NULL,
   report = TRUE,
@@ -17,16 +19,43 @@ sysreqs(
 }
 \arguments{
 \item{packages}{A vector of \R package names. When \code{NULL}
-(the default), the project's package dependencies as reported via
-\code{\link[=dependencies]{dependencies()}} are used.}
+(the default), the packages recorded in the project lockfile are used,
+together with the project's package dependencies as reported via
+\code{\link[=dependencies]{dependencies()}}.}
 
 \item{...}{Unused arguments, reserved for future expansion. If any arguments
 are matched to \code{...}, renv will signal an error.}
 
-\item{local}{Boolean; should \code{renv} rely on locally-installed copies of
-packages when resolving system requirements? When \code{FALSE}, \code{renv} will
-use \url{https://crandb.r-pkg.org} to resolve the system requirements
-for these packages.}
+\item{source}{The sources to consult when resolving package records for
+system requirement lookup. For each package, the sources are tried in
+order, and the first source able to provide a record for that package
+is used:
+\itemize{
+\item \code{"lockfile"}: use the record in the project lockfile,
+\item \code{"library"}: use the \code{DESCRIPTION} of the installed package,
+\item \code{"crandb"}: query \url{https://crandb.r-pkg.org} for the package.
+}
+
+The default consults all three, in the order listed above. Note that
+lockfiles produced by older versions of \code{renv} may not include the
+\code{SystemRequirements} field in their records; such records are used only
+to infer the package version. When the package version is known, an
+installed copy of the package is only used if its version matches, and
+crandb is queried for that specific version. Otherwise, crandb is queried
+for the latest version available from the active package repositories,
+or the latest CRAN release if the repositories do not provide the
+package.}
+
+\item{recursive}{Boolean; should the system requirements of the recursive
+dependencies of \code{packages} be included as well? Only the dependencies
+required to install a package (\code{Depends}, \code{Imports}, and \code{LinkingTo}) are
+considered. Note that the dependencies of a package are determined from
+the version of that package being used; see \strong{Package versions} for
+more details.}
+
+\item{local}{Boolean; superseded by \code{source}. \code{local = TRUE} is
+equivalent to \code{source = "library"}; that is, only locally-installed
+copies of packages are used when resolving system requirements.}
 
 \item{check}{Boolean; should \code{renv} also check whether the requires system
 packages appear to be installed on the current system? Ignored when
@@ -77,6 +106,42 @@ on different systems:
 and so \code{sysreqs("curl")} would help provide the name of the package
 whose installation would satisfy the \code{libcurl} dependency.
 }
+\section{Package versions}{
+System requirements belong to a specific \emph{version} of a package, not to
+the package in general. Each version of a package declares its own
+\code{SystemRequirements}, and its own \R package dependencies, and both can
+change from one release to the next. For example, \verb{ragg 1.3.0} declares:
+\itemize{
+\item freetype2, libpng, libtiff, libjpeg
+}
+
+whereas \verb{ragg 1.5.2} declares:
+\itemize{
+\item freetype2, libpng, libtiff, libjpeg, libwebp, libwebpmux
+}
+
+This means that the system packages reported by \code{sysreqs()} are only
+accurate for the package versions that were used to compute them. The same
+call can give different results in different projects, or in the same
+project after its packages have been updated.
+
+For each package, including those found as recursive dependencies,
+\code{sysreqs()} uses the first of the following versions which is available:
+\enumerate{
+\item The version recorded in the project lockfile,
+\item The version installed in the active library paths,
+\item The latest version available from the active package repositories.
+}
+
+These correspond to the \code{"lockfile"}, \code{"library"}, and \code{"crandb"} sources;
+see the \code{source} argument for more details. Each package is resolved
+independently, so the versions used need not come from the same source.
+
+If you are using \code{sysreqs()} to prepare a system for \code{\link[=restore]{restore()}}, make
+sure the lockfile is up-to-date, so that \code{sysreqs()} reports on the same
+package versions that \code{restore()} will later install.
+}
+
 \examples{
 
 \dontrun{
@@ -85,7 +150,11 @@ whose installation would satisfy the \code{libcurl} dependency.
 sysreqs()
 
 # report the required system packages for a specific OS
-sysreqs(platform = "ubuntu")
+sysreqs(distro = "ubuntu:24.04")
+
+# report the system packages required by a package, using
+# the latest version available from the package repositories
+sysreqs("ragg", source = "crandb", distro = "ubuntu:24.04")
 
 }
 
