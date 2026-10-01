@@ -4,6 +4,8 @@ Calling `renv:::vendor()` will:
 
 - Compile a vendored copy of renv to `inst/vendor/renv.R`,
 
+- Copy the contents of renv's `inst` directory into `inst/vendor`,
+
 - Generate an renv auto-loader at `R/renv.R`.
 
 Using this, projects can take a dependency on renv, and use renv

@@ -2,6 +2,13 @@
 
 ## renv (development version)
 
+- A vendored copy of renv (created with `renv:::vendor()`) now bundles
+  the files it reads at runtime, so that system requirements checks, git
+  credential helpers, and discovery of
+  [`renv::use()`](https://rstudio.github.io/renv/dev/reference/embed.md)
+  calls work when renv itself is not installed. Previously these looked
+  the files up in an installed copy of renv.
+
 - [`renv::sysreqs()`](https://rstudio.github.io/renv/dev/reference/sysreqs.md)
   now reports the system requirements of the recursive dependencies of
   the requested packages as well. Previously, only the requested
