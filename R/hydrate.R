@@ -365,12 +365,14 @@ renv_hydrate_resolve_missing <- function(project, library, remotes, missing) {
     return(invisible())
   }
 
-  # set up restore state for graph resolution
+  # set up restore state for graph resolution; the graph resolves
+  # dependencies, so legacy retrieval must not crawl them again
   renv_scope_restore(
-    project  = project,
-    library  = library,
-    packages = packages,
-    records  = remotes
+    project   = project,
+    library   = library,
+    packages  = packages,
+    records   = remotes,
+    recursive = FALSE
   )
 
   # hydration is best-effort: install what can be installed and report the

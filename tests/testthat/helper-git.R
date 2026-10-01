@@ -1,7 +1,9 @@
-# create an empty git repository, for use as a local git remote
-renv_tests_git_init <- function(scope = parent.frame()) {
+# create an empty git repository, for use as a local git remote. as with a
+# hosted repository, its URL ends with its name
+renv_tests_git_init <- function(name = "bread", scope = parent.frame()) {
 
-  repo <- renv_scope_tempfile("renv-repo-", scope = scope)
+  parent <- renv_scope_tempfile("renv-repo-", scope = scope)
+  repo <- file.path(parent, name)
   ensure_directory(repo)
   renv_scope_wd(repo)
 
@@ -13,17 +15,22 @@ renv_tests_git_init <- function(scope = parent.frame()) {
 
 }
 
-# write a DESCRIPTION for 'bread' at the requested version, commit it, and
+# write a DESCRIPTION for 'package' at the requested version, commit it, and
 # return the sha of that commit
-renv_tests_git_commit <- function(repo, version, depends = NULL) {
-
+renv_tests_git_commit <- function(repo,
+                                  version,
+                                  depends = NULL,
+                                  remotes = NULL,
+                                  package = "bread")
+{
   renv_scope_wd(repo)
 
   desc <- c(
-    "Package: bread",
+    paste("Package:", package),
     "Type: Package",
     paste("Version:", version),
-    if (length(depends)) paste("Depends:", depends)
+    if (length(depends)) paste("Depends:", depends),
+    if (length(remotes)) paste("Remotes:", remotes)
   )
 
   writeLines(desc, con = "DESCRIPTION")
@@ -54,6 +61,59 @@ renv_tests_git_remote <- function(scope = parent.frame()) {
     repo = repo,
     url  = paste0("file://", renv_path_normalize(repo)),
     shas = list(head = head, release = release)
+  )
+
+}
+
+# local git repositories for 'bread', whose default branch has moved on from
+# 0.5.0 (tagged 'v0.5.0') to 1.0.0, and for 'bagel', which depends on 'bread'
+# (with the requirement in 'depends') and declares it in its Remotes field
+# without a ref. the remote specs 'baker/bagel', 'baker/bread' and
+# 'baker/bread@v0.5.0' resolve to these
+renv_tests_git_remotes_unpinned <- function(depends = "bread", scope = parent.frame()) {
+
+  bread <- renv_tests_git_init(scope = scope)
+  old <- renv_tests_git_commit(bread, "0.5.0")
+  new <- renv_tests_git_commit(bread, "1.0.0")
+
+  local({
+    renv_scope_wd(bread)
+    renv_system_exec("git", c("tag", "v0.5.0", old), action = "git tag")
+  })
+
+  bagel <- renv_tests_git_init("bagel", scope = scope)
+  sha <- renv_tests_git_commit(
+    repo    = bagel,
+    version = "1.0.0",
+    depends = depends,
+    remotes = "baker/bread",
+    package = "bagel"
+  )
+
+  breadurl <- paste0("file://", renv_path_normalize(bread))
+  bagelurl <- paste0("file://", renv_path_normalize(bagel))
+
+  renv_tests_git_scope_spec(
+    spec   = "baker/bagel",
+    remote = list(url = bagelurl, repo = "bagel"),
+    scope  = scope
+  )
+
+  renv_tests_git_scope_spec(
+    spec   = "baker/bread",
+    remote = list(url = breadurl, repo = "bread"),
+    scope  = scope
+  )
+
+  renv_tests_git_scope_spec(
+    spec   = "baker/bread@v0.5.0",
+    remote = list(url = breadurl, repo = "bread", ref = "v0.5.0"),
+    scope  = scope
+  )
+
+  list(
+    bagel = list(url = bagelurl, sha = sha),
+    bread = list(url = breadurl, shas = list(old = old, new = new))
   )
 
 }
@@ -91,7 +151,8 @@ renv_tests_git_extend <- function(repo, branch, count) {
 # accept the file URLs that these remotes use
 renv_tests_git_scope_spec <- function(spec, remote, scope = parent.frame()) {
 
-  resolve <- renv_remotes_resolve
+  # read from the namespace, so that stubs for several specs compose
+  resolve <- get("renv_remotes_resolve", envir = asNamespace("renv"))
   renv_scope_binding(
     envir = asNamespace("renv"),
     symbol = "renv_remotes_resolve",
