@@ -305,7 +305,8 @@ renv_scope_git_auth <- function(scope = parent.frame()) {
   # an empty GIT_ASKPASS has git try to run a program named "", so leave
   # the non-interactive default above in place instead
   if (!nzchar(askpass)) {
-    warningf("could not locate renv's git askpass script; ignoring GIT_USERNAME and GIT_PASSWORD")
+    if (once())
+      warningf("could not locate renv's git askpass script; ignoring GIT_USERNAME and GIT_PASSWORD")
     return(FALSE)
   }
 
