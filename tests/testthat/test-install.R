@@ -976,8 +976,8 @@ test_that("fallback retrieval respects indirect pins when retrieving a dependent
   remotes <- renv_tests_git_remotes_unpinned()
 
   # retrieve 'bagel' before 'bread', rather than relying on the order of
-  # descriptions in the graph's environment. legacy retrieval recurses into
-  # 'bread', so its pinned record must already be available at that point
+  # descriptions in the graph's environment. the fallback for 'bread' must
+  # use the pinned record chosen by the graph
   graph_install <- get("renv_graph_install", envir = asNamespace("renv"))
   renv_scope_binding(
     envir = asNamespace("renv"),
@@ -999,6 +999,38 @@ test_that("fallback retrieval respects indirect pins when retrieving a dependent
   desc <- renv_description_read(package = "bread")
   expect_equal(desc$Version, "0.5.0")
   expect_equal(desc$RemoteSha, remotes$bread$shas$old)
+
+})
+
+test_that("fallback retrieval reuses compatible installed dependencies without repositories", {
+
+  skip_on_cran()
+  skip_if(!nzchar(Sys.which("git")), "git is not installed")
+
+  renv_tests_scope(isolated = TRUE)
+  init(bare = TRUE)
+  install("bread@0.1.0")
+
+  repo <- renv_tests_git_init()
+  renv_tests_git_commit(repo, "1.0.0", depends = "bread", package = "bagel")
+  url <- paste0("file://", renv_path_normalize(repo))
+  renv_tests_git_scope_spec("baker/bagel", list(url = url, repo = "bagel"))
+
+  # the installed 'bread' satisfies 'bagel', so installing the git remote
+  # must not try to retrieve 'bread' from the now-empty repositories
+  repository <- renv_scope_tempfile("renv-repository-")
+  contrib <- file.path(repository, "src/contrib")
+  ensure_directory(contrib)
+  writeLines("", con = file.path(contrib, "PACKAGES"))
+
+  fmt <- if (renv_platform_windows()) "file:///%s" else "file://%s"
+  repos <- c(CRAN = sprintf(fmt, renv_path_normalize(repository)))
+  renv_scope_options(repos = repos)
+
+  install("baker/bagel")
+
+  expect_true(renv_package_installed("bagel"))
+  expect_equal(renv_package_version("bread"), "0.1.0")
 
 })
 

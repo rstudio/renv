@@ -1551,9 +1551,8 @@ renv_graph_install <- function(descriptions) {
 
     }
 
-    # seed every resolved record before retrieving any fallbacks: legacy
-    # retrieval can recurse into dependencies before their turn in the loop,
-    # and their packages must come from the same records as their metadata
+    # make legacy retrieval use the records chosen by the graph, so each
+    # package comes from the same source as its metadata
     restore <- renv_restore_state()
     for (pkg in packages) {
       resolved <- attr(descriptions[[pkg]], "record", exact = TRUE)
@@ -1570,6 +1569,9 @@ renv_graph_install <- function(descriptions) {
       status <- catch({
         renv_scope_options(renv.download.headers = NULL)
         renv_scope_options(renv.verbose = FALSE)
+        # the graph manages dependencies, including those already satisfied
+        # by the library; legacy retrieval must not download them again
+        renv_scope_binding(restore, "recursive", FALSE)
         renv_retrieve_impl_one(pkg)
       })
 
