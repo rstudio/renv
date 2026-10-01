@@ -37,7 +37,7 @@ renv_graph_init <- function(remotes, records = list(), project = NULL, scope = p
   # BFS ensures explicit user requests take priority over implicit lookups
   queue <- list()
   for (remote in remotes) {
-    deps <- renv_graph_resolve(remote, envir, records = records, fields = fields)
+    deps <- renv_graph_resolve(remote, envir, records = records, fields = fields, pinned = pinned)
     queue <- c(queue, as.list(deps))
   }
 
@@ -59,7 +59,7 @@ renv_graph_init <- function(remotes, records = list(), project = NULL, scope = p
   while (idx <= length(queue)) {
     remote <- queue[[idx]]
     idx <- idx + 1L
-    deps <- renv_graph_resolve(remote, envir, records = records)
+    deps <- renv_graph_resolve(remote, envir, records = records, pinned = pinned)
     queue <- c(queue, as.list(deps))
   }
 
@@ -108,8 +108,13 @@ renv_graph_init <- function(remotes, records = list(), project = NULL, scope = p
 
 }
 
-renv_graph_resolve <- function(remote, envir, records = NULL, fields = NULL, override = FALSE) {
-
+renv_graph_resolve <- function(remote,
+                               envir,
+                               records = NULL,
+                               fields = NULL,
+                               override = FALSE,
+                               pinned = character())
+{
   # resolve the record; use pre-resolved record if available
   record <- if (is.character(remote) && !is.null(records[[remote]]))
     records[[remote]]
@@ -123,6 +128,12 @@ renv_graph_resolve <- function(remote, envir, records = NULL, fields = NULL, ove
   # skip base packages (utils, methods, etc.) -- they can't be installed
   package <- record$Package
   if (package %in% renv_packages_base())
+    return(character())
+
+  # a package's Remotes shouldn't replace a record pinned by the caller, e.g.
+  # a lockfile record during restore() or a project-level Remotes entry
+  # https://github.com/rstudio/renv/issues/2395
+  if (override && renv_graph_pinned_record(package, records, pinned))
     return(character())
 
   # skip packages built for a different operating system, e.g. a Windows-only
@@ -210,7 +221,7 @@ renv_graph_resolve <- function(remote, envir, records = NULL, fields = NULL, ove
     remotes <- paste(exclude(desc[["Remotes"]], NA), collapse = ", ")
     specs <- strsplit(remotes, "\\s*,\\s*")[[1L]]
     for (spec in specs) {
-      rdeps <- catch(renv_graph_resolve(spec, envir, records = records, override = TRUE))
+      rdeps <- catch(renv_graph_resolve(spec, envir, records = records, override = TRUE, pinned = pinned))
       if (!inherits(rdeps, "error"))
         deps <- c(deps, rdeps)
     }
@@ -703,19 +714,26 @@ renv_graph_requirements <- function(descriptions, project = NULL) {
 # on demand, and so don't count as pins by themselves
 renv_graph_pinned <- function(package, records, desc, pinned = character()) {
 
-  # packages declared in the project's Remotes field
-  if (package %in% pinned)
-    return(TRUE)
-
-  # explicit records from the caller, e.g. lockfile records or 'pkg@version'
-  record <- records[[package]]
-  if (!is.null(record) && !is.function(record) && !is.null(record$Version))
+  if (renv_graph_pinned_record(package, records, pinned))
     return(TRUE)
 
   # packages from a non-repository source (e.g. a Remotes entry) can't be
   # upgraded by swapping in the latest repository version
   source <- renv_record_source(desc, normalize = TRUE)
   !source %in% c("repository", "bioconductor")
+
+}
+
+# did the caller pin this package to a particular record?
+renv_graph_pinned_record <- function(package, records, pinned = character()) {
+
+  # packages declared in the project's Remotes field
+  if (package %in% pinned)
+    return(TRUE)
+
+  # explicit records from the caller, e.g. lockfile records or 'pkg@version'
+  record <- records[[package]]
+  !is.null(record) && !is.function(record) && !is.null(record$Version)
 
 }
 

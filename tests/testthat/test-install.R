@@ -908,6 +908,62 @@ test_that("the remotes field in a package's DESCRIPTION is honoured", {
 
 })
 
+test_that("the project's Remotes take precedence over a dependency's Remotes", {
+
+  skip_on_cran()
+  skip_if(!nzchar(Sys.which("git")), "git is not installed")
+
+  # use a separate cache, since the git version of 'bread' installed here would
+  # otherwise shadow the one from the test repositories in later tests
+  renv_tests_scope(isolated = TRUE)
+  init()
+
+  remotes <- renv_tests_git_remotes_unpinned()
+
+  # the project pins 'bread' to 0.5.0, while 'bagel' asks for it without a ref
+  # https://github.com/rstudio/renv/issues/2395
+  desc <- c(
+    "Type: Project",
+    "Imports: bagel, bread",
+    "Remotes: baker/bread@v0.5.0"
+  )
+
+  writeLines(desc, con = "DESCRIPTION")
+  install("baker/bagel")
+
+  desc <- renv_description_read(package = "bread")
+  expect_equal(desc$Version, "0.5.0")
+  expect_equal(desc$RemoteSha, remotes$bread$shas$old)
+
+})
+
+test_that("a dependency's Remotes apply to project dependencies without a Remotes entry", {
+
+  skip_on_cran()
+  skip_if(!nzchar(Sys.which("git")), "git is not installed")
+
+  # use a separate cache, since the git version of 'bread' installed here would
+  # otherwise shadow the one from the test repositories in later tests
+  renv_tests_scope(isolated = TRUE)
+  init()
+
+  remotes <- renv_tests_git_remotes_unpinned()
+
+  # the project uses 'bread' without saying where it comes from, so the
+  # Remotes field of 'bagel' decides, rather than the package repositories
+  desc <- c(
+    "Type: Project",
+    "Imports: bagel, bread"
+  )
+
+  writeLines(desc, con = "DESCRIPTION")
+  install("baker/bagel")
+
+  desc <- renv_description_read(package = "bread")
+  expect_equal(desc$RemoteSha, remotes$bread$shas$new)
+
+})
+
 # https://github.com/rstudio/renv/issues/2251
 test_that("install() report doesn't crash when a package has no version", {
 

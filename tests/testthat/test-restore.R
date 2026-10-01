@@ -823,3 +823,50 @@ test_that("restore installs lockfile versions despite project DESCRIPTION constr
   expect_equal(renv_package_version("bread"), "0.1.0")
 
 })
+
+test_that("restore() prefers lockfile records over a dependency's Remotes", {
+
+  skip_on_cran()
+  skip_if(!nzchar(Sys.which("git")), "git is not installed")
+
+  # use a separate cache, since the git version of 'bread' installed here would
+  # otherwise shadow the one from the test repositories in later tests
+  project <- renv_tests_scope(isolated = TRUE)
+  init()
+
+  remotes <- renv_tests_git_remotes_unpinned()
+
+  # the lockfile pins 'bread' to 0.5.0, while 'bagel' asks for it without a
+  # ref; 'bagel' is resolved first, so its Remotes must not win
+  # https://github.com/rstudio/renv/issues/2395
+  bagel <- list(
+    Package    = "bagel",
+    Version    = "1.0.0",
+    Source     = "git",
+    RemoteType = "git",
+    RemoteUrl  = remotes$bagel$url,
+    RemoteRef  = "HEAD",
+    RemoteSha  = remotes$bagel$sha
+  )
+
+  bread <- list(
+    Package    = "bread",
+    Version    = "0.5.0",
+    Source     = "git",
+    RemoteType = "git",
+    RemoteUrl  = remotes$bread$url,
+    RemoteRef  = "HEAD",
+    RemoteSha  = remotes$bread$shas$old
+  )
+
+  lockfile <- renv_lockfile_init(project = project)
+  lockfile$Packages <- list(bagel = bagel, bread = bread)
+  renv_lockfile_write(lockfile, file = "renv.lock")
+
+  restore(prompt = FALSE)
+
+  desc <- renv_description_read(package = "bread")
+  expect_equal(desc$Version, "0.5.0")
+  expect_equal(desc$RemoteSha, remotes$bread$shas$old)
+
+})

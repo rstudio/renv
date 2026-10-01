@@ -1,5 +1,14 @@
 # renv (development version)
 
+* `renv::restore()` now installs the versions recorded in the lockfile even
+  when another package declares one of those dependencies in the `Remotes:`
+  field of its DESCRIPTION. Previously, the `Remotes:` entry took precedence,
+  so restore could install (or record) the remote's latest commit instead,
+  and then report that the dependency tree was repaired. Similarly,
+  `renv::install()` now prefers a dependency declared in the project's own
+  `Remotes:` field over another package's `Remotes:` entry for it. This was a
+  regression in renv 1.2.0. (#2395)
+
 # renv 1.3.0
 
 * renv now quotes the URL, ref, and commit of a git record when passing them
