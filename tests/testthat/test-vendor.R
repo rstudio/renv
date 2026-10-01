@@ -25,8 +25,9 @@ test_that("system.file() falls through for resources vendor() doesn't bundle", {
 
 })
 
-test_that("vendor() skips resources older versions of renv don't have", {
+test_that("vendor() copies whatever 'inst' the sources provide", {
 
+  # older versions of renv lack some resources; those shouldn't be an error
   sources <- renv_scope_tempfile("renv-sources-")
   askpass <- file.path(sources, "inst/resources/scripts-git-askpass.sh")
   ensure_parent_directory(askpass)
@@ -35,10 +36,16 @@ test_that("vendor() skips resources older versions of renv don't have", {
   project <- renv_scope_tempfile("renv-project-")
   ensure_directory(project)
 
+  # files left over from a previous vendor() should be replaced
+  stale <- file.path(project, "inst/vendor/resources/stale.R")
+  ensure_parent_directory(stale)
+  file.create(stale)
+
   resources <- renv_vendor_resources(project, sources)
   expect_equal(resources, file.path(project, "inst/vendor"))
   expect_true(file.exists(file.path(resources, "resources/scripts-git-askpass.sh")))
   expect_false(file.exists(file.path(resources, "sysreqs/sysreqs.json")))
+  expect_false(file.exists(stale))
 
 })
 
@@ -80,9 +87,12 @@ test_that("renv can be vendored into an R package", {
   # vendor renv
   vendor()
 
-  # the resources renv reads at runtime should be bundled alongside
+  # renv's 'inst' directory should be bundled alongside the vendored script
+  expect_true(file.exists("inst/vendor/renv.R"))
   expect_true(file.exists("inst/vendor/sysreqs/sysreqs.json"))
+  expect_true(file.exists("inst/vendor/resources/activate.R"))
   expect_true(file.exists("inst/vendor/resources/scripts-git-askpass.sh"))
+  expect_true(file.exists("inst/vendor/schema/draft-07.renv.lock.schema.json"))
 
   # make sure renv is initializes in .onLoad()
   code <- heredoc('
@@ -155,8 +165,10 @@ test_that("renv can be vendored into an R package", {
 
     ns <- base$asNamespace("test.renv.embedding")
     result <- list(
+      pkgpath = base$system.file(package = "test.renv.embedding"),
       rules   = ns$renv$system.file("sysreqs/sysreqs.json", package = "renv"),
       askpass = ns$renv$system.file("resources/scripts-git-askpass.sh", package = "renv"),
+      schema  = ns$renv$system.file("schema", "draft-07.renv.lock.schema.json", package = "renv", mustWork = TRUE),
       nrules  = length(ns$renv$renv_sysreqs_rules()),
       deps    = ns$renv$dependencies("use.R", quiet = TRUE)$Package
     )
@@ -171,8 +183,16 @@ test_that("renv can be vendored into an R package", {
   output <- renv_system_exec(R(), c("--vanilla", "-s", "-f", renv_shell_path(script)), quiet = FALSE)
   result <- readRDS("embedded.rds")
 
+  # the paths should point into the host package, not an installed renv
+  # (which may well be visible in the library used by the subprocess)
+  vendor <- file.path(result$pkgpath, "vendor")
+  expect_true(startsWith(result$rules, vendor))
+  expect_true(startsWith(result$askpass, vendor))
+  expect_true(startsWith(result$schema, vendor))
+
   expect_true(file.exists(result$rules))
   expect_true(file.exists(result$askpass))
+  expect_true(file.exists(result$schema))
   expect_true(result$nrules > 0L)
   expect_true("digest" %in% result$deps)
 

@@ -5,7 +5,7 @@
 #' Calling `renv:::vendor()` will:
 #'
 #' - Compile a vendored copy of renv to `inst/vendor/renv.R`,
-#' - Copy the resources renv reads at runtime into `inst/vendor`,
+#' - Copy the contents of renv's `inst` directory into `inst/vendor`,
 #' - Generate an renv auto-loader at `R/renv.R`.
 #'
 #' Using this, projects can take a dependency on renv, and use renv
@@ -56,7 +56,7 @@ vendor <- function(version = "main", project = getwd()) {
     header     = header
   )
 
-  # copy the resources renv needs at runtime
+  # copy the resources renv reads at runtime
   resources <- renv_vendor_resources(project, sources)
 
   # create the loader
@@ -113,26 +113,20 @@ renv_vendor_create <- function(project, sources, header) {
 
 renv_vendor_resources <- function(project, sources) {
 
-  # only the files renv reads at runtime; the rest of 'inst' serves
-  # stand-alone installations of renv
-  resources <- c(
-    "resources/scripts-git-askpass.cmd",
-    "resources/scripts-git-askpass.sh",
-    "sysreqs/sysreqs.json"
-  )
+  # copy the whole 'inst' tree, rather than only the files renv is known to
+  # read at runtime, so that new system.file() call sites in renv don't need
+  # to be mirrored here
+  vendor <- file.path(project, "inst/vendor")
+  ensure_directory(vendor)
 
-  # older versions of renv may predate some of these resources; a version
-  # that lacks a resource also doesn't read it, so skip those
-  sources <- file.path(sources, "inst", resources)
-  targets <- file.path(project, "inst/vendor", resources)
-  exists <- file.exists(sources)
-
-  for (i in which(exists)) {
-    ensure_parent_directory(targets[[i]])
-    renv_file_copy(sources[[i]], targets[[i]], overwrite = TRUE)
+  entries <- list.files(file.path(sources, "inst"), full.names = TRUE)
+  for (source in entries) {
+    target <- file.path(vendor, basename(source))
+    unlink(target, recursive = TRUE)
+    renv_file_copy(source, target)
   }
 
-  invisible(file.path(project, "inst/vendor"))
+  invisible(vendor)
 
 }
 

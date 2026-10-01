@@ -27,9 +27,9 @@ unique <- function(x) {
   base::unique(x)
 }
 
-# when renv is embedded, renv itself might not be installed; vendor() copies the
-# resources renv reads at runtime into the host package's 'inst/vendor'
-# directory, so prefer those when looking up renv's own files
+# when renv is embedded, renv itself might not be installed; vendor() copies
+# renv's 'inst' directory into the host package's 'inst/vendor' directory, so
+# prefer those when looking up renv's own files
 system.file <- function(..., package = "base", lib.loc = NULL, mustWork = FALSE) {
 
   # delegate to the next system.file() up the chain, rather than to
@@ -38,8 +38,9 @@ system.file <- function(..., package = "base", lib.loc = NULL, mustWork = FALSE)
   # runs, so it only needs to be resolved once per load
   system.file <- the$system_file
 
-  # fall through to the regular lookup for files vendor() doesn't bundle,
-  # so that those still resolve against an installed copy of renv
+  # fall through to the regular lookup for files the vendored copy lacks
+  # (e.g. one created by an older vendor()), so that those still resolve
+  # against an installed copy of renv
   if (identical(package, "renv") && isTRUE(renv_metadata_embedded())) {
     path <- system.file("vendor", ..., package = .packageName, lib.loc = lib.loc)
     if (nzchar(path))
