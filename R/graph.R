@@ -146,7 +146,7 @@ renv_graph_resolve <- function(remote,
   # it, since resolution can mean an API call or a clone
   # https://github.com/rstudio/renv/issues/2395
   if (override) {
-    package <- renv_graph_remote_package(remote)
+    package <- renv_graph_remote_package(remote, records)
     if (!is.null(package) && renv_graph_pinned_record(package, records, pinned))
       return(character())
   }
@@ -783,11 +783,13 @@ renv_graph_pinned_record <- function(package, records, pinned = character()) {
 
 }
 
-# the package a remote spec refers to, when the spec itself says: a 'pkg='
-# prefix or a repository spec names the package directly, and a git repository
-# (or the sub-directory within it) is normally named after the package it
-# contains. NULL when it can't be told
-renv_graph_remote_package <- function(remote) {
+# the package a remote spec refers to, when that can be told without resolving
+# the spec: a 'pkg=' prefix or a repository spec names the package directly.
+# a git repository (or the sub-directory within it) is normally named after
+# the package it contains, but not always, so that guess is only trusted when
+# the caller's record for the guessed package comes from a repository of the
+# same name. NULL when it can't be told
+renv_graph_remote_package <- function(remote, records = NULL) {
 
   if (!is.character(remote))
     return(NULL)
@@ -800,9 +802,24 @@ renv_graph_remote_package <- function(remote) {
     return(parsed$package)
 
   path <- parsed$subdir %||% parsed$repo
-  if (!is.null(path))
-    sub("\\.git$", "", basename(path))
+  if (is.null(path))
+    return(NULL)
 
+  guess <- renv_graph_repository_name(path)
+  record <- records[[guess]]
+  if (is.null(record) || is.function(record))
+    return(NULL)
+
+  repo <- record$RemoteSubdir %||% record$RemoteRepo %||% record$RemoteUrl
+  if (!is.null(repo) && identical(renv_graph_repository_name(repo), guess))
+    guess
+
+}
+
+# the name of a git repository (or of a sub-directory within it) given its
+# path or URL, e.g. 'bread' for 'git@gitlab.com:baker/bread.git'
+renv_graph_repository_name <- function(path) {
+  sub("\\.git$", "", basename(path))
 }
 
 # the requirements that actually constrain a package: project-level

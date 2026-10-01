@@ -1035,6 +1035,50 @@ test_that("a dependency's Remotes entry for a pinned package is not resolved", {
 
 })
 
+test_that("a dependency's Remotes entry is resolved when its repository is named after a pinned package", {
+
+  skip_on_cran()
+  skip_if(!nzchar(Sys.which("git")), "git is not installed")
+
+  renv_tests_scope(isolated = TRUE)
+  init()
+
+  # a repository named 'bread' that actually holds 'crumpet'
+  crumpet <- renv_tests_git_init("bread")
+  renv_tests_git_commit(crumpet, "1.0.0", package = "crumpet")
+  crumpeturl <- paste0("file://", renv_path_normalize(crumpet))
+  renv_tests_git_scope_spec("baker/bread", list(url = crumpeturl, repo = "bread"))
+
+  bagel <- renv_tests_git_init("bagel")
+  renv_tests_git_commit(
+    repo    = bagel,
+    version = "1.0.0",
+    depends = "crumpet, bread",
+    remotes = "baker/bread",
+    package = "bagel"
+  )
+  bagelurl <- paste0("file://", renv_path_normalize(bagel))
+  renv_tests_git_scope_spec("baker/bagel", list(url = bagelurl, repo = "bagel"))
+
+  # the project pins 'bread' from the repositories; that must not stop the
+  # remote named 'bread' from being resolved, as it provides 'crumpet'
+  desc <- c(
+    "Type: Project",
+    "Imports: bagel, bread (== 0.1.0)"
+  )
+
+  writeLines(desc, con = "DESCRIPTION")
+  install("baker/bagel")
+
+  desc <- renv_description_read(package = "crumpet")
+  expect_equal(desc$RemoteUrl, crumpeturl)
+
+  desc <- renv_description_read(package = "bread")
+  expect_equal(desc$Version, "0.1.0")
+  expect_null(desc$RemoteUrl)
+
+})
+
 test_that("fallback retrieval respects indirect pins when retrieving a dependent first", {
 
   skip_on_cran()
@@ -1081,7 +1125,7 @@ test_that("fallback retrieval reuses compatible installed dependencies without r
   init(bare = TRUE)
   install("bread@0.1.0")
 
-  repo <- renv_tests_git_init()
+  repo <- renv_tests_git_init("bagel")
   renv_tests_git_commit(repo, "1.0.0", depends = "bread", package = "bagel")
   url <- paste0("file://", renv_path_normalize(repo))
   renv_tests_git_scope_spec("baker/bagel", list(url = url, repo = "bagel"))

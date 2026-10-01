@@ -1,7 +1,9 @@
-# create an empty git repository, for use as a local git remote
-renv_tests_git_init <- function(scope = parent.frame()) {
+# create an empty git repository, for use as a local git remote. as with a
+# hosted repository, its URL ends with its name
+renv_tests_git_init <- function(name = "bread", scope = parent.frame()) {
 
-  repo <- renv_scope_tempfile("renv-repo-", scope = scope)
+  parent <- renv_scope_tempfile("renv-repo-", scope = scope)
+  repo <- file.path(parent, name)
   ensure_directory(repo)
   renv_scope_wd(repo)
 
@@ -79,7 +81,7 @@ renv_tests_git_remotes_unpinned <- function(depends = "bread", scope = parent.fr
     renv_system_exec("git", c("tag", "v0.5.0", old), action = "git tag")
   })
 
-  bagel <- renv_tests_git_init(scope = scope)
+  bagel <- renv_tests_git_init("bagel", scope = scope)
   sha <- renv_tests_git_commit(
     repo    = bagel,
     version = "1.0.0",
