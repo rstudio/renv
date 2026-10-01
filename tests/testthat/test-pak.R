@@ -449,3 +449,157 @@ test_that("restore(clean = TRUE) honors `packages` on pak path", {
   expect_true(renv_package_installed("oatmeal"))
 
 })
+
+test_that("renv_pak_record() returns the version of pak recorded in the lockfile", {
+
+  lockfile <- list(
+    Packages = list(
+      pak = list(
+        Package    = "pak",
+        Version    = "99.99.99",
+        Source     = "Repository",
+        Repository = "CRAN"
+      )
+    )
+  )
+
+  record <- renv_pak_record(lockfile)
+  expect_equal(record$Version, "99.99.99")
+
+})
+
+test_that("renv_pak_record() ignores records for incompatible versions of pak", {
+
+  # too old for renv's pak integration
+  lockfile <- list(Packages = list(pak = list(Package = "pak", Version = "0.1.0")))
+  expect_null(quietly(renv_pak_record(lockfile)))
+
+  # no record at all
+  lockfile <- list(Packages = list())
+  expect_null(renv_pak_record(lockfile))
+
+  # record with a missing or invalid version
+  lockfile <- list(Packages = list(pak = list(Package = "pak")))
+  expect_null(renv_pak_record(lockfile))
+
+})
+
+test_that("renv_pak_record() reads the project lockfile when none is provided", {
+
+  project <- renv_tests_scope()
+
+  # no lockfile on disk
+  expect_null(renv_pak_record(project = project))
+
+  lockfile <- list(
+    Packages = list(
+      pak = list(
+        Package    = "pak",
+        Version    = "99.99.99",
+        Source     = "Repository",
+        Repository = "CRAN"
+      )
+    )
+  )
+  quietly(renv_lockfile_write(lockfile, file = file.path(project, "renv.lock")))
+
+  record <- renv_pak_record(project = project)
+  expect_equal(record$Version, "99.99.99")
+
+})
+
+test_that("renv_pak_init() installs the version of pak recorded in the lockfile (#2169)", {
+
+  args <- NULL
+  local_mocked_bindings(
+    install               = function(packages, ...) { args <<- packages; invisible(NULL) },
+    renv_namespace_load   = function(...) invisible(NULL),
+    renv_namespace_unload = function(...) invisible(NULL)
+  )
+
+  record <- list(
+    Package    = "pak",
+    Version    = "99.99.99",
+    Source     = "Repository",
+    Repository = "CRAN"
+  )
+
+  lockfile <- list(Packages = list(pak = record))
+  renv_pak_init(lockfile = lockfile)
+
+  expect_equal(args, list(pak = record))
+
+})
+
+test_that("renv_pak_init() skips installation when the recorded version of pak is installed", {
+
+  skip_if_not_installed("pak", as.character(the$pak_minver))
+
+  local_mocked_bindings(
+    install            = function(...) stop("unexpected call to install()"),
+    renv_pak_init_impl = function(...) stop("unexpected call to renv_pak_init_impl()")
+  )
+
+  lockfile <- list(
+    Packages = list(
+      pak = list(Package = "pak", Version = renv_package_version("pak"))
+    )
+  )
+
+  expect_no_error(renv_pak_init(lockfile = lockfile))
+
+})
+
+test_that("renv_pak_init() falls back to the latest pak if the recorded version cannot be installed", {
+
+  fallback <- FALSE
+  local_mocked_bindings(
+    install               = function(...) stop("simulated installation failure"),
+    renv_pak_stream       = function() "stable",
+    renv_pak_init_impl    = function(...) fallback <<- TRUE,
+    renv_namespace_load   = function(...) invisible(NULL),
+    renv_namespace_unload = function(...) invisible(NULL)
+  )
+
+  lockfile <- list(Packages = list(pak = list(Package = "pak", Version = "99.99.99")))
+  quietly(renv_pak_init(lockfile = lockfile))
+
+  expect_true(fallback)
+
+})
+
+test_that("restore() installs the version of pak recorded in the lockfile (#2169)", {
+
+  skip_on_cran()
+  skip_on_windows()
+  skip_if_not_installed("pak")
+  pak <- renv_namespace_load("pak")
+  renv_scope_options(renv.config.pak.enabled = TRUE)
+  project <- renv_tests_scope("bread")
+  init()
+
+  # record a (fake) version of pak in the lockfile
+  path <- file.path(project, "renv.lock")
+  lockfile <- renv_lockfile_read(path)
+  lockfile$Packages$pak <- list(
+    Package    = "pak",
+    Version    = "99.99.99",
+    Source     = "Repository",
+    Repository = "CRAN"
+  )
+  quietly(renv_lockfile_write(lockfile, file = path))
+
+  # capture the record renv uses when bootstrapping pak; leave the
+  # currently-loaded version of pak in place for the restore itself
+  args <- NULL
+  local_mocked_bindings(
+    install               = function(packages, ...) { args <<- packages; invisible(NULL) },
+    renv_namespace_unload = function(...) invisible(NULL)
+  )
+
+  quietly(restore())
+
+  expect_equal(args$pak$Package, "pak")
+  expect_equal(args$pak$Version, "99.99.99")
+
+})

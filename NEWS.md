@@ -6,6 +6,65 @@
   itself is not installed. Previously these looked the files up in an
   installed copy of renv.
 
+* `renv::sysreqs()` now reports the system requirements of the recursive
+  dependencies of the requested packages as well. Previously, only the
+  requested packages themselves were considered, so that (for example)
+  `renv::sysreqs("ragg")` did not report the system libraries required by
+  `systemfonts` and `textshaping`, even though `ragg` cannot be installed
+  without them. Use `recursive = FALSE` to restore the old behavior. (#2352)
+
+* `renv::sysreqs()` now reports on the packages recorded in the project
+  lockfile by default, together with the packages used in the project.
+  This is the same set of packages that `renv::restore()` would install, so
+  the system requirements for a project can be computed from `renv.lock`
+  alone -- for example, when authoring a Dockerfile, before any R packages
+  have been installed. (#2352)
+
+* `renv::sysreqs()` gains a `source` argument, controlling which version of
+  each package is used when computing system requirements. System
+  requirements (and package dependencies) are specific to a particular
+  version of a package, so the versions used matter. For each package, the
+  requested sources are tried in order: `"lockfile"` uses the version
+  recorded in the project lockfile, `"library"` uses the installed version of
+  the package, and `"crandb"` queries <https://crandb.r-pkg.org> for the
+  latest version available from the active package repositories. The default
+  consults all three, in that order. Previously, the latest CRAN release of
+  each package was always used. The `local` argument is superseded by
+  `source = "library"`. See `?renv::sysreqs` for more details. (#2352)
+* When pak integration is enabled (via the `renv.config.pak.enabled` option)
+  and `pak` is itself recorded in the lockfile, renv now installs and uses the
+  recorded version of `pak`, rather than the latest version available from the
+  pak repositories. Lockfile records for versions of `pak` older than the
+  minimum version supported by renv are ignored, and renv falls back to the
+  previous behavior if the recorded version cannot be installed. (#2169)
+
+* `renv::install()` now signals an error when a requested package fails to
+  install, even if an older version of that package remains installed.
+  Previously, a failed upgrade, or a transactional install that was rolled
+  back, could return without an error. (#2384)
+
+* `renv::restore()` now installs the versions recorded in the lockfile even
+  when another package declares one of those dependencies in the `Remotes:`
+  field of its DESCRIPTION. Previously, the `Remotes:` entry took precedence,
+  so restore could install (or record) the remote's latest commit instead,
+  and then report that the dependency tree was repaired. Similarly,
+  `renv::install()` now prefers the project's own `Remotes:` entries, and
+  exact version requirements such as `bread (== 1.0.0)`, over another
+  package's `Remotes:` entry for the same package. This was a regression in
+  renv 1.2.0. The project's `Remotes:` entries now also apply to packages
+  that are only indirect dependencies. (#2395)
+
+* When another package's `Remotes:` entry supplies a dependency,
+  `renv::install()` and `renv::restore()` now install that dependency from
+  the remote. Previously, a dependency from a git remote could be installed
+  from the package repositories (or the lockfile) instead, while being
+  recorded as coming from the remote. Relatedly, when another package
+  requires a newer version of a package from a git remote (or another
+  non-repository source), renv no longer reports that package at the latest
+  repository version while installing the recorded one; the unsatisfied
+  requirement is reported instead. This was a regression in renv 1.2.0.
+  (#2395)
+
 # renv 1.3.0
 
 * renv now quotes the URL, ref, and commit of a git record when passing them

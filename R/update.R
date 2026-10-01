@@ -328,7 +328,7 @@ update <- function(packages = NULL,
   # if users have requested the use of pak, delegate there
   if (config$pak.enabled() && !recursing()) {
     packages <- setdiff(packages, exclude)
-    renv_pak_init()
+    renv_pak_init(project = project)
     return(
       renv_pak_install(
         packages = packages,
