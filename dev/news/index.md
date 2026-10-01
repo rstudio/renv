@@ -4,6 +4,8 @@
 
 ## renv 1.3.0
 
+CRAN release: 2026-09-29
+
 - renv now quotes the URL, ref, and commit of a git record when passing
   them to `git`, and rejects records whose values `git` could read as an
   option (for example, a ref of `--upload-pack=<command>`) or as a

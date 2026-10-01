@@ -55,7 +55,7 @@
 <h2 class="pkg-version" data-toc-text="development version" id="renv-development-version">renv (development version)<a class="anchor" aria-label="anchor" href="#renv-development-version"></a></h2>
 </div>
     <div class="section level2">
-<h2 class="pkg-version" data-toc-text="1.3.0" id="renv-130">renv 1.3.0<a class="anchor" aria-label="anchor" href="#renv-130"></a></h2>
+<h2 class="pkg-version" data-toc-text="1.3.0" id="renv-130">renv 1.3.0<a class="anchor" aria-label="anchor" href="#renv-130"></a></h2><p class="text-muted">CRAN release: 2026-09-29</p>
 <ul><li><p>renv now quotes the URL, ref, and commit of a git record when passing them to <code>git</code>, and rejects records whose values <code>git</code> could read as an option (for example, a ref of <code>--upload-pack=&lt;command&gt;</code>) or as a request to run a transport helper. Previously, a crafted lockfile record or <code>git::</code> remote could have these values run as shell commands. (<a href="https://github.com/rstudio/renv/issues/2389" class="external-link">#2389</a>)</p></li>
 <li><p>Fixed an error when detecting the Posit Package Manager platform on an Enterprise Linux distribution whose <code>/etc/os-release</code> declares an empty <code>VERSION_ID</code>; renv now falls back to the untransformed repository URL. (<a href="https://github.com/rstudio/renv/issues/2386" class="external-link">#2386</a>)</p></li>
 <li><p>A trailing YAML comment on the <code>engine:</code> field of a Quarto document’s header (for example, <code>engine: knitr # comment</code>) no longer prevents renv from inferring that the document is bound to knitr. (<a href="https://github.com/rstudio/renv/issues/2386" class="external-link">#2386</a>)</p></li>
