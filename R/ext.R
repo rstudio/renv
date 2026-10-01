@@ -36,10 +36,19 @@ renv_ext_onload <- function(libname, pkgname) {
   if (!renv_ext_enabled())
     return()
 
-  # if we're being invoked via devtools::load_all(), compile extensions
+  # under devtools::load_all(), the package directory needn't be named after
+  # the package (e.g. a git worktree), in which case 'libname' and 'pkgname'
+  # don't locate it; fall back to the namespace path, and have library.dynam()
+  # find the loaded namespace the same way
   package <- file.path(libname, pkgname)
+  if (!file.exists(file.path(package, "DESCRIPTION"))) {
+    package <- renv_namespace_path(pkgname)
+    libname <- NULL
+  }
+
   libsdir <- renv_package_libsdir(package)
 
+  # if we're being invoked via devtools::load_all(), compile extensions
   # use alternate library path for load_all + tests
   compile <-
     renv_envvar_exists("DEVTOOLS_LOAD") &&
