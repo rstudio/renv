@@ -182,11 +182,11 @@ renv_cache_synchronize_impl <- function(cache, record, linkable, path) {
     !renv_restore_rebuild_required(record) &&
     renv_cache_package_validate(cache)
 
+  # note that renv_file_link() backs up the existing library copy and restores
+  # it if the link cannot be created, so we don't remove it ourselves here
   if (reusable) {
-    if (linkable) {
-      unlink(path, recursive = TRUE)
+    if (linkable)
       renv_file_link(cache, path, overwrite = TRUE)
-    }
     return(TRUE)
   }
 
