@@ -182,11 +182,11 @@ renv_cache_synchronize_impl <- function(cache, record, linkable, path) {
     !renv_restore_rebuild_required(record) &&
     renv_cache_package_validate(cache)
 
+  # note that renv_file_link() backs up the existing library copy and restores
+  # it if the link cannot be created, so we don't remove it ourselves here
   if (reusable) {
-    if (linkable) {
-      unlink(path, recursive = TRUE)
+    if (linkable)
       renv_file_link(cache, path, overwrite = TRUE)
-    }
     return(TRUE)
   }
 
@@ -570,7 +570,7 @@ renv_cache_move <- function(source, target, overwrite = FALSE) {
   # move package into the cache if requested
   if (overwrite || !file.exists(target)) {
     ensure_parent_directory(target)
-    renv_file_move(source, target, overwrite = TRUE)
+    renv_cache_move_impl(source, target)
   }
 
   # try to reset ACLs on the cache directory
@@ -578,6 +578,25 @@ renv_cache_move <- function(source, target, overwrite = FALSE) {
 
   # link from the cache back to the target location
   renv_file_link(target, source, overwrite = TRUE)
+
+}
+
+# other processes read from the cache without taking the cache lock, so a new
+# cache entry must appear atomically: an entry that is populated in place (as
+# happens with 'mv' or 'robocopy' when the cache lives on a different filesystem
+# than the library) can be seen, and linked to, while it is only partially
+# copied. so try a plain rename first, and if that fails, copy the package into
+# a temporary directory alongside the target and rename that into place, which
+# is what renv_file_copy() already does.
+#
+# note that when the package is copied rather than renamed, 'source' is left
+# in place; renv_cache_move() replaces it with a link into the cache afterwards.
+renv_cache_move_impl <- function(source, target) {
+
+  if (renv_file_rename(source, target))
+    return(TRUE)
+
+  renv_file_copy(source, target, overwrite = TRUE)
 
 }
 

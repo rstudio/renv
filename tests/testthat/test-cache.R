@@ -236,6 +236,113 @@ test_that("a cache entry containing the wrong package is not installed", {
 
 })
 
+test_that("packages moved into a cache on another filesystem appear atomically", {
+
+  skip_on_cran()
+  skip_on_os("windows")
+  renv_tests_scope()
+
+  cachepath <- renv_scope_tempfile("renv-cache-")
+  ensure_directory(cachepath)
+  cachepath <- renv_path_normalize(cachepath)
+  renv_scope_envvars(RENV_PATHS_CACHE = cachepath)
+
+  # simulate a cache living on a different filesystem than the library:
+  # renames into the cache fail unless the source already lives in the cache
+  rename <- get("renv_file_rename", envir = asNamespace("renv"))
+  renv_scope_binding(
+    envir       = asNamespace("renv"),
+    symbol      = "renv_file_rename",
+    replacement = function(source, target) {
+      intocache <- renv_path_within(target, cachepath)
+      fromcache <- renv_path_within(source, cachepath)
+      if (intocache && !fromcache)
+        return(FALSE)
+      rename(source, target)
+    }
+  )
+
+  # record where copies into the cache are written, and whether the final
+  # cache path was already visible while the copy was in progress
+  copies <- new.env(parent = emptyenv())
+  impl <- get("renv_file_copy_dir_impl", envir = asNamespace("renv"))
+  renv_scope_binding(
+    envir       = asNamespace("renv"),
+    symbol      = "renv_file_copy_dir_impl",
+    replacement = function(source, target) {
+      if (renv_path_within(target, cachepath)) {
+        final <- file.path(dirname(target), basename(source))
+        copies[[renv_path_normalize(final)]] <- list(
+          tempdir = basename(target),
+          visible = file.exists(final)
+        )
+      }
+      impl(source, target)
+    }
+  )
+
+  init()
+  install("bread")
+
+  record <- renv_snapshot_description(package = "bread")
+  cache <- renv_cache_find(record)
+  libpath <- file.path(renv_paths_library(), "bread")
+
+  # the package was copied into the cache (not renamed) ...
+  copy <- copies[[renv_path_normalize(cache)]]
+  expect_false(is.null(copy))
+
+  # ... via a temporary sibling, and the final path only appeared afterwards
+  expect_match(copy$tempdir, "^\\.renv-copy-")
+  expect_false(copy$visible)
+
+  # the cache entry is complete, and the library links to it
+  expect_true(renv_cache_package_validate(cache))
+  expect_true(file.exists(file.path(cache, "Meta", "package.rds")))
+  expect_equal(renv_file_type(libpath), "symlink")
+  expect_true(renv_file_same(cache, libpath))
+
+  # no temporary directories were left behind in the cache
+  leftovers <- list.files(dirname(cache), pattern = "^\\.renv-", all.files = TRUE)
+  expect_length(leftovers, 0L)
+
+})
+
+test_that("packages can be cached when the cache really is on another filesystem", {
+
+  skip_on_cran()
+  skip_if_not(renv_platform_linux(), "requires a Linux tmpfs mount")
+
+  # use /dev/shm (normally a tmpfs mount) as a cache on a separate filesystem
+  shm <- "/dev/shm"
+  skip_if_not(dir.exists(shm) && file.access(shm, mode = 2L) == 0L, "/dev/shm is not writable")
+
+  device <- function(path) {
+    out <- catchall(system2("stat", c("-c", "%d", renv_shell_path(path)), stdout = TRUE))
+    if (inherits(out, "condition")) NA_character_ else out
+  }
+
+  renv_tests_scope()
+  skip_if(is.na(device(shm)) || identical(device(shm), device(tempdir())), "/dev/shm is not a separate filesystem")
+
+  cachepath <- renv_scope_tempfile("renv-cache-", tmpdir = shm)
+  renv_scope_envvars(RENV_PATHS_CACHE = cachepath)
+
+  init()
+  install("bread")
+
+  record <- renv_snapshot_description(package = "bread")
+  cache <- renv_cache_find(record)
+  libpath <- file.path(renv_paths_library(), "bread")
+
+  expect_true(renv_path_within(cache, shm))
+  expect_true(renv_cache_package_validate(cache))
+  expect_true(file.exists(file.path(cache, "Meta", "package.rds")))
+  expect_equal(renv_file_type(libpath), "symlink")
+  expect_true(renv_file_same(cache, libpath))
+
+})
+
 test_that("synchronizing a duplicate build reuses the existing cache entry", {
 
   skip_on_cran()
@@ -263,6 +370,50 @@ test_that("synchronizing a duplicate build reuses the existing cache entry", {
   # the existing entry was kept, and the library now links to it
   expect_true(file.exists(file.path(cache, "sentinel")))
   expect_true(renv_file_same(cache, libpath))
+
+  # no backup copies were left behind in the library
+  leftovers <- list.files(dirname(libpath), pattern = "^\\.renv-backup-", all.files = TRUE)
+  expect_length(leftovers, 0L)
+
+})
+
+test_that("a library copy survives a failed link to an existing cache entry", {
+
+  skip_on_cran()
+  skip_on_os("windows")
+  renv_tests_scope()
+
+  cachepath <- renv_scope_tempfile("renv-cache-")
+  renv_scope_envvars(RENV_PATHS_CACHE = cachepath)
+
+  init()
+  install("bread")
+
+  record <- renv_snapshot_description(package = "bread")
+  cache <- renv_cache_find(record)
+  libpath <- file.path(renv_paths_library(), "bread")
+
+  # as above, simulate a duplicate build that finished after another
+  # process had already populated the cache entry
+  unlink(libpath)
+  renv_file_copy(cache, libpath)
+  file.create(file.path(libpath, "my-own-build"))
+
+  # make it impossible to replace the library copy with a link
+  renv_scope_binding(
+    envir       = asNamespace("renv"),
+    symbol      = "renv_file_link",
+    replacement = function(source, target, overwrite = FALSE) {
+      stop("simulated failure creating link")
+    }
+  )
+
+  expect_error(renv_cache_synchronize(record, linkable = TRUE))
+
+  # the library still has its own (working) copy of the package
+  expect_equal(renv_file_type(libpath), "directory")
+  expect_true(file.exists(file.path(libpath, "my-own-build")))
+  expect_true(file.exists(file.path(libpath, "DESCRIPTION")))
 
 })
 

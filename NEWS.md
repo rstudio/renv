@@ -14,6 +14,14 @@
   converge on the first build of each package rather than all building every
   package that was missing from the cache when they started. (#2403)
 
+* New cache entries now appear atomically when the cache lives on a different
+  filesystem than the project library (for example, a cache on a mounted volume
+  in CI). Previously, renv moved packages into such a cache with `mv`, which
+  copies the package into its final location piece by piece; a concurrent
+  restore could observe the partially-copied entry and link its library to it.
+  renv now copies the package into a temporary directory alongside its final
+  location and renames it into place. (#2402)
+
 * A vendored copy of renv (created with `renv:::vendor()`) now bundles the
   files it reads at runtime, so that system requirements checks, git
   credential helpers, and discovery of `renv::use()` calls work when renv
