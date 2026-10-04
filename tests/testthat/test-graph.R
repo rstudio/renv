@@ -169,6 +169,67 @@ test_that("renv_graph_install installs a single leaf package", {
 
 })
 
+test_that("renv_graph_install uses a cache entry that appeared after its up-front check", {
+
+  skip_on_cran()
+  renv_tests_scope()
+
+  # build 'bread' once, so we have a cache entry to copy from later
+  oldcache <- renv_scope_tempfile("renv-cache-")
+  renv_scope_envvars(RENV_PATHS_CACHE = oldcache)
+
+  init()
+  install("bread")
+  entry <- renv_cache_path(file.path(renv_paths_library(), "bread"))
+  expect_true(renv_cache_package_validate(entry))
+  remove("bread")
+
+  # now install into a fresh, empty cache ...
+  newcache <- renv_scope_tempfile("renv-cache-")
+  ensure_directory(newcache)
+  renv_scope_envvars(RENV_PATHS_CACHE = newcache)
+  target <- renv_cache_path(entry)
+  expect_true(nzchar(target))
+  expect_false(file.exists(target))
+
+  # ... which another process populates after the up-front cache check (so
+  # 'bread' is downloaded), but before 'bread' is built: simulate this by
+  # copying the entry over as the downloaded packages are classified
+  classify <- get("renv_graph_install_classify", envir = asNamespace("renv"))
+  renv_scope_binding(
+    envir       = asNamespace("renv"),
+    symbol      = "renv_graph_install_classify",
+    replacement = function(record) {
+      if (identical(record$Package, "bread") && !file.exists(target))
+        renv_file_copy(entry, target)
+      classify(record)
+    }
+  )
+
+  # keep track of which packages are actually prepared for a build
+  built <- character()
+  prepare <- get("renv_graph_install_unpack_and_prepare", envir = asNamespace("renv"))
+  renv_scope_binding(
+    envir       = asNamespace("renv"),
+    symbol      = "renv_graph_install_unpack_and_prepare",
+    replacement = function(record, ...) {
+      built <<- c(built, record$Package)
+      prepare(record, ...)
+    }
+  )
+
+  install("bread")
+
+  # 'bread' was installed from the new cache entry rather than built again
+  expect_true(renv_package_installed("bread"))
+  expect_false("bread" %in% built)
+
+  libpath <- file.path(renv_paths_library(), "bread")
+  if (renv_cache_linkable(project = getwd(), library = renv_paths_library()))
+    expect_true(renv_file_same(target, libpath))
+
+})
+
 test_that("renv_graph_urls resolves repository package URLs", {
 
   renv_tests_scope()

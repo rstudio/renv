@@ -1502,17 +1502,9 @@ renv_graph_install <- function(descriptions) {
   cachehits <- list()
   for (pkg in remaining) {
     desc <- descriptions[[pkg]]
-    cacheable <-
-      renv_cache_config_enabled(project = project) &&
-      renv_record_cacheable(desc) &&
-      !renv_restore_rebuild_required(desc)
-
-    if (cacheable) {
-      path <- renv_cache_find(desc)
-      if (renv_cache_package_validate(path)) {
-        cachehits[[pkg]] <- list(record = desc, cache = path)
-      }
-    }
+    path <- renv_graph_install_cache_find(desc, project)
+    if (!is.null(path))
+      cachehits[[pkg]] <- list(record = desc, cache = path)
   }
   remaining <- setdiff(remaining, names(cachehits))
 
@@ -1736,6 +1728,29 @@ renv_graph_install <- function(descriptions) {
   installnames <- setdiff(names(entries), failed$data())
   installdescs <- descriptions[intersect(installnames, names(descriptions))]
 
+  # another process sharing the cache (e.g. a concurrent restore) may have
+  # cached a package since we checked the cache up front; so, just before
+  # committing to a build, check the cache again and install from there if
+  # we can, rather than building the same package a second time
+  cached <- function(pkg) {
+
+    record <- descriptions[[pkg]]
+    cache <- renv_graph_install_cache_find(record, project)
+    if (is.null(cache))
+      return(FALSE)
+
+    # if installing from the cache fails for any reason, just build the
+    # package as we were going to anyway
+    if (showstatus) progress$clear()
+    status <- catch(renv_install_package_cache(record, cache, linker))
+    if (inherits(status, "error"))
+      return(FALSE)
+
+    all[[pkg]] <<- record
+    TRUE
+
+  }
+
   # shared closure for processing one completed package;
   # callbacks accumulates per-package backup-restore functions
   callbacks <- list()
@@ -1780,11 +1795,28 @@ renv_graph_install <- function(descriptions) {
     timeout <- getOption("renv.install.timeout", default = 3600L)
     deadline <- Sys.time() + timeout
 
+    # once 'pkg' is installed, its dependents are one step closer to ready
+    release <- function(pkg) {
+      for (dependent in revadj[[pkg]]) {
+        indegree[[dependent]] <<- indegree[[dependent]] - 1L
+        if (indegree[[dependent]] == 0L)
+          ready <<- c(ready, dependent)
+      }
+    }
+
     repeat {
 
       # fill worker slots from ready queue
       while (length(ready) > 0L) {
         pkg <- ready[1L]
+
+        # install from the cache if the package was cached since we last looked
+        if (cached(pkg)) {
+          ready <- ready[-1L]
+          if (showstatus) progress$tick()
+          release(pkg)
+          next
+        }
 
         entry <- entries[[pkg]]
 
@@ -1828,13 +1860,8 @@ renv_graph_install <- function(descriptions) {
           handle(pkg, list(success = success, output = output, elapsed = elapsed))
 
           # update indegrees for dependents
-          if (success) {
-            for (dependent in revadj[[pkg]]) {
-              indegree[[dependent]] <- indegree[[dependent]] - 1L
-              if (indegree[[dependent]] == 0L)
-                ready <- c(ready, dependent)
-            }
-          }
+          if (success)
+            release(pkg)
 
         } else {
 
@@ -1971,14 +1998,9 @@ renv_graph_install <- function(descriptions) {
         active[[pkg]] <- NULL
 
         # decrement dependents' indegree and enqueue newly ready
-        if (result$success) {
-          for (dependent in revadj[[pkg]]) {
-            indegree[[dependent]] <- indegree[[dependent]] - 1L
-            if (indegree[[dependent]] == 0L)
-              ready <- c(ready, dependent)
-          }
-        }
-        # on failure: dependents keep indegree > 0, never enqueued
+        # (on failure: dependents keep indegree > 0, never enqueued)
+        if (result$success)
+          release(pkg)
 
         if (showstatus && length(active) > 0L)
           progress$update(names(active))
@@ -2011,6 +2033,18 @@ renv_graph_install <- function(descriptions) {
         next
 
       wave <- sort(wave)
+
+      # install packages cached since we last looked, before anything else
+      for (pkg in wave) {
+        if (cached(pkg)) {
+          if (showstatus) progress$tick()
+          remaining <- setdiff(remaining, pkg)
+          if (showstatus && length(remaining) > 0L)
+            progress$update(remaining)
+        }
+      }
+
+      wave <- intersect(wave, remaining)
 
       # install binary packages in this wave synchronously first
       for (pkg in wave) {
@@ -2179,6 +2213,27 @@ renv_graph_install <- function(descriptions) {
   renv_graph_install_errors(errors$data(), failed$data(), descriptions)
 
   invisible(all)
+
+}
+
+# find a valid cache entry for 'record', or NULL if the package can't be
+# installed from the cache -- because the cache is disabled, the record isn't
+# cacheable, the package was requested to be rebuilt, or no valid entry exists
+renv_graph_install_cache_find <- function(record, project) {
+
+  cacheable <-
+    renv_cache_config_enabled(project = project) &&
+    renv_record_cacheable(record) &&
+    !renv_restore_rebuild_required(record)
+
+  if (!cacheable)
+    return(NULL)
+
+  path <- renv_cache_find(record)
+  if (renv_cache_package_validate(path))
+    return(path)
+
+  NULL
 
 }
 
