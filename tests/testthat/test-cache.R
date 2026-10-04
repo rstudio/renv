@@ -264,6 +264,50 @@ test_that("synchronizing a duplicate build reuses the existing cache entry", {
   expect_true(file.exists(file.path(cache, "sentinel")))
   expect_true(renv_file_same(cache, libpath))
 
+  # no backup copies were left behind in the library
+  leftovers <- list.files(dirname(libpath), pattern = "^\\.renv-backup-", all.files = TRUE)
+  expect_length(leftovers, 0L)
+
+})
+
+test_that("a library copy survives a failed link to an existing cache entry", {
+
+  skip_on_cran()
+  skip_on_os("windows")
+  renv_tests_scope()
+
+  cachepath <- renv_scope_tempfile("renv-cache-")
+  renv_scope_envvars(RENV_PATHS_CACHE = cachepath)
+
+  init()
+  install("bread")
+
+  record <- renv_snapshot_description(package = "bread")
+  cache <- renv_cache_find(record)
+  libpath <- file.path(renv_paths_library(), "bread")
+
+  # as above, simulate a duplicate build that finished after another
+  # process had already populated the cache entry
+  unlink(libpath)
+  renv_file_copy(cache, libpath)
+  file.create(file.path(libpath, "my-own-build"))
+
+  # make it impossible to replace the library copy with a link
+  renv_scope_binding(
+    envir       = asNamespace("renv"),
+    symbol      = "renv_file_link",
+    replacement = function(source, target, overwrite = FALSE) {
+      stop("simulated failure creating link")
+    }
+  )
+
+  expect_error(renv_cache_synchronize(record, linkable = TRUE))
+
+  # the library still has its own (working) copy of the package
+  expect_equal(renv_file_type(libpath), "directory")
+  expect_true(file.exists(file.path(libpath, "my-own-build")))
+  expect_true(file.exists(file.path(libpath, "DESCRIPTION")))
+
 })
 
 test_that("ACLs set on packages in project library are reset", {
