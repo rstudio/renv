@@ -232,6 +232,13 @@ renv_file_move <- function(source, target, overwrite = FALSE) {
 
 }
 
+# attempt to rename 'source' to 'target'; returns TRUE if the rename succeeded,
+# and FALSE otherwise (e.g. because the paths live on different filesystems)
+renv_file_rename <- function(source, target) {
+  status <- catchall(file.rename(source, target))
+  identical(status, TRUE) && renv_file_exists(target)
+}
+
 renv_file_link <- function(source, target, overwrite = FALSE) {
 
   if (renv_file_same(source, target))
