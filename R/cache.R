@@ -174,6 +174,22 @@ renv_cache_synchronize_impl <- function(cache, record, linkable, path) {
   lockpath <- file.path(parent, ".cache.lock")
   renv_scope_lock(lockpath)
 
+  # another process may have cached this package while we were installing it,
+  # and its library may already link to that entry; replacing the entry would
+  # break that link while the other process is still using it, so reuse it
+  # instead (unless the user explicitly asked for this package to be rebuilt)
+  reusable <-
+    !renv_restore_rebuild_required(record) &&
+    renv_cache_package_validate(cache)
+
+  if (reusable) {
+    if (linkable) {
+      unlink(path, recursive = TRUE)
+      renv_file_link(cache, path, overwrite = TRUE)
+    }
+    return(TRUE)
+  }
+
   # if we already have a cache entry, back it up
   restore <- renv_file_backup(cache)
   defer(restore())

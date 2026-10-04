@@ -1,5 +1,13 @@
 # renv (development version)
 
+* Concurrent restores sharing a package cache no longer fail with errors like
+  `dependency 'rlang' is not available` when they build the same package at
+  the same time. Previously, the restore that finished last replaced the
+  cache entry that the other restore's library already linked to, which
+  briefly left that link dangling. renv now links a duplicate build to the
+  existing cache entry instead, unless that package was requested to be
+  rebuilt.
+
 * A vendored copy of renv (created with `renv:::vendor()`) now bundles the
   files it reads at runtime, so that system requirements checks, git
   credential helpers, and discovery of `renv::use()` calls work when renv

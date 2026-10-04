@@ -236,6 +236,36 @@ test_that("a cache entry containing the wrong package is not installed", {
 
 })
 
+test_that("synchronizing a duplicate build reuses the existing cache entry", {
+
+  skip_on_cran()
+  skip_on_os("windows")
+  renv_tests_scope()
+
+  cachepath <- renv_scope_tempfile("renv-cache-")
+  renv_scope_envvars(RENV_PATHS_CACHE = cachepath)
+
+  init()
+  install("bread")
+
+  record <- renv_snapshot_description(package = "bread")
+  cache <- renv_cache_find(record)
+  libpath <- file.path(renv_paths_library(), "bread")
+
+  # simulate a build of 'bread' that finished after another process had
+  # already cached it and linked its own library to that entry
+  unlink(libpath)
+  renv_file_copy(cache, libpath)
+  file.create(file.path(cache, "sentinel"))
+
+  expect_true(renv_cache_synchronize(record, linkable = TRUE))
+
+  # the existing entry was kept, and the library now links to it
+  expect_true(file.exists(file.path(cache, "sentinel")))
+  expect_true(renv_file_same(cache, libpath))
+
+})
+
 test_that("ACLs set on packages in project library are reset", {
 
   skip_on_cran()
