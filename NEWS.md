@@ -8,6 +8,12 @@
   existing cache entry instead, unless that package was requested to be
   rebuilt.
 
+* `renv::install()` and `renv::restore()` now check the cache again just before
+  building each package, and install from the cache if a matching entry has
+  appeared since the up-front check. Concurrent restores sharing a cache thus
+  converge on the first build of each package rather than all building every
+  package that was missing from the cache when they started. (#2403)
+
 * A vendored copy of renv (created with `renv:::vendor()`) now bundles the
   files it reads at runtime, so that system requirements checks, git
   credential helpers, and discovery of `renv::use()` calls work when renv
