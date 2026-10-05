@@ -2,6 +2,32 @@
 
 ## renv (development version)
 
+- [`renv::hydrate()`](https://rstudio.github.io/renv/dev/reference/hydrate.md)
+  no longer reports packages that are already installed in the project
+  library as “not available locally”, nor re-installs them, when those
+  packages are not found in the user or site libraries.
+  ([\#2172](https://github.com/rstudio/renv/issues/2172))
+
+- [`renv::restore()`](https://rstudio.github.io/renv/dev/reference/restore.md)
+  and
+  [`renv::install()`](https://rstudio.github.io/renv/dev/reference/install.md)
+  now install repository archives of packages whose lockfile record
+  includes a `RemoteSubdir` field (for example, packages originally
+  built from a sub-directory of a GitHub repository and then published
+  to a custom repository). Previously, renv failed to find the
+  `DESCRIPTION` file within such archives and fell back to cloning the
+  package’s git repository instead.
+  ([\#1703](https://github.com/rstudio/renv/issues/1703))
+
+- renv now writes the `GithubSubdir` field, alongside the other
+  `Github*` compatibility fields, when installing a package from a
+  sub-directory of a GitHub repository.
+  ([\#2165](https://github.com/rstudio/renv/issues/2165))
+
+- [`renv::lockfile_validate()`](https://rstudio.github.io/renv/dev/reference/lockfile_validate.md)
+  now reports a clear error when the `jsonvalidate` package is not
+  installed. ([\#2184](https://github.com/rstudio/renv/issues/2184))
+
 - renv now warns when a retrieved package is not the one that was
   requested, for example because a download cache entry or a repository
   served a tarball for a different package. Previously, renv silently
