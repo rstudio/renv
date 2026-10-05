@@ -296,6 +296,28 @@ test_that("renv_graph_install removes its backups when packages wait for a worke
 
 })
 
+test_that("renv_graph_install installs packages when install.jobs isn't positive", {
+
+  skip_on_cran()
+  renv_tests_scope()
+  renv_scope_options(renv.config.install.jobs = 0L)
+
+  # use an empty cache, so that 'bread' needs to be built
+  cache <- renv_scope_tempfile("renv-cache-")
+  renv_scope_envvars(RENV_PATHS_CACHE = cache)
+
+  # with no jobs, the installer would wait forever for a worker to become
+  # available; fail in that case, rather than hanging
+  setTimeLimit(elapsed = 300)
+  defer(setTimeLimit())
+
+  descriptions <- renv_graph_init("bread")
+  renv_graph_install(descriptions)
+
+  expect_true(renv_package_installed("bread"))
+
+})
+
 test_that("renv_graph_urls resolves repository package URLs", {
 
   renv_tests_scope()

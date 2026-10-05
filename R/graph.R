@@ -1480,8 +1480,11 @@ renv_graph_install <- function(descriptions) {
   failed <- stack("character")
   errors <- stack()
   verbose <- config$install.verbose()
-  jobs <- config$install.jobs()
   timer <- timer()
+
+  # packages are installed at least one at a time; with fewer jobs than that,
+  # we'd wait forever for a worker to become available
+  jobs <- max(1L, config$install.jobs())
 
   progress <- spinner("", 0L)
   defer(progress$restore())
