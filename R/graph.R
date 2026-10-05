@@ -1480,8 +1480,11 @@ renv_graph_install <- function(descriptions) {
   failed <- stack("character")
   errors <- stack()
   verbose <- config$install.verbose()
-  jobs <- config$install.jobs()
   timer <- timer()
+
+  # packages are installed at least one at a time; with fewer jobs than that,
+  # we'd wait forever for a worker to become available
+  jobs <- max(1L, config$install.jobs())
 
   progress <- spinner("", 0L)
   defer(progress$restore())
@@ -1820,6 +1823,12 @@ renv_graph_install <- function(descriptions) {
 
         entry <- entries[[pkg]]
 
+        # source packages need a worker slot; wait for one before preparing
+        # this package, as that work would otherwise be repeated each time we
+        # came back to it
+        if (!identical(entry$type, "binary") && length(active) >= jobs)
+          break
+
         # unpack (if needed) and prepare
         prepared <- catch(renv_graph_install_unpack_and_prepare(
           entry$record, entry$type, staging, installdir
@@ -1865,10 +1874,7 @@ renv_graph_install <- function(descriptions) {
 
         } else {
 
-          # source packages need a worker slot
-          if (length(active) >= jobs)
-            break
-
+          # source packages are built by a worker process
           ready <- ready[-1L]
           active[[pkg]] <- renv_graph_install_launch_socket(
             prepared, server$port

@@ -108,7 +108,7 @@ Defaults to \code{FALSE}.}
 Defaults to \code{FALSE}.}
 \subsection{renv.config.namespaces.check}{Check, on project load, whether any namespaces have already been loaded from a path outside the project's active library paths? Packages loaded before renv activates are not managed by renv and can cause \code{renv::status()} and \code{renv::snapshot()} to report inconsistencies. When enabled, renv emits a warning listing the offending packages and the paths they were loaded from.
 Defaults to \code{TRUE}.}
-\subsection{renv.config.pak.enabled}{Use the \href{https://pak.r-lib.org/}{pak} package to install packages? If \code{pak} is itself recorded in the lockfile, renv will install and use that version of \code{pak} when possible.
+\subsection{renv.config.pak.enabled}{Use the \href{https://pak.r-lib.org/}{pak} package to install packages? If \code{pak} is itself recorded in the lockfile, \code{restore()} will install and use that version of \code{pak} when possible.
 Defaults to \code{FALSE}.}
 \subsection{renv.config.ppm.enabled}{Boolean; enable \href{https://packagemanager.posit.co/}{Posit Package Manager} integration in renv projects? When \code{TRUE}, renv will attempt to transform repository URLs used by PPM into binary URLs as appropriate for the current Linux platform. Set this to \code{FALSE} if you'd like to continue using source-only PPM URLs, or if you find that renv is improperly transforming your repository URLs. You can still set and use PPM repositories with this option disabled; it only controls whether renv tries to transform source repository URLs into binary URLs on your behalf.
 Defaults to \code{TRUE}.}

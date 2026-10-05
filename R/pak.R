@@ -8,15 +8,24 @@ renv_pak_init <- function(stream = NULL,
                           project = NULL)
 {
   # if the lockfile records a compatible version of pak, install and use that
-  # version, rather than the latest version from the pak repositories
+  # version, rather than the latest version from the pak repositories.
+  #
+  # restore() provides the lockfile it's restoring, and so gets the version
+  # of pak recorded there, as with any other package. otherwise, the project
+  # lockfile is only consulted when pak needs to be installed anyway, so that
+  # a version of pak installed since (e.g. via install() or update()) isn't
+  # replaced before the lockfile is next updated
   # https://github.com/rstudio/renv/issues/2169
-  record <- if (is.null(stream))
+  required <- force || !renv_pak_available()
+  pinned <- !is.null(lockfile)
+
+  record <- if (is.null(stream) && (pinned || required))
     renv_pak_record(lockfile, project)
 
   if (!is.null(record))
-    renv_pak_init_record(record, force)
-  else if (force || !renv_pak_available())
-    renv_pak_init_impl(stream %||% renv_pak_stream())
+    renv_pak_init_record(record, force, project)
+  else if (required)
+    renv_pak_init_impl(stream %||% renv_pak_stream(), project)
 
   renv_namespace_load("pak")
 
@@ -61,7 +70,7 @@ renv_pak_record <- function(lockfile = NULL, project = NULL) {
 
 }
 
-renv_pak_init_record <- function(record, force = FALSE) {
+renv_pak_init_record <- function(record, force = FALSE, project = NULL) {
 
   # skip installation if this version of pak is already installed
   version <- renv_package_version("pak")
@@ -76,16 +85,33 @@ renv_pak_init_record <- function(record, force = FALSE) {
 
   renv_scope_options(renv.config.pak.enabled = FALSE)
 
+  # pak is being installed so that it can carry out an operation which will
+  # itself ask the user (if they wanted to be asked) before touching the
+  # project library, so don't ask about pak separately. that operation's
+  # project is the one pak should be installed for, which needn't be the
+  # active project
   library <- renv_libpaths_active()
-  status <- catch(install(list(pak = record), library = library))
+  status <- catch(
+    install(
+      packages = list(pak = record),
+      library  = library,
+      prompt   = FALSE,
+      project  = project
+    )
+  )
 
-  # if we couldn't install the requested version of pak, fall back to
-  # installing the latest available version
+  # if we couldn't install the requested version of pak, fall back to the
+  # version of pak that's already installed, if any; otherwise, to installing
+  # the latest available version
   if (inherits(status, "error")) {
     fmt <- "- Failed to install pak %s as recorded in the lockfile (%s)."
     caution(fmt, record[["Version"]], conditionMessage(status))
-    caution("- Falling back to the latest available version of pak.")
-    renv_pak_init_impl(renv_pak_stream())
+    if (force || !renv_pak_available()) {
+      caution("- Falling back to the latest available version of pak.")
+      renv_pak_init_impl(renv_pak_stream(), project)
+    } else {
+      caution("- Falling back to the installed version of pak.")
+    }
   }
 
   invisible(NULL)
@@ -128,7 +154,7 @@ renv_pak_repos <- function(stream) {
 
 }
 
-renv_pak_init_impl <- function(stream) {
+renv_pak_init_impl <- function(stream, project = NULL) {
 
   renv_scope_options(
     renv.config.pak.enabled = FALSE,
@@ -136,8 +162,9 @@ renv_pak_init_impl <- function(stream) {
     repos = c("r-lib" = renv_pak_repos(stream))
   )
 
+  # as in renv_pak_init_record(), the operation which needs pak will prompt
   library <- renv_libpaths_active()
-  install("pak", library = library)
+  install("pak", library = library, prompt = FALSE, project = project)
   loadNamespace("pak", lib.loc = library)
 
 }

@@ -681,7 +681,13 @@ renv_available_packages_crandb_query_impl <- function(package) {
   if (inherits(status, "error"))
     return(NULL)
 
-  catch(renv_json_read(destfile))
+  # a response we can't parse is a failure like any other; return NULL so
+  # that it isn't memoized, and the next lookup tries again
+  json <- catch(renv_json_read(destfile))
+  if (inherits(json, "error"))
+    return(NULL)
+
+  json
 
 }
 

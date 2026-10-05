@@ -49,6 +49,52 @@ test_that("vendor() copies whatever 'inst' the sources provide", {
 
 })
 
+test_that("vendor() leaves out files excluded from a build of renv", {
+
+  sources <- renv_scope_tempfile("renv-sources-")
+  ensure_directory(file.path(sources, "inst/ext"))
+  file.create(file.path(sources, "inst/ext/renv.c"))
+  file.create(file.path(sources, "inst/ext/.clang-format"))
+  file.create(file.path(sources, "inst/.clang-format"))
+  writeLines(c("^docs$", "", "\\.clang-format$"), con = file.path(sources, ".Rbuildignore"))
+
+  project <- renv_scope_tempfile("renv-project-")
+  ensure_directory(project)
+
+  # hidden files at the top level aren't copied, so a file of the same name
+  # belonging to the host package should be left alone
+  host <- file.path(project, "inst/vendor/.clang-format")
+  ensure_parent_directory(host)
+  file.create(host)
+
+  resources <- renv_vendor_resources(project, sources)
+  expect_true(file.exists(file.path(resources, "ext/renv.c")))
+  expect_false(file.exists(file.path(resources, "ext/.clang-format")))
+  expect_true(file.exists(host))
+
+})
+
+test_that("an embedded renv uses the system.file() shim for its host package", {
+
+  # pkgload places its shims in the imports environment of the package it
+  # loads, which is the host package when renv is embedded
+  imports <- new.env(parent = baseenv())
+  host <- new.env(parent = imports)
+  host$.packageName <- "host"
+  embedded <- new.env(parent = new.env(parent = host))
+
+  expect_identical(renv_mask_system_file(embedded), base::system.file)
+
+  # a system.file() defined by the host package itself isn't a shim
+  host$system.file <- function(...) "host"
+  expect_identical(renv_mask_system_file(embedded), base::system.file)
+
+  shim <- function(...) "shim"
+  imports$system.file <- shim
+  expect_identical(renv_mask_system_file(embedded), shim)
+
+})
+
 test_that("renv can be vendored into an R package", {
   skip_on_cran()
   skip_slow()
@@ -195,5 +241,31 @@ test_that("renv can be vendored into an R package", {
   expect_true(file.exists(result$schema))
   expect_true(result$nrules > 0L)
   expect_true("digest" %in% result$deps)
+
+  # the embedded renv should find its resources as well when the package is
+  # loaded from its sources with pkgload, where they still live under 'inst'
+  skip_if_not_installed("pkgload")
+
+  code <- substitute({
+
+    # make sure pkgload, and the packages it uses, can be found
+    base <- .BaseNamespaceEnv
+    base$.libPaths(c(library, base$.libPaths()))
+
+    pkgload::load_all(quiet = TRUE)
+    ns <- base$asNamespace("test.renv.embedding")
+    rules <- ns$renv$system.file("sysreqs/sysreqs.json", package = "renv")
+    writeLines(rules, con = "loaded.txt")
+
+  }, list(library = dirname(renv_namespace_path("pkgload"))))
+
+  script <- renv_scope_tempfile("renv-script-", fileext = ".R")
+  writeLines(deparse(code), con = script)
+
+  # the path should point into the package sources, rather than into an
+  # installed copy of the package, or an installed renv
+  output <- renv_system_exec(R(), c("--vanilla", "-s", "-f", renv_shell_path(script)), quiet = FALSE)
+  rules <- readLines("loaded.txt")
+  expect_true(renv_file_same(rules, "inst/vendor/sysreqs/sysreqs.json"))
 
 })
