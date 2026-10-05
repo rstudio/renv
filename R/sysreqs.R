@@ -372,7 +372,7 @@ renv_sysreqs_crandb <- function(package, version = NULL) {
   # report a failure as a warning, and return NULL so that the caller can
   # try another source and carry on with the remaining packages
   json <- renv_available_packages_crandb_query(package)
-  versions <- if (!inherits(json, "error")) json[["versions"]]
+  versions <- json[["versions"]]
   if (empty(versions)) {
     warningf("could not retrieve the record for package '%s' from crandb", package)
     return(NULL)
