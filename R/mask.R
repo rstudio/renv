@@ -51,6 +51,16 @@ system.file <- function(..., package = "base", lib.loc = NULL, mustWork = FALSE)
 
 }
 
+# the system.file() which the mask above delegates to. pkgload's shim lives in
+# the imports environment of the package it loaded: that's renv itself, or the
+# host package when renv is embedded, whose vendored resources are still under
+# 'inst' while it's loaded from its sources. look only there: searching further
+# up the chain would pick up a system.file() defined by the host package itself
+renv_mask_system_file <- function(envir) {
+  imports <- parent.env(topenv(envir))
+  get0("system.file", envir = imports, inherits = FALSE) %||% base::system.file
+}
+
 # a wrapper for 'utils::untar()' that throws an error if untar fails
 untar <- function(tarfile,
                   files = NULL,
