@@ -555,6 +555,7 @@ test_that("renv_pak_init() falls back to the latest pak if the recorded version 
   fallback <- FALSE
   local_mocked_bindings(
     install               = function(...) stop("simulated installation failure"),
+    renv_pak_available    = function() FALSE,
     renv_pak_stream       = function() "stable",
     renv_pak_init_impl    = function(...) fallback <<- TRUE,
     renv_namespace_load   = function(...) invisible(NULL),
@@ -565,6 +566,61 @@ test_that("renv_pak_init() falls back to the latest pak if the recorded version 
   quietly(renv_pak_init(lockfile = lockfile))
 
   expect_true(fallback)
+
+})
+
+test_that("renv_pak_init() keeps the installed pak if the recorded version cannot be installed", {
+
+  local_mocked_bindings(
+    install               = function(...) stop("simulated installation failure"),
+    renv_pak_available    = function() TRUE,
+    renv_pak_init_impl    = function(...) stop("unexpected call to renv_pak_init_impl()"),
+    renv_namespace_load   = function(...) invisible(NULL),
+    renv_namespace_unload = function(...) invisible(NULL)
+  )
+
+  lockfile <- list(Packages = list(pak = list(Package = "pak", Version = "99.99.99")))
+  expect_no_error(quietly(renv_pak_init(lockfile = lockfile)))
+
+})
+
+test_that("renv_pak_init() only replaces an installed pak when given a lockfile", {
+
+  project <- renv_tests_scope()
+
+  lockfile <- list(
+    Packages = list(
+      pak = list(
+        Package    = "pak",
+        Version    = "99.99.99",
+        Source     = "Repository",
+        Repository = "CRAN"
+      )
+    )
+  )
+  quietly(renv_lockfile_write(lockfile, file = file.path(project, "renv.lock")))
+
+  available <- TRUE
+  args <- NULL
+  local_mocked_bindings(
+    install               = function(packages, ...) { args <<- list(packages = packages, ...); invisible(NULL) },
+    renv_pak_available    = function() available,
+    renv_namespace_load   = function(...) invisible(NULL),
+    renv_namespace_unload = function(...) invisible(NULL)
+  )
+
+  # without a lockfile to restore, an installed pak is left alone, even if
+  # the project lockfile records some other version ...
+  renv_pak_init(project = project)
+  expect_null(args)
+
+  # ... but the recorded version is used if pak needs to be installed
+  available <- FALSE
+  renv_pak_init(project = project)
+  expect_equal(args$packages$pak$Version, "99.99.99")
+
+  # the caller has already confirmed the operation which needs pak
+  expect_false(args$prompt)
 
 })
 

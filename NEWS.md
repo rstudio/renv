@@ -53,12 +53,15 @@
   consults all three, in that order. Previously, the latest CRAN release of
   each package was always used. The `local` argument is superseded by
   `source = "library"`. See `?renv::sysreqs` for more details. (#2352)
+
 * When pak integration is enabled (via the `renv.config.pak.enabled` option)
-  and `pak` is itself recorded in the lockfile, renv now installs and uses the
-  recorded version of `pak`, rather than the latest version available from the
-  pak repositories. Lockfile records for versions of `pak` older than the
-  minimum version supported by renv are ignored, and renv falls back to the
-  previous behavior if the recorded version cannot be installed. (#2169)
+  and `pak` is itself recorded in the lockfile, `renv::restore()` now installs
+  and uses the recorded version of `pak`, rather than the latest version
+  available from the pak repositories. Other functions use the recorded
+  version when `pak` needs to be installed, and otherwise leave the installed
+  version of `pak` alone. Lockfile records for versions of `pak` older than
+  the minimum version supported by renv are ignored, and renv falls back to
+  the previous behavior if the recorded version cannot be installed. (#2169)
 
 * `renv::install()` now signals an error when a requested package fails to
   install, even if an older version of that package remains installed.

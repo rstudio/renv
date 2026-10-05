@@ -8,14 +8,23 @@ renv_pak_init <- function(stream = NULL,
                           project = NULL)
 {
   # if the lockfile records a compatible version of pak, install and use that
-  # version, rather than the latest version from the pak repositories
+  # version, rather than the latest version from the pak repositories.
+  #
+  # restore() provides the lockfile it's restoring, and so gets the version
+  # of pak recorded there, as with any other package. otherwise, the project
+  # lockfile is only consulted when pak needs to be installed anyway, so that
+  # a version of pak installed since (e.g. via install() or update()) isn't
+  # replaced before the lockfile is next updated
   # https://github.com/rstudio/renv/issues/2169
-  record <- if (is.null(stream))
+  required <- force || !renv_pak_available()
+  pinned <- !is.null(lockfile)
+
+  record <- if (is.null(stream) && (pinned || required))
     renv_pak_record(lockfile, project)
 
   if (!is.null(record))
     renv_pak_init_record(record, force)
-  else if (force || !renv_pak_available())
+  else if (required)
     renv_pak_init_impl(stream %||% renv_pak_stream())
 
   renv_namespace_load("pak")
@@ -76,16 +85,23 @@ renv_pak_init_record <- function(record, force = FALSE) {
 
   renv_scope_options(renv.config.pak.enabled = FALSE)
 
+  # pak is being installed on behalf of an operation that the user has
+  # already been asked about (if they wanted to be), so don't ask again here
   library <- renv_libpaths_active()
-  status <- catch(install(list(pak = record), library = library))
+  status <- catch(install(list(pak = record), library = library, prompt = FALSE))
 
-  # if we couldn't install the requested version of pak, fall back to
-  # installing the latest available version
+  # if we couldn't install the requested version of pak, fall back to the
+  # version of pak that's already installed, if any; otherwise, to installing
+  # the latest available version
   if (inherits(status, "error")) {
     fmt <- "- Failed to install pak %s as recorded in the lockfile (%s)."
     caution(fmt, record[["Version"]], conditionMessage(status))
-    caution("- Falling back to the latest available version of pak.")
-    renv_pak_init_impl(renv_pak_stream())
+    if (force || !renv_pak_available()) {
+      caution("- Falling back to the latest available version of pak.")
+      renv_pak_init_impl(renv_pak_stream())
+    } else {
+      caution("- Falling back to the installed version of pak.")
+    }
   }
 
   invisible(NULL)
