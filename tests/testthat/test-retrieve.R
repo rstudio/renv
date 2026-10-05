@@ -1013,15 +1013,4 @@ test_that("a retrieved package that differs from the record is reported", {
   record$Package <- "toast"
   expect_no_warning(renv_retrieve_successful(record, path, install = FALSE))
 
-  # the package name for git remotes is inferred from the repository URL,
-  # so a mismatch there is expected and shouldn't be reported
-  record <- list(
-    Package   = "rtoast",
-    Version   = "<unknown>",
-    Source    = "git",
-    RemoteUrl = "https://example.org/rtoast.git"
-  )
-
-  expect_no_warning(renv_retrieve_successful(record, path, install = FALSE))
-
 })
