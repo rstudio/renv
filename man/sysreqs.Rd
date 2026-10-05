@@ -42,9 +42,9 @@ lockfiles produced by older versions of \code{renv} may not include the
 to infer the package version. When the package version is known, an
 installed copy of the package is only used if its version matches, and
 crandb is queried for that specific version. Otherwise, crandb is queried
-for the latest version available from the active package repositories,
-or the latest CRAN release if crandb has no record of that version, or
-the repositories do not provide the package.}
+for the latest version available from the active package repositories.
+crandb only has records of CRAN releases; when it has no record of the
+requested version, the latest CRAN release is used as a last resort.}
 
 \item{recursive}{Boolean; should the system requirements of the recursive
 dependencies of \code{packages} be included as well? Only the dependencies

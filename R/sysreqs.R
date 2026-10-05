@@ -84,9 +84,9 @@ the$sysreqs <- NULL
 #'   to infer the package version. When the package version is known, an
 #'   installed copy of the package is only used if its version matches, and
 #'   crandb is queried for that specific version. Otherwise, crandb is queried
-#'   for the latest version available from the active package repositories,
-#'   or the latest CRAN release if crandb has no record of that version, or
-#'   the repositories do not provide the package.
+#'   for the latest version available from the active package repositories.
+#'   crandb only has records of CRAN releases; when it has no record of the
+#'   requested version, the latest CRAN release is used as a last resort.
 #'
 #' @param recursive Boolean; should the system requirements of the recursive
 #'   dependencies of `packages` be included as well? Only the dependencies
@@ -318,8 +318,16 @@ renv_sysreqs_lookup <- function(package, sources, lockfile) {
     } else if (source == "crandb") {
 
       record <- renv_sysreqs_crandb(package, version)
-      if (!is.null(record))
+      if (is.null(record))
+        next
+
+      # crandb provides the latest CRAN release when it has no record of the
+      # requested version; as with a mismatched installed copy, only use
+      # that as a last resort
+      if (is.null(version) || identical(record[["Version"]], version))
         return(record)
+
+      fallback <- fallback %||% record
 
     }
 
@@ -359,44 +367,27 @@ renv_sysreqs_version <- function(package) {
 
 renv_sysreqs_crandb <- function(package, version = NULL) {
 
-  # without a known version, use what the repositories would provide. crandb
-  # only knows about CRAN releases, so it might not have that version (e.g. a
-  # development version from r-universe); if so, or if the repositories don't
-  # provide the package at all, use the latest CRAN release instead
-  if (is.null(version)) {
-    available <- renv_sysreqs_version(package)
-    if (!is.null(available)) {
-      record <- catch(renv_sysreqs_crandb_impl(package, available))
-      if (!inherits(record, "error"))
-        return(record)
-    }
+  # ask crandb about all of the versions of this package at once, so that a
+  # version it has no record of can be told apart from a failed request.
+  # report a failure as a warning, and return NULL so that the caller can
+  # try another source and carry on with the remaining packages
+  json <- renv_available_packages_crandb_query(package)
+  versions <- if (!inherits(json, "error")) json[["versions"]]
+  if (empty(versions)) {
+    warningf("could not retrieve the record for package '%s' from crandb", package)
+    return(NULL)
   }
 
-  # report a failed lookup as a warning, and return NULL so that the caller
-  # can try another source and carry on with the remaining packages
-  tryCatch(
-    renv_sysreqs_crandb_impl(package, version),
-    error = function(cnd) {
-      warnify(cnd)
-      NULL
-    }
-  )
+  # without a known version, use what the repositories would provide
+  version <- version %||% renv_sysreqs_version(package)
 
-}
+  # crandb only has records of CRAN releases, so it might not have that
+  # version (e.g. a development version from r-universe or GitHub); if so, or
+  # if the repositories don't provide the package, use the latest CRAN release
+  if (is.null(version) || is.null(versions[[version]]))
+    version <- json[["latest"]] %||% names(versions)[[length(versions)]]
 
-renv_sysreqs_crandb_impl <- function(package, version) {
-  memoize(
-    key   = paste(package, version %||% "latest"),
-    value = renv_sysreqs_crandb_impl_one(package, version),
-    scope = "sysreqs"
-  )
-}
-
-renv_sysreqs_crandb_impl_one <- function(package, version) {
-  url <- paste(c("https://crandb.r-pkg.org", package, version), collapse = "/")
-  destfile <- tempfile("renv-crandb-", fileext = ".json")
-  download(url, destfile = destfile, quiet = TRUE)
-  record <- renv_json_read(destfile)
+  record <- versions[[version]]
 
   # crandb provides dependencies as objects mapping packages to constraints
   for (field in c("Depends", "Imports", "LinkingTo")) {
