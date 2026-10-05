@@ -29,7 +29,7 @@
   cache entry that the other restore's library already linked to, which
   briefly left that link dangling. renv now links a duplicate build to the
   existing cache entry instead, unless that package was requested to be
-  rebuilt.
+  rebuilt. (#2400)
 
 * `renv::install()` and `renv::restore()` now check the cache again just before
   building each package, and install from the cache if a matching entry has
@@ -51,13 +51,13 @@
   built than can be built at once. Previously, renv could lose track of the
   backup of an existing installation while its package waited to be built, so
   that the backup was neither removed after a successful install, nor
-  restored after a failed one.
+  restored after a failed one. (#2407)
 
 * A vendored copy of renv (created with `renv:::vendor()`) now bundles the
   files it reads at runtime, so that system requirements checks, git
   credential helpers, and discovery of `renv::use()` calls work when renv
   itself is not installed. Previously these looked the files up in an
-  installed copy of renv.
+  installed copy of renv. (#2397)
 
 * `renv::sysreqs()` now reports the system requirements of the recursive
   dependencies of the requested packages as well. Previously, only the
