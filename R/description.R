@@ -65,6 +65,16 @@ renv_description_read_impl <- function(path = NULL, subdir = NULL, ...) {
     pattern <- paste(parts, collapse = "/")
 
     descs <- grep(pattern, files, perl = TRUE, value = TRUE)
+
+    # a repository archive of a package originally built from a sub-directory
+    # of a git repository contains the package at the top level, so fall back
+    # to the top-level DESCRIPTION file when the sub-directory isn't present
+    # https://github.com/rstudio/renv/issues/1703
+    if (empty(descs) && nzchar(subdir)) {
+      pattern <- paste(c(prefix, "DESCRIPTION$"), collapse = "/")
+      descs <- grep(pattern, files, perl = TRUE, value = TRUE)
+    }
+
     if (empty(descs)) {
       fmt <- "archive '%s' does not appear to contain a DESCRIPTION file"
       stopf(fmt, renv_path_aliased(path))
