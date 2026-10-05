@@ -254,7 +254,8 @@ renv_package_augment <- function(installpath, record) {
       "GithubRepo"     = "RemoteRepo",
       "GithubUsername" = "RemoteUsername",
       "GithubRef"      = "RemoteRef",
-      "GithubSHA1"     = "RemoteSha"
+      "GithubSHA1"     = "RemoteSha",
+      "GithubSubdir"   = "RemoteSubdir"
     )
 
     enumerate(map, function(old, new) {

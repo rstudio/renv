@@ -41,6 +41,27 @@ test_that("we read DESCRIPTION files correctly", {
 
 })
 
+test_that("a subdir is ignored when the archive has the package at the top level", {
+
+  renv_scope_tempdir()
+  dir.create("example")
+  writeLines(c("Package: example", "Version: 1.0.0"), con = "example/DESCRIPTION")
+  tar("example.tar.gz", files = "example", compression = "gzip", tar = "internal")
+
+  # a repository archive of a package built from a sub-directory of a git
+  # repository doesn't contain that sub-directory, so the DESCRIPTION file
+  # should still be found (https://github.com/rstudio/renv/issues/1703)
+  desc <- renv_description_read("example.tar.gz", subdir = "pkg")
+  expect_equal(desc$Package, "example")
+
+  # but a bogus archive should still be an error
+  writeLines("hello", con = "example/DESCRIPTION.txt")
+  unlink("example/DESCRIPTION")
+  tar("bogus.tar.gz", files = "example", compression = "gzip", tar = "internal")
+  expect_error(renv_description_read("bogus.tar.gz", subdir = "pkg"))
+
+})
+
 test_that("reading a not-installed package errors rather than falling back to cwd", {
 
   # ensure we have a project DESCRIPTION in the working directory, so that

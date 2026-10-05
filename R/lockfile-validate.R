@@ -62,6 +62,11 @@ lockfile_validate <- function(project = NULL,
                               verbose = FALSE,
                               strict = FALSE)
 {
+  # https://github.com/rstudio/renv/issues/2184
+  if (!renv_package_installed("jsonvalidate")) {
+    fmt <- "package '%s' is required to validate lockfiles but is not installed"
+    stopf(fmt, "jsonvalidate")
+  }
 
   project <- renv_project_resolve(project)
   lockfile <- lockfile %||% renv_lockfile_path(project = project)

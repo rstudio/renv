@@ -90,6 +90,13 @@ hydrate <- function(packages = NULL,
   # figure out required packages which aren't installed
   missing <- deps[!nzchar(deps)]
 
+  # packages already installed in the target library don't need to be
+  # re-installed, even if they're not available in the source libraries
+  # https://github.com/rstudio/renv/issues/2172
+  installed <- renv_package_installed(names(missing), lib.loc = library)
+  deps <- deps[renv_vector_diff(names(deps), names(missing)[installed])]
+  missing <- missing[!installed]
+
   # also consider remotes; if a package is listed within Remotes,
   # then choose to install that package instead of linking it
   filter <- function(specs, remotes) {

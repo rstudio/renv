@@ -66,6 +66,20 @@ test_that("hydrate succeeds when package installed into user library", {
 
 })
 
+test_that("hydrate() skips packages already installed in the target library", {
+
+  renv_tests_scope("bread")
+  init()
+
+  # 'bread' is installed in the project library, but not in any of the
+  # libraries hydrate() sources from; it should not be reported as missing
+  # https://github.com/rstudio/renv/issues/2172
+  expect_true(renv_package_installed("bread"))
+  result <- hydrate(sources = character())
+  expect_identical(result, list(packages = list(), missing = list()))
+
+})
+
 test_that("hydrate() installs what it can when a dependency cannot be resolved", {
 
   windows <- renv_platform_windows()

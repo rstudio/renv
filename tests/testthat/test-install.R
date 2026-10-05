@@ -265,6 +265,34 @@ test_that("install() writes out Github fields for backwards compatibility", {
 
 })
 
+test_that("renv_package_augment() writes GithubSubdir for GitHub remotes", {
+
+  renv_tests_scope()
+  pkgpath <- file.path(renv_scope_tempdir(), "example")
+  dir.create(pkgpath)
+  writeLines(c("Package: example", "Version: 1.0.0"), file.path(pkgpath, "DESCRIPTION"))
+
+  record <- list(
+    Package        = "example",
+    Version        = "1.0.0",
+    Source         = "GitHub",
+    RemoteType     = "github",
+    RemoteHost     = "api.github.com",
+    RemoteUsername = "user",
+    RemoteRepo     = "repo",
+    RemoteRef      = "main",
+    RemoteSha      = "0123456789abcdef0123456789abcdef01234567",
+    RemoteSubdir   = "pkg"
+  )
+
+  # https://github.com/rstudio/renv/issues/2165
+  renv_package_augment(pkgpath, record)
+  dcf <- renv_description_read(file.path(pkgpath, "DESCRIPTION"))
+  expect_equal(dcf$GithubSubdir, "pkg")
+  expect_equal(dcf$GithubSHA1, record$RemoteSha)
+
+})
+
 test_that("renv uses safe library paths on Windows", {
   skip_if_not(renv_platform_windows())
   renv_tests_scope()

@@ -361,3 +361,22 @@ test_that("strict mode catches unknown keyword in provided schema", {
   )
 
 })
+
+test_that("lockfile_validate() reports a clear error when jsonvalidate is not installed", {
+
+  # pretend jsonvalidate isn't installed
+  # https://github.com/rstudio/renv/issues/2184
+  installed <- get("renv_package_installed", envir = asNamespace("renv"))
+  renv_scope_binding(
+    envir       = asNamespace("renv"),
+    symbol      = "renv_package_installed",
+    replacement = function(package, lib.loc = NULL) {
+      if (identical(package, "jsonvalidate"))
+        return(FALSE)
+      installed(package, lib.loc = lib.loc)
+    }
+  )
+
+  expect_error(lockfile_validate(), "jsonvalidate")
+
+})
