@@ -55,14 +55,22 @@ test_that("vendor() leaves out files excluded from a build of renv", {
   ensure_directory(file.path(sources, "inst/ext"))
   file.create(file.path(sources, "inst/ext/renv.c"))
   file.create(file.path(sources, "inst/ext/.clang-format"))
+  file.create(file.path(sources, "inst/.clang-format"))
   writeLines(c("^docs$", "", "\\.clang-format$"), con = file.path(sources, ".Rbuildignore"))
 
   project <- renv_scope_tempfile("renv-project-")
   ensure_directory(project)
 
+  # hidden files at the top level aren't copied, so a file of the same name
+  # belonging to the host package should be left alone
+  host <- file.path(project, "inst/vendor/.clang-format")
+  ensure_parent_directory(host)
+  file.create(host)
+
   resources <- renv_vendor_resources(project, sources)
   expect_true(file.exists(file.path(resources, "ext/renv.c")))
   expect_false(file.exists(file.path(resources, "ext/.clang-format")))
+  expect_true(file.exists(host))
 
 })
 

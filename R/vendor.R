@@ -136,8 +136,8 @@ renv_vendor_resources <- function(project, sources) {
 
 }
 
-# the files within the 'inst' directory of the renv sources which are excluded
-# from a build of renv, as paths relative to that directory
+# the files copied from the 'inst' directory of the renv sources which are
+# excluded from a build of renv, as paths relative to that directory
 renv_vendor_resources_ignored <- function(sources) {
 
   ignore <- file.path(sources, ".Rbuildignore")
@@ -153,6 +153,11 @@ renv_vendor_resources_ignored <- function(sources) {
     recursive    = TRUE,
     include.dirs = TRUE
   )
+
+  # hidden files at the top level weren't copied, so a file of the same name
+  # in the host package isn't ours to remove
+  copied <- list.files(file.path(sources, "inst"))
+  files <- files[sub("/.*", "", files) %in% copied]
 
   # as in R CMD build, patterns are matched against paths relative to the
   # root of the package sources, ignoring case
