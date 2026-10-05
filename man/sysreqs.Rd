@@ -43,8 +43,8 @@ to infer the package version. When the package version is known, an
 installed copy of the package is only used if its version matches, and
 crandb is queried for that specific version. Otherwise, crandb is queried
 for the latest version available from the active package repositories,
-or the latest CRAN release if the repositories do not provide the
-package.}
+or the latest CRAN release if crandb has no record of that version, or
+the repositories do not provide the package.}
 
 \item{recursive}{Boolean; should the system requirements of the recursive
 dependencies of \code{packages} be included as well? Only the dependencies

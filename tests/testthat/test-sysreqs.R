@@ -291,8 +291,8 @@ test_that("crandb lookups use the version available from the repositories", {
   requested <- NULL
   renv_scope_binding(
     envir = asNamespace("renv"),
-    symbol = "renv_sysreqs_crandb",
-    replacement = function(package, version = NULL) {
+    symbol = "renv_sysreqs_crandb_impl",
+    replacement = function(package, version) {
       requested <<- version
       list(Package = package, Version = version)
     }
@@ -314,6 +314,74 @@ test_that("crandb lookups use the version available from the repositories", {
 
   renv_sysreqs_lookup("bread", sources = c("lockfile", "crandb"), lockfile = lockfile)
   expect_equal(requested, "0.1.0")
+
+})
+
+test_that("crandb lookups fall back to the latest CRAN release", {
+
+  renv_tests_scope()
+
+  # the repositories provide a version of 'bread' that crandb has no record
+  # of, as with a development version from some other repository
+  requested <- list()
+  renv_scope_binding(
+    envir = asNamespace("renv"),
+    symbol = "renv_sysreqs_crandb_impl",
+    replacement = function(package, version) {
+      requested <<- c(requested, list(version))
+      if (!is.null(version))
+        stop("HTTP error 404")
+      list(Package = package, Version = "0.9.0")
+    }
+  )
+
+  expect_no_warning(
+    record <- renv_sysreqs_lookup("bread", sources = "crandb", lockfile = NULL)
+  )
+
+  expect_equal(requested, list("1.0.0", NULL))
+  expect_equal(record$Version, "0.9.0")
+
+})
+
+test_that("a failed crandb lookup doesn't provide a record", {
+
+  renv_tests_scope()
+
+  renv_scope_binding(
+    envir = asNamespace("renv"),
+    symbol = "renv_sysreqs_crandb_impl",
+    replacement = function(package, version) stop("HTTP error 404")
+  )
+
+  # with no other source to consult, the package is left unresolved
+  expect_warning(
+    record <- renv_sysreqs_lookup("no.such.package", sources = "crandb", lockfile = NULL)
+  )
+
+  expect_null(record)
+
+  # an installed copy with a mismatched version is still used as a last resort
+  lockfile <- list(
+    utils = list(
+      Package = "utils",
+      Version = "0.1.0",
+      Source = "Repository",
+      Repository = "CRAN",
+      Hash = "0123456789abcdef"
+    )
+  )
+
+  expect_warning(
+    record <- renv_sysreqs_lookup(
+      package  = "utils",
+      sources  = c("lockfile", "library", "crandb"),
+      lockfile = lockfile
+    )
+  )
+
+  expect_equal(record$Package, "utils")
+  expect_false(identical(record$Version, "0.1.0"))
 
 })
 

@@ -85,8 +85,8 @@ the$sysreqs <- NULL
 #'   installed copy of the package is only used if its version matches, and
 #'   crandb is queried for that specific version. Otherwise, crandb is queried
 #'   for the latest version available from the active package repositories,
-#'   or the latest CRAN release if the repositories do not provide the
-#'   package.
+#'   or the latest CRAN release if crandb has no record of that version, or
+#'   the repositories do not provide the package.
 #'
 #' @param recursive Boolean; should the system requirements of the recursive
 #'   dependencies of `packages` be included as well? Only the dependencies
@@ -317,8 +317,6 @@ renv_sysreqs_lookup <- function(package, sources, lockfile) {
 
     } else if (source == "crandb") {
 
-      # without a known version, use what the repositories would provide
-      version <- version %||% renv_sysreqs_version(package)
       record <- renv_sysreqs_crandb(package, version)
       if (!is.null(record))
         return(record)
@@ -360,10 +358,30 @@ renv_sysreqs_version <- function(package) {
 }
 
 renv_sysreqs_crandb <- function(package, version = NULL) {
+
+  # without a known version, use what the repositories would provide. crandb
+  # only knows about CRAN releases, so it might not have that version (e.g. a
+  # development version from r-universe); if so, or if the repositories don't
+  # provide the package at all, use the latest CRAN release instead
+  if (is.null(version)) {
+    available <- renv_sysreqs_version(package)
+    if (!is.null(available)) {
+      record <- catch(renv_sysreqs_crandb_impl(package, available))
+      if (!inherits(record, "error"))
+        return(record)
+    }
+  }
+
+  # report a failed lookup as a warning, and return NULL so that the caller
+  # can try another source and carry on with the remaining packages
   tryCatch(
     renv_sysreqs_crandb_impl(package, version),
-    error = warnify
+    error = function(cnd) {
+      warnify(cnd)
+      NULL
+    }
   )
+
 }
 
 renv_sysreqs_crandb_impl <- function(package, version) {
