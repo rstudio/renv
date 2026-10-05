@@ -622,6 +622,14 @@ test_that("renv_pak_init() only replaces an installed pak when given a lockfile"
   # the caller has already confirmed the operation which needs pak
   expect_false(args$prompt)
 
+  # pak is installed for the project being operated on, which needn't be
+  # the active project
+  expect_equal(args$project, project)
+
+  args <- NULL
+  renv_pak_init(lockfile = lockfile, project = project)
+  expect_equal(args$project, project)
+
 })
 
 test_that("restore() installs the version of pak recorded in the lockfile (#2169)", {

@@ -23,9 +23,9 @@ renv_pak_init <- function(stream = NULL,
     renv_pak_record(lockfile, project)
 
   if (!is.null(record))
-    renv_pak_init_record(record, force)
+    renv_pak_init_record(record, force, project)
   else if (required)
-    renv_pak_init_impl(stream %||% renv_pak_stream())
+    renv_pak_init_impl(stream %||% renv_pak_stream(), project)
 
   renv_namespace_load("pak")
 
@@ -70,7 +70,7 @@ renv_pak_record <- function(lockfile = NULL, project = NULL) {
 
 }
 
-renv_pak_init_record <- function(record, force = FALSE) {
+renv_pak_init_record <- function(record, force = FALSE, project = NULL) {
 
   # skip installation if this version of pak is already installed
   version <- renv_package_version("pak")
@@ -86,9 +86,18 @@ renv_pak_init_record <- function(record, force = FALSE) {
   renv_scope_options(renv.config.pak.enabled = FALSE)
 
   # pak is being installed on behalf of an operation that the user has
-  # already been asked about (if they wanted to be), so don't ask again here
+  # already been asked about (if they wanted to be), so don't ask again here.
+  # that operation's project is the one pak should be installed for, which
+  # needn't be the active project
   library <- renv_libpaths_active()
-  status <- catch(install(list(pak = record), library = library, prompt = FALSE))
+  status <- catch(
+    install(
+      packages = list(pak = record),
+      library  = library,
+      prompt   = FALSE,
+      project  = project
+    )
+  )
 
   # if we couldn't install the requested version of pak, fall back to the
   # version of pak that's already installed, if any; otherwise, to installing
@@ -98,7 +107,7 @@ renv_pak_init_record <- function(record, force = FALSE) {
     caution(fmt, record[["Version"]], conditionMessage(status))
     if (force || !renv_pak_available()) {
       caution("- Falling back to the latest available version of pak.")
-      renv_pak_init_impl(renv_pak_stream())
+      renv_pak_init_impl(renv_pak_stream(), project)
     } else {
       caution("- Falling back to the installed version of pak.")
     }
@@ -144,7 +153,7 @@ renv_pak_repos <- function(stream) {
 
 }
 
-renv_pak_init_impl <- function(stream) {
+renv_pak_init_impl <- function(stream, project = NULL) {
 
   renv_scope_options(
     renv.config.pak.enabled = FALSE,
@@ -153,7 +162,7 @@ renv_pak_init_impl <- function(stream) {
   )
 
   library <- renv_libpaths_active()
-  install("pak", library = library)
+  install("pak", library = library, project = project)
   loadNamespace("pak", lib.loc = library)
 
 }
