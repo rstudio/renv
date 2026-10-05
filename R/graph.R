@@ -1809,6 +1809,13 @@ renv_graph_install <- function(descriptions) {
       # fill worker slots from ready queue
       while (length(ready) > 0L) {
         pkg <- ready[1L]
+        entry <- entries[[pkg]]
+
+        # source packages need a worker slot; wait for one before doing
+        # anything with this package, as the work below would otherwise be
+        # repeated each time we came back to it
+        if (!identical(entry$type, "binary") && length(active) >= jobs)
+          break
 
         # install from the cache if the package was cached since we last looked
         if (cached(pkg)) {
@@ -1817,8 +1824,6 @@ renv_graph_install <- function(descriptions) {
           release(pkg)
           next
         }
-
-        entry <- entries[[pkg]]
 
         # unpack (if needed) and prepare
         prepared <- catch(renv_graph_install_unpack_and_prepare(
@@ -1865,10 +1870,7 @@ renv_graph_install <- function(descriptions) {
 
         } else {
 
-          # source packages need a worker slot
-          if (length(active) >= jobs)
-            break
-
+          # source packages are built by a worker process
           ready <- ready[-1L]
           active[[pkg]] <- renv_graph_install_launch_socket(
             prepared, server$port

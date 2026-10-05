@@ -230,6 +230,37 @@ test_that("renv_graph_install uses a cache entry that appeared after its up-fron
 
 })
 
+test_that("renv_graph_install prepares a package once while it waits for a worker", {
+
+  skip_on_cran()
+  renv_tests_scope()
+  renv_scope_options(renv.config.install.jobs = 1L)
+
+  # use an empty cache, so that every package needs to be built
+  cache <- renv_scope_tempfile("renv-cache-")
+  renv_scope_envvars(RENV_PATHS_CACHE = cache)
+
+  prepared <- character()
+  prepare <- get("renv_graph_install_unpack_and_prepare", envir = asNamespace("renv"))
+  renv_scope_binding(
+    envir       = asNamespace("renv"),
+    symbol      = "renv_graph_install_unpack_and_prepare",
+    replacement = function(record, ...) {
+      prepared <<- c(prepared, record$Package)
+      prepare(record, ...)
+    }
+  )
+
+  # these packages don't depend on each other, so they're all ready to be
+  # built from the start, but only one of them can be built at a time
+  packages <- c("bread", "egg", "oatmeal")
+  descriptions <- renv_graph_init(packages)
+  renv_graph_install(descriptions)
+
+  expect_equal(sort(prepared), packages)
+
+})
+
 test_that("renv_graph_urls resolves repository package URLs", {
 
   renv_tests_scope()
