@@ -979,3 +979,38 @@ test_that("Bioconductor git retrieval only uses shallow fetches with usable meta
   expect_identical(renv_retrieve_bioconductor_git_fetchargs(record), list(full))
 
 })
+
+test_that("a retrieved package that differs from the record is reported", {
+
+  renv_tests_scope()
+
+  library <- renv_scope_tempfile("renv-library-")
+  ensure_directory(library)
+
+  record <- list(
+    Package = "bread",
+    Version = "1.0.0",
+    Source  = "Repository"
+  )
+
+  renv_scope_restore(
+    project   = getwd(),
+    library   = library,
+    records   = list(bread = record),
+    packages  = "bread",
+    recursive = FALSE
+  )
+
+  # the retrieved path holds a different package than the record describes,
+  # as would happen if a download cache entry or repository served the wrong file
+  path <- renv_tests_path("packages/toast")
+  expect_warning(
+    renv_retrieve_successful(record, path, install = FALSE),
+    "is 'toast', but 'bread' was requested"
+  )
+
+  # a matching package is accepted quietly
+  record$Package <- "toast"
+  expect_no_warning(renv_retrieve_successful(record, path, install = FALSE))
+
+})

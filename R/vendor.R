@@ -126,7 +126,47 @@ renv_vendor_resources <- function(project, sources) {
     renv_file_copy(source, target)
   }
 
+  # leave out the files which renv excludes when it's built as a package (e.g.
+  # tooling configuration); an installed renv doesn't have those either, and
+  # R CMD check would complain about them in the host package
+  ignored <- renv_vendor_resources_ignored(sources)
+  unlink(file.path(vendor, ignored), recursive = TRUE)
+
   invisible(vendor)
+
+}
+
+# the files copied from the 'inst' directory of the renv sources which are
+# excluded from a build of renv, as paths relative to that directory
+renv_vendor_resources_ignored <- function(sources) {
+
+  ignore <- file.path(sources, ".Rbuildignore")
+  if (!file.exists(ignore))
+    return(character())
+
+  patterns <- readLines(ignore, warn = FALSE)
+  patterns <- patterns[nzchar(patterns)]
+
+  files <- list.files(
+    path         = file.path(sources, "inst"),
+    all.files    = TRUE,
+    recursive    = TRUE,
+    include.dirs = TRUE
+  )
+
+  # hidden files at the top level weren't copied, so a file of the same name
+  # in the host package isn't ours to remove
+  copied <- list.files(file.path(sources, "inst"))
+  files <- files[sub("/.*", "", files) %in% copied]
+
+  # as in R CMD build, patterns are matched against paths relative to the
+  # root of the package sources, ignoring case
+  paths <- file.path("inst", files)
+  ignored <- rep.int(FALSE, length(paths))
+  for (pattern in patterns)
+    ignored <- ignored | grepl(pattern, paths, perl = TRUE, ignore.case = TRUE)
+
+  files[ignored]
 
 }
 

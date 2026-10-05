@@ -287,19 +287,19 @@ test_that("crandb lookups use the version available from the repositories", {
   expect_equal(renv_sysreqs_version("bread"), "1.0.0")
   expect_null(renv_sysreqs_version("no.such.package"))
 
-  # stub crandb lookup so we don't touch the network
-  requested <- NULL
+  # stub crandb query so we don't touch the network
   renv_scope_binding(
     envir = asNamespace("renv"),
-    symbol = "renv_sysreqs_crandb",
-    replacement = function(package, version = NULL) {
-      requested <<- version
-      list(Package = package, Version = version)
+    symbol = "renv_available_packages_crandb_query",
+    replacement = function(package) {
+      versions <- named(c("0.1.0", "1.0.0", "2.0.0"))
+      records <- lapply(versions, function(version) list(Package = package, Version = version))
+      list(versions = records, latest = "2.0.0")
     }
   )
 
-  renv_sysreqs_lookup("bread", sources = "crandb", lockfile = NULL)
-  expect_equal(requested, "1.0.0")
+  record <- renv_sysreqs_lookup("bread", sources = "crandb", lockfile = NULL)
+  expect_equal(record$Version, "1.0.0")
 
   # a version recorded in the lockfile takes precedence
   lockfile <- list(
@@ -312,29 +312,130 @@ test_that("crandb lookups use the version available from the repositories", {
     )
   )
 
-  renv_sysreqs_lookup("bread", sources = c("lockfile", "crandb"), lockfile = lockfile)
-  expect_equal(requested, "0.1.0")
+  record <- renv_sysreqs_lookup("bread", sources = c("lockfile", "crandb"), lockfile = lockfile)
+  expect_equal(record$Version, "0.1.0")
+
+})
+
+test_that("crandb lookups fall back to the latest CRAN release", {
+
+  renv_tests_scope()
+
+  # crandb has no record of the versions asked for below, as with a
+  # development version from some other repository
+  renv_scope_binding(
+    envir = asNamespace("renv"),
+    symbol = "renv_available_packages_crandb_query",
+    replacement = function(package) {
+      versions <- named(c("0.5.0", "0.9.0"))
+      records <- lapply(versions, function(version) list(Package = package, Version = version))
+      list(versions = records, latest = "0.9.0")
+    }
+  )
+
+  # the version of 'bread' which the repositories provide
+  expect_no_warning(
+    record <- renv_sysreqs_lookup("bread", sources = "crandb", lockfile = NULL)
+  )
+
+  expect_equal(record$Version, "0.9.0")
+
+  # a version recorded in the lockfile, for a package that isn't installed
+  lockfile <- list(
+    bread = list(
+      Package = "bread",
+      Version = "1.5.0.9000",
+      Source = "Repository",
+      Repository = "CRAN",
+      Hash = "0123456789abcdef"
+    ),
+    utils = list(
+      Package = "utils",
+      Version = "0.1.0",
+      Source = "Repository",
+      Repository = "CRAN",
+      Hash = "0123456789abcdef"
+    )
+  )
+
+  sources <- c("lockfile", "library", "crandb")
+  record <- renv_sysreqs_lookup("bread", sources = sources, lockfile = lockfile)
+  expect_equal(record$Version, "0.9.0")
+
+  # that's a last resort, like an installed copy with a mismatched version,
+  # so whichever of those sources was listed first is the one that's used
+  record <- renv_sysreqs_lookup("utils", sources = sources, lockfile = lockfile)
+  expect_equal(record$Version, as.character(packageVersion("utils")))
+
+  record <- renv_sysreqs_lookup("utils", sources = rev(sources), lockfile = lockfile)
+  expect_equal(record$Version, "0.9.0")
+
+})
+
+test_that("a failed crandb lookup doesn't provide a record", {
+
+  renv_tests_scope()
+
+  renv_scope_binding(
+    envir = asNamespace("renv"),
+    symbol = "renv_available_packages_crandb_query",
+    replacement = function(package) NULL
+  )
+
+  # with no other source to consult, the package is left unresolved
+  expect_warning(
+    record <- renv_sysreqs_lookup("no.such.package", sources = "crandb", lockfile = NULL)
+  )
+
+  expect_null(record)
+
+  # an installed copy with a mismatched version is still used as a last resort
+  lockfile <- list(
+    utils = list(
+      Package = "utils",
+      Version = "0.1.0",
+      Source = "Repository",
+      Repository = "CRAN",
+      Hash = "0123456789abcdef"
+    )
+  )
+
+  expect_warning(
+    record <- renv_sysreqs_lookup(
+      package  = "utils",
+      sources  = c("lockfile", "library", "crandb"),
+      lockfile = lockfile
+    )
+  )
+
+  expect_equal(record$Package, "utils")
+  expect_false(identical(record$Version, "0.1.0"))
 
 })
 
 test_that("dependencies reported by crandb are converted", {
 
   json <- '{
-    "Package": "morning",
-    "Version": "1.0.0",
-    "Depends": {"R": ">= 3.5.0"},
-    "Imports": {"evening": ">= 1.0.0", "night": "*"},
-    "SystemRequirements": "libcurl"
+    "versions": {
+      "1.0.0": {
+        "Package": "morning",
+        "Version": "1.0.0",
+        "Depends": {"R": ">= 3.5.0"},
+        "Imports": {"evening": ">= 1.0.0", "night": "*"},
+        "SystemRequirements": "libcurl"
+      }
+    },
+    "latest": "1.0.0"
   }'
 
-  # stub download so we don't touch the network
+  # stub crandb query so we don't touch the network
   renv_scope_binding(
     envir = asNamespace("renv"),
-    symbol = "download",
-    replacement = function(url, destfile, ...) writeLines(json, con = destfile)
+    symbol = "renv_available_packages_crandb_query",
+    replacement = function(package) renv_json_read(text = json)
   )
 
-  record <- renv_sysreqs_crandb_impl_one("morning", "1.0.0")
+  record <- renv_sysreqs_crandb("morning", "1.0.0")
   expect_equal(record$Imports, "evening (>= 1.0.0), night")
   expect_equal(record$SystemRequirements, "libcurl")
   expect_equal(renv_graph_deps(record), c("evening", "night"))

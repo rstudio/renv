@@ -230,6 +230,94 @@ test_that("renv_graph_install uses a cache entry that appeared after its up-fron
 
 })
 
+test_that("renv_graph_install prepares a package once while it waits for a worker", {
+
+  skip_on_cran()
+  renv_tests_scope()
+  renv_scope_options(renv.config.install.jobs = 1L)
+
+  # use an empty cache, so that every package needs to be built
+  cache <- renv_scope_tempfile("renv-cache-")
+  renv_scope_envvars(RENV_PATHS_CACHE = cache)
+
+  prepared <- character()
+  prepare <- get("renv_graph_install_unpack_and_prepare", envir = asNamespace("renv"))
+  renv_scope_binding(
+    envir       = asNamespace("renv"),
+    symbol      = "renv_graph_install_unpack_and_prepare",
+    replacement = function(record, ...) {
+      prepared <<- c(prepared, record$Package)
+      prepare(record, ...)
+    }
+  )
+
+  # these packages don't depend on each other, so they're all ready to be
+  # built from the start, but only one of them can be built at a time
+  packages <- c("bread", "egg", "oatmeal")
+  descriptions <- renv_graph_init(packages)
+  renv_graph_install(descriptions)
+
+  expect_equal(sort(prepared), packages)
+
+})
+
+test_that("renv_graph_install removes its backups when packages wait for a worker", {
+
+  skip_on_cran()
+  renv_tests_scope()
+
+  renv_scope_options(
+    renv.config.install.jobs   = 1L,
+    renv.config.install.staged = FALSE
+  )
+
+  # use an empty cache, so that every package needs to be built
+  cache <- renv_scope_tempfile("renv-cache-")
+  renv_scope_envvars(RENV_PATHS_CACHE = cache)
+
+  init()
+  packages <- c("bread", "egg", "oatmeal")
+  install(packages)
+
+  # without a staged install, the existing installation of each package is
+  # moved aside while the new one is built, and removed afterwards
+  install(packages, rebuild = TRUE)
+
+  backups <- list.files(
+    path      = renv_paths_library(),
+    pattern   = "^[.]renv-backup-",
+    all.files = TRUE
+  )
+
+  expect_length(backups, 0L)
+
+  for (package in packages)
+    expect_true(renv_package_installed(package), info = package)
+
+})
+
+test_that("renv_graph_install installs packages when install.jobs isn't positive", {
+
+  skip_on_cran()
+  renv_tests_scope()
+  renv_scope_options(renv.config.install.jobs = 0L)
+
+  # use an empty cache, so that 'bread' needs to be built
+  cache <- renv_scope_tempfile("renv-cache-")
+  renv_scope_envvars(RENV_PATHS_CACHE = cache)
+
+  # with no jobs, the installer would wait forever for a worker to become
+  # available; fail in that case, rather than hanging
+  setTimeLimit(elapsed = 300)
+  defer(setTimeLimit())
+
+  descriptions <- renv_graph_init("bread")
+  renv_graph_install(descriptions)
+
+  expect_true(renv_package_installed("bread"))
+
+})
+
 test_that("renv_graph_urls resolves repository package URLs", {
 
   renv_tests_scope()

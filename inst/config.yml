@@ -270,8 +270,8 @@
   default: false
   description: >
     Use the [pak](https://pak.r-lib.org/) package to install packages?
-    If `pak` is itself recorded in the lockfile, renv will install and
-    use that version of `pak` when possible.
+    If `pak` is itself recorded in the lockfile, `restore()` will install
+    and use that version of `pak` when possible.
 
 - name: "ppm.enabled"
   type: "logical[1]"

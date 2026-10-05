@@ -319,6 +319,25 @@ test_that("crandb query returns R-compatible versions", {
 
 })
 
+test_that("a crandb response that can't be parsed isn't memoized", {
+
+  # the first response is unusable (e.g. an error page served with a 200
+  # status); the second is fine
+  responses <- c("<html>Service Unavailable</html>", '{"versions": {"1.0.0": {}}}')
+  local_mocked_bindings(download = function(url, destfile, ...) {
+    writeLines(responses[[1L]], con = destfile)
+    responses <<- responses[-1L]
+    invisible(destfile)
+  })
+
+  expect_null(renv_available_packages_crandb_query("renv.test.crandb.memoize"))
+
+  json <- renv_available_packages_crandb_query("renv.test.crandb.memoize")
+  expect_equal(names(json$versions), "1.0.0")
+  expect_length(responses, 0L)
+
+})
+
 test_that("crandb returns newest compatible version", {
   skip_on_cran()
   skip_if_offline()

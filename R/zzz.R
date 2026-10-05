@@ -4,11 +4,8 @@
   # NOTE: needs to be visible to embedded instances of renv as well
   the$envir_self <<- renv_envir_self()
 
-  # save a reference to system.file on load. pkgload's shim lives in our
-  # imports environment, so look only there: searching further up the chain
-  # would pick up a system.file() defined by the host package when embedded
-  imports <- parent.env(the$envir_self)
-  the$system_file <<- get0("system.file", envir = imports, inherits = FALSE) %||% base::system.file
+  # save a reference to system.file on load
+  the$system_file <<- renv_mask_system_file(the$envir_self)
 
   # load extensions if available
   renv_ext_onload(libname, pkgname)
