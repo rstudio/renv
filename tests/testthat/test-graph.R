@@ -261,6 +261,41 @@ test_that("renv_graph_install prepares a package once while it waits for a worke
 
 })
 
+test_that("renv_graph_install removes its backups when packages wait for a worker", {
+
+  skip_on_cran()
+  renv_tests_scope()
+
+  renv_scope_options(
+    renv.config.install.jobs   = 1L,
+    renv.config.install.staged = FALSE
+  )
+
+  # use an empty cache, so that every package needs to be built
+  cache <- renv_scope_tempfile("renv-cache-")
+  renv_scope_envvars(RENV_PATHS_CACHE = cache)
+
+  init()
+  packages <- c("bread", "egg", "oatmeal")
+  install(packages)
+
+  # without a staged install, the existing installation of each package is
+  # moved aside while the new one is built, and removed afterwards
+  install(packages, rebuild = TRUE)
+
+  backups <- list.files(
+    path      = renv_paths_library(),
+    pattern   = "^[.]renv-backup-",
+    all.files = TRUE
+  )
+
+  expect_length(backups, 0L)
+
+  for (package in packages)
+    expect_true(renv_package_installed(package), info = package)
+
+})
+
 test_that("renv_graph_urls resolves repository package URLs", {
 
   renv_tests_scope()

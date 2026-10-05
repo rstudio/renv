@@ -22,6 +22,14 @@
   renv now copies the package into a temporary directory alongside its final
   location and renames it into place. (#2402)
 
+* `renv::install()` and `renv::restore()` no longer leave `.renv-backup-*`
+  directories behind in the library when staged installs are disabled (via
+  the `renv.config.install.staged` option) and more packages are ready to be
+  built than can be built at once. Previously, renv could lose track of the
+  backup of an existing installation while its package waited to be built, so
+  that the backup was neither removed after a successful install, nor
+  restored after a failed one.
+
 * A vendored copy of renv (created with `renv:::vendor()`) now bundles the
   files it reads at runtime, so that system requirements checks, git
   credential helpers, and discovery of `renv::use()` calls work when renv
