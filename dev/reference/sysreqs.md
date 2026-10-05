@@ -54,8 +54,9 @@ sysreqs(
   an installed copy of the package is only used if its version matches,
   and crandb is queried for that specific version. Otherwise, crandb is
   queried for the latest version available from the active package
-  repositories, or the latest CRAN release if the repositories do not
-  provide the package.
+  repositories. crandb only has records of CRAN releases; when it has no
+  record of the requested version, the latest CRAN release is used as a
+  last resort.
 
 - recursive:
 

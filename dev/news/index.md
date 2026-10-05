@@ -30,6 +30,17 @@
   renames it into place.
   ([\#2402](https://github.com/rstudio/renv/issues/2402))
 
+- [`renv::install()`](https://rstudio.github.io/renv/dev/reference/install.md)
+  and
+  [`renv::restore()`](https://rstudio.github.io/renv/dev/reference/restore.md)
+  no longer leave `.renv-backup-*` directories behind in the library
+  when staged installs are disabled (via the
+  `renv.config.install.staged` option) and more packages are ready to be
+  built than can be built at once. Previously, renv could lose track of
+  the backup of an existing installation while its package waited to be
+  built, so that the backup was neither removed after a successful
+  install, nor restored after a failed one.
+
 - A vendored copy of renv (created with `renv:::vendor()`) now bundles
   the files it reads at runtime, so that system requirements checks, git
   credential helpers, and discovery of
@@ -73,9 +84,12 @@
   ([\#2352](https://github.com/rstudio/renv/issues/2352))
 
 - When pak integration is enabled (via the `renv.config.pak.enabled`
-  option) and `pak` is itself recorded in the lockfile, renv now
-  installs and uses the recorded version of `pak`, rather than the
-  latest version available from the pak repositories. Lockfile records
+  option) and `pak` is itself recorded in the lockfile,
+  [`renv::restore()`](https://rstudio.github.io/renv/dev/reference/restore.md)
+  now installs and uses the recorded version of `pak`, rather than the
+  latest version available from the pak repositories. Other functions
+  use the recorded version when `pak` needs to be installed, and
+  otherwise leave the installed version of `pak` alone. Lockfile records
   for versions of `pak` older than the minimum version supported by renv
   are ignored, and renv falls back to the previous behavior if the
   recorded version cannot be installed.
