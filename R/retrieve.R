@@ -1475,9 +1475,25 @@ renv_retrieve_successful <- function(record, path, install = TRUE) {
   # augment record with information from DESCRIPTION file
   desc <- renv_description_read(path, subdir = subdir)
 
+  # the package we retrieved should be the one the record asked for; if not,
+  # the download (or the repository that served it) handed us the wrong file,
+  # so say so before we carry on with what we actually got. git remotes are
+  # exempt, as their package name is only a guess from the repository URL
+  # https://github.com/rstudio/renv/issues/2322
+  expected <- record$Package
+  actual <- desc$Package
+  mismatch <-
+    !identical(renv_record_source(record), "git") &&
+    !is.null(expected) && !is.null(actual) &&
+    !identical(expected, actual)
+
+  if (mismatch) {
+    fmt <- "the package retrieved to %s is '%s', but '%s' was requested"
+    warningf(fmt, renv_path_pretty(path), actual, expected)
+  }
+
   # update the record's package name, version
-  # TODO: should we warn if they didn't match for some reason?
-  package <- record$Package <- desc$Package
+  package <- record$Package <- actual
   record$Version <- desc$Version
 
   # add in path information to record (used later during install)
