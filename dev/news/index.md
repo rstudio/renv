@@ -2,6 +2,12 @@
 
 ## renv (development version)
 
+- renv now warns when a retrieved package is not the one that was
+  requested, for example because a download cache entry or a repository
+  served a tarball for a different package. Previously, renv silently
+  installed whatever package it had retrieved.
+  ([\#2322](https://github.com/rstudio/renv/issues/2322))
+
 - Concurrent restores sharing a package cache no longer fail with errors
   like `dependency 'rlang' is not available` when they build the same
   package at the same time. Previously, the restore that finished last
