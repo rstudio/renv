@@ -1,4 +1,4 @@
-# renv (development version)
+# renv 1.3.1
 
 * `renv::hydrate()` no longer reports packages that are already installed in
   the project library as "not available locally", nor re-installs them, when
