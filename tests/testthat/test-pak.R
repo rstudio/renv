@@ -619,7 +619,7 @@ test_that("renv_pak_init() only replaces an installed pak when given a lockfile"
   renv_pak_init(project = project)
   expect_equal(args$packages$pak$Version, "99.99.99")
 
-  # the caller has already confirmed the operation which needs pak
+  # the operation which needs pak prompts for itself
   expect_false(args$prompt)
 
   # pak is installed for the project being operated on, which needn't be

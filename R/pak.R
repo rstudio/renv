@@ -85,10 +85,11 @@ renv_pak_init_record <- function(record, force = FALSE, project = NULL) {
 
   renv_scope_options(renv.config.pak.enabled = FALSE)
 
-  # pak is being installed on behalf of an operation that the user has
-  # already been asked about (if they wanted to be), so don't ask again here.
-  # that operation's project is the one pak should be installed for, which
-  # needn't be the active project
+  # pak is being installed so that it can carry out an operation which will
+  # itself ask the user (if they wanted to be asked) before touching the
+  # project library, so don't ask about pak separately. that operation's
+  # project is the one pak should be installed for, which needn't be the
+  # active project
   library <- renv_libpaths_active()
   status <- catch(
     install(
@@ -161,8 +162,9 @@ renv_pak_init_impl <- function(stream, project = NULL) {
     repos = c("r-lib" = renv_pak_repos(stream))
   )
 
+  # as in renv_pak_init_record(), the operation which needs pak will prompt
   library <- renv_libpaths_active()
-  install("pak", library = library, project = project)
+  install("pak", library = library, prompt = FALSE, project = project)
   loadNamespace("pak", lib.loc = library)
 
 }
