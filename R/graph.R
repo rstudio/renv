@@ -1360,7 +1360,7 @@ renv_graph_url_local <- function(desc) {
     path <- desc[[field]]
     if (is.null(path) || !nzchar(path))
       next
-    if (!grepl("[/\\\\]|[.](?:zip|tgz|gz)$", path))
+    if (!grepl(paste0("[/\\\\]|", renv_package_ext_pattern()), path, perl = TRUE))
       next
     if (!file.exists(path))
       next

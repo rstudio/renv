@@ -819,8 +819,10 @@ renv_available_packages_cellar <- function(type, project = NULL) {
     include.dirs = FALSE
   )
 
-  # keep only files which look like packages of the requested type
+  # keep only files which look like packages of the requested type,
+  # dropping binaries produced for a different build of R
   parsed <- renv_package_filename_parse(all)
+  parsed <- renv_package_filename_filter(parsed)
   keep <- parsed[parsed$Ext %in% renv_package_extensions(type), ]
   if (nrow(keep) == 0L)
     return(NULL)

@@ -272,7 +272,7 @@ renv_retrieve_impl_one <- function(package) {
     isurl <-
       is.character(path) &&
       nzchar(path) &&
-      grepl("[/\\]|[.](?:zip|tgz|gz)$", path)
+      grepl(paste0("[/\\\\]|", renv_package_ext_pattern()), path, perl = TRUE)
 
     if (!isurl)
       next
@@ -808,11 +808,8 @@ renv_retrieve_cellar_find <- function(record, project = NULL) {
   roots <- renv_cellar_roots(project)
   paths <- list.files(c(roots, file.path(roots, package)), full.names = TRUE)
   parsed <- renv_package_filename_parse(paths)
+  parsed <- renv_package_filename_filter(parsed)
   parsed <- parsed[parsed$Package == package & parsed$Version == version, ]
-
-  # skip binaries produced for a different build of R
-  build <- renv_pkgtype_build(.Platform$pkgType)
-  parsed <- parsed[is.na(parsed$Build) | parsed$Build %in% build, ]
 
   # prefer binaries over sources
   if (nrow(parsed)) {

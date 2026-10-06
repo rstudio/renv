@@ -225,6 +225,13 @@ renv_package_filename_parse <- function(paths) {
 
 }
 
+# drop the archives in a parsed listing which were built for a different
+# build of R; archives without a build designation are always kept
+renv_package_filename_filter <- function(parsed) {
+  build <- renv_pkgtype_build(.Platform$pkgType)
+  parsed[is.na(parsed$Build) | parsed$Build %in% build, ]
+}
+
 renv_package_pkgtypes <- function() {
 
   # only use binaries if the user has specifically requested it

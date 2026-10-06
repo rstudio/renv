@@ -106,6 +106,17 @@ test_that("cellar packages using other tar compressions are found", {
   record <- list(Package = "xzpkg", Version = "1.0.0")
   expect_error(renv_retrieve_cellar_find(record), "not available locally")
 
+  # ... whatever its compression, and the cellar listing must not advertise it
+  tar(
+    tarfile     = file.path(cellar, "xzpkg_1.0.0_R_other-build.tar.gz"),
+    files       = "xzpkg",
+    compression = "gzip"
+  )
+
+  expect_error(renv_retrieve_cellar_find(record), "not available locally")
+  listing <- renv_available_packages_cellar("source")
+  expect_false("xzpkg" %in% listing$Package)
+
   # an archive without a build designation is accepted whatever its compression
   path <- file.path(cellar, "xzpkg_1.0.0.tar.xz")
   tar(tarfile = path, files = "xzpkg", compression = "xz")
