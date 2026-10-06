@@ -831,10 +831,13 @@ renv_available_packages_cellar <- function(type, project = NULL) {
   prefix <- if (renv_platform_windows()) "file:///" else "file://"
   repository <- paste0(prefix, dirname(keep$Path))
 
+  # advertise the real file name, since it may carry a build designation or
+  # a compression the default archive name for this type would not guess
   data_frame(
     Package    = keep$Package,
     Version    = keep$Version,
-    Repository = repository
+    Repository = repository,
+    File       = basename(keep$Path)
   )
 
 }

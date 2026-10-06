@@ -126,3 +126,52 @@ test_that("cellar packages using other tar compressions are found", {
   expect_equal(names(found), "source")
 
 })
+
+test_that("cellar binaries built for this build of R are advertised", {
+  skip_on_cran()
+  renv_tests_scope()
+
+  cellar <- renv_paths_cellar()
+  ensure_directory(cellar)
+
+  # pretend this build of R writes a known build designation
+  renv_scope_binding(
+    envir       = asNamespace("renv"),
+    symbol      = "renv_pkgtype_build",
+    replacement = function(type = NULL) "test-build"
+  )
+
+  pkgdir <- renv_scope_tempfile("renv-cellar-pkg-")
+  ensure_directory(file.path(pkgdir, "buildpkg"))
+  writeLines(
+    c(
+      "Package: buildpkg",
+      "Version: 1.0.0",
+      "Title: A Cellar Package",
+      "Description: Test.",
+      "License: MIT"
+    ),
+    file.path(pkgdir, "buildpkg", "DESCRIPTION")
+  )
+
+  renv_scope_wd(pkgdir)
+  path <- file.path(cellar, "buildpkg_1.0.0_R_test-build.tar.gz")
+  tar(tarfile = path, files = "buildpkg", compression = "gzip")
+
+  # the lookup accepts the archive ...
+  record <- list(Package = "buildpkg", Version = "1.0.0")
+  found <- renv_retrieve_cellar_find(record)
+  expect_equal(unname(found), path)
+
+  # ... the listing advertises it under its real file name ...
+  renv_scope_options(repos = character())
+  listing <- renv_available_packages_cellar("source")
+  expect_true(basename(path) %in% listing$File)
+
+  # ... and the parallel download path resolves to that file
+  latest <- renv_available_packages_latest("buildpkg", type = "source")
+  url <- renv_graph_url_cellar(latest)
+  expect_equal(basename(url$url), basename(path))
+  expect_true(file.exists(renv_url_local_path(url$url)))
+
+})
