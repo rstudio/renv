@@ -2,6 +2,13 @@
 
 ## renv (development version)
 
+- renv now recognizes the custom binary package types introduced with R
+  4.6.0 (of the form `<system>.binary.<build>`), along with binary
+  packages distributed as `.tar.bz2`, `.tar.xz`, `.tar.zst` and
+  `.tar.zstd` archives and the `<package>_<version>_R_<build>` file
+  names produced by `R CMD INSTALL --build` for such builds of R. Such
+  archives are now accepted as local sources and in the cellar.
+
 ## renv 1.3.1
 
 CRAN release: 2026-10-06

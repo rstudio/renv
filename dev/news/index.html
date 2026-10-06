@@ -53,7 +53,8 @@
 
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="development version" id="renv-development-version">renv (development version)<a class="anchor" aria-label="anchor" href="#renv-development-version"></a></h2>
-</div>
+<ul><li>renv now recognizes the custom binary package types introduced with R 4.6.0 (of the form <code>&lt;system&gt;.binary.&lt;build&gt;</code>), along with binary packages distributed as <code>.tar.bz2</code>, <code>.tar.xz</code>, <code>.tar.zst</code> and <code>.tar.zstd</code> archives and the <code>&lt;package&gt;_&lt;version&gt;_R_&lt;build&gt;</code> file names produced by <code>R CMD INSTALL --build</code> for such builds of R. Such archives are now accepted as local sources and in the cellar.</li>
+</ul></div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="1.3.1" id="renv-131">renv 1.3.1<a class="anchor" aria-label="anchor" href="#renv-131"></a></h2><p class="text-muted">CRAN release: 2026-10-06</p>
 <ul><li><p><code><a href="../reference/hydrate.html">renv::hydrate()</a></code> no longer reports packages that are already installed in the project library as “not available locally”, nor re-installs them, when those packages are not found in the user or site libraries. (<a href="https://github.com/rstudio/renv/issues/2172" class="external-link">#2172</a>)</p></li>
