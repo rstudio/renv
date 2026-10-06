@@ -2,6 +2,10 @@
 
 ## renv (development version)
 
+## renv 1.3.1
+
+CRAN release: 2026-10-06
+
 - [`renv::hydrate()`](https://rstudio.github.io/renv/dev/reference/hydrate.md)
   no longer reports packages that are already installed in the project
   library as “not available locally”, nor re-installs them, when those
@@ -41,6 +45,7 @@
   linked to, which briefly left that link dangling. renv now links a
   duplicate build to the existing cache entry instead, unless that
   package was requested to be rebuilt.
+  ([\#2400](https://github.com/rstudio/renv/issues/2400))
 
 - [`renv::install()`](https://rstudio.github.io/renv/dev/reference/install.md)
   and
@@ -72,6 +77,7 @@
   the backup of an existing installation while its package waited to be
   built, so that the backup was neither removed after a successful
   install, nor restored after a failed one.
+  ([\#2407](https://github.com/rstudio/renv/issues/2407))
 
 - A vendored copy of renv (created with `renv:::vendor()`) now bundles
   the files it reads at runtime, so that system requirements checks, git
@@ -79,6 +85,7 @@
   [`renv::use()`](https://rstudio.github.io/renv/dev/reference/embed.md)
   calls work when renv itself is not installed. Previously these looked
   the files up in an installed copy of renv.
+  ([\#2397](https://github.com/rstudio/renv/issues/2397))
 
 - [`renv::sysreqs()`](https://rstudio.github.io/renv/dev/reference/sysreqs.md)
   now reports the system requirements of the recursive dependencies of
