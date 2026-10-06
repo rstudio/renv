@@ -800,18 +800,21 @@ renv_retrieve_cellar_find <- function(record, project = NULL) {
     return(named(path, type))
   }
 
-  # otherwise, look in the cellar, both at the top level and within
-  # a sub-directory named after the package
+  # otherwise, look in the cellar, both within a sub-directory named after
+  # the package and at the top level; earlier roots take precedence, so list
+  # each directory separately rather than letting list.files() sort them
   package <- record$Package
   version <- record$RemoteSha %||% record$Version
 
   roots <- renv_cellar_roots(project)
-  paths <- list.files(c(roots, file.path(roots, package)), full.names = TRUE)
+  dirs <- as.character(rbind(file.path(roots, package), roots))
+  paths <- uapply(dirs, list.files, full.names = TRUE)
   parsed <- renv_package_filename_parse(paths)
   parsed <- renv_package_filename_filter(parsed)
   parsed <- parsed[parsed$Package == package & parsed$Version == version, ]
 
-  # prefer binaries over sources
+  # prefer binaries over sources; order() is stable, so earlier
+  # directories still win among candidates of the same type
   if (nrow(parsed)) {
     types <- map_chr(parsed$Path, renv_package_type, quiet = TRUE)
     idx <- order(types != "binary")[[1L]]

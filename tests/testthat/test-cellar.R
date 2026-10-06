@@ -211,3 +211,41 @@ test_that("cellar binaries for other platforms are ignored", {
   expect_equal(names(found), "source")
 
 })
+
+test_that("the project cellar takes precedence over the global cellar", {
+  skip_on_cran()
+  project <- renv_tests_scope()
+
+  global <- renv_paths_cellar()
+  local <- renv_paths_renv("cellar", project = project)
+  ensure_directory(global)
+  ensure_directory(local)
+
+  pkgdir <- renv_scope_tempfile("renv-cellar-pkg-")
+  ensure_directory(file.path(pkgdir, "precpkg"))
+  writeLines(
+    c(
+      "Package: precpkg",
+      "Version: 1.0.0",
+      "Title: A Cellar Package",
+      "Description: Test.",
+      "License: MIT"
+    ),
+    file.path(pkgdir, "precpkg", "DESCRIPTION")
+  )
+
+  # the same archive lives in both cellars
+  renv_scope_wd(pkgdir)
+  for (dir in c(global, local)) {
+    tar(
+      tarfile     = file.path(dir, "precpkg_1.0.0.tar.gz"),
+      files       = "precpkg",
+      compression = "gzip"
+    )
+  }
+
+  record <- list(Package = "precpkg", Version = "1.0.0")
+  found <- renv_retrieve_cellar_find(record, project = project)
+  expect_equal(unname(found), file.path(local, "precpkg_1.0.0.tar.gz"))
+
+})
