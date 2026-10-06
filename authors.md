@@ -14,15 +14,15 @@
 ## Citation
 
 Source:
-[`DESCRIPTION`](https://github.com/rstudio/renv/blob/v1.3.0/DESCRIPTION)
+[`DESCRIPTION`](https://github.com/rstudio/renv/blob/main/DESCRIPTION)
 
 Ushey K, Wickham H (2026). *renv: Project Environments*. R package
-version 1.3.0, <https://rstudio.github.io/renv/>.
+version 1.3.1, <https://rstudio.github.io/renv/>.
 
     @Manual{,
       title = {renv: Project Environments},
       author = {Kevin Ushey and Hadley Wickham},
       year = {2026},
-      note = {R package version 1.3.0},
+      note = {R package version 1.3.1},
       url = {https://rstudio.github.io/renv/},
     }

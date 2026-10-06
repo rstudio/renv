@@ -9,7 +9,7 @@ required by a set of R packages."><meta property="og:image" content="https://rst
 
     <a class="navbar-brand me-2" href="../index.html">renv</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">1.3.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">1.3.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -50,7 +50,7 @@ required by a set of R packages."><meta property="og:image" content="https://rst
 <div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
       <img src="../logo.svg" class="logo" alt=""><h1>R System Requirements</h1>
-      <small class="dont-index">Source: <a href="https://github.com/rstudio/renv/blob/v1.3.0/R/sysreqs.R" class="external-link"><code>R/sysreqs.R</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/rstudio/renv/blob/main/R/sysreqs.R" class="external-link"><code>R/sysreqs.R</code></a></small>
       <div class="d-none name"><code>sysreqs.Rd</code></div>
     </div>
 
@@ -64,6 +64,8 @@ required by a set of <span style="R">R</span> packages.</p>
     <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">sysreqs</span><span class="op">(</span></span>
 <span>  packages <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  <span class="va">...</span>,</span>
+<span>  source <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  recursive <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  local <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  check <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  report <span class="op">=</span> <span class="cn">TRUE</span>,</span>
@@ -79,8 +81,9 @@ required by a set of <span style="R">R</span> packages.</p>
 
 <dl><dt id="arg-packages">packages<a class="anchor" aria-label="anchor" href="#arg-packages"></a></dt>
 <dd><p>A vector of <span style="R">R</span> package names. When <code>NULL</code>
-(the default), the project's package dependencies as reported via
-<code><a href="dependencies.html">dependencies()</a></code> are used.</p></dd>
+(the default), the packages recorded in the project lockfile are used,
+together with the project's package dependencies as reported via
+<code><a href="dependencies.html">dependencies()</a></code>.</p></dd>
 
 
 <dt id="arg--">...<a class="anchor" aria-label="anchor" href="#arg--"></a></dt>
@@ -88,11 +91,37 @@ required by a set of <span style="R">R</span> packages.</p>
 are matched to <code>...</code>, renv will signal an error.</p></dd>
 
 
+<dt id="arg-source">source<a class="anchor" aria-label="anchor" href="#arg-source"></a></dt>
+<dd><p>The sources to consult when resolving package records for
+system requirement lookup. For each package, the sources are tried in
+order, and the first source able to provide a record for that package
+is used:</p><ul><li><p><code>"lockfile"</code>: use the record in the project lockfile,</p></li>
+<li><p><code>"library"</code>: use the <code>DESCRIPTION</code> of the installed package,</p></li>
+<li><p><code>"crandb"</code>: query <a href="https://crandb.r-pkg.org" class="external-link">https://crandb.r-pkg.org</a> for the package.</p></li>
+</ul><p>The default consults all three, in the order listed above. Note that
+lockfiles produced by older versions of <code>renv</code> may not include the
+<code>SystemRequirements</code> field in their records; such records are used only
+to infer the package version. When the package version is known, an
+installed copy of the package is only used if its version matches, and
+crandb is queried for that specific version. Otherwise, crandb is queried
+for the latest version available from the active package repositories.
+crandb only has records of CRAN releases; when it has no record of the
+requested version, the latest CRAN release is used as a last resort.</p></dd>
+
+
+<dt id="arg-recursive">recursive<a class="anchor" aria-label="anchor" href="#arg-recursive"></a></dt>
+<dd><p>Boolean; should the system requirements of the recursive
+dependencies of <code>packages</code> be included as well? Only the dependencies
+required to install a package (<code>Depends</code>, <code>Imports</code>, and <code>LinkingTo</code>) are
+considered. Note that the dependencies of a package are determined from
+the version of that package being used; see <strong>Package versions</strong> for
+more details.</p></dd>
+
+
 <dt id="arg-local">local<a class="anchor" aria-label="anchor" href="#arg-local"></a></dt>
-<dd><p>Boolean; should <code>renv</code> rely on locally-installed copies of
-packages when resolving system requirements? When <code>FALSE</code>, <code>renv</code> will
-use <a href="https://crandb.r-pkg.org" class="external-link">https://crandb.r-pkg.org</a> to resolve the system requirements
-for these packages.</p></dd>
+<dd><p>Boolean; superseded by <code>source</code>. <code>local = TRUE</code> is
+equivalent to <code>source = "library"</code>; that is, only locally-installed
+copies of packages are used when resolving system requirements.</p></dd>
 
 
 <dt id="arg-check">check<a class="anchor" aria-label="anchor" href="#arg-check"></a></dt>
@@ -142,6 +171,28 @@ on different systems:</p><ul><li><p>Debian: <code>sudo apt install libcurl4-open
 </ul><p>and so <code>sysreqs("curl")</code> would help provide the name of the package
 whose installation would satisfy the <code>libcurl</code> dependency.</p>
     </div>
+    <div class="section level2">
+    <h2 id="package-versions">Package versions<a class="anchor" aria-label="anchor" href="#package-versions"></a></h2>
+    <p>System requirements belong to a specific <em>version</em> of a package, not to
+the package in general. Each version of a package declares its own
+<code>SystemRequirements</code>, and its own <span style="R">R</span> package dependencies, and both can
+change from one release to the next. For example, <code>ragg 1.3.0</code> declares:</p><ul><li><p>freetype2, libpng, libtiff, libjpeg</p></li>
+</ul><p>whereas <code>ragg 1.5.2</code> declares:</p><ul><li><p>freetype2, libpng, libtiff, libjpeg, libwebp, libwebpmux</p></li>
+</ul><p>This means that the system packages reported by <code>sysreqs()</code> are only
+accurate for the package versions that were used to compute them. The same
+call can give different results in different projects, or in the same
+project after its packages have been updated.</p>
+<p>For each package, including those found as recursive dependencies,
+<code>sysreqs()</code> uses the first of the following versions which is available:</p><ol><li><p>The version recorded in the project lockfile,</p></li>
+<li><p>The version installed in the active library paths,</p></li>
+<li><p>The latest version available from the active package repositories.</p></li>
+</ol><p>These correspond to the <code>"lockfile"</code>, <code>"library"</code>, and <code>"crandb"</code> sources;
+see the <code>source</code> argument for more details. Each package is resolved
+independently, so the versions used need not come from the same source.</p>
+<p>If you are using <code>sysreqs()</code> to prepare a system for <code><a href="restore.html">restore()</a></code>, make
+sure the lockfile is up-to-date, so that <code>sysreqs()</code> reports on the same
+package versions that <code><a href="restore.html">restore()</a></code> will later install.</p>
+    </div>
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
@@ -152,7 +203,11 @@ whose installation would satisfy the <code>libcurl</code> dependency.</p>
 <span class="r-in"><span><span class="fu">sysreqs</span><span class="op">(</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># report the required system packages for a specific OS</span></span></span>
-<span class="r-in"><span><span class="fu">sysreqs</span><span class="op">(</span>platform <span class="op">=</span> <span class="st">"ubuntu"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu">sysreqs</span><span class="op">(</span>distro <span class="op">=</span> <span class="st">"ubuntu:24.04"</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># report the system packages required by a package, using</span></span></span>
+<span class="r-in"><span><span class="co"># the latest version available from the package repositories</span></span></span>
+<span class="r-in"><span><span class="fu">sysreqs</span><span class="op">(</span><span class="st">"ragg"</span>, source <span class="op">=</span> <span class="st">"crandb"</span>, distro <span class="op">=</span> <span class="st">"ubuntu:24.04"</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="op">}</span> <span class="co"># }</span></span></span>
 <span class="r-in"><span></span></span>

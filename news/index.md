@@ -1,6 +1,175 @@
 # Changelog
 
+## renv 1.3.1
+
+CRAN release: 2026-10-06
+
+- [`renv::hydrate()`](https://rstudio.github.io/renv/reference/hydrate.md)
+  no longer reports packages that are already installed in the project
+  library as “not available locally”, nor re-installs them, when those
+  packages are not found in the user or site libraries.
+  ([\#2172](https://github.com/rstudio/renv/issues/2172))
+
+- [`renv::restore()`](https://rstudio.github.io/renv/reference/restore.md)
+  and
+  [`renv::install()`](https://rstudio.github.io/renv/reference/install.md)
+  now install repository archives of packages whose lockfile record
+  includes a `RemoteSubdir` field (for example, packages originally
+  built from a sub-directory of a GitHub repository and then published
+  to a custom repository). Previously, renv failed to find the
+  `DESCRIPTION` file within such archives and fell back to cloning the
+  package’s git repository instead.
+  ([\#1703](https://github.com/rstudio/renv/issues/1703))
+
+- renv now writes the `GithubSubdir` field, alongside the other
+  `Github*` compatibility fields, when installing a package from a
+  sub-directory of a GitHub repository.
+  ([\#2165](https://github.com/rstudio/renv/issues/2165))
+
+- [`renv::lockfile_validate()`](https://rstudio.github.io/renv/reference/lockfile_validate.md)
+  now reports a clear error when the `jsonvalidate` package is not
+  installed. ([\#2184](https://github.com/rstudio/renv/issues/2184))
+
+- renv now warns when a retrieved package is not the one that was
+  requested, for example because a download cache entry or a repository
+  served a tarball for a different package. Previously, renv silently
+  installed whatever package it had retrieved.
+  ([\#2322](https://github.com/rstudio/renv/issues/2322))
+
+- Concurrent restores sharing a package cache no longer fail with errors
+  like `dependency 'rlang' is not available` when they build the same
+  package at the same time. Previously, the restore that finished last
+  replaced the cache entry that the other restore’s library already
+  linked to, which briefly left that link dangling. renv now links a
+  duplicate build to the existing cache entry instead, unless that
+  package was requested to be rebuilt.
+  ([\#2400](https://github.com/rstudio/renv/issues/2400))
+
+- [`renv::install()`](https://rstudio.github.io/renv/reference/install.md)
+  and
+  [`renv::restore()`](https://rstudio.github.io/renv/reference/restore.md)
+  now check the cache again just before building each package, and
+  install from the cache if a matching entry has appeared since the
+  up-front check. Concurrent restores sharing a cache thus converge on
+  the first build of each package rather than all building every package
+  that was missing from the cache when they started.
+  ([\#2403](https://github.com/rstudio/renv/issues/2403))
+
+- New cache entries now appear atomically when the cache lives on a
+  different filesystem than the project library (for example, a cache on
+  a mounted volume in CI). Previously, renv moved packages into such a
+  cache with `mv`, which copies the package into its final location
+  piece by piece; a concurrent restore could observe the
+  partially-copied entry and link its library to it. renv now copies the
+  package into a temporary directory alongside its final location and
+  renames it into place.
+  ([\#2402](https://github.com/rstudio/renv/issues/2402))
+
+- [`renv::install()`](https://rstudio.github.io/renv/reference/install.md)
+  and
+  [`renv::restore()`](https://rstudio.github.io/renv/reference/restore.md)
+  no longer leave `.renv-backup-*` directories behind in the library
+  when staged installs are disabled (via the
+  `renv.config.install.staged` option) and more packages are ready to be
+  built than can be built at once. Previously, renv could lose track of
+  the backup of an existing installation while its package waited to be
+  built, so that the backup was neither removed after a successful
+  install, nor restored after a failed one.
+  ([\#2407](https://github.com/rstudio/renv/issues/2407))
+
+- A vendored copy of renv (created with `renv:::vendor()`) now bundles
+  the files it reads at runtime, so that system requirements checks, git
+  credential helpers, and discovery of
+  [`renv::use()`](https://rstudio.github.io/renv/reference/embed.md)
+  calls work when renv itself is not installed. Previously these looked
+  the files up in an installed copy of renv.
+  ([\#2397](https://github.com/rstudio/renv/issues/2397))
+
+- [`renv::sysreqs()`](https://rstudio.github.io/renv/reference/sysreqs.md)
+  now reports the system requirements of the recursive dependencies of
+  the requested packages as well. Previously, only the requested
+  packages themselves were considered, so that (for example)
+  `renv::sysreqs("ragg")` did not report the system libraries required
+  by `systemfonts` and `textshaping`, even though `ragg` cannot be
+  installed without them. Use `recursive = FALSE` to restore the old
+  behavior. ([\#2352](https://github.com/rstudio/renv/issues/2352))
+
+- [`renv::sysreqs()`](https://rstudio.github.io/renv/reference/sysreqs.md)
+  now reports on the packages recorded in the project lockfile by
+  default, together with the packages used in the project. This is the
+  same set of packages that
+  [`renv::restore()`](https://rstudio.github.io/renv/reference/restore.md)
+  would install, so the system requirements for a project can be
+  computed from `renv.lock` alone – for example, when authoring a
+  Dockerfile, before any R packages have been installed.
+  ([\#2352](https://github.com/rstudio/renv/issues/2352))
+
+- [`renv::sysreqs()`](https://rstudio.github.io/renv/reference/sysreqs.md)
+  gains a `source` argument, controlling which version of each package
+  is used when computing system requirements. System requirements (and
+  package dependencies) are specific to a particular version of a
+  package, so the versions used matter. For each package, the requested
+  sources are tried in order: `"lockfile"` uses the version recorded in
+  the project lockfile, `"library"` uses the installed version of the
+  package, and `"crandb"` queries <https://crandb.r-pkg.org> for the
+  latest version available from the active package repositories. The
+  default consults all three, in that order. Previously, the latest CRAN
+  release of each package was always used. The `local` argument is
+  superseded by `source = "library"`. See
+  [`?renv::sysreqs`](https://rstudio.github.io/renv/reference/sysreqs.md)
+  for more details.
+  ([\#2352](https://github.com/rstudio/renv/issues/2352))
+
+- When pak integration is enabled (via the `renv.config.pak.enabled`
+  option) and `pak` is itself recorded in the lockfile,
+  [`renv::restore()`](https://rstudio.github.io/renv/reference/restore.md)
+  now installs and uses the recorded version of `pak`, rather than the
+  latest version available from the pak repositories. Other functions
+  use the recorded version when `pak` needs to be installed, and
+  otherwise leave the installed version of `pak` alone. Lockfile records
+  for versions of `pak` older than the minimum version supported by renv
+  are ignored, and renv falls back to the previous behavior if the
+  recorded version cannot be installed.
+  ([\#2169](https://github.com/rstudio/renv/issues/2169))
+
+- [`renv::install()`](https://rstudio.github.io/renv/reference/install.md)
+  now signals an error when a requested package fails to install, even
+  if an older version of that package remains installed. Previously, a
+  failed upgrade, or a transactional install that was rolled back, could
+  return without an error.
+  ([\#2384](https://github.com/rstudio/renv/issues/2384))
+
+- [`renv::restore()`](https://rstudio.github.io/renv/reference/restore.md)
+  now installs the versions recorded in the lockfile even when another
+  package declares one of those dependencies in the `Remotes:` field of
+  its DESCRIPTION. Previously, the `Remotes:` entry took precedence, so
+  restore could install (or record) the remote’s latest commit instead,
+  and then report that the dependency tree was repaired. Similarly,
+  [`renv::install()`](https://rstudio.github.io/renv/reference/install.md)
+  now prefers the project’s own `Remotes:` entries, and exact version
+  requirements such as `bread (== 1.0.0)`, over another package’s
+  `Remotes:` entry for the same package. This was a regression in renv
+  1.2.0. The project’s `Remotes:` entries now also apply to packages
+  that are only indirect dependencies.
+  ([\#2395](https://github.com/rstudio/renv/issues/2395))
+
+- When another package’s `Remotes:` entry supplies a dependency,
+  [`renv::install()`](https://rstudio.github.io/renv/reference/install.md)
+  and
+  [`renv::restore()`](https://rstudio.github.io/renv/reference/restore.md)
+  now install that dependency from the remote. Previously, a dependency
+  from a git remote could be installed from the package repositories (or
+  the lockfile) instead, while being recorded as coming from the remote.
+  Relatedly, when another package requires a newer version of a package
+  from a git remote (or another non-repository source), renv no longer
+  reports that package at the latest repository version while installing
+  the recorded one; the unsatisfied requirement is reported instead.
+  This was a regression in renv 1.2.0.
+  ([\#2395](https://github.com/rstudio/renv/issues/2395))
+
 ## renv 1.3.0
+
+CRAN release: 2026-09-29
 
 - renv now quotes the URL, ref, and commit of a git record when passing
   them to `git`, and rejects records whose values `git` could read as an

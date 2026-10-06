@@ -26,11 +26,11 @@ renv::use(lockfile = &quot;/path/to/renv.lock&quot;).
 This can be useful in projects where you'd like to associate different
 lockfiles with different documents, as in a blog where you want each
 post to capture the dependencies at the time of writing. Once you've
-finished writing each, the post, you can use
+finished writing each post, you can use
 renv::snapshot(lockfile = &quot;/path/to/renv.lock&quot;)
-to &quot;save&quot; the state that was active while authoring that bost, and then use
+to &quot;save&quot; the state that was active while authoring that post, and then use
 renv::use(lockfile = &quot;/path/to/renv.lock&quot;) in that document to ensure the
-blog post always uses those dependencies onfuture renders.
+blog post always uses those dependencies on future renders.
 renv::use() is inspired in part by the groundhog
 package, which also allows one to specify a script's R package requirements
 within that same R script.
@@ -62,11 +62,11 @@ renv::use(lockfile = &quot;/path/to/renv.lock&quot;).
 This can be useful in projects where you'd like to associate different
 lockfiles with different documents, as in a blog where you want each
 post to capture the dependencies at the time of writing. Once you've
-finished writing each, the post, you can use
+finished writing each post, you can use
 renv::snapshot(lockfile = &quot;/path/to/renv.lock&quot;)
-to &quot;save&quot; the state that was active while authoring that bost, and then use
+to &quot;save&quot; the state that was active while authoring that post, and then use
 renv::use(lockfile = &quot;/path/to/renv.lock&quot;) in that document to ensure the
-blog post always uses those dependencies onfuture renders.
+blog post always uses those dependencies on future renders.
 renv::use() is inspired in part by the groundhog
 package, which also allows one to specify a script's R package requirements
 within that same R script.
@@ -79,7 +79,7 @@ within that same R script.
 
     <a class="navbar-brand me-2" href="../index.html">renv</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">1.3.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">1.3.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -120,7 +120,7 @@ within that same R script.
 <div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
       <img src="../logo.svg" class="logo" alt=""><h1>Capture and re-use dependencies within a <code>.R</code>, <code>.Rmd</code> or <code>.qmd</code></h1>
-      <small class="dont-index">Source: <a href="https://github.com/rstudio/renv/blob/v1.3.0/R/embed.R" class="external-link"><code>R/embed.R</code></a>, <a href="https://github.com/rstudio/renv/blob/v1.3.0/R/use.R" class="external-link"><code>R/use.R</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/rstudio/renv/blob/main/R/embed.R" class="external-link"><code>R/embed.R</code></a>, <a href="https://github.com/rstudio/renv/blob/main/R/use.R" class="external-link"><code>R/use.R</code></a></small>
       <div class="d-none name"><code>embed.Rd</code></div>
     </div>
 
@@ -149,11 +149,11 @@ packages needed by hand, or by supplying the path to a lockfile,
 <p>This can be useful in projects where you'd like to associate different
 lockfiles with different documents, as in a blog where you want each
 post to capture the dependencies at the time of writing. Once you've
-finished writing each, the post, you can use
+finished writing each post, you can use
 <code>renv::snapshot(lockfile = "/path/to/renv.lock")</code>
-to "save" the state that was active while authoring that bost, and then use
+to "save" the state that was active while authoring that post, and then use
 <code>renv::use(lockfile = "/path/to/renv.lock")</code> in that document to ensure the
-blog post always uses those dependencies onfuture renders.</p>
+blog post always uses those dependencies on future renders.</p>
 <p><code>renv::use()</code> is inspired in part by the <a href="https://groundhogr.com/" class="external-link">groundhog</a>
 package, which also allows one to specify a script's <span style="R">R</span> package requirements
 within that same <span style="R">R</span> script.</p>
