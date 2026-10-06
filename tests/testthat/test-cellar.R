@@ -73,3 +73,45 @@ test_that("dependencies are resolved for packages installed from the cellar", {
   expect_true("bread" %in% names(descriptions))
 
 })
+
+test_that("cellar packages using other tar compressions are found", {
+  skip_on_cran()
+  renv_tests_scope()
+
+  cellar <- renv_paths_cellar()
+  ensure_directory(cellar)
+
+  pkgdir <- renv_scope_tempfile("renv-cellar-pkg-")
+  ensure_directory(file.path(pkgdir, "xzpkg"))
+  writeLines(
+    c(
+      "Package: xzpkg",
+      "Version: 1.0.0",
+      "Title: A Cellar Package",
+      "Description: Test.",
+      "License: MIT"
+    ),
+    file.path(pkgdir, "xzpkg", "DESCRIPTION")
+  )
+
+  renv_scope_wd(pkgdir)
+
+  # a binary built for some other build of R must be ignored
+  tar(
+    tarfile     = file.path(cellar, "xzpkg_1.0.0_R_other-build.tar.xz"),
+    files       = "xzpkg",
+    compression = "xz"
+  )
+
+  record <- list(Package = "xzpkg", Version = "1.0.0")
+  expect_error(renv_retrieve_cellar_find(record), "not available locally")
+
+  # an archive without a build designation is accepted whatever its compression
+  path <- file.path(cellar, "xzpkg_1.0.0.tar.xz")
+  tar(tarfile = path, files = "xzpkg", compression = "xz")
+
+  found <- renv_retrieve_cellar_find(record)
+  expect_equal(unname(found), path)
+  expect_equal(names(found), "source")
+
+})

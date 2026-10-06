@@ -145,6 +145,36 @@ renv_package_type <- function(path, quiet = FALSE, default = "source") {
 
 }
 
+# the archive extensions R recognizes for packages. with 'type', only the
+# extensions a package of that type might use on this build of R
+renv_package_extensions <- function(type = NULL) {
+
+  tarballs <- c(".tar.gz", ".tar.bz2", ".tar.xz", ".tar.zst", ".tar.zstd")
+  if (is.null(type))
+    return(c(tarballs, ".tgz", ".zip"))
+
+  type <- match.arg(type, c("binary", "source"))
+  if (type == "source")
+    return(".tar.gz")
+
+  # custom binary types may use any tar compression; the legacy Windows and
+  # macOS types have a single fixed extension. R builds with no binary type
+  # of their own (e.g. Linux) receive binaries at source-style URLs
+  switch(
+    renv_pkgtype_class(.Platform$pkgType),
+    other.binary = tarballs,
+    renv_package_ext(type)
+  )
+
+}
+
+# a regular expression matching any recognized package archive extension
+renv_package_ext_pattern <- function() {
+  "(?:\\.tar\\.(?:gz|bz2|xz|zstd?)|\\.tgz|\\.zip)$"
+}
+
+# the archive extension to assume when constructing the file name of a
+# package of the requested type for this build of R
 renv_package_ext <- function(type) {
 
   # always use '.tar.gz' for source packages
@@ -152,11 +182,45 @@ renv_package_ext <- function(type) {
   if (type == "source")
     return(".tar.gz")
 
-  # otherwise, infer appropriate extension based on platform
-  case(
-    renv_platform_macos()   ~ ".tgz",
-    renv_platform_windows() ~ ".zip",
-    renv_platform_unix()    ~ ".tar.gz"
+  # R builds without a binary type of their own still receive binaries from
+  # e.g. Posit Package Manager, which serves them as source-style tarballs
+  if (identical(.Platform$pkgType, "source"))
+    return(".tar.gz")
+
+  renv_pkgtype_ext(.Platform$pkgType)
+
+}
+
+# parse package archive file names of the form
+#
+#   <Package>_<Version>[_R_<build>]<ext>
+#
+# into their components. the optional build designation is written by
+# 'R CMD INSTALL --build' for custom binary types; see renv_pkgtype_build().
+# entries which don't look like package archives are dropped
+renv_package_filename_parse <- function(paths) {
+
+  base <- basename(paths)
+  pattern <- paste0(
+    "^([[:alpha:]][[:alnum:].]*)",  # package name
+    "_([^_]+?)",                    # version
+    "(?:_R_(.+?))?",                # optional build designation
+    renv_package_ext_pattern()
+  )
+
+  matches <- regmatches(base, regexec(pattern, base, perl = TRUE))
+  ok <- lengths(matches) == 4L
+
+  parts <- matrix(as.character(unlist(matches[ok])), ncol = 4L, byrow = TRUE)
+  build <- parts[, 4L]
+  build[!nzchar(build)] <- NA_character_
+
+  data_frame(
+    Package = parts[, 2L],
+    Version = parts[, 3L],
+    Build   = build,
+    Ext     = fileext(base[ok]),
+    Path    = paths[ok]
   )
 
 }

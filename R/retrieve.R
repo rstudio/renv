@@ -796,28 +796,29 @@ renv_retrieve_cellar_find <- function(record, project = NULL) {
   url <- record$RemoteUrl %||% ""
   if (file.exists(url)) {
     path <- renv_path_normalize(url, mustWork = TRUE)
-    type <- if (fileext(path) %in% c(".tgz", ".zip")) "binary" else "source"
+    type <- renv_package_type(path, quiet = TRUE)
     return(named(path, type))
   }
 
-  # otherwise, look in the cellar
+  # otherwise, look in the cellar, both at the top level and within
+  # a sub-directory named after the package
+  package <- record$Package
+  version <- record$RemoteSha %||% record$Version
+
   roots <- renv_cellar_roots(project)
-  for (type in c("binary", "source")) {
+  paths <- list.files(c(roots, file.path(roots, package)), full.names = TRUE)
+  parsed <- renv_package_filename_parse(paths)
+  parsed <- parsed[parsed$Package == package & parsed$Version == version, ]
 
-    name <- renv_retrieve_name(record, type = type)
-    for (root in roots) {
+  # skip binaries produced for a different build of R
+  build <- renv_pkgtype_build(.Platform$pkgType)
+  parsed <- parsed[is.na(parsed$Build) | parsed$Build %in% build, ]
 
-      package <- record$Package
-      paths <- c(
-        file.path(root, package, name),
-        file.path(root, name)
-      )
-
-      for (path in paths)
-        if (file.exists(path))
-          return(named(path, type))
-
-    }
+  # prefer binaries over sources
+  if (nrow(parsed)) {
+    types <- map_chr(parsed$Path, renv_package_type, quiet = TRUE)
+    idx <- order(types != "binary")[[1L]]
+    return(named(parsed$Path[[idx]], types[[idx]]))
   }
 
   fmt <- "%s [%s] is not available locally"

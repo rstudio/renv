@@ -3,7 +3,10 @@ renv_archive_type <- function(archive) {
 
   ext <- fileext(archive)
 
-  if (ext %in% c(".tgz", ".tar", ".tar.gz"))
+  # both R's internal tar and system tar detect the compression used
+  # (gzip, bzip2, xz, zstd, or none) from the archive contents, so any
+  # tarball can be handled uniformly here
+  if (ext %in% c(".tar", ".tgz") || startsWith(ext, ".tar."))
     return("tar")
   else if (ext %in% c(".zip"))
     return("zip")

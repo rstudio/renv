@@ -2324,8 +2324,8 @@ renv_graph_install_needs_unpack <- function(record, type) {
   if (nzchar(subdir))
     return(TRUE)
 
-  # R CMD INSTALL only handles .tar.gz / .tgz archives;
-  # other formats (e.g. .zip) must be unpacked first
+  # R CMD INSTALL handles tarballs of any compression itself (it unpacks
+  # them with the internal tar), but .zip archives must be unpacked first
   archtype <- renv_archive_type(record$Path)
   if (!identical(archtype, "tar"))
     return(TRUE)

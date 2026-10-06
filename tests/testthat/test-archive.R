@@ -88,3 +88,35 @@ test_that("we can decompress an archive with a tilde path", {
   expect_true(file.exists("subdir/b.txt"))
 
 })
+
+test_that("tarballs using other compressions are recognized and handled", {
+
+  renv_scope_tempdir()
+  for (letter in letters)
+    writeLines(letter, con = letter)
+
+  for (compression in c("bzip2", "xz")) {
+
+    ext <- paste0(".tar.", switch(compression, bzip2 = "bz2", xz = "xz"))
+    tarfile <- renv_scope_tempfile(fileext = ext)
+    tar(tarfile, files = ".", compression = compression)
+
+    expect_equal(renv_archive_type(tarfile), "tar")
+
+    expected <- setdiff(basename(renv_archive_list(tarfile)), ".")
+    expect_setequal(list.files(), expected)
+
+    expect_equal(renv_archive_read(tarfile, "./a"), "a")
+
+    exdir <- renv_scope_tempfile()
+    renv_archive_decompress(tarfile, exdir = exdir)
+    expect_setequal(list.files(exdir), list.files())
+
+  }
+
+  expect_equal(renv_archive_type("pkg_1.0.tar.zst"), "tar")
+  expect_equal(renv_archive_type("pkg_1.0.tar.zstd"), "tar")
+  expect_equal(renv_archive_type("pkg_1.0.zip"), "zip")
+  expect_equal(renv_archive_type("pkg_1.0.rds"), "unknown")
+
+})
