@@ -272,7 +272,7 @@ renv_retrieve_impl_one <- function(package) {
     isurl <-
       is.character(path) &&
       nzchar(path) &&
-      grepl("[/\\]|[.](?:zip|tgz|gz)$", path)
+      grepl(paste0("[/\\\\]|", renv_package_ext_pattern()), path, perl = TRUE)
 
     if (!isurl)
       next
@@ -796,28 +796,29 @@ renv_retrieve_cellar_find <- function(record, project = NULL) {
   url <- record$RemoteUrl %||% ""
   if (file.exists(url)) {
     path <- renv_path_normalize(url, mustWork = TRUE)
-    type <- if (fileext(path) %in% c(".tgz", ".zip")) "binary" else "source"
+    type <- renv_package_type(path, quiet = TRUE)
     return(named(path, type))
   }
 
-  # otherwise, look in the cellar
+  # otherwise, look in the cellar, both within a sub-directory named after
+  # the package and at the top level; earlier roots take precedence, so list
+  # each directory separately rather than letting list.files() sort them
+  package <- record$Package
+  version <- record$RemoteSha %||% record$Version
+
   roots <- renv_cellar_roots(project)
-  for (type in c("binary", "source")) {
+  dirs <- as.character(rbind(file.path(roots, package), roots))
+  paths <- uapply(dirs, list.files, full.names = TRUE)
+  parsed <- renv_package_filename_parse(paths)
+  parsed <- renv_package_filename_filter(parsed)
+  parsed <- parsed[parsed$Package == package & parsed$Version == version, ]
 
-    name <- renv_retrieve_name(record, type = type)
-    for (root in roots) {
-
-      package <- record$Package
-      paths <- c(
-        file.path(root, package, name),
-        file.path(root, name)
-      )
-
-      for (path in paths)
-        if (file.exists(path))
-          return(named(path, type))
-
-    }
+  # prefer binaries over sources; order() is stable, so earlier
+  # directories still win among candidates of the same type
+  if (nrow(parsed)) {
+    types <- map_chr(parsed$Path, renv_package_type, quiet = TRUE)
+    idx <- order(types != "binary")[[1L]]
+    return(named(parsed$Path[[idx]], types[[idx]]))
   }
 
   fmt <- "%s [%s] is not available locally"

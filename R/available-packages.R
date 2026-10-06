@@ -581,17 +581,13 @@ renv_available_packages_latest_archive <- function(package,
       next
 
     # parse the package name + version from the row names
-    rns <- basename(row.names(entries))
-
-    # grab files that look like packages
-    extpat <- "(?:\\.tar\\.gz|\\.tgz|\\.zip)$"
-    parts <- strsplit(rns, "_", fixed = TRUE)
-    packages <- map_chr(parts, `[[`, 1L)
-    rest <- map_chr(parts, `[[`, 2L)
-    version <- sub(extpat, "", rest)
+    parsed <- renv_package_filename_parse(row.names(entries))
+    if (nrow(parsed) == 0L)
+      next
 
     # put it into a data.frame
-    data <- data.frame(Package = packages, Version = version)
+    version <- parsed$Version
+    data <- data.frame(Package = parsed$Package, Version = version)
 
     # take the newest version
     ord <- order(numeric_version(version), decreasing = TRUE)
@@ -814,42 +810,37 @@ renv_available_packages_cellar <- function(type, project = NULL) {
   project <- renv_project_resolve(project)
   roots <- renv_cellar_roots(project = project)
 
-  # look for packages
-  all <- list.files(
-    path         = roots,
+  # look for packages, one root at a time so that earlier roots take
+  # precedence when the same package is found in several cellars
+  all <- uapply(
+    roots,
+    list.files,
     all.files    = TRUE,
     full.names   = TRUE,
     recursive    = TRUE,
     include.dirs = FALSE
   )
 
-  # keep only files with matching extensions
-  ext <- renv_package_ext(type = type)
-  keep <- all[fileext(all) %in% ext]
+  # keep only files which look like packages of the requested type,
+  # dropping binaries produced for a different build of R
+  parsed <- renv_package_filename_parse(all)
+  parsed <- renv_package_filename_filter(parsed)
+  keep <- parsed[parsed$Ext %in% renv_package_extensions(type), ]
+  if (nrow(keep) == 0L)
+    return(NULL)
 
-  # construct records for each cellar entry
-  records <- lapply(keep, function(path) {
+  # set the Repository field
+  prefix <- if (renv_platform_windows()) "file:///" else "file://"
+  repository <- paste0(prefix, dirname(keep$Path))
 
-    # infer package name, version from tarball name
-    base <- basename(keep)
-    idx <- regexpr("_", base, fixed = TRUE)
-    package <- substring(base, 1L, idx - 1L)
-    version <- substring(base, idx + 1L, nchar(base) - nchar(ext))
-
-    # set the Repository field
-    prefix <- if (renv_platform_windows()) "file:///" else "file://"
-    repository <- paste0(prefix, dirname(path))
-
-    # build record
-    list(
-      Package = package,
-      Version = version,
-      Repository = repository
-    )
-
-  })
-
-  bind(records)
+  # advertise the real file name, since it may carry a build designation or
+  # a compression the default archive name for this type would not guess
+  data_frame(
+    Package    = keep$Package,
+    Version    = keep$Version,
+    Repository = repository,
+    File       = basename(keep$Path)
+  )
 
 }
 

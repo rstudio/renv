@@ -18,21 +18,13 @@ renv_cellar_database <- function(project = NULL) {
   paths <- list.files(roots, full.names = TRUE)
   paths <- c(paths, list.files(paths, full.names = TRUE))
 
-  # grab files that look like packages
-  extpat <- "(?:\\.tar\\.gz|\\.tgz|\\.zip)$"
-  paths <- grep(extpat, paths, value = TRUE)
-
-  # parse into data.frame
-  base <- basename(paths)
-  parts <- strsplit(base, "_", fixed = TRUE)
-  package <- map_chr(parts, `[[`, 1L)
-  rest <- map_chr(parts, `[[`, 2L)
-  version <- sub(extpat, "", rest)
+  # keep the files that look like packages
+  parsed <- renv_package_filename_parse(paths)
 
   data_frame(
-    Package = package,
-    Version = version,
-    Path    = paths
+    Package = parsed$Package,
+    Version = parsed$Version,
+    Path    = parsed$Path
   )
 
 }

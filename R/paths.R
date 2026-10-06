@@ -363,15 +363,20 @@ renv_paths_root_default_tempdir <- function() {
 #' the folder as specified by the `RENV_PATHS_CELLAR` environment variable. The
 #' package sources should be placed in a file at one of these locations:
 #'
-#' - `${RENV_PATHS_CELLAR}/<package>_<version>.<ext>`
-#' - `${RENV_PATHS_CELLAR}/<package>/<package>_<version>.<ext>`
-#' - `<project>/renv/cellar/<package>_<version>.<ext>`
-#' - `<project>/renv/cellar/<package>/<package>_<version>.<ext>`
+#' - `${RENV_PATHS_CELLAR}/<package>_<version>[_R_<build>].<ext>`
+#' - `${RENV_PATHS_CELLAR}/<package>/<package>_<version>[_R_<build>].<ext>`
+#' - `<project>/renv/cellar/<package>_<version>[_R_<build>].<ext>`
+#' - `<project>/renv/cellar/<package>/<package>_<version>[_R_<build>].<ext>`
 #'
-#' where `.<ext>` is `.tar.gz` for source packages, or `.tgz` for binaries on
-#' macOS and `.zip` for binaries on Windows. During `restore()`, renv will
-#' search the cellar for a compatible package, and prefer installation with
-#' that copy of the package if appropriate.
+#' where `.<ext>` is `.tar.gz` for source packages, `.tgz` for binaries on
+#' macOS, `.zip` for binaries on Windows, or any of `.tar.gz`, `.tar.bz2`,
+#' `.tar.xz` and `.tar.zst` for binaries built for one of the custom binary
+#' package types introduced with R 4.6.0. For such binaries, `R CMD INSTALL
+#' --build` embeds a build designation into the file name, as in
+#' `pkg_1.0_R_macos-arm64.tar.xz`; renv only uses binaries whose designation
+#' matches the running build of R. During `restore()`, renv will search the
+#' cellar for a compatible package, and prefer installation with that copy of
+#' the package if appropriate.
 #'
 #' # Older versions
 #'

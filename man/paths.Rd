@@ -112,16 +112,20 @@ to use during restore. By default, these packages should be made available in
 the folder as specified by the \code{RENV_PATHS_CELLAR} environment variable. The
 package sources should be placed in a file at one of these locations:
 \itemize{
-\item \verb{$\{RENV_PATHS_CELLAR\}/<package>_<version>.<ext>}
-\item \verb{$\{RENV_PATHS_CELLAR\}/<package>/<package>_<version>.<ext>}
-\item \verb{<project>/renv/cellar/<package>_<version>.<ext>}
-\item \verb{<project>/renv/cellar/<package>/<package>_<version>.<ext>}
+\item \verb{$\{RENV_PATHS_CELLAR\}/<package>_<version>[_R_<build>].<ext>}
+\item \verb{$\{RENV_PATHS_CELLAR\}/<package>/<package>_<version>[_R_<build>].<ext>}
+\item \verb{<project>/renv/cellar/<package>_<version>[_R_<build>].<ext>}
+\item \verb{<project>/renv/cellar/<package>/<package>_<version>[_R_<build>].<ext>}
 }
 
-where \verb{.<ext>} is \code{.tar.gz} for source packages, or \code{.tgz} for binaries on
-macOS and \code{.zip} for binaries on Windows. During \code{restore()}, renv will
-search the cellar for a compatible package, and prefer installation with
-that copy of the package if appropriate.
+where \verb{.<ext>} is \code{.tar.gz} for source packages, \code{.tgz} for binaries on
+macOS, \code{.zip} for binaries on Windows, or any of \code{.tar.gz}, \code{.tar.bz2},
+\code{.tar.xz} and \code{.tar.zst} for binaries built for one of the custom binary
+package types introduced with R 4.6.0. For such binaries, \verb{R CMD INSTALL --build} embeds a build designation into the file name, as in
+\code{pkg_1.0_R_macos-arm64.tar.xz}; renv only uses binaries whose designation
+matches the running build of R. During \code{restore()}, renv will search the
+cellar for a compatible package, and prefer installation with that copy of
+the package if appropriate.
 }
 
 \section{Older versions}{

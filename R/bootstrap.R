@@ -277,17 +277,18 @@ renv_bootstrap_download_custom_headers <- function(url) {
 renv_bootstrap_download_cran_latest <- function(version) {
 
   spec <- renv_bootstrap_download_cran_latest_find(version)
+  entry <- spec$entry
   type  <- spec$type
   repos <- spec$repos
 
+  # prefer the file name advertised by the repository, as binary file names
+  # may carry a build designation (e.g. 'renv_1.0.0_R_macos-arm64.tar.xz')
   baseurl <- utils::contrib.url(repos = repos, type = type)
-  ext <- if (identical(type, "source"))
-    ".tar.gz"
-  else if (Sys.info()[["sysname"]] == "Windows")
-    ".zip"
+  file <- entry$File
+  name <- if (length(file) == 1L && !is.na(file))
+    file
   else
-    ".tgz"
-  name <- sprintf("renv_%s%s", version, ext)
+    sprintf("renv_%s%s", version, renv_bootstrap_package_ext(type))
   url <- paste(baseurl, name, sep = "/")
 
   destfile <- file.path(tempdir(), name)
@@ -301,6 +302,23 @@ renv_bootstrap_download_cran_latest <- function(version) {
 
   # report success and return
   destfile
+
+}
+
+# the archive extension to assume for packages of this type, when the
+# repository does not advertise the file name itself
+renv_bootstrap_package_ext <- function(type) {
+
+  if (identical(type, "source"))
+    return(".tar.gz")
+
+  pkgtype <- .Platform$pkgType
+  if (grepl("^win[.]binary", pkgtype))
+    ".zip"
+  else if (grepl("^mac[.]binary", pkgtype))
+    ".tgz"
+  else
+    ".tar.xz"
 
 }
 

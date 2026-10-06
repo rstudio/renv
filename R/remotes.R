@@ -42,7 +42,7 @@ renv_remotes_resolve <- function(spec, latest = FALSE, infer = FALSE) {
 
   # check for archive URLs -- this is a bit hacky
   if (grepl("^(?:file|https?)://", spec)) {
-    for (suffix in c(".zip", ".tar.gz", ".tgz", "/tarball"))
+    for (suffix in c(renv_package_extensions(), "/tarball"))
       if (endsWith(spec, suffix))
         return(renv_remotes_resolve_url(spec, quiet = TRUE))
   }
@@ -71,8 +71,7 @@ renv_remotes_resolve <- function(spec, latest = FALSE, infer = FALSE) {
   # check for requests to install local packages -- note that depending on how
   # the R package was built / generated, it's possible that it might not adhere
   # to the "typical" R package names, so we try to be a bit flexible here
-  ext <- "(?:\\.tar\\.gz|\\.tgz|\\.zip)$"
-  if (grepl(ext, spec, perl = TRUE)) {
+  if (grepl(renv_package_ext_pattern(), spec, perl = TRUE)) {
     pathlike <- tryCatch(file.exists(spec), condition = identity)
     if (identical(pathlike, TRUE)) {
       return(renv_remotes_resolve_path(spec))

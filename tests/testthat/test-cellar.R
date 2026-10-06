@@ -73,3 +73,186 @@ test_that("dependencies are resolved for packages installed from the cellar", {
   expect_true("bread" %in% names(descriptions))
 
 })
+
+test_that("cellar packages using other tar compressions are found", {
+  skip_on_cran()
+  renv_tests_scope()
+
+  cellar <- renv_paths_cellar()
+  ensure_directory(cellar)
+
+  pkgdir <- renv_scope_tempfile("renv-cellar-pkg-")
+  ensure_directory(file.path(pkgdir, "xzpkg"))
+  writeLines(
+    c(
+      "Package: xzpkg",
+      "Version: 1.0.0",
+      "Title: A Cellar Package",
+      "Description: Test.",
+      "License: MIT"
+    ),
+    file.path(pkgdir, "xzpkg", "DESCRIPTION")
+  )
+
+  renv_scope_wd(pkgdir)
+
+  # a binary built for some other build of R must be ignored
+  tar(
+    tarfile     = file.path(cellar, "xzpkg_1.0.0_R_other-build.tar.xz"),
+    files       = "xzpkg",
+    compression = "xz"
+  )
+
+  record <- list(Package = "xzpkg", Version = "1.0.0")
+  expect_error(renv_retrieve_cellar_find(record), "not available locally")
+
+  # ... whatever its compression, and the cellar listing must not advertise it
+  tar(
+    tarfile     = file.path(cellar, "xzpkg_1.0.0_R_other-build.tar.gz"),
+    files       = "xzpkg",
+    compression = "gzip"
+  )
+
+  expect_error(renv_retrieve_cellar_find(record), "not available locally")
+  listing <- renv_available_packages_cellar("source")
+  expect_false("xzpkg" %in% listing$Package)
+
+  # an archive without a build designation is accepted whatever its compression
+  path <- file.path(cellar, "xzpkg_1.0.0.tar.xz")
+  tar(tarfile = path, files = "xzpkg", compression = "xz")
+
+  found <- renv_retrieve_cellar_find(record)
+  expect_equal(unname(found), path)
+  expect_equal(names(found), "source")
+
+})
+
+test_that("cellar binaries built for this build of R are advertised", {
+  skip_on_cran()
+  renv_tests_scope()
+
+  cellar <- renv_paths_cellar()
+  ensure_directory(cellar)
+
+  # pretend this build of R writes a known build designation
+  renv_scope_binding(
+    envir       = asNamespace("renv"),
+    symbol      = "renv_pkgtype_build",
+    replacement = function(type = NULL) "test-build"
+  )
+
+  pkgdir <- renv_scope_tempfile("renv-cellar-pkg-")
+  ensure_directory(file.path(pkgdir, "buildpkg"))
+  writeLines(
+    c(
+      "Package: buildpkg",
+      "Version: 1.0.0",
+      "Title: A Cellar Package",
+      "Description: Test.",
+      "License: MIT"
+    ),
+    file.path(pkgdir, "buildpkg", "DESCRIPTION")
+  )
+
+  renv_scope_wd(pkgdir)
+  path <- file.path(cellar, "buildpkg_1.0.0_R_test-build.tar.gz")
+  tar(tarfile = path, files = "buildpkg", compression = "gzip")
+
+  # the lookup accepts the archive ...
+  record <- list(Package = "buildpkg", Version = "1.0.0")
+  found <- renv_retrieve_cellar_find(record)
+  expect_equal(unname(found), path)
+
+  # ... the listing advertises it under its real file name ...
+  renv_scope_options(repos = character())
+  listing <- renv_available_packages_cellar("source")
+  expect_true(basename(path) %in% listing$File)
+
+  # ... and the parallel download path resolves to that file
+  latest <- renv_available_packages_latest("buildpkg", type = "source")
+  url <- renv_graph_url_cellar(latest)
+  expect_equal(basename(url$url), basename(path))
+  expect_true(file.exists(renv_url_local_path(url$url)))
+
+})
+
+test_that("cellar binaries for other platforms are ignored", {
+  skip_on_cran()
+  renv_tests_scope()
+
+  cellar <- renv_paths_cellar()
+  ensure_directory(cellar)
+
+  pkgdir <- renv_scope_tempfile("renv-cellar-pkg-")
+  ensure_directory(file.path(pkgdir, "zippkg"))
+  writeLines(
+    c(
+      "Package: zippkg",
+      "Version: 1.0.0",
+      "Title: A Cellar Package",
+      "Description: Test.",
+      "License: MIT"
+    ),
+    file.path(pkgdir, "zippkg", "DESCRIPTION")
+  )
+
+  # a legacy binary for some other platform sits next to the sources
+  foreign <- if (renv_platform_windows()) ".tgz" else ".zip"
+  file.create(file.path(cellar, paste0("zippkg_1.0.0", foreign)))
+
+  renv_scope_wd(pkgdir)
+  path <- file.path(cellar, "zippkg_1.0.0.tar.gz")
+  tar(tarfile = path, files = "zippkg", compression = "gzip")
+
+  # the source tarball must be chosen
+  record <- list(Package = "zippkg", Version = "1.0.0")
+  found <- renv_retrieve_cellar_find(record)
+  expect_equal(unname(found), path)
+  expect_equal(names(found), "source")
+
+})
+
+test_that("the project cellar takes precedence over the global cellar", {
+  skip_on_cran()
+  project <- renv_tests_scope()
+
+  global <- renv_paths_cellar()
+  local <- renv_paths_renv("cellar", project = project)
+  ensure_directory(global)
+  ensure_directory(local)
+
+  pkgdir <- renv_scope_tempfile("renv-cellar-pkg-")
+  ensure_directory(file.path(pkgdir, "precpkg"))
+  writeLines(
+    c(
+      "Package: precpkg",
+      "Version: 1.0.0",
+      "Title: A Cellar Package",
+      "Description: Test.",
+      "License: MIT"
+    ),
+    file.path(pkgdir, "precpkg", "DESCRIPTION")
+  )
+
+  # the same archive lives in both cellars
+  local({
+    renv_scope_wd(pkgdir)
+    for (dir in c(global, local)) {
+      tar(
+        tarfile     = file.path(dir, "precpkg_1.0.0.tar.gz"),
+        files       = "precpkg",
+        compression = "gzip"
+      )
+    }
+  })
+
+  record <- list(Package = "precpkg", Version = "1.0.0")
+  found <- renv_retrieve_cellar_find(record, project = project)
+  expect_equal(unname(found), file.path(local, "precpkg_1.0.0.tar.gz"))
+
+  # the name-driven listing must agree with the lookup
+  renv_scope_options(repos = character())
+  latest <- renv_available_packages_latest("precpkg", type = "source")
+  expect_equal(renv_url_local_path(attr(latest, "url")), local)
+
+})
