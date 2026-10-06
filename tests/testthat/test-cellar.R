@@ -175,3 +175,39 @@ test_that("cellar binaries built for this build of R are advertised", {
   expect_true(file.exists(renv_url_local_path(url$url)))
 
 })
+
+test_that("cellar binaries for other platforms are ignored", {
+  skip_on_cran()
+  renv_tests_scope()
+
+  cellar <- renv_paths_cellar()
+  ensure_directory(cellar)
+
+  pkgdir <- renv_scope_tempfile("renv-cellar-pkg-")
+  ensure_directory(file.path(pkgdir, "zippkg"))
+  writeLines(
+    c(
+      "Package: zippkg",
+      "Version: 1.0.0",
+      "Title: A Cellar Package",
+      "Description: Test.",
+      "License: MIT"
+    ),
+    file.path(pkgdir, "zippkg", "DESCRIPTION")
+  )
+
+  # a legacy binary for some other platform sits next to the sources
+  foreign <- if (renv_platform_windows()) ".tgz" else ".zip"
+  file.create(file.path(cellar, paste0("zippkg_1.0.0", foreign)))
+
+  renv_scope_wd(pkgdir)
+  path <- file.path(cellar, "zippkg_1.0.0.tar.gz")
+  tar(tarfile = path, files = "zippkg", compression = "gzip")
+
+  # the source tarball must be chosen
+  record <- list(Package = "zippkg", Version = "1.0.0")
+  found <- renv_retrieve_cellar_find(record)
+  expect_equal(unname(found), path)
+  expect_equal(names(found), "source")
+
+})

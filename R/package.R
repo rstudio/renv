@@ -225,11 +225,18 @@ renv_package_filename_parse <- function(paths) {
 
 }
 
-# drop the archives in a parsed listing which were built for a different
-# build of R; archives without a build designation are always kept
+# drop the archives in a parsed listing which this build of R cannot use:
+# binaries built for a different build of R, and the legacy '.zip' / '.tgz'
+# binaries of other platforms. undesignated tarballs are kept whatever their
+# compression, since they may be sources
 renv_package_filename_filter <- function(parsed) {
+
   build <- renv_pkgtype_build(.Platform$pkgType)
-  parsed[is.na(parsed$Build) | parsed$Build %in% build, ]
+  parsed <- parsed[is.na(parsed$Build) | parsed$Build %in% build, ]
+
+  legacy <- setdiff(c(".zip", ".tgz"), renv_package_extensions("binary"))
+  parsed[!parsed$Ext %in% legacy, ]
+
 }
 
 renv_package_pkgtypes <- function() {

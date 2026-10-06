@@ -10,11 +10,12 @@
 # by CRAN; R's own tooling classifies everything else as 'other.binary'.
 # See tools:::.pkg.type() and utils::contrib.url().
 
-# resolve the virtual "binary" type to the concrete type for this build of R
+# resolve the virtual "binary" and "both" types to the concrete type for this
+# build of R
 renv_pkgtype_resolve <- function(type = NULL) {
 
   type <- type %||% getOption("pkgType", default = "source")
-  if (identical(type, "binary"))
+  if (type %in% c("binary", "both"))
     return(.Platform$pkgType)
 
   type

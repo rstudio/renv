@@ -11,8 +11,9 @@ test_that("package types are classified as R classifies them", {
   expect_equal(renv_pkgtype_class("windows.binary.clang-aarch64"), "other.binary")
   expect_equal(renv_pkgtype_class("linux.binary"), "other.binary")
 
-  # the virtual "binary" type resolves to the current build's type
+  # the virtual "binary" and "both" types resolve to the current build's type
   expect_equal(renv_pkgtype_class("binary"), renv_pkgtype_class(.Platform$pkgType))
+  expect_equal(renv_pkgtype_class("both"), renv_pkgtype_class(.Platform$pkgType))
 
 })
 
