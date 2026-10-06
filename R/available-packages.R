@@ -810,9 +810,11 @@ renv_available_packages_cellar <- function(type, project = NULL) {
   project <- renv_project_resolve(project)
   roots <- renv_cellar_roots(project = project)
 
-  # look for packages
-  all <- list.files(
-    path         = roots,
+  # look for packages, one root at a time so that earlier roots take
+  # precedence when the same package is found in several cellars
+  all <- uapply(
+    roots,
+    list.files,
     all.files    = TRUE,
     full.names   = TRUE,
     recursive    = TRUE,

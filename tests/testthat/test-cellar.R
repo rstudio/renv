@@ -235,17 +235,24 @@ test_that("the project cellar takes precedence over the global cellar", {
   )
 
   # the same archive lives in both cellars
-  renv_scope_wd(pkgdir)
-  for (dir in c(global, local)) {
-    tar(
-      tarfile     = file.path(dir, "precpkg_1.0.0.tar.gz"),
-      files       = "precpkg",
-      compression = "gzip"
-    )
-  }
+  local({
+    renv_scope_wd(pkgdir)
+    for (dir in c(global, local)) {
+      tar(
+        tarfile     = file.path(dir, "precpkg_1.0.0.tar.gz"),
+        files       = "precpkg",
+        compression = "gzip"
+      )
+    }
+  })
 
   record <- list(Package = "precpkg", Version = "1.0.0")
   found <- renv_retrieve_cellar_find(record, project = project)
   expect_equal(unname(found), file.path(local, "precpkg_1.0.0.tar.gz"))
+
+  # the name-driven listing must agree with the lookup
+  renv_scope_options(repos = character())
+  latest <- renv_available_packages_latest("precpkg", type = "source")
+  expect_equal(renv_url_local_path(attr(latest, "url")), local)
 
 })
