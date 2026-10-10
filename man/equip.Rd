@@ -2,7 +2,7 @@
 % Please edit documentation in R/equip.R
 \name{equip}
 \alias{equip}
-\title{Install required system libraries}
+\title{Install a build toolchain}
 \usage{
 equip()
 }
@@ -10,16 +10,25 @@ equip()
 This function is normally called for its side effects.
 }
 \description{
-Equip your system with libraries commonly-used during compilation of
-base and recommended \R packages. This was previously useful with older
-versions of R on windows, but is no longer terribly helpful.
+Equip your system with the tools required to build \R packages from
+source. This is useful when a package recorded in the lockfile is not
+available as a binary for your version of \R, as can happen when
+restoring an older project.
+}
+\details{
+On Windows, \code{equip()} downloads and runs the installer for the version of
+\href{https://cran.r-project.org/bin/windows/Rtools/}{Rtools} matching the
+running version of \R. The installer may request administrator
+privileges. (For \R versions older than 4.0.0, \code{equip()} instead installs
+the external libraries once used when building packages on Windows.)
+
+On macOS, \code{equip()} ensures the Xcode command line tools are installed.
 }
 \examples{
 \dontrun{
 
-# download useful build tools
+# install a build toolchain, if one is not already available
 renv::equip()
 
 }
 }
-\keyword{internal}

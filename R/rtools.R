@@ -12,6 +12,7 @@ renv_rtools_list <- function() {
     Sys.getenv("RTOOLS43_HOME", unset = file.path(drive, "rtools43")),
     Sys.getenv("RTOOLS42_HOME", unset = file.path(drive, "rtools42")),
     Sys.getenv("RTOOLS40_HOME", unset = file.path(drive, "rtools40")),
+    list.files(drive, pattern = "^rtools\\d\\d$", full.names = TRUE),
     file.path(drive, "Rtools"),
     list.files(file.path(drive, "RBuildTools"), full.names = TRUE),
 
@@ -90,11 +91,14 @@ renv_rtools_compatible <- function(spec) {
   )
 
   version <- numeric_version(spec$version)[1, 1:2]
+  rversion <- getRversion()
+
+  # newer series than those listed above follow the same pattern as
+  # Rtools 4.2 onwards: they support R from the matching minor release
   range <- ranges[[format(version)]]
   if (is.null(range))
-    return(FALSE)
+    return(version >= "4.6" && rversion >= version)
 
-  rversion <- getRversion()
   range[[1]] <= rversion && rversion < range[[2]]
 
 }
@@ -185,17 +189,118 @@ renv_rtools_envvars_rtools40 <- function(root) {
 
 }
 
-# the Rtools series (e.g. "4.5") appropriate for a version of R. from R 4.2
-# onwards, each minor release of R has a matching Rtools release
-renv_rtools_required <- function(version = getRversion()) {
+# the Rtools series known to be available from CRAN; used when the
+# list can't be read from CRAN itself
+renv_rtools_series <- function() {
+  c("4.0", "4.2", "4.3", "4.4", "4.5")
+}
 
+# the Rtools series (e.g. "4.5") appropriate for a version of R: the newest
+# series which is not newer than R itself, as each series supports the
+# matching minor release of R, and (until the next series) newer releases
+renv_rtools_required <- function(version = getRversion(),
+                                 series = renv_rtools_series())
+{
   version <- numeric_version(version)
+  if (version < "4.0.0")
+    return("3.5")
 
-  case(
-    version >= "4.2.0" ~ renv_version_maj_min(version),
-    version >= "4.0.0" ~ "4.0",
-    ~ "3.5"
+  series <- sort(numeric_version(series))
+  candidates <- series[series <= version[1, 1:2]]
+  if (empty(candidates))
+    candidates <- series[[1L]]
+
+  format(max(candidates))
+}
+
+# the URL of the CRAN page describing a series of Rtools
+renv_rtools_page_url <- function(series) {
+
+  root <- "https://cran.r-project.org/bin/windows/Rtools"
+  nn <- gsub(".", "", series, fixed = TRUE)
+
+  # Rtools 4.0 is documented on a single page; later series have their own
+  if (series == "4.0")
+    file.path(root, sprintf("rtools%s.html", nn))
+  else
+    file.path(root, sprintf("rtools%s", nn), "rtools.html")
+
+}
+
+# the Rtools series listed on the CRAN Rtools index page
+renv_rtools_series_available <- function() {
+
+  root <- "https://cran.r-project.org/bin/windows/Rtools"
+  destfile <- renv_scope_tempfile("renv-rtools-", fileext = ".html")
+  html <- catch(download(file.path(root, "index.html"), destfile, quiet = TRUE))
+  if (inherits(html, "error"))
+    return(renv_rtools_series())
+
+  series <- renv_rtools_series_parse(readLines(destfile, warn = FALSE))
+  if (empty(series))
+    return(renv_rtools_series())
+
+  series
+
+}
+
+renv_rtools_series_parse <- function(html) {
+
+  pattern <- "rtools(\\d)(\\d)(?:/rtools)?[.]html"
+  matches <- regmatches(html, gregexpr(pattern, html, perl = TRUE))
+  links <- unique(unlist(matches, use.names = FALSE))
+
+  series <- gsub(pattern, "\\1.\\2", links, perl = TRUE)
+  format(sort(numeric_version(series)))
+
+}
+
+# the URL of the installer for a series of Rtools, as linked from its page
+# on CRAN; the installer file names include build numbers which change
+# over time, so they have to be read from the page
+renv_rtools_installer_url <- function(series, arch = R.version$arch) {
+
+  pageurl <- renv_rtools_page_url(series)
+  destfile <- renv_scope_tempfile("renv-rtools-", fileext = ".html")
+  download(pageurl, destfile, quiet = TRUE)
+  html <- readLines(destfile, warn = FALSE)
+
+  url <- renv_rtools_installer_url_parse(html, series, arch)
+  if (is.null(url))
+    stopf("no Rtools %s installer for '%s' was found at %s", series, arch, pageurl)
+
+  # links on the page are relative to the page itself
+  if (!grepl("^\\w+://", url))
+    url <- file.path(dirname(pageurl), url)
+
+  url
+
+}
+
+renv_rtools_installer_url_parse <- function(html, series, arch = R.version$arch) {
+
+  pattern <- "href=\"([^\"]*rtools[^\"/]*[.]exe)\""
+  matches <- regmatches(html, gregexpr(pattern, html, perl = TRUE))
+  links <- gsub(pattern, "\\1", unique(unlist(matches, use.names = FALSE)), perl = TRUE)
+  if (empty(links))
+    return(NULL)
+
+  # installers for other architectures are distinguished by name;
+  # the x86_64 installer is the unmarked one on newer pages
+  names <- basename(links)
+  aarch64 <- grepl("aarch64", names, fixed = TRUE)
+  i686 <- grepl("i686", names, fixed = TRUE)
+
+  candidates <- case(
+    arch == "aarch64" ~ links[aarch64],
+    arch == "i386"    ~ links[i686],
+    ~ links[!aarch64 & !i686]
   )
+
+  if (empty(candidates))
+    return(NULL)
+
+  candidates[[1L]]
 
 }
 

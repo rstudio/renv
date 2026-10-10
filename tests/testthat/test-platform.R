@@ -62,3 +62,20 @@ test_that("system package versions can be queried", {
   expect_true(nzchar(versions$dpkg))
 
 })
+
+test_that("external tools are reported when available", {
+
+  expect_null(renv_platform_record_tool("", "--version"))
+  expect_null(renv_platform_record_tool(file.path(tempdir(), "nosuchtool"), "--version"))
+
+  pandoc <- renv_platform_record_tool_pandoc()
+  skip_if_not(nzchar(pandoc))
+
+  tool <- renv_platform_record_tool(pandoc, "--version")
+  expect_match(tool$Version, "pandoc")
+  expect_true(file.exists(tool$Path))
+
+  tools <- renv_platform_record_tools()
+  expect_equal(tools$Pandoc, tool)
+
+})

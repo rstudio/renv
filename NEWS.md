@@ -10,11 +10,18 @@
   Rtools required, when no Rtools installation is found. Previously, such
   installs failed only after reaching the first package needing compilation.
 
+* On Windows, `renv::equip()` now downloads and runs the installer for the
+  version of Rtools matching the running version of R, when no Rtools
+  installation is found. The external libraries previously installed by
+  `equip()` are now only installed for R (< 4.0.0), as newer versions of
+  Rtools bundle them.
+
 * `renv::diagnostics()` now reports a description of the platform R is running
   on: the R version and platform, the operating system (and Linux
   distribution), the BLAS and LAPACK libraries in use, the versions of the
   external software R was built against, the collation locale, the Rtools
-  installation (on Windows), and the installed versions of the system packages
+  installation (on Windows), the versions of pandoc, Quarto, Java and TeX
+  found on the system, and the installed versions of the system packages
   required by the packages in the lockfile (on Linux).
 
 * renv now recognizes the custom binary package types introduced with R 4.6.0

@@ -18,6 +18,7 @@ renv_platform_record <- function(project = NULL) {
     Software       = renv_platform_record_software(),
     Locale         = renv_platform_record_locale(),
     Rtools         = renv_platform_record_rtools(),
+    Tools          = renv_platform_record_tools(),
     SystemPackages = renv_platform_record_syspkgs(project)
   )
 
@@ -171,4 +172,79 @@ renv_platform_record_syspkgs <- function(project) {
 
   versions
 
+}
+
+# external tools, outside of R, which commonly take part in producing the
+# outputs of a project. these are reported, not managed, by renv
+renv_platform_record_tools <- function() {
+
+  tools <- list(
+    Pandoc = renv_platform_record_tool(renv_platform_record_tool_pandoc(), "--version"),
+    Quarto = renv_platform_record_tool(renv_platform_record_tool_quarto(), "--version"),
+    Java   = renv_platform_record_tool(renv_platform_record_tool_java(), "-version"),
+    TeX    = renv_platform_record_tool(Sys.which("pdflatex"), "--version")
+  )
+
+  tools <- reject(tools, is.null)
+  if (empty(tools))
+    return(NULL)
+
+  tools
+
+}
+
+renv_platform_record_tool <- function(path, args) {
+
+  if (!nzchar(path) || !file.exists(path))
+    return(NULL)
+
+  # the first line of output is enough to identify the version
+  output <- catch(
+    suppressWarnings(
+      system2(path, args, stdout = TRUE, stderr = TRUE, timeout = 10L)
+    )
+  )
+
+  version <- if (!inherits(output, "error") && length(output))
+    trimws(output[[1L]])
+
+  reject(list(Version = version, Path = renv_path_normalize(path)), is.null)
+
+}
+
+# the first of a set of candidate paths which exists, or ""
+renv_platform_record_tool_find <- function(name, dirs) {
+
+  exe <- if (renv_platform_windows()) paste0(name, ".exe") else name
+  dirs <- dirs[nzchar(dirs)]
+  for (dir in dirs) {
+    path <- file.path(dir, exe)
+    if (file.exists(path))
+      return(path)
+  }
+
+  Sys.which(name)
+
+}
+
+renv_platform_record_tool_pandoc <- function() {
+  dirs <- Sys.getenv("RSTUDIO_PANDOC")
+  renv_platform_record_tool_find("pandoc", dirs)
+}
+
+renv_platform_record_tool_quarto <- function() {
+
+  # QUARTO_PATH is the path to the quarto executable itself
+  path <- Sys.getenv("QUARTO_PATH")
+  if (nzchar(path) && file.exists(path))
+    return(path)
+
+  renv_platform_record_tool_find("quarto", character())
+
+}
+
+renv_platform_record_tool_java <- function() {
+  home <- Sys.getenv("JAVA_HOME")
+  dirs <- if (nzchar(home)) file.path(home, "bin")
+  renv_platform_record_tool_find("java", dirs %||% character())
 }
