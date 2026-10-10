@@ -4,6 +4,19 @@
   whitespace, so tools like pre-commit's `trailing-whitespace` hook no longer
   modify it. (#2411)
 
+* On Windows, `renv::restore()` and `renv::install()` now check whether any of
+  the requested packages will need to be built from source before installing
+  anything, and report which packages those are, along with the version of
+  Rtools required, when no Rtools installation is found. Previously, such
+  installs failed only after reaching the first package needing compilation.
+
+* `renv::diagnostics()` now reports a description of the platform R is running
+  on: the R version and platform, the operating system (and Linux
+  distribution), the BLAS and LAPACK libraries in use, the versions of the
+  external software R was built against, the collation locale, the Rtools
+  installation (on Windows), and the installed versions of the system packages
+  required by the packages in the lockfile (on Linux).
+
 * renv now recognizes the custom binary package types introduced with R 4.6.0
   (of the form `<system>.binary.<build>`), along with binary packages
   distributed as `.tar.bz2`, `.tar.xz`, `.tar.zst` and `.tar.zstd` archives

@@ -686,3 +686,42 @@ renv_sysreqs_update <- function() {
   renv_json_write(contents, file = dest)
 
 }
+
+# the installed versions of a set of system packages, as a named list.
+# packages which are not installed are omitted
+renv_sysreqs_versions <- function(type, packages) {
+
+  if (empty(packages))
+    return(list())
+
+  if (type == "deb") {
+    command <- "dpkg-query"
+    args <- c("-W", "-f", shQuote("${Package} ${Version}\\n"))
+  } else if (type == "rpm") {
+    command <- "rpm"
+    args <- c("-q", "--qf", shQuote("%{NAME} %{VERSION}-%{RELEASE}\\n"))
+  } else {
+    return(list())
+  }
+
+  # both tools report on the packages they do know about even when
+  # some are missing, so ignore the resulting non-zero exit status
+  output <- suppressWarnings(
+    system2(
+      command = command,
+      args    = c(args, shQuote(packages)),
+      stdout  = TRUE,
+      stderr  = FALSE
+    )
+  )
+
+  parts <- strsplit(as.character(output), " ", fixed = TRUE)
+  parts <- filter(parts, function(part) {
+    length(part) == 2L && part[[1L]] %in% packages
+  })
+
+  versions <- extract_chr(parts, 2L)
+  names(versions) <- extract_chr(parts, 1L)
+  as.list(versions[order(names(versions))])
+
+}

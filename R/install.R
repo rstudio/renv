@@ -850,7 +850,8 @@ renv_install_preflight <- function(project, libpaths, records) {
 
   all(
     renv_install_preflight_unknown_source(records),
-    renv_install_preflight_permissions(library)
+    renv_install_preflight_permissions(library),
+    renv_rtools_preflight(records)
   )
 
 }

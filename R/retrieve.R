@@ -1064,11 +1064,13 @@ renv_retrieve_repos_archive_name <- function(record, type = "source") {
 
 }
 
-renv_retrieve_repos_p3m <- function(record) {
+# the date of the P3M snapshot providing a binary for this record on the
+# current platform, or NULL if no such binary is known
+renv_retrieve_repos_p3m_date <- function(record) {
 
   # TODO: support Linux
   if (renv_platform_linux())
-    return(FALSE)
+    return(NULL)
 
   # ensure local database is up-to-date
   renv_p3m_database_refresh(explicit = FALSE)
@@ -1076,31 +1078,40 @@ renv_retrieve_repos_p3m <- function(record) {
   # check that we have an available database
   path <- renv_p3m_database_path()
   if (!file.exists(path))
-    return(FALSE)
+    return(NULL)
 
   # attempt to read it
   database <- catch(renv_p3m_database_load())
   if (inherits(database, "error")) {
     warning(database)
-    return(FALSE)
+    return(NULL)
   }
 
   # get entry for this version of R + platform
   suffix <- contrib.url("", type = "binary")
   entry <- database[[suffix]]
   if (is.null(entry))
-    return(FALSE)
+    return(NULL)
 
   # check for known entry for this package + version
   key <- paste(record$Package, record$Version)
   idate <- entry[[key]]
   if (is.null(idate))
-    return(FALSE)
+    return(NULL)
 
   # convert from integer to date
-  date <- as.Date(idate, origin = "1970-01-01")
+  as.Date(idate, origin = "1970-01-01")
+
+}
+
+renv_retrieve_repos_p3m <- function(record) {
+
+  date <- renv_retrieve_repos_p3m_date(record)
+  if (is.null(date))
+    return(FALSE)
 
   # form url to binary package
+  suffix <- contrib.url("", type = "binary")
   base <- renv_p3m_url(date, suffix)
   name <- renv_retrieve_name(record, type = "binary")
   url <- file.path(base, name)
