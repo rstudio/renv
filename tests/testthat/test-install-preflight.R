@@ -3,6 +3,10 @@ test_that("the way each record will be installed is classified", {
 
   renv_tests_scope()
 
+  # earlier tests may have installed the test packages into the cache,
+  # in which case no build would be needed
+  renv_scope_envvars(RENV_PATHS_CACHE = renv_scope_tempfile("renv-cache-"))
+
   # pretend only source packages are available from the repositories;
   # the test repositories only have binaries on some platforms
   renv_scope_binding(
@@ -41,6 +45,7 @@ test_that("the way each record will be installed is classified", {
 test_that("binaries available from the repositories need no build", {
 
   renv_tests_scope()
+  renv_scope_envvars(RENV_PATHS_CACHE = renv_scope_tempfile("renv-cache-"))
 
   renv_scope_binding(
     envir       = asNamespace("renv"),
