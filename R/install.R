@@ -851,7 +851,132 @@ renv_install_preflight <- function(project, libpaths, records) {
   all(
     renv_install_preflight_unknown_source(records),
     renv_install_preflight_permissions(library),
-    renv_rtools_preflight(records)
+    renv_install_preflight_binaries(records)
+  )
+
+}
+
+# report the packages which will be compiled from source because no binary
+# is available for the requested version. on Windows without Rtools, such
+# installs are going to fail, so this doubles as a toolchain check there
+renv_install_preflight_binaries <- function(records) {
+
+  binaries <- "binary" %in% renv_graph_url_repository_types()
+  rtools <- !renv_platform_windows() || renv_rtools_available()
+
+  # when binaries aren't in use, every package is built from source by
+  # choice (or by necessity, on Linux), so there's nothing to report
+  # unless those builds are going to fail
+  if (!binaries && rtools)
+    return(TRUE)
+
+  renv_install_preflight_binaries_impl(records, rtools = rtools)
+
+}
+
+renv_install_preflight_binaries_impl <- function(records,
+                                                 rtools = TRUE,
+                                                 version = getRversion())
+{
+  types <- map_chr(records, renv_install_preflight_binaries_type)
+
+  # with a toolchain, only packages known to need compiling are worth
+  # noting; without one, any package which might need it is going to fail
+  wanted <- if (rtools) "compiled" else c("compiled", "unknown")
+  records <- records[types %in% wanted]
+  if (empty(records))
+    return(TRUE)
+
+  values <- map_chr(records, function(record) {
+    sprintf("%s [%s]", record$Package, record$Version %||% "*")
+  })
+
+  n <- length(values)
+  if (rtools) {
+    fmt <- "The following %s will be compiled from source, as no binaries are available:"
+    bulletin(sprintf(fmt, nplural("package", n)), sort(values))
+    return(TRUE)
+  }
+
+  fmt <- "The following %s will need to be compiled from source, as no binaries are available:"
+  preamble <- sprintf(fmt, nplural("package", n))
+
+  fmt <- "Compiling packages requires Rtools %s, which was not found."
+  postamble <- c(
+    sprintf(fmt, renv_rtools_required(version)),
+    "Call renv::equip() to install it, or download it from https://cran.r-project.org/bin/windows/Rtools/."
+  )
+
+  bulletin(preamble, sort(values), postamble)
+  FALSE
+
+}
+
+# how will this record be installed? one of:
+#
+#   "none"     -- no build is needed (binary, cache, or not checked),
+#   "source"   -- built from source, without compiled code,
+#   "compiled" -- built from source, with compiled code,
+#   "unknown"  -- built from source; unknown whether it has compiled code
+#
+renv_install_preflight_binaries_type <- function(record) {
+
+  # an already-built copy in the cache is reused as-is
+  path <- renv_cache_find(record)
+  if (nzchar(path) && file.exists(path))
+    return("none")
+
+  package <- record$Package
+  version <- record$Version
+  source <- renv_record_source(record, normalize = TRUE)
+
+  # Bioconductor repositories are only added to the repos option later
+  # during the install, so we can't yet tell whether a binary is available
+  if (source == "bioconductor")
+    return("none")
+
+  # packages from the cellar may be available as binaries
+  if (source %in% c("cellar", "local")) {
+    path <- catch(renv_retrieve_cellar_find(record))
+    if (!inherits(path, "error") && identical(names(path), "binary"))
+      return("none")
+  }
+
+  if (source == "repository") {
+
+    # a binary is available from the active repositories
+    types <- renv_graph_url_repository_types()
+    if ("binary" %in% types) {
+
+      entry <- catch(
+        renv_available_packages_entry(
+          package = package,
+          type    = "binary",
+          filter  = version
+        )
+      )
+
+      if (!inherits(entry, "error"))
+        return("none")
+
+    }
+
+    # a binary is available from P3M
+    if (renv_p3m_enabled() && !is.null(renv_retrieve_repos_p3m_date(record)))
+      return("none")
+
+  }
+
+  # a source build is needed; whether it needs compiling can only be read
+  # from the current release of the package in the source repositories
+  entry <- catch(renv_available_packages_entry(package, type = "source"))
+  if (inherits(entry, "error"))
+    return("unknown")
+
+  case(
+    identical(entry$NeedsCompilation, "yes") ~ "compiled",
+    identical(entry$NeedsCompilation, "no")  ~ "source",
+    ~ "unknown"
   )
 
 }

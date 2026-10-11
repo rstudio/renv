@@ -4,11 +4,12 @@
   whitespace, so tools like pre-commit's `trailing-whitespace` hook no longer
   modify it. (#2411)
 
-* On Windows, `renv::restore()` and `renv::install()` now check whether any of
-  the requested packages will need to be built from source before installing
-  anything, and report which packages those are, along with the version of
-  Rtools required, when no Rtools installation is found. Previously, such
-  installs failed only after reaching the first package needing compilation.
+* `renv::restore()` and `renv::install()` now report, before installing
+  anything, which of the requested packages are not available as binaries and
+  so will be compiled from source. On Windows, when no Rtools installation is
+  found, the report also names the version of Rtools required. Previously,
+  such installs failed only after reaching the first package needing
+  compilation.
 
 * On Windows, `renv::equip()` now downloads and runs the installer for the
   version of Rtools matching the running version of R, when no Rtools
