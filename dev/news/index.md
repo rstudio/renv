@@ -2,6 +2,11 @@
 
 ## renv (development version)
 
+- The generated `renv/activate.R` script no longer contains trailing
+  whitespace, so tools like pre-commit’s `trailing-whitespace` hook no
+  longer modify it.
+  ([\#2411](https://github.com/rstudio/renv/issues/2411))
+
 - renv now recognizes the custom binary package types introduced with R
   4.6.0 (of the form `<system>.binary.<build>`), along with binary
   packages distributed as `.tar.bz2`, `.tar.xz`, `.tar.zst` and
