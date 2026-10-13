@@ -55,3 +55,16 @@ test_that("activate_prompt behaves as expected", {
   expect_snapshot(val <- renv_activate_prompt_impl("snapshot"))
   expect_true(val)
 })
+
+test_that("the generated activate.R has no trailing whitespace", {
+
+  # pre-commit's trailing-whitespace hook would otherwise rewrite it,
+  # and renv would then put the whitespace back -- #2411
+  renv_tests_scope()
+  init(bare = TRUE, restart = FALSE)
+  renv_infrastructure_write_activate()
+
+  contents <- readLines(renv_paths_activate())
+  expect_false(any(grepl("[ \t]+$", contents)))
+
+})

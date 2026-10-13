@@ -159,6 +159,11 @@ renv_zzz_bootstrap_activate <- function() {
   template <- renv_file_read(source)
   replaced <- renv_template_replace(template, list(BOOTSTRAP = bootstrap))
 
+  # strip trailing whitespace introduced by indenting blank lines; otherwise
+  # pre-commit hooks and the like keep fighting with us over the generated
+  # script -- https://github.com/rstudio/renv/issues/2411
+  replaced <- gsub("[ \t]+\n", "\n", replaced)
+
   # write to resources
   printf("- Generating 'inst/resources/activate.R' ... ")
   writeLines(replaced, con = target)
