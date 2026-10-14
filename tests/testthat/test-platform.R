@@ -88,6 +88,13 @@ test_that("the external software record tolerates a missing extSoftVersion()", {
   expect_equal(renv_platform_record_blas(software), "libblas.so")
   expect_equal(renv_platform_record_software(software), list(zlib = "1.2.11"))
 
+  # entries are sorted by name in the C locale
+  software <- c(zlib = "1.2.11", PCRE = "10.42", bzlib = "1.0.8", ICU = "72.1")
+  expect_equal(
+    names(renv_platform_record_software(software)),
+    c("ICU", "PCRE", "bzlib", "zlib")
+  )
+
 })
 
 test_that("tool versions are read from the first meaningful line of output", {
@@ -127,5 +134,8 @@ test_that("external tools are reported when available", {
 
   tools <- renv_platform_record_tools()
   expect_equal(tools$Pandoc, tool)
+
+  # entries are sorted by name in the C locale
+  expect_equal(names(tools), csort(names(tools)))
 
 })
