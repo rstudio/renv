@@ -278,6 +278,12 @@ install <- function(packages = NULL,
     return(invisible(list()))
   }
 
+  # report which of the resolved packages will be built from source; this
+  # has to wait until dependencies are resolved, as compiled dependencies
+  # of the requested packages are just as likely to need a toolchain
+  if (!renv_install_preflight_binaries(descriptions[needed], project))
+    cancel_if(prompt && !proceed())
+
   if (prompt || renv_verbose()) {
     renv_install_report(descriptions[needed], library = library)
     cancel_if(prompt && !proceed())
@@ -851,6 +857,145 @@ renv_install_preflight <- function(project, libpaths, records) {
   all(
     renv_install_preflight_unknown_source(records),
     renv_install_preflight_permissions(library)
+  )
+
+}
+
+# report the packages which will be compiled from source because no binary
+# is available for the requested version. on Windows without Rtools, such
+# installs are going to fail, so this doubles as a toolchain check there.
+#
+# 'records' should be the packages actually being installed (after dependency
+# resolution), and the restore state should be scoped so that the same cache
+# and rebuild policy as the installer applies
+renv_install_preflight_binaries <- function(records, project) {
+
+  binaries <- "binary" %in% renv_graph_url_repository_types()
+  rtools <- !renv_platform_windows() || renv_rtools_available()
+
+  # when binaries aren't in use, every package is built from source by
+  # choice (or by necessity, on Linux), so there's nothing to report
+  # unless those builds are going to fail
+  if (!binaries && rtools)
+    return(TRUE)
+
+  renv_install_preflight_binaries_impl(records, project, rtools = rtools)
+
+}
+
+renv_install_preflight_binaries_impl <- function(records,
+                                                 project = NULL,
+                                                 rtools = TRUE,
+                                                 version = getRversion())
+{
+  # packages whose resolution failed have no description to classify; the
+  # failure is reported after the install, with the other failures
+  records <- filter(records, function(record) {
+    !isTRUE(attr(record, "resolution_failed", exact = TRUE))
+  })
+
+  types <- map_chr(records, renv_install_preflight_binaries_type, project = project)
+
+  compiled <- renv_install_preflight_binaries_format(records[types == "compiled"])
+  unknown  <- renv_install_preflight_binaries_format(records[types == "unknown"])
+
+  # with a toolchain, only packages known to need compiling are worth noting
+  if (rtools) {
+    fmt <- "The following %s will be compiled from source, as no binaries are available:"
+    bulletin(sprintf(fmt, nplural("package", length(compiled))), compiled)
+    return(TRUE)
+  }
+
+  # without one, any package which might need compiling is going to fail;
+  # packages whose descriptions don't say (as is common for packages not yet
+  # built, e.g. from GitHub) are reported separately, as the install may
+  # well succeed for those
+  if (empty(compiled) && empty(unknown))
+    return(TRUE)
+
+  fmt <- "The following %s will need to be compiled from source, as no binaries are available:"
+  bulletin(sprintf(fmt, nplural("package", length(compiled))), compiled)
+
+  fmt <- "The following %s will be built from source, and may need to be compiled:"
+  bulletin(sprintf(fmt, nplural("package", length(unknown))), unknown)
+
+  fmt <- "Compiling packages requires Rtools %s, which was not found."
+  caution(fmt, renv_rtools_required(version))
+  caution("Call renv::equip() to install it, or download it from https://cran.r-project.org/bin/windows/Rtools/.")
+  caution()
+
+  FALSE
+
+}
+
+renv_install_preflight_binaries_format <- function(records) {
+
+  values <- map_chr(records, function(record) {
+    sprintf("%s [%s]", record$Package, record$Version %||% "*")
+  })
+
+  sort(unname(values))
+
+}
+
+# how will this record be installed? one of:
+#
+#   "none"     -- no build is needed (binary, cache, or not checked),
+#   "source"   -- built from source, without compiled code,
+#   "compiled" -- built from source, with compiled code,
+#   "unknown"  -- built from source; unknown whether it has compiled code
+#
+renv_install_preflight_binaries_type <- function(record, project = NULL) {
+
+  # an already-built copy in the cache is reused as-is, unless the installer
+  # is going to ignore it (cache disabled, or a rebuild was requested)
+  if (!is.null(renv_graph_install_cache_find(record, project)))
+    return("none")
+
+  package <- record$Package
+  version <- record$Version
+  source <- renv_record_source(record, normalize = TRUE)
+
+  # Bioconductor repositories are only added to the repos option later
+  # during the install, so we can't yet tell whether a binary is available
+  if (source == "bioconductor")
+    return("none")
+
+  # packages from the cellar may be available as binaries
+  if (source %in% c("cellar", "local")) {
+    path <- catch(renv_retrieve_cellar_find(record))
+    if (!inherits(path, "error") && identical(names(path), "binary"))
+      return("none")
+  }
+
+  if (source == "repository") {
+
+    # ask the resolver how it would retrieve this record, so that the
+    # repositories, P3M, strict mode and the archive are weighed exactly as
+    # the installer will. a record it can't resolve is retrieved sequentially,
+    # where a binary might yet be found; assume a source build for those, as
+    # that errs towards reporting
+    info <- catch(renv_graph_url_repository(record))
+    if (!inherits(info, "error") && identical(info$pkgtype, "binary"))
+      return("none")
+
+  }
+
+  # a source build is needed. a resolved description already says whether
+  # compiling is needed; otherwise, that can only be read from the current
+  # release of the package in the source repositories
+  needs <- record[["NeedsCompilation"]]
+  if (is.null(needs)) {
+    entry <- catch(renv_available_packages_entry(package, type = "source"))
+    if (inherits(entry, "error"))
+      return("unknown")
+    needs <- entry[["NeedsCompilation"]]
+  }
+
+  case(
+    identical(needs, "yes") ~ "compiled",
+    identical(needs, "no")  ~ "source",
+    ~ "unknown"
   )
 
 }

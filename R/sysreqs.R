@@ -686,3 +686,54 @@ renv_sysreqs_update <- function() {
   renv_json_write(contents, file = dest)
 
 }
+
+# the installed versions of a set of system packages, as a named list.
+# packages which are not installed are omitted
+renv_sysreqs_versions <- function(type, packages) {
+
+  if (empty(packages))
+    return(list())
+
+  # dpkg knows about packages which were removed but not purged (the
+  # 'config-files' state), and reports their versions, so ask for the status
+  # too. rpm only knows about installed packages
+  if (type == "deb") {
+    command <- "dpkg-query"
+    args <- c("-W", "-f", shQuote("${Package} ${Version} ${db:Status-Status}\\n"))
+  } else if (type == "rpm") {
+    command <- "rpm"
+    args <- c("-q", "--qf", shQuote("%{NAME} %{VERSION}-%{RELEASE} installed\\n"))
+  } else {
+    return(list())
+  }
+
+  # both tools report on the packages they do know about even when
+  # some are missing, so ignore the resulting non-zero exit status
+  output <- suppressWarnings(
+    system2(
+      command = command,
+      args    = c(args, shQuote(packages)),
+      stdout  = TRUE,
+      stderr  = FALSE
+    )
+  )
+
+  renv_sysreqs_versions_parse(output, packages)
+
+}
+
+# parse '<package> <version> <status>' lines as emitted above
+renv_sysreqs_versions_parse <- function(output, packages) {
+
+  parts <- strsplit(as.character(output), " ", fixed = TRUE)
+  parts <- filter(parts, function(part) {
+    length(part) == 3L &&
+      part[[1L]] %in% packages &&
+      identical(part[[3L]], "installed")
+  })
+
+  versions <- extract_chr(parts, 2L)
+  names(versions) <- extract_chr(parts, 1L)
+  as.list(versions[order(names(versions))])
+
+}

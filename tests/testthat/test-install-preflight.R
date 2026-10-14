@@ -1,0 +1,236 @@
+
+test_that("the way each record will be installed is classified", {
+
+  renv_tests_scope()
+
+  # earlier tests may have installed the test packages into the cache,
+  # in which case no build would be needed
+  renv_scope_envvars(RENV_PATHS_CACHE = renv_scope_tempfile("renv-cache-"))
+
+  # the test scope requests source packages, so the resolver chooses a
+  # source build; the test packages have no compiled code (write_PACKAGES()
+  # records NeedsCompilation: no for them)
+  bread <- list(Package = "bread", Version = "1.0.0", Source = "Repository")
+  expect_equal(renv_install_preflight_binaries_type(bread), "source")
+
+  # packages not in the repositories at all can't be classified
+  missing <- list(Package = "nosuchpackage", Version = "1.0.0", Source = "Repository")
+  expect_equal(renv_install_preflight_binaries_type(missing), "unknown")
+
+  # Bioconductor repositories aren't available yet during preflight
+  bioc <- list(Package = "Biobase", Version = "2.60.0", Source = "Bioconductor")
+  expect_equal(renv_install_preflight_binaries_type(bioc), "none")
+
+  # packages whose current release has compiled code need compiling
+  renv_scope_binding(
+    envir       = asNamespace("renv"),
+    symbol      = "renv_graph_url_repository",
+    replacement = function(desc) list(pkgtype = "source")
+  )
+
+  renv_scope_binding(
+    envir       = asNamespace("renv"),
+    symbol      = "renv_available_packages_entry",
+    replacement = function(package, type = "source", ...) {
+      if (identical(type, "binary"))
+        stop("no binaries available")
+      list(Package = package, NeedsCompilation = "yes")
+    }
+  )
+  expect_equal(renv_install_preflight_binaries_type(bread), "compiled")
+
+  # a description resolved by the dependency graph already says whether the
+  # package needs compiling, so the repositories aren't consulted again
+  renv_scope_binding(
+    envir       = asNamespace("renv"),
+    symbol      = "renv_available_packages_entry",
+    replacement = function(...) stop("should not be called")
+  )
+  bread$NeedsCompilation <- "no"
+  expect_equal(renv_install_preflight_binaries_type(bread), "source")
+
+})
+
+test_that("the resolver decides whether a binary will be used", {
+
+  renv_tests_scope()
+  renv_scope_envvars(RENV_PATHS_CACHE = renv_scope_tempfile("renv-cache-"))
+
+  # the current release needs compiling
+  renv_scope_binding(
+    envir       = asNamespace("renv"),
+    symbol      = "renv_available_packages_entry",
+    replacement = function(package, type = "source", ...) {
+      list(Package = package, NeedsCompilation = "yes")
+    }
+  )
+
+  bread <- list(Package = "bread", Version = "1.0.0", Source = "Repository")
+
+  # whether from a repository, P3M, or (in strict mode) the recorded
+  # repository alone, a binary chosen by the resolver needs no build
+  resolved <- list(pkgtype = "binary")
+  renv_scope_binding(
+    envir       = asNamespace("renv"),
+    symbol      = "renv_graph_url_repository",
+    replacement = function(desc) resolved
+  )
+  expect_equal(renv_install_preflight_binaries_type(bread), "none")
+
+  # a source build chosen by the resolver is classified by its need to compile
+  resolved <- list(pkgtype = "source")
+  expect_equal(renv_install_preflight_binaries_type(bread), "compiled")
+
+  # a record the resolver can't place is retrieved sequentially; assume a build
+  resolved <- NULL
+  expect_equal(renv_install_preflight_binaries_type(bread), "compiled")
+
+  renv_scope_binding(
+    envir       = asNamespace("renv"),
+    symbol      = "renv_graph_url_repository",
+    replacement = function(desc) stop("resolution failed")
+  )
+  expect_equal(renv_install_preflight_binaries_type(bread), "compiled")
+
+})
+
+test_that("packages to be compiled from source are reported", {
+
+  renv_scope_binding(
+    envir       = asNamespace("renv"),
+    symbol      = "renv_install_preflight_binaries_type",
+    replacement = function(record, project = NULL) {
+      switch(
+        record$Package,
+        ragg    = "compiled",
+        stringi = "compiled",
+        cli     = "none",
+        rlang   = "source",
+        mypkg   = "unknown",
+        broken  = "compiled"
+      )
+    }
+  )
+
+  records <- list(
+    stringi = list(Package = "stringi", Version = "1.8.4", Source = "Repository"),
+    cli     = list(Package = "cli", Version = "3.6.3", Source = "Repository"),
+    rlang   = list(Package = "rlang", Version = "1.1.4", Source = "Repository"),
+    mypkg   = list(Package = "mypkg", Version = "0.1.0", Source = "GitHub"),
+    ragg    = list(Package = "ragg", Version = "1.3.0", Source = "Repository"),
+    broken  = structure(list(Package = "broken"), resolution_failed = TRUE)
+  )
+
+  # with a toolchain, this is informational
+  expect_snapshot(status <- renv_install_preflight_binaries_impl(records, rtools = TRUE))
+  expect_true(status)
+
+  # without one, the install is expected to fail
+  expect_snapshot({
+    status <- renv_install_preflight_binaries_impl(
+      records,
+      rtools  = FALSE,
+      version = "4.5.1"
+    )
+  })
+  expect_false(status)
+
+  # nothing is reported when nothing needs compiling
+  expect_silent(status <- renv_install_preflight_binaries_impl(records["cli"]))
+  expect_true(status)
+
+  # packages which might need compiling are only a concern without a toolchain
+  expect_silent(status <- renv_install_preflight_binaries_impl(records["mypkg"]))
+  expect_true(status)
+
+  expect_snapshot({
+    status <- renv_install_preflight_binaries_impl(
+      records["mypkg"],
+      rtools  = FALSE,
+      version = "4.5.1"
+    )
+  })
+  expect_false(status)
+
+})
+
+# pretend a built copy of every package exists in the cache
+renv_test_preflight_scope_cache <- function(scope = parent.frame()) {
+
+  renv_scope_binding(
+    envir       = asNamespace("renv"),
+    symbol      = "renv_cache_find",
+    replacement = function(record) file.path(tempdir(), record$Package),
+    scope       = scope
+  )
+
+  renv_scope_binding(
+    envir       = asNamespace("renv"),
+    symbol      = "renv_cache_package_validate",
+    replacement = function(path) TRUE,
+    scope       = scope
+  )
+
+  renv_scope_binding(
+    envir       = asNamespace("renv"),
+    symbol      = "renv_graph_url_repository",
+    replacement = function(desc) list(pkgtype = "source"),
+    scope       = scope
+  )
+
+}
+
+test_that("a usable cache entry means no build is needed", {
+
+  renv_tests_scope()
+  renv_test_preflight_scope_cache()
+
+  bread <- list(Package = "bread", Version = "1.0.0", Source = "Repository")
+  expect_equal(renv_install_preflight_binaries_type(bread, getwd()), "none")
+
+})
+
+test_that("a requested rebuild skips the cache during preflight", {
+
+  renv_tests_scope()
+  renv_test_preflight_scope_cache()
+
+  # the installer consults the restore state for the rebuild request
+  renv_scope_restore(project = getwd(), rebuild = "bread")
+
+  bread <- list(Package = "bread", Version = "1.0.0", Source = "Repository")
+  expect_equal(renv_install_preflight_binaries_type(bread, getwd()), "source")
+
+})
+
+test_that("a disabled cache is not consulted during preflight", {
+
+  renv_tests_scope()
+  renv_test_preflight_scope_cache()
+  renv_scope_options(renv.config.cache.enabled = FALSE)
+
+  bread <- list(Package = "bread", Version = "1.0.0", Source = "Repository")
+  expect_equal(renv_install_preflight_binaries_type(bread, getwd()), "source")
+
+})
+
+test_that("install() checks the resolved set of packages for source builds", {
+
+  skip_on_cran()
+  renv_tests_scope("breakfast")
+
+  checked <- NULL
+  renv_scope_binding(
+    envir       = asNamespace("renv"),
+    symbol      = "renv_install_preflight_binaries",
+    replacement = function(records, project) {
+      checked <<- names(records)
+      TRUE
+    }
+  )
+
+  # the dependencies of breakfast need installing too
+  install("breakfast")
+  expect_setequal(checked, c("breakfast", "bread", "oatmeal", "toast"))
+
+})

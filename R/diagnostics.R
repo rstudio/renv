@@ -30,6 +30,7 @@ diagnostics <- function(project = NULL) {
     renv_diagnostics_status,
     renv_diagnostics_packages,
     renv_diagnostics_sysreqs,
+    renv_diagnostics_platform,
     renv_diagnostics_r,
     renv_diagnostics_abi,
     renv_diagnostics_profile,
@@ -191,6 +192,12 @@ renv_diagnostics_sysreqs <- function(project) {
   ok <- renv_sysreqs_check(sysreqs, prompt = FALSE)
   invisible(ok)
 
+}
+
+renv_diagnostics_platform <- function(project) {
+  writef(header("Platform"))
+  record <- renv_platform_record(project = project)
+  renv_json_write(record, file = stdout())
 }
 
 renv_diagnostics_packages_version <- function(lockfile, all) {

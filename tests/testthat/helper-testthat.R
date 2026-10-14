@@ -62,6 +62,12 @@ renv_test_state <- function(cran) {
   opts <- opts[csort(names(opts))]
 
   envvars <- as.list(Sys.getenv())
+
+  # environment variable names are case-insensitive on Windows, and setting a
+  # variable through a differently-cased name rewrites the stored name
+  if (renv_platform_windows())
+    names(envvars) <- toupper(names(envvars))
+
   envvars <- envvars[grep("^RENV_DEFAULT_", names(envvars), invert = TRUE)]
   envvars <- envvars[grep("^R_PACKRAT_", names(envvars), invert = TRUE)]
   envvars <- envvars[grep("^_R_", names(envvars), invert = TRUE)]
