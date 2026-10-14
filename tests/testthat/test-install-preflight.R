@@ -221,6 +221,35 @@ test_that("P3M binaries aren't counted for records pinned to a repository", {
 
 })
 
+test_that("a source-only install doesn't count P3M binaries", {
+
+  renv_tests_scope()
+  renv_scope_envvars(RENV_PATHS_CACHE = renv_scope_tempfile("renv-cache-"))
+
+  renv_scope_binding(
+    envir       = asNamespace("renv"),
+    symbol      = "renv_available_packages_entry",
+    replacement = function(package, type = "source", ...) {
+      if (identical(type, "binary"))
+        stop("no binaries available")
+      list(Package = package, NeedsCompilation = "yes")
+    }
+  )
+
+  renv_scope_binding(
+    envir       = asNamespace("renv"),
+    symbol      = "renv_retrieve_repos_p3m_date",
+    replacement = function(record) as.Date("2024-01-15")
+  )
+
+  # the type requested by install() governs, as it does for the installer
+  renv_scope_binding(the, "install_pkg_type", "source")
+
+  bread <- list(Package = "bread", Version = "1.0.0", Source = "Repository")
+  expect_equal(renv_install_preflight_binaries_type(bread), "compiled")
+
+})
+
 # pretend a built copy of every package exists in the cache
 renv_test_preflight_scope_cache <- function(scope = parent.frame()) {
 
