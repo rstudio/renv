@@ -550,6 +550,56 @@ test_that("renv_graph_url_repository prefers a P3M binary over the source archiv
 
 })
 
+test_that("P3M database failures fall through to the source archive", {
+
+  renv_tests_scope()
+  renv_scope_options(pkgType = "both")
+
+  repourl <- contrib.url(getOption("repos")[[1L]], type = "source")
+  local_mocked_bindings(
+    renv_available_packages_latest = function(package, ...) {
+      record <- list(Package = package, Version = "9.9.9", Source = "Repository")
+      renv_record_tag(record, type = "source", url = repourl, name = "CRAN")
+    },
+    renv_available_packages_entry = function(...) stop("version not available"),
+    renv_p3m_enabled = function(type = NULL) TRUE,
+    renv_retrieve_repos_p3m_date = function(record) stop("could not download the P3M database")
+  )
+
+  desc <- list(Package = "bread", Version = "1.0.0", Source = "Repository")
+  info <- renv_graph_url_repository(desc)
+
+  expect_equal(info$pkgtype, "source")
+  expect_match(info$url, "Archive", fixed = TRUE)
+
+})
+
+test_that("the type requested by install() governs whether P3M is consulted", {
+
+  renv_tests_scope()
+  renv_scope_options(pkgType = "both", renv.config.ppm.enabled = TRUE)
+
+  repourl <- contrib.url(getOption("repos")[[1L]], type = "source")
+  local_mocked_bindings(
+    renv_available_packages_latest = function(package, ...) {
+      record <- list(Package = package, Version = "9.9.9", Source = "Repository")
+      renv_record_tag(record, type = "source", url = repourl, name = "CRAN")
+    },
+    renv_available_packages_entry = function(...) stop("version not available"),
+    renv_retrieve_repos_p3m_date = function(record) as.Date("2024-01-15")
+  )
+
+  desc <- list(Package = "bread", Version = "1.0.0", Source = "Repository")
+  info <- renv_graph_url_repository(desc)
+  expect_equal(info$reponame, "P3M")
+
+  renv_scope_binding(the, "install_pkg_type", "source")
+  info <- renv_graph_url_repository(desc)
+  expect_equal(info$pkgtype, "source")
+  expect_match(info$url, "Archive", fixed = TRUE)
+
+})
+
 test_that("strict restores retrieve from the recorded repository, not P3M", {
 
   renv_tests_scope()

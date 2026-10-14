@@ -970,52 +970,14 @@ renv_install_preflight_binaries_type <- function(record, project = NULL) {
 
   if (source == "repository") {
 
-    # in strict mode, records naming a repository are only retrieved from it
-    repos <- if (renv_graph_url_repository_strict(record))
-      renv_repos_baseurl(record[["Repository"]])
-
-    # a binary is available from the active repositories
-    types <- renv_graph_url_repository_types()
-    if ("binary" %in% types) {
-
-      entry <- catch(
-        renv_available_packages_entry(
-          package = package,
-          type    = "binary",
-          repos   = repos,
-          filter  = version
-        )
-      )
-
-      if (!inherits(entry, "error"))
-        return("none")
-
-    }
-
-    # a binary is available from P3M. the installer only looks there when
-    # the repositories don't serve the requested version at all (see
-    # renv_graph_url_repository()), and never for records pinned to their
-    # own repository. a failure to refresh or read the P3M database
-    # shouldn't abort the install: retrieval tolerates the same failure and
-    # falls back to a source build
-    p3m <- renv_p3m_enabled(the$install_pkg_type) && is.null(repos)
-    if (p3m) {
-
-      entry <- catch(
-        renv_available_packages_entry(
-          package = package,
-          type    = "source",
-          filter  = version
-        )
-      )
-
-      if (inherits(entry, "error")) {
-        date <- catch(renv_retrieve_repos_p3m_date(record))
-        if (!inherits(date, "error") && !is.null(date))
-          return("none")
-      }
-
-    }
+    # ask the resolver how it would retrieve this record, so that the
+    # repositories, P3M, strict mode and the archive are weighed exactly as
+    # the installer will. a record it can't resolve is retrieved sequentially,
+    # where a binary might yet be found; assume a source build for those, as
+    # that errs towards reporting
+    info <- catch(renv_graph_url_repository(record))
+    if (!inherits(info, "error") && identical(info$pkgtype, "binary"))
+      return("none")
 
   }
 
