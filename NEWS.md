@@ -4,6 +4,12 @@
   whitespace, so tools like pre-commit's `trailing-whitespace` hook no longer
   modify it. (#2411)
 
+* Fixed an issue where `renv::restore()` and `renv::install()` would build a
+  package from its archived sources when the requested version was no longer
+  available from the configured repositories, even when P3M provided a binary
+  for that version. The dependency graph now consults P3M before falling back
+  to the archive, as it did before the graph-based installer (renv 1.2.0).
+
 * `renv::restore()` and `renv::install()` now report, before installing
   anything, which of the requested packages are not available as binaries and
   so will be compiled from source. On Windows, when no Rtools installation is

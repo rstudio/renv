@@ -1204,8 +1204,15 @@ renv_graph_url_repository <- function(desc) {
 
   }
 
-  # the requested version is not in current available packages;
-  # try the CRAN-style archive (source only)
+  # the requested version is not in current available packages. P3M may
+  # still have a binary for it, from the snapshot taken when it was current;
+  # prefer that over building the archived sources, as sequential retrieval
+  # does (renv_retrieve_repos())
+  info <- renv_graph_url_repository_p3m(desc)
+  if (!is.null(info))
+    return(info)
+
+  # otherwise, try the CRAN-style archive (source only)
   baseurl <- renv_repos_baseurl(attr(record, "url", exact = TRUE))
   root <- renv_retrieve_repos_archive_root(baseurl, as.list(desc))
 
@@ -1227,6 +1234,35 @@ renv_graph_url_repository <- function(desc) {
 
   # couldn't resolve; fall back to sequential retrieval
   NULL
+
+}
+
+# the P3M binary for this record on the current platform, if P3M is in use
+# and its database knows of one
+renv_graph_url_repository_p3m <- function(desc) {
+
+  if (!renv_p3m_enabled(the$install_pkg_type))
+    return(NULL)
+
+  # a failure to refresh or read the P3M database shouldn't abort
+  # resolution; the archive remains available
+  record <- as.list(desc)
+  date <- catch(renv_retrieve_repos_p3m_date(record))
+  if (inherits(date, "error") || is.null(date))
+    return(NULL)
+
+  suffix <- contrib.url("", type = "binary")
+  base <- renv_p3m_url(date, suffix)
+  name <- renv_retrieve_name(record, type = "binary")
+
+  list(
+    url      = file.path(base, name),
+    destfile = renv_retrieve_path(record, type = "binary"),
+    type     = "repository",
+    pkgtype  = "binary",
+    repourl  = base,
+    reponame = "P3M"
+  )
 
 }
 
