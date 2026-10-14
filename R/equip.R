@@ -104,7 +104,9 @@ renv_equip_windows_rtools <- function() {
 renv_equip_windows_rtools_run <- function(installer) {
 
   # the installer requests elevation, which CreateProcess() (and so system2())
-  # refuses; launch it through the shell instead so that Windows can prompt
+  # refuses; launch it through the shell instead so that Windows can prompt.
+  # note that 'start' treats its first quoted argument as a window title, so
+  # an empty title ("") is required for the installer path to be run
   args <- c(
     "/c", "start", "\"\"", "/wait",
     shQuote(installer),
