@@ -95,6 +95,10 @@ test_that("tool versions are read from the first meaningful line of output", {
   expect_equal(renv_platform_record_tool_version("pandoc 3.1.11"), "pandoc 3.1.11")
   expect_null(renv_platform_record_tool_version(character()))
 
+  # a tool which fails to run reports an error, not a version
+  output <- structure("Unable to locate a Java Runtime.", status = 1L)
+  expect_null(renv_platform_record_tool_version(output))
+
   # the JVM announces options from the environment before its version
   output <- c(
     "Picked up JAVA_TOOL_OPTIONS: -Xmx2g",

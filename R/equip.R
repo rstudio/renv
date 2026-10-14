@@ -49,6 +49,13 @@ renv_equip_windows <- function() {
 
 renv_equip_windows_rtools <- function() {
 
+  # an explicitly-requested Rtools installation needn't be discoverable
+  root <- renv_paths_override("rtools")
+  if (!is.null(root) && file.exists(root)) {
+    writef("- Rtools is already installed at %s.", renv_path_pretty(root))
+    return(TRUE)
+  }
+
   spec <- renv_rtools_find()
   if (!is.null(spec)) {
     fmt <- "- Rtools %s is already installed at %s."

@@ -288,6 +288,11 @@ renv_rtools_installer_url_parse <- function(html, series, arch = R.version$arch)
   pattern <- "href=\"([^\"]*rtools[^\"/]*[.]exe)\""
   matches <- regmatches(html, gregexpr(pattern, html, perl = TRUE))
   links <- gsub(pattern, "\\1", unique(unlist(matches, use.names = FALSE)), perl = TRUE)
+
+  # only installers for the requested series are wanted
+  names <- basename(links)
+  prefix <- sprintf("rtools%s", gsub(".", "", series, fixed = TRUE))
+  links <- links[startsWith(names, prefix)]
   if (empty(links))
     return(NULL)
 

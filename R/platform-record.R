@@ -222,6 +222,12 @@ renv_platform_record_tool <- function(path, args) {
 
 renv_platform_record_tool_version <- function(output) {
 
+  # a tool which fails to run (e.g. macOS's java stub, without a JDK)
+  # reports an error rather than a version
+  status <- attr(output, "status", exact = TRUE) %||% 0L
+  if (!identical(as.integer(status), 0L))
+    return(NULL)
+
   # the JVM announces options picked up from the environment (e.g.
   # JAVA_TOOL_OPTIONS) on stderr before anything else
   output <- grep("^Picked up ", output, value = TRUE, invert = TRUE)

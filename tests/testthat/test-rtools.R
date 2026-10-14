@@ -26,7 +26,14 @@ test_that("Rtools installations are discovered and matched to R", {
   # installation locations can be populated
   drive <- renv_scope_tempfile("renv-drive-")
   ensure_directory(file.path(drive, c("rtools45", "rtools46")))
-  renv_scope_envvars(SYSTEMDRIVE = drive, RTOOLS45_HOME = NULL, RTOOLS44_HOME = NULL)
+  renv_scope_envvars(
+    SYSTEMDRIVE   = drive,
+    RTOOLS45_HOME = NULL,
+    RTOOLS44_HOME = NULL,
+    RTOOLS43_HOME = NULL,
+    RTOOLS42_HOME = NULL,
+    RTOOLS40_HOME = NULL
+  )
 
   renv_scope_binding(
     envir       = asNamespace("renv"),
@@ -38,6 +45,13 @@ test_that("Rtools installations are discovered and matched to R", {
   specs <- renv_rtools_list()
   specs <- filter(specs, function(spec) startsWith(spec$root, drive))
   expect_setequal(map_chr(specs, `[[`, "version"), c("4.5", "4.6"))
+
+  # ignore any Rtools installations actually present on this machine
+  renv_scope_binding(
+    envir       = asNamespace("renv"),
+    symbol      = "renv_rtools_list",
+    replacement = function() specs
+  )
 
   # the newest compatible series is preferred
   expect_equal(renv_rtools_find(rversion = "4.5.1")$version, "4.5")
@@ -102,6 +116,9 @@ test_that("the Rtools installer URL is read from the series page", {
   )
 
   expect_null(renv_rtools_installer_url_parse(html, "4.5", arch = "i386"))
+
+  # installers for other series are ignored
+  expect_null(renv_rtools_installer_url_parse(html, "4.4", arch = "x86_64"))
 
   html <- c(
     '<a href="rtools40-x86_64.exe">rtools40-x86_64.exe</a>',
