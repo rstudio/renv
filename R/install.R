@@ -987,10 +987,14 @@ renv_install_preflight_binaries_type <- function(record, project = NULL) {
 
     }
 
-    # note that P3M's historical binaries aren't consulted here: the graph
-    # installer resolves versions missing from the repositories straight to
-    # the source archive (see renv_graph_url_repository()), so a P3M binary
-    # for the requested version wouldn't be used even if one exists
+    # a binary is available from P3M. a failure to refresh or read the P3M
+    # database shouldn't abort the install: retrieval tolerates the same
+    # failure and falls back to a source build
+    if (renv_p3m_enabled()) {
+      date <- catch(renv_retrieve_repos_p3m_date(record))
+      if (!inherits(date, "error") && !is.null(date))
+        return("none")
+    }
 
   }
 
