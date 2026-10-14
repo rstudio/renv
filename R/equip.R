@@ -56,7 +56,7 @@ renv_equip_windows_rtools <- function() {
     return(TRUE)
   }
 
-  if (renv_rtools_available()) {
+  if (renv_rtools_path_available()) {
     writef("- A build toolchain is already available on the PATH.")
     return(TRUE)
   }

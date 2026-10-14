@@ -12,7 +12,7 @@ renv_rtools_list <- function() {
     Sys.getenv("RTOOLS43_HOME", unset = file.path(drive, "rtools43")),
     Sys.getenv("RTOOLS42_HOME", unset = file.path(drive, "rtools42")),
     Sys.getenv("RTOOLS40_HOME", unset = file.path(drive, "rtools40")),
-    list.files(drive, pattern = "^rtools\\d\\d$", full.names = TRUE),
+    file.path(drive, list.files(paste0(drive, "/"), pattern = "^rtools\\d\\d$")),
     file.path(drive, "Rtools"),
     list.files(file.path(drive, "RBuildTools"), full.names = TRUE),
 
@@ -26,13 +26,16 @@ renv_rtools_list <- function() {
 
 }
 
-renv_rtools_find <- function() {
+renv_rtools_find <- function(rversion = getRversion()) {
 
-  for (spec in renv_rtools_list())
-    if (renv_rtools_compatible(spec))
-      return(spec)
+  specs <- filter(renv_rtools_list(), renv_rtools_compatible, rversion = rversion)
+  if (empty(specs))
+    return(NULL)
 
-  NULL
+  # several series can be compatible with one version of R, since each
+  # serves newer releases until the next series appears; prefer the newest
+  versions <- numeric_version(map_chr(specs, function(spec) format(spec$version)))
+  specs[[order(versions, decreasing = TRUE)[[1L]]]]
 
 }
 
@@ -72,7 +75,7 @@ renv_rtools_version <- function(root) {
 
 }
 
-renv_rtools_compatible <- function(spec) {
+renv_rtools_compatible <- function(spec, rversion = getRversion()) {
 
   if (is.null(spec$version))
     return(FALSE)
@@ -91,7 +94,7 @@ renv_rtools_compatible <- function(spec) {
   )
 
   version <- numeric_version(spec$version)[1, 1:2]
-  rversion <- getRversion()
+  rversion <- numeric_version(rversion)
 
   # newer series than those listed above follow the same pattern as
   # Rtools 4.2 onwards: they support R from the matching minor release
@@ -205,10 +208,13 @@ renv_rtools_required <- function(version = getRversion(),
   if (version < "4.0.0")
     return("3.5")
 
+  # a series newer than R itself doesn't support it, so when none of the
+  # series provided are old enough (e.g. an index page which has dropped the
+  # oldest series), fall back to the known series instead
   series <- sort(numeric_version(series))
   candidates <- series[series <= version[1, 1:2]]
   if (empty(candidates))
-    candidates <- series[[1L]]
+    return(renv_rtools_required(version, renv_rtools_series()))
 
   format(max(candidates))
 }
@@ -313,7 +319,12 @@ renv_rtools_available <- function() {
     return(TRUE)
 
   # otherwise, check for a toolchain the user has placed on the PATH
+  renv_rtools_path_available()
+
+}
+
+# is a build toolchain (e.g. Rtools, or MSYS2) available on the PATH?
+renv_rtools_path_available <- function() {
   make <- Sys.getenv("MAKE", unset = "make")
   nzchar(Sys.which(make)) && nzchar(Sys.which("gcc"))
-
 }

@@ -13,6 +13,50 @@ test_that("the required Rtools series is inferred from the R version", {
   expect_equal(renv_rtools_required("4.6.0", series), "4.6")
   expect_equal(renv_rtools_required("4.5.1", series), "4.5")
 
+  # a series newer than R is never appropriate, so a list missing the older
+  # series falls back to the known ones
+  expect_equal(renv_rtools_required("4.1.3", c("4.2", "4.3")), "4.0")
+  expect_equal(renv_rtools_required("4.3.2", c("4.4", "4.5")), "4.3")
+
+})
+
+test_that("Rtools installations are discovered and matched to R", {
+
+  # pretend the system drive is a temporary directory, so that the default
+  # installation locations can be populated
+  drive <- renv_scope_tempfile("renv-drive-")
+  ensure_directory(file.path(drive, c("rtools45", "rtools46")))
+  renv_scope_envvars(SYSTEMDRIVE = drive, RTOOLS45_HOME = NULL, RTOOLS44_HOME = NULL)
+
+  renv_scope_binding(
+    envir       = asNamespace("renv"),
+    symbol      = "renv_rtools_registry",
+    replacement = function() NULL
+  )
+
+  # both installations are found, even though only one has a dedicated entry
+  specs <- renv_rtools_list()
+  specs <- filter(specs, function(spec) startsWith(spec$root, drive))
+  expect_setequal(map_chr(specs, `[[`, "version"), c("4.5", "4.6"))
+
+  # the newest compatible series is preferred
+  expect_equal(renv_rtools_find(rversion = "4.5.1")$version, "4.5")
+  expect_equal(renv_rtools_find(rversion = "4.6.0")$version, "4.6")
+  expect_null(renv_rtools_find(rversion = "4.2.1"))
+
+})
+
+test_that("Rtools compatibility follows the series' supported R versions", {
+
+  spec <- function(version) list(version = version)
+
+  expect_true(renv_rtools_compatible(spec("4.2"), rversion = "4.2.1"))
+  expect_false(renv_rtools_compatible(spec("4.2"), rversion = "4.3.0"))
+  expect_true(renv_rtools_compatible(spec("4.5"), rversion = "4.6.0"))
+  expect_false(renv_rtools_compatible(spec("4.6"), rversion = "4.5.1"))
+  expect_true(renv_rtools_compatible(spec("4.6"), rversion = "4.7.0"))
+  expect_false(renv_rtools_compatible(spec(NULL), rversion = "4.5.1"))
+
 })
 
 test_that("the available Rtools series can be read from the CRAN index page", {

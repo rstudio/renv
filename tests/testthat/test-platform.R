@@ -63,6 +63,52 @@ test_that("system package versions can be queried", {
 
 })
 
+test_that("only installed system packages are reported", {
+
+  # dpkg reports on packages which were removed but not purged
+  output <- c(
+    "libcurl4-openssl-dev 7.81.0-1ubuntu1 config-files",
+    "libssl-dev 3.0.2-0ubuntu1 installed",
+    "zlib1g-dev 1:1.2.11.dfsg-2ubuntu9 installed",
+    "dpkg-query: no packages found matching no-such-package"
+  )
+
+  packages <- c("libcurl4-openssl-dev", "libssl-dev", "no-such-package")
+  versions <- renv_sysreqs_versions_parse(output, packages)
+  expect_equal(versions, list("libssl-dev" = "3.0.2-0ubuntu1"))
+
+})
+
+test_that("the external software record tolerates a missing extSoftVersion()", {
+
+  expect_null(renv_platform_record_blas(NULL))
+  expect_null(renv_platform_record_software(NULL))
+
+  software <- c(BLAS = "libblas.so", zlib = "1.2.11", bzlib = "")
+  expect_equal(renv_platform_record_blas(software), "libblas.so")
+  expect_equal(renv_platform_record_software(software), list(zlib = "1.2.11"))
+
+})
+
+test_that("tool versions are read from the first meaningful line of output", {
+
+  expect_equal(renv_platform_record_tool_version("pandoc 3.1.11"), "pandoc 3.1.11")
+  expect_null(renv_platform_record_tool_version(character()))
+
+  # the JVM announces options from the environment before its version
+  output <- c(
+    "Picked up JAVA_TOOL_OPTIONS: -Xmx2g",
+    "openjdk version \"17.0.2\" 2022-01-18",
+    "OpenJDK Runtime Environment (build 17.0.2+8)"
+  )
+
+  expect_equal(
+    renv_platform_record_tool_version(output),
+    "openjdk version \"17.0.2\" 2022-01-18"
+  )
+
+})
+
 test_that("external tools are reported when available", {
 
   expect_null(renv_platform_record_tool("", "--version"))

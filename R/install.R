@@ -888,40 +888,53 @@ renv_install_preflight_binaries_impl <- function(records,
                                                  rtools = TRUE,
                                                  version = getRversion())
 {
-  # packages whose resolution failed have no description to classify
-  records <- filter(records, function(record) is.character(record$Package))
+  # packages whose resolution failed have no description to classify; the
+  # failure is reported after the install, with the other failures
+  records <- filter(records, function(record) {
+    !isTRUE(attr(record, "resolution_failed", exact = TRUE))
+  })
 
   types <- map_chr(records, renv_install_preflight_binaries_type, project = project)
 
-  # with a toolchain, only packages known to need compiling are worth
-  # noting; without one, any package which might need it is going to fail
-  wanted <- if (rtools) "compiled" else c("compiled", "unknown")
-  records <- records[types %in% wanted]
-  if (empty(records))
+  compiled <- renv_install_preflight_binaries_format(records[types == "compiled"])
+  unknown  <- renv_install_preflight_binaries_format(records[types == "unknown"])
+
+  # with a toolchain, only packages known to need compiling are worth noting
+  if (rtools) {
+    fmt <- "The following %s will be compiled from source, as no binaries are available:"
+    bulletin(sprintf(fmt, nplural("package", length(compiled))), compiled)
     return(TRUE)
+  }
+
+  # without one, any package which might need compiling is going to fail;
+  # packages whose descriptions don't say (as is common for packages not yet
+  # built, e.g. from GitHub) are reported separately, as the install may
+  # well succeed for those
+  if (empty(compiled) && empty(unknown))
+    return(TRUE)
+
+  fmt <- "The following %s will need to be compiled from source, as no binaries are available:"
+  bulletin(sprintf(fmt, nplural("package", length(compiled))), compiled)
+
+  fmt <- "The following %s will be built from source, and may need to be compiled:"
+  bulletin(sprintf(fmt, nplural("package", length(unknown))), unknown)
+
+  fmt <- "Compiling packages requires Rtools %s, which was not found."
+  caution(fmt, renv_rtools_required(version))
+  caution("Call renv::equip() to install it, or download it from https://cran.r-project.org/bin/windows/Rtools/.")
+  caution()
+
+  FALSE
+
+}
+
+renv_install_preflight_binaries_format <- function(records) {
 
   values <- map_chr(records, function(record) {
     sprintf("%s [%s]", record$Package, record$Version %||% "*")
   })
 
-  n <- length(values)
-  if (rtools) {
-    fmt <- "The following %s will be compiled from source, as no binaries are available:"
-    bulletin(sprintf(fmt, nplural("package", n)), sort(values))
-    return(TRUE)
-  }
-
-  fmt <- "The following %s will need to be compiled from source, as no binaries are available:"
-  preamble <- sprintf(fmt, nplural("package", n))
-
-  fmt <- "Compiling packages requires Rtools %s, which was not found."
-  postamble <- c(
-    sprintf(fmt, renv_rtools_required(version)),
-    "Call renv::equip() to install it, or download it from https://cran.r-project.org/bin/windows/Rtools/."
-  )
-
-  bulletin(preamble, sort(values), postamble)
-  FALSE
+  sort(unname(values))
 
 }
 

@@ -10,12 +10,14 @@ renv_platform_record <- function(project = NULL) {
 
   project <- renv_project_resolve(project)
 
+  software <- renv_platform_record_extsoft()
+
   record <- list(
     R              = renv_platform_record_r(),
     OS             = renv_platform_record_os(),
-    BLAS           = renv_platform_record_blas(),
+    BLAS           = renv_platform_record_blas(software),
     LAPACK         = renv_platform_record_lapack(),
-    Software       = renv_platform_record_software(),
+    Software       = renv_platform_record_software(software),
     Locale         = renv_platform_record_locale(),
     Rtools         = renv_platform_record_rtools(),
     Tools          = renv_platform_record_tools(),
@@ -70,11 +72,18 @@ renv_platform_record_os_description <- function() {
 
 }
 
-renv_platform_record_blas <- function() {
+# the versions of the external software R was built against, or NULL
+renv_platform_record_extsoft <- function() {
 
   software <- catch(extSoftVersion())
   if (inherits(software, "error"))
     return(NULL)
+
+  software
+
+}
+
+renv_platform_record_blas <- function(software = renv_platform_record_extsoft()) {
 
   blas <- software[["BLAS"]]
   if (is.null(blas) || !nzchar(blas))
@@ -98,10 +107,9 @@ renv_platform_record_lapack <- function() {
 
 }
 
-renv_platform_record_software <- function() {
+renv_platform_record_software <- function(software = renv_platform_record_extsoft()) {
 
-  software <- catch(extSoftVersion())
-  if (inherits(software, "error"))
+  if (is.null(software))
     return(NULL)
 
   # BLAS is reported separately
@@ -205,10 +213,22 @@ renv_platform_record_tool <- function(path, args) {
     )
   )
 
-  version <- if (!inherits(output, "error") && length(output))
-    trimws(output[[1L]])
+  version <- if (!inherits(output, "error"))
+    renv_platform_record_tool_version(output)
 
   reject(list(Version = version, Path = renv_path_normalize(path)), is.null)
+
+}
+
+renv_platform_record_tool_version <- function(output) {
+
+  # the JVM announces options picked up from the environment (e.g.
+  # JAVA_TOOL_OPTIONS) on stderr before anything else
+  output <- grep("^Picked up ", output, value = TRUE, invert = TRUE)
+  if (empty(output))
+    return(NULL)
+
+  trimws(output[[1L]])
 
 }
 

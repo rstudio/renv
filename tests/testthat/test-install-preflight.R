@@ -88,7 +88,8 @@ test_that("packages to be compiled from source are reported", {
         stringi = "compiled",
         cli     = "none",
         rlang   = "source",
-        mypkg   = "unknown"
+        mypkg   = "unknown",
+        broken  = "compiled"
       )
     }
   )
@@ -99,7 +100,7 @@ test_that("packages to be compiled from source are reported", {
     rlang   = list(Package = "rlang", Version = "1.1.4", Source = "Repository"),
     mypkg   = list(Package = "mypkg", Version = "0.1.0", Source = "GitHub"),
     ragg    = list(Package = "ragg", Version = "1.3.0", Source = "Repository"),
-    broken  = structure(list(), resolution_failed = TRUE)
+    broken  = structure(list(Package = "broken"), resolution_failed = TRUE)
   )
 
   # with a toolchain, this is informational
@@ -119,6 +120,19 @@ test_that("packages to be compiled from source are reported", {
   # nothing is reported when nothing needs compiling
   expect_silent(status <- renv_install_preflight_binaries_impl(records["cli"]))
   expect_true(status)
+
+  # packages which might need compiling are only a concern without a toolchain
+  expect_silent(status <- renv_install_preflight_binaries_impl(records["mypkg"]))
+  expect_true(status)
+
+  expect_snapshot({
+    status <- renv_install_preflight_binaries_impl(
+      records["mypkg"],
+      rtools  = FALSE,
+      version = "4.5.1"
+    )
+  })
+  expect_false(status)
 
 })
 
