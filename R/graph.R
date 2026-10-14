@@ -1244,6 +1244,10 @@ renv_graph_url_repository_p3m <- function(desc) {
   if (!renv_p3m_enabled(the$install_pkg_type))
     return(NULL)
 
+  # in strict mode, records naming a repository are only retrieved from it
+  if (renv_graph_url_repository_strict(desc))
+    return(NULL)
+
   # a failure to refresh or read the P3M database shouldn't abort
   # resolution; the archive remains available
   record <- as.list(desc)
@@ -1264,6 +1268,13 @@ renv_graph_url_repository_p3m <- function(desc) {
     reponame = "P3M"
   )
 
+}
+
+# is this record restricted to the repository it names? see restore(strict = TRUE)
+renv_graph_url_repository_strict <- function(desc) {
+  repository <- desc[["Repository"]]
+  strict <- renv_restore_state(key = "strict") %||% FALSE
+  strict && is.character(repository) && grepl("://", repository, fixed = TRUE)
 }
 
 # the package types to search, in preference order, when the record we're

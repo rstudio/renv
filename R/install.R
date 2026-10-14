@@ -987,10 +987,11 @@ renv_install_preflight_binaries_type <- function(record, project = NULL) {
 
     }
 
-    # a binary is available from P3M. a failure to refresh or read the P3M
-    # database shouldn't abort the install: retrieval tolerates the same
-    # failure and falls back to a source build
-    if (renv_p3m_enabled()) {
+    # a binary is available from P3M (unless the record is pinned to its own
+    # repository). a failure to refresh or read the P3M database shouldn't
+    # abort the install: retrieval tolerates the same failure and falls back
+    # to a source build
+    if (renv_p3m_enabled() && !renv_graph_url_repository_strict(record)) {
       date <- catch(renv_retrieve_repos_p3m_date(record))
       if (!inherits(date, "error") && !is.null(date))
         return("none")
