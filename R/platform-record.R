@@ -118,7 +118,7 @@ renv_platform_record_software <- function(software = renv_platform_record_extsof
   if (empty(software))
     return(NULL)
 
-  as.list(software)
+  as.list(software[csort(names(software))])
 
 }
 
@@ -197,7 +197,7 @@ renv_platform_record_tools <- function() {
   if (empty(tools))
     return(NULL)
 
-  tools
+  tools[csort(names(tools))]
 
 }
 
