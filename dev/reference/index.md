@@ -108,6 +108,9 @@ bulk of day-to-day renv usage.
 - [`diagnostics()`](https://rstudio.github.io/renv/dev/reference/diagnostics.md)
   : Print a diagnostics report
 
+- [`equip()`](https://rstudio.github.io/renv/dev/reference/equip.md) :
+  Install a build toolchain
+
 - [`plan()`](https://rstudio.github.io/renv/dev/reference/plan.md) :
   Plan package installations
 

@@ -7,6 +7,43 @@
   longer modify it.
   ([\#2411](https://github.com/rstudio/renv/issues/2411))
 
+- Fixed an issue where
+  [`renv::restore()`](https://rstudio.github.io/renv/dev/reference/restore.md)
+  and
+  [`renv::install()`](https://rstudio.github.io/renv/dev/reference/install.md)
+  would build a package from its archived sources when the requested
+  version was no longer available from the configured repositories, even
+  when P3M provided a binary for that version. The dependency graph now
+  consults P3M before falling back to the archive, as it did before the
+  graph-based installer (renv 1.2.0).
+
+- [`renv::restore()`](https://rstudio.github.io/renv/dev/reference/restore.md)
+  and
+  [`renv::install()`](https://rstudio.github.io/renv/dev/reference/install.md)
+  now report, before installing anything, which of the requested
+  packages are not available as binaries and so will be compiled from
+  source. On Windows, when no Rtools installation is found, the report
+  also names the version of Rtools required. Previously, such installs
+  failed only after reaching the first package needing compilation.
+
+- On Windows,
+  [`renv::equip()`](https://rstudio.github.io/renv/dev/reference/equip.md)
+  now downloads and runs the installer for the version of Rtools
+  matching the running version of R, when no Rtools installation is
+  found. The external libraries previously installed by
+  [`equip()`](https://rstudio.github.io/renv/dev/reference/equip.md) are
+  now only installed for R (\< 4.0.0), as newer versions of Rtools
+  bundle them.
+
+- [`renv::diagnostics()`](https://rstudio.github.io/renv/dev/reference/diagnostics.md)
+  now reports a description of the platform R is running on: the R
+  version and platform, the operating system (and Linux distribution),
+  the BLAS and LAPACK libraries in use, the versions of the external
+  software R was built against, the collation locale, the Rtools
+  installation (on Windows), the versions of pandoc, Quarto, Java and
+  TeX found on the system, and the installed versions of the system
+  packages required by the packages in the lockfile (on Linux).
+
 - renv now recognizes the custom binary package types introduced with R
   4.6.0 (of the form `<system>.binary.<build>`), along with binary
   packages distributed as `.tar.bz2`, `.tar.xz`, `.tar.zst` and
