@@ -136,26 +136,35 @@ test_that("packages to be compiled from source are reported", {
 
 })
 
-test_that("P3M lookup failures don't abort the preflight check", {
-
-  renv_tests_scope()
-  renv_scope_envvars(RENV_PATHS_CACHE = renv_scope_tempfile("renv-cache-"))
+# pretend the requested version of a package is only available from the
+# archive, and that the current release has the given need for compilation
+renv_test_preflight_scope_archived <- function(needs, scope = parent.frame()) {
 
   renv_scope_binding(
     envir       = asNamespace("renv"),
     symbol      = "renv_graph_url_repository_types",
-    replacement = function() c("binary", "source")
+    replacement = function() c("binary", "source"),
+    scope       = scope
   )
 
   renv_scope_binding(
     envir       = asNamespace("renv"),
     symbol      = "renv_available_packages_entry",
-    replacement = function(package, type = "source", ...) {
-      if (identical(type, "binary"))
-        stop("no binaries available")
-      list(Package = package, NeedsCompilation = "no")
-    }
+    replacement = function(package, type = "source", filter = NULL, ...) {
+      if (identical(type, "binary") || !is.null(filter))
+        stop("version not available")
+      list(Package = package, NeedsCompilation = needs)
+    },
+    scope       = scope
   )
+
+}
+
+test_that("P3M lookup failures don't abort the preflight check", {
+
+  renv_tests_scope()
+  renv_scope_envvars(RENV_PATHS_CACHE = renv_scope_tempfile("renv-cache-"))
+  renv_test_preflight_scope_archived(needs = "no")
 
   renv_scope_binding(
     envir       = asNamespace("renv"),
@@ -178,22 +187,7 @@ test_that("P3M binaries aren't counted for records pinned to a repository", {
 
   renv_tests_scope()
   renv_scope_envvars(RENV_PATHS_CACHE = renv_scope_tempfile("renv-cache-"))
-
-  renv_scope_binding(
-    envir       = asNamespace("renv"),
-    symbol      = "renv_graph_url_repository_types",
-    replacement = function() c("binary", "source")
-  )
-
-  renv_scope_binding(
-    envir       = asNamespace("renv"),
-    symbol      = "renv_available_packages_entry",
-    replacement = function(package, type = "source", ...) {
-      if (identical(type, "binary"))
-        stop("no binaries available")
-      list(Package = package, NeedsCompilation = "yes")
-    }
-  )
+  renv_test_preflight_scope_archived(needs = "yes")
 
   renv_scope_binding(
     envir       = asNamespace("renv"),
@@ -225,7 +219,39 @@ test_that("a source-only install doesn't count P3M binaries", {
 
   renv_tests_scope()
   renv_scope_envvars(RENV_PATHS_CACHE = renv_scope_tempfile("renv-cache-"))
+  renv_test_preflight_scope_archived(needs = "yes")
 
+  # P3M would normally be consulted for this session
+  renv_scope_options(pkgType = "both", renv.config.ppm.enabled = TRUE)
+
+  renv_scope_binding(
+    envir       = asNamespace("renv"),
+    symbol      = "renv_retrieve_repos_p3m_date",
+    replacement = function(record) as.Date("2024-01-15")
+  )
+
+  bread <- list(Package = "bread", Version = "1.0.0", Source = "Repository")
+  expect_equal(renv_install_preflight_binaries_type(bread), "none")
+
+  # but the type requested by install() governs, as it does for the installer
+  renv_scope_binding(the, "install_pkg_type", "source")
+  expect_equal(renv_install_preflight_binaries_type(bread), "compiled")
+
+})
+
+test_that("P3M binaries aren't counted for versions the repositories serve", {
+
+  renv_tests_scope()
+  renv_scope_envvars(RENV_PATHS_CACHE = renv_scope_tempfile("renv-cache-"))
+
+  renv_scope_binding(
+    envir       = asNamespace("renv"),
+    symbol      = "renv_graph_url_repository_types",
+    replacement = function() c("binary", "source")
+  )
+
+  # the requested version is served as source only; the installer builds
+  # it from there rather than looking to P3M
   renv_scope_binding(
     envir       = asNamespace("renv"),
     symbol      = "renv_available_packages_entry",
@@ -238,14 +264,53 @@ test_that("a source-only install doesn't count P3M binaries", {
 
   renv_scope_binding(
     envir       = asNamespace("renv"),
-    symbol      = "renv_retrieve_repos_p3m_date",
-    replacement = function(record) as.Date("2024-01-15")
+    symbol      = "renv_p3m_enabled",
+    replacement = function(type = NULL) TRUE
   )
 
-  # the type requested by install() governs, as it does for the installer
-  renv_scope_binding(the, "install_pkg_type", "source")
+  renv_scope_binding(
+    envir       = asNamespace("renv"),
+    symbol      = "renv_retrieve_repos_p3m_date",
+    replacement = function(record) stop("should not be called")
+  )
 
   bread <- list(Package = "bread", Version = "1.0.0", Source = "Repository")
+  expect_equal(renv_install_preflight_binaries_type(bread), "compiled")
+
+})
+
+test_that("strict restores only look for binaries in the recorded repository", {
+
+  renv_tests_scope()
+  renv_scope_envvars(RENV_PATHS_CACHE = renv_scope_tempfile("renv-cache-"))
+
+  renv_scope_binding(
+    envir       = asNamespace("renv"),
+    symbol      = "renv_graph_url_repository_types",
+    replacement = function() c("binary", "source")
+  )
+
+  # another configured repository has a binary; the recorded one does not
+  renv_scope_binding(
+    envir       = asNamespace("renv"),
+    symbol      = "renv_available_packages_entry",
+    replacement = function(package, type = "source", repos = NULL, ...) {
+      if (identical(type, "binary") && !is.null(repos))
+        stop("no binaries in the recorded repository")
+      list(Package = package, NeedsCompilation = "yes")
+    }
+  )
+
+  bread <- list(
+    Package    = "bread",
+    Version    = "1.0.0",
+    Source     = "Repository",
+    Repository = getOption("repos")[[1L]]
+  )
+
+  expect_equal(renv_install_preflight_binaries_type(bread), "none")
+
+  renv_scope_restore(project = getwd(), strict = TRUE)
   expect_equal(renv_install_preflight_binaries_type(bread), "compiled")
 
 })
