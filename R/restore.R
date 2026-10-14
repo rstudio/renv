@@ -238,6 +238,18 @@ restore <- function(project = NULL,
   current  <- renv_restore_normalize(current)
   lockfile <- renv_restore_normalize(lockfile)
 
+  # the restore state carries the rebuild and strict settings, which the
+  # preflight checks below consult as well; the dependency graph resolves
+  # dependencies below, so legacy retrieval must not crawl them again
+  renv_scope_restore(
+    project   = project,
+    library   = renv_libpaths_active(),
+    records   = renv_lockfile_records(lockfile),
+    packages  = names(diff),
+    rebuild   = rebuild,
+    strict    = strict,
+    recursive = FALSE
+  )
 
   # TODO: should we avoid double-prompting here?
   # we prompt once here for the preflight check, and then again below based
@@ -251,26 +263,13 @@ restore <- function(project = NULL,
   }
 
   # perform the restore
-  records <- renv_restore_run_actions(project, diff, current, lockfile, rebuild, strict, descriptions, retry)
+  records <- renv_restore_run_actions(project, diff, current, lockfile, descriptions, retry)
   renv_restore_successful(records, prompt, project)
 }
 
-renv_restore_run_actions <- function(project, actions, current, lockfile, rebuild, strict = FALSE, descriptions = NULL, retry = NULL) {
+renv_restore_run_actions <- function(project, actions, current, lockfile, descriptions = NULL, retry = NULL) {
 
-  packages <- names(actions)
   lockrecords <- renv_lockfile_records(lockfile)
-
-  # the dependency graph resolves dependencies below, so legacy retrieval
-  # must not crawl them again
-  renv_scope_restore(
-    project   = project,
-    library   = renv_libpaths_active(),
-    records   = lockrecords,
-    packages  = packages,
-    rebuild   = rebuild,
-    strict    = strict,
-    recursive = FALSE
-  )
 
   # first, handle package removals
   removes <- actions[actions == "remove"]
@@ -503,7 +502,12 @@ renv_restore_remove <- function(project, package, lockfile) {
 renv_restore_preflight <- function(project, libpaths, actions, current, lockfile) {
   records <- renv_lockfile_records(lockfile)
   matching <- keep(records, names(actions))
-  renv_install_preflight(project, libpaths, matching)
+
+  all(
+    renv_install_preflight(project, libpaths, matching),
+    renv_install_preflight_binaries(matching, project)
+  )
+
 }
 
 renv_restore_find <- function(package, record) {

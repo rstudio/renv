@@ -278,6 +278,12 @@ install <- function(packages = NULL,
     return(invisible(list()))
   }
 
+  # report which of the resolved packages will be built from source; this
+  # has to wait until dependencies are resolved, as compiled dependencies
+  # of the requested packages are just as likely to need a toolchain
+  if (!renv_install_preflight_binaries(descriptions[needed], project))
+    cancel_if(prompt && !proceed())
+
   if (prompt || renv_verbose()) {
     renv_install_report(descriptions[needed], library = library)
     cancel_if(prompt && !proceed())
@@ -850,16 +856,19 @@ renv_install_preflight <- function(project, libpaths, records) {
 
   all(
     renv_install_preflight_unknown_source(records),
-    renv_install_preflight_permissions(library),
-    renv_install_preflight_binaries(records)
+    renv_install_preflight_permissions(library)
   )
 
 }
 
 # report the packages which will be compiled from source because no binary
 # is available for the requested version. on Windows without Rtools, such
-# installs are going to fail, so this doubles as a toolchain check there
-renv_install_preflight_binaries <- function(records) {
+# installs are going to fail, so this doubles as a toolchain check there.
+#
+# 'records' should be the packages actually being installed (after dependency
+# resolution), and the restore state should be scoped so that the same cache
+# and rebuild policy as the installer applies
+renv_install_preflight_binaries <- function(records, project) {
 
   binaries <- "binary" %in% renv_graph_url_repository_types()
   rtools <- !renv_platform_windows() || renv_rtools_available()
@@ -870,15 +879,19 @@ renv_install_preflight_binaries <- function(records) {
   if (!binaries && rtools)
     return(TRUE)
 
-  renv_install_preflight_binaries_impl(records, rtools = rtools)
+  renv_install_preflight_binaries_impl(records, project, rtools = rtools)
 
 }
 
 renv_install_preflight_binaries_impl <- function(records,
+                                                 project = NULL,
                                                  rtools = TRUE,
                                                  version = getRversion())
 {
-  types <- map_chr(records, renv_install_preflight_binaries_type)
+  # packages whose resolution failed have no description to classify
+  records <- filter(records, function(record) is.character(record$Package))
+
+  types <- map_chr(records, renv_install_preflight_binaries_type, project = project)
 
   # with a toolchain, only packages known to need compiling are worth
   # noting; without one, any package which might need it is going to fail
@@ -919,11 +932,11 @@ renv_install_preflight_binaries_impl <- function(records,
 #   "compiled" -- built from source, with compiled code,
 #   "unknown"  -- built from source; unknown whether it has compiled code
 #
-renv_install_preflight_binaries_type <- function(record) {
+renv_install_preflight_binaries_type <- function(record, project = NULL) {
 
-  # an already-built copy in the cache is reused as-is
-  path <- renv_cache_find(record)
-  if (nzchar(path) && file.exists(path))
+  # an already-built copy in the cache is reused as-is, unless the installer
+  # is going to ignore it (cache disabled, or a rebuild was requested)
+  if (!is.null(renv_graph_install_cache_find(record, project)))
     return("none")
 
   package <- record$Package
@@ -961,21 +974,31 @@ renv_install_preflight_binaries_type <- function(record) {
 
     }
 
-    # a binary is available from P3M
-    if (renv_p3m_enabled() && !is.null(renv_retrieve_repos_p3m_date(record)))
-      return("none")
+    # a binary is available from P3M. a failure to refresh or read the P3M
+    # database shouldn't abort the install: retrieval tolerates the same
+    # failure and falls back to a source build
+    if (renv_p3m_enabled()) {
+      date <- catch(renv_retrieve_repos_p3m_date(record))
+      if (!inherits(date, "error") && !is.null(date))
+        return("none")
+    }
 
   }
 
-  # a source build is needed; whether it needs compiling can only be read
-  # from the current release of the package in the source repositories
-  entry <- catch(renv_available_packages_entry(package, type = "source"))
-  if (inherits(entry, "error"))
-    return("unknown")
+  # a source build is needed. a resolved description already says whether
+  # compiling is needed; otherwise, that can only be read from the current
+  # release of the package in the source repositories
+  needs <- record[["NeedsCompilation"]]
+  if (is.null(needs)) {
+    entry <- catch(renv_available_packages_entry(package, type = "source"))
+    if (inherits(entry, "error"))
+      return("unknown")
+    needs <- entry[["NeedsCompilation"]]
+  }
 
   case(
-    identical(entry$NeedsCompilation, "yes") ~ "compiled",
-    identical(entry$NeedsCompilation, "no")  ~ "source",
+    identical(needs, "yes") ~ "compiled",
+    identical(needs, "no")  ~ "source",
     ~ "unknown"
   )
 
