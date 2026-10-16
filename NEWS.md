@@ -1,5 +1,9 @@
 # renv (development version)
 
+* Binary packages are now unpacked and installed in parallel on R >= 4.0,
+  including Windows ZIP binaries. Binary installs and source builds share the
+  `install.jobs` worker limit and respect dependency ordering.
+
 * The generated `renv/activate.R` script no longer contains trailing
   whitespace, so tools like pre-commit's `trailing-whitespace` hook no longer
   modify it. (#2411)
