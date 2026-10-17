@@ -2,6 +2,14 @@
 
 ## renv (development version)
 
+- [`renv::restore()`](https://rstudio.github.io/renv/dev/reference/restore.md)
+  and
+  [`renv::install()`](https://rstudio.github.io/renv/dev/reference/install.md)
+  no longer install optional packages just because they appear in a
+  dependency’s `Remotes` field. Remotes still supply sources for
+  required dependencies and explicitly requested `Suggests`
+  ([\#2415](https://github.com/rstudio/renv/issues/2415)).
+
 - The generated `renv/activate.R` script no longer contains trailing
   whitespace, so tools like pre-commit’s `trailing-whitespace` hook no
   longer modify it.
