@@ -2577,14 +2577,16 @@ renv_graph_install_worker_cleanup <- function(worker) {
 
   try(close(worker$conn), silent = TRUE)
 
+  paths <- c(worker$script, worker$data)
+  success <- unlink(paths) == 0L
+  if (success || !renv_platform_windows())
+    return(invisible(success))
+
   # On Windows, R can still have its input script open after sending the
   # result. Retry deletion briefly while the worker finishes exiting, but
   # don't wait indefinitely for a failed or unresponsive worker.
-  paths <- c(worker$script, worker$data)
-  attempts <- if (renv_platform_windows()) 100L else 1L
-  for (attempt in seq_len(attempts)) {
-    if (attempt > 1L)
-      Sys.sleep(0.05)
+  for (attempt in 1:100) {
+    Sys.sleep(0.05)
     if (unlink(paths) == 0L)
       return(invisible(TRUE))
   }
