@@ -734,55 +734,100 @@ renv_install_package_impl <- function(record, quiet = TRUE) {
 
 renv_install_test <- function(package) {
 
+  spec <- renv_install_test_spec(package)
+  if (is.null(spec))
+    return(TRUE)
+
+  renv_install_test_impl(package, spec)
+
+  # return TRUE to indicate successful validation
+  TRUE
+
+}
+
+# describe how to load-test 'package' in a separate process, or NULL if it
+# shouldn't be tested; binary workers receive this alongside their requests
+renv_install_test_spec <- function(package) {
+
   # add escape hatch, just in case
   # (test binaries by default on Linux, but not Windows or macOS)
   enabled <- Sys.getenv("RENV_INSTALL_TEST_LOAD", unset = renv_platform_linux())
   if (!truthy(enabled))
-    return(TRUE)
+    return(NULL)
 
   # check whether we should skip installation testing
   opts <- r_cmd_install_option(package, c("install.opts", "INSTALL_opts"), FALSE)
   if (is.character(opts)) {
     flags <- unlist(strsplit(opts, "\\s+", perl = TRUE))
     if ("--no-test-load" %in% flags)
-      return(TRUE)
+      return(NULL)
   }
 
-  # make sure we use the current library paths in the launched process
-  rlibs <- paste(renv_libpaths_all(), collapse = .Platform$path.sep)
-  renv_scope_envvars(R_LIBS = rlibs, R_LIBS_USER = "NULL", R_LIBS_SITE = "NULL")
-
-  # also hide from user .Renviron files
+  # use the current library paths in the launched process, hide user
+  # .Renviron files, and make sure R_TESTS is unset, just in case
   # https://github.com/wch/r-source/blob/1c0a2dc8ce6c05f68e1959ffbe6318a309277df3/src/library/tools/R/check.R#L273-L276
-  renv_scope_envvars(R_ENVIRON_USER = "NULL")
-
-  # make sure R_TESTS is unset here, just in case
   # https://github.com/wch/r-source/blob/1c0a2dc8ce6c05f68e1959ffbe6318a309277df3/src/library/tools/R/install.R#L76-L79
-  renv_scope_envvars(R_TESTS = NULL)
+  envvars <- c(
+    R_LIBS         = paste(renv_libpaths_all(), collapse = .Platform$path.sep),
+    R_LIBS_USER    = "NULL",
+    R_LIBS_SITE    = "NULL",
+    R_ENVIRON_USER = "NULL",
+    R_TESTS        = NA_character_
+  )
 
-  # the actual code we'll run in the other process
+  list(R = R(), libpaths = .libPaths(), envvars = envvars)
+
+}
+
+# This function is embedded in binary worker scripts: keep it self-contained,
+# with no references to the renv namespace. It checks that 'package' can be
+# loaded by a separate R process, as described by 'spec' (an NA environment
+# variable is unset). A failure is signaled with class 'renv_install_test_error'
+# so that callers can tell it apart from a failed install.
+renv_install_test_impl <- function(package, spec) {
+
+  # apply the environment, restoring it afterwards when run in-process
+  envvars <- spec$envvars
+  previous <- Sys.getenv(names(envvars), unset = NA, names = TRUE)
+  on.exit({
+    Sys.unsetenv(names(previous)[is.na(previous)])
+    if (any(!is.na(previous)))
+      do.call(Sys.setenv, as.list(previous[!is.na(previous)]))
+  }, add = TRUE)
+  Sys.unsetenv(names(envvars)[is.na(envvars)])
+  if (any(!is.na(envvars)))
+    do.call(Sys.setenv, as.list(envvars[!is.na(envvars)]))
+
   # we use 'loadNamespace()' rather than 'library()' because some packages might
   # intentionally throw an error in their .onAttach() hooks
   # https://github.com/rstudio/renv/issues/1611
-  code <- expr({
-    .libPaths(!!.libPaths())
-    options(warn = 1L)
-    loadNamespace(!!package)
-  })
-
-  # write it to a tempfile
-  script <- renv_scope_tempfile("renv-install-", fileext = ".R")
-  writeLines(deparse(code), con = script)
-
-  # check that the package can be loaded in a separate process
-  renv_system_exec(
-    command = R(),
-    args    = c("--vanilla", "-s", "-f", renv_shell_path(script)),
-    action  = sprintf("testing if '%s' can be loaded", package)
+  code <- c(
+    sprintf(".libPaths(%s)", paste(deparse(spec$libpaths), collapse = " ")),
+    "options(warn = 1L)",
+    sprintf("loadNamespace(%s)", deparse(package))
   )
 
-  # return TRUE to indicate successful validation
-  TRUE
+  script <- tempfile("renv-install-test-", fileext = ".R")
+  on.exit(unlink(script), add = TRUE)
+  writeLines(code, con = script)
+
+  output <- suppressWarnings(system2(
+    command = spec$R,
+    args    = c("--vanilla", "-s", "-f", shQuote(script)),
+    stdout  = TRUE,
+    stderr  = TRUE
+  ))
+
+  status <- attr(output, "status")
+  if (is.null(status) || identical(status, 0L))
+    return(invisible(TRUE))
+
+  fmt <- "error testing if '%s' can be loaded [error code %i]"
+  message <- paste(c(sprintf(fmt, package, status), output), collapse = "\n")
+  stop(structure(
+    class = c("renv_install_test_error", "error", "condition"),
+    list(message = message, call = NULL)
+  ))
 
 }
 

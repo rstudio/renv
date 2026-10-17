@@ -684,7 +684,23 @@ test_that("install() reports failure when a 'bad' binary is installed", {
   # try installing the broken binary
   remove("bread")
   expect_false(renv_package_installed("bread"))
-  expect_error(install(tgt))
+  local({
+    workers <- list()
+    launch <- renv_graph_install_pool_launch
+    renv_scope_binding(asNamespace("renv"), "renv_graph_install_pool_launch", function(...) {
+      worker <- launch(...)
+      workers[[worker$id]] <<- worker
+      worker
+    })
+
+    connections <- getAllConnections()
+    expect_error(install(tgt))
+    expect_setequal(getAllConnections(), connections)
+    if (getRversion() >= "4.0")
+      expect_length(workers, 1L)
+    for (worker in workers)
+      expect_false(file.exists(worker$script))
+  })
   expect_false(renv_package_installed("bread"))
 
   # try skipping the load test

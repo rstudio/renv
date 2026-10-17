@@ -226,9 +226,10 @@
   default: 4
   description: >
     The number of packages to install concurrently during `install()` and
-    `restore()`. Packages within the same dependency wave are installed in
-    parallel using this many concurrent R CMD INSTALL processes. Set to `1L`
-    for sequential installation.
+    `restore()`. On R >= 4.0, source builds and binary installs are limited
+    separately, so up to this many of each can run at once as their
+    dependencies become ready. Setting this to `1L` builds one package at a
+    time, but binary packages are still installed while a build is running.
 
 - name: "install.verbose"
   type: "logical[1]"

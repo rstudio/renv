@@ -6,6 +6,16 @@ renv_tar_exe <- function(default = "") {
   if (!is.null(tar))
     return(tar)
 
+  # Sys.which() spawns a process, which adds up when called per package
+  memoize(
+    key   = paste("default", default),
+    value = renv_tar_exe_impl(default)
+  )
+
+}
+
+renv_tar_exe_impl <- function(default) {
+
   # on unix, just use default
   if (renv_platform_unix()) {
     tar <- Sys.which("tar")

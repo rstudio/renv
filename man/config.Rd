@@ -98,7 +98,7 @@ Defaults to \code{TRUE}.}
 Defaults to \code{TRUE}.}
 \subsection{renv.config.install.transactional}{Perform a transactional install of packages during install and restore? When enabled, renv will first install packages into a temporary library, and later copy or move those packages back into the project library only if all packages were successfully downloaded and installed. This can be useful if you'd like to avoid mutating your project library if installation of one or more packages fails.
 Defaults to \code{TRUE}.}
-\subsection{renv.config.install.jobs}{The number of packages to install concurrently during \code{install()} and \code{restore()}. Packages within the same dependency wave are installed in parallel using this many concurrent R CMD INSTALL processes. Set to \code{1L} for sequential installation.
+\subsection{renv.config.install.jobs}{The number of packages to install concurrently during \code{install()} and \code{restore()}. On R >= 4.0, source builds and binary installs are limited separately, so up to this many of each can run at once as their dependencies become ready. Setting this to \code{1L} builds one package at a time, but binary packages are still installed while a build is running.
 Defaults to \code{4L}.}
 \subsection{renv.config.install.verbose}{Be verbose when installing R packages from sources? When \code{TRUE}, renv will stream any output generated during package build + installation to the console.
 Defaults to \code{FALSE}.}
@@ -174,6 +174,10 @@ You can also provide a custom copy method if required; e.g.
   # copy a file from 'src' to 'dst'
 \})
 }\if{html}{\out{</div>}}
+
+On \R >= 4.0, binary packages are installed by separate \R processes, which
+may also call a custom copy method. Such functions should therefore not
+rely on objects defined in the global environment.
 
 Note that renv will always first attempt to copy a directory first to a
 temporary path within the target folder, and then rename that temporary path
