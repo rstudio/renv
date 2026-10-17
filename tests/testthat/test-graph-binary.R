@@ -524,7 +524,9 @@ test_that("binary workers preserve custom copy method closures and are reused", 
   worker$conn <- renv_socket_accept(server$socket, open = "r+b", timeout = 30)
   expect_identical(unserialize(worker$conn), list(worker = "1"))
 
-  # the same worker serves successive requests
+  # the same worker serves successive requests; the fixture has nothing to
+  # load, so don't load-test it yet
+  renv_scope_envvars(RENV_INSTALL_TEST_LOAD = "FALSE")
   libraries <- c(renv_libpaths_active(), renv_scope_tempfile("renv-binary-library-"))
   ensure_directory(libraries)
   for (library in libraries) {
