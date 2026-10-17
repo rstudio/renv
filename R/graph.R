@@ -2975,7 +2975,13 @@ renv_graph_install_binary_worker <- function(prepared, copy, tar) {
   target <- file.path(prepared$library, package)
 
   # work within the library so that the final rename stays on one
-  # filesystem; the temporary directory may be a small tmpfs
+  # filesystem; the temporary directory may be a small tmpfs.
+  #
+  # this adds the scratch directory to every extracted path, which matters on
+  # Windows, where R's internal unzip and untar can't write paths longer than
+  # MAX_PATH. staged installs (the default) keep the library path short, so a
+  # shorter scratch location is deliberately not provided: a library path long
+  # enough to hit the limit here is close to hitting it when loading packages
   scratch <- tempfile(".renv-install-", tmpdir = prepared$library)
   dir.create(scratch)
   on.exit(unlink(scratch, recursive = TRUE), add = TRUE)
