@@ -18,7 +18,7 @@ test_that("binary installs overlap and respect the worker limit", {
   markers <- renv_scope_tempfile("renv-workers-")
   ensure_directory(markers)
   worker <- renv_graph_install_binary_worker
-  replacement <- function(prepared, copy, tar) {}
+  replacement <- function(prepared, copy, tar, abandoned = NULL) {}
   body(replacement) <- expr({
     stopifnot(identical(prepared$method, "extract"), !dir.exists(prepared$path))
     stopifnot(!"renv" %in% loadedNamespaces())
@@ -31,7 +31,7 @@ test_that("binary installs overlap and respect the worker limit", {
       Sys.sleep(0.05)
     }
     worker <- !!worker
-    worker(prepared, copy, tar)
+    worker(prepared, copy, tar, abandoned)
   })
   renv_scope_binding(asNamespace("renv"), "renv_graph_install_binary_worker", replacement)
 
@@ -261,7 +261,7 @@ test_that("finalization errors wait for outstanding workers and restore backups"
   # still in flight when the error occurs.
   marker <- renv_scope_tempfile("renv-finalize-")
   worker <- renv_graph_install_binary_worker
-  replacement <- function(prepared, copy, tar) {}
+  replacement <- function(prepared, copy, tar, abandoned = NULL) {}
   body(replacement) <- expr({
     if (identical(prepared$package, "egg")) {
       deadline <- Sys.time() + 30
@@ -272,7 +272,7 @@ test_that("finalization errors wait for outstanding workers and restore backups"
       }
     }
     worker <- !!worker
-    worker(prepared, copy, tar)
+    worker(prepared, copy, tar, abandoned)
   })
   renv_scope_binding(asNamespace("renv"), "renv_graph_install_binary_worker", replacement)
 
@@ -332,7 +332,7 @@ test_that("installs that fail while workers drain are still reported", {
   # Hold egg's worker until bread's finalization has failed, then fail it too.
   marker <- renv_scope_tempfile("renv-finalize-")
   worker <- renv_graph_install_binary_worker
-  replacement <- function(prepared, copy, tar) {}
+  replacement <- function(prepared, copy, tar, abandoned = NULL) {}
   body(replacement) <- expr({
     if (identical(prepared$package, "egg")) {
       deadline <- Sys.time() + 30
@@ -344,7 +344,7 @@ test_that("installs that fail while workers drain are still reported", {
       stop("egg extraction failed")
     }
     worker <- !!worker
-    worker(prepared, copy, tar)
+    worker(prepared, copy, tar, abandoned)
   })
   renv_scope_binding(asNamespace("renv"), "renv_graph_install_binary_worker", replacement)
 
@@ -549,5 +549,145 @@ test_that("binary workers preserve custom copy method closures and are reused", 
   expect_s3_class(result, "renv_install_test_error")
   expect_match(conditionMessage(result), "testing if 'bread' can be loaded")
   expect_true(file.exists(file.path(library, "bread", "sentinel")))
+
+})
+
+test_that("binary workers abandon installs the parent has given up on", {
+
+  renv_tests_scope()
+  source <- renv_scope_tempfile("renv-binary-source-")
+  library <- renv_scope_tempfile("renv-binary-library-")
+  ensure_directory(c(source, library))
+  prepared <- list(package = "bread", library = library, path = source, method = "copy", subdir = "")
+
+  copy <- function(source, target) {
+    dir.create(target)
+    writeLines("custom copy", file.path(target, "sentinel"))
+  }
+
+  # the check runs after the package has been staged, just before the move
+  checked <- FALSE
+  abandoned <- function() {
+    checked <<- TRUE
+    TRUE
+  }
+
+  expect_error(
+    renv_graph_install_binary_worker(prepared, copy, "internal", abandoned),
+    "abandoned by parent process"
+  )
+  expect_true(checked)
+  expect_false(file.exists(file.path(library, "bread")))
+  expect_length(list.files(library, all.files = TRUE, no.. = TRUE), 0L)
+
+  # with no check, or a parent that is still waiting, the install proceeds
+  renv_graph_install_binary_worker(prepared, copy, "internal", function() FALSE)
+  expect_equal(readLines(file.path(library, "bread", "sentinel")), "custom copy")
+
+})
+
+test_that("binary workers don't move packages into place after the parent leaves", {
+
+  skip_on_cran()
+  skip_if(getRversion() < "4.0")
+  renv_tests_scope()
+  source <- renv_scope_tempfile("renv-binary-source-")
+  library <- renv_scope_tempfile("renv-binary-library-")
+  ensure_directory(c(source, library))
+
+  # a copy method slow enough for the parent to go away mid-install
+  copy <- local({
+    function(source, target) {
+      Sys.sleep(3)
+      dir.create(target)
+      writeLines("too late", file.path(target, "sentinel"))
+    }
+  }, envir = new.env(parent = baseenv()))
+  renv_scope_options(renv.config.copy.method = copy)
+  renv_scope_envvars(RENV_INSTALL_TEST_LOAD = "FALSE")
+
+  workdir <- renv_scope_tempfile("renv-workers-")
+  ensure_directory(workdir)
+  server <- renv_socket_server()
+  defer(close(server$socket))
+  worker <- renv_graph_install_pool_launch("1", server$port, workdir, 60)
+  worker$conn <- renv_socket_accept(server$socket, open = "r+b", timeout = 30)
+  expect_identical(unserialize(worker$conn), list(worker = "1"))
+
+  prepared <- renv_graph_install_prepare(list(Package = "bread"), source, library, "binary", FALSE)
+  worker$request <- renv_graph_install_binary_request(prepared)
+  worker <- renv_graph_install_pool_send(worker)
+  expect_null(worker$error)
+
+  # the worker has started the install; the parent now gives up on it, as it
+  # would on interrupt or at the install deadline
+  Sys.sleep(1)
+  expect_length(list.files(library, pattern = "^[.]renv-install-", all.files = TRUE), 1L)
+  renv_graph_install_pool_close(worker)
+
+  # the worker finishes copying, notices, and cleans up after itself
+  for (i in 1:60) {
+    if (length(list.files(library, all.files = TRUE, no.. = TRUE)) == 0L)
+      break
+    Sys.sleep(0.5)
+  }
+
+  expect_false(file.exists(file.path(library, "bread")))
+  expect_length(list.files(library, all.files = TRUE, no.. = TRUE), 0L)
+
+})
+
+test_that("a request that can't be sent fails its package promptly", {
+
+  skip_on_cran()
+  skip_if(getRversion() < "4.0")
+  skip_if(identical(.Platform$pkgType, "source"))
+  renv_tests_scope(isolated = TRUE)
+  renv_scope_binding(the, "install_pkg_type", "binary")
+  renv_scope_options(
+    pkgType = .Platform$pkgType,
+    renv.config.cache.enabled = FALSE,
+    renv.config.install.jobs = 2L,
+    renv.config.install.staged = TRUE,
+    renv.config.install.transactional = TRUE,
+    # a regression here would otherwise hang until the default deadline
+    renv.install.timeout = 120
+  )
+
+  # keep an existing installation to verify it is restored
+  library <- renv_libpaths_active()
+  old <- file.path(library, "bread")
+  ensure_directory(old)
+  write.dcf(data.frame(Package = "bread", Version = "0.0.1"), file.path(old, "DESCRIPTION"))
+  writeLines("old installation", file.path(old, "sentinel"))
+
+  # the worker for 'bread' is alive and idle, but its request never arrives
+  send <- renv_graph_install_pool_send
+  renv_scope_binding(asNamespace("renv"), "renv_graph_install_pool_send", function(worker) {
+    if (identical(worker$package, "bread"))
+      close(worker$conn)
+    send(worker)
+  })
+  workers <- list()
+  launch <- renv_graph_install_pool_launch
+  renv_scope_binding(asNamespace("renv"), "renv_graph_install_pool_launch", function(...) {
+    worker <- launch(...)
+    workers[[worker$id]] <<- worker
+    worker
+  })
+
+  start <- Sys.time()
+  records <- renv_graph_install(renv_graph_init(c("toast", "egg")))
+  elapsed <- as.double(difftime(Sys.time(), start, units = "secs"))
+
+  expect_lt(elapsed, 60)
+  expect_length(records, 0L)
+  expect_setequal(attr(records, "failed"), c("bread", "toast"))
+  expect_setequal(attr(records, "rolledback"), "egg")
+  expect_equal(readLines(file.path(old, "sentinel")), "old installation")
+  expect_false(file.exists(file.path(library, "egg")))
+  expect_false(file.exists(file.path(library, "toast")))
+  for (worker in workers)
+    expect_false(file.exists(worker$script))
 
 })

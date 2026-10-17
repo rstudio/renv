@@ -2029,6 +2029,15 @@ renv_graph_install <- function(descriptions) {
           worker$request <- renv_graph_install_binary_request(prepared)
           if (!is.null(worker$conn))
             worker <- renv_graph_install_pool_send(worker)
+
+          # a worker that never received its request would stay silent until
+          # the install deadline, so fail the package right away instead
+          if (!is.null(worker$error)) {
+            pool[[worker$id]] <- NULL
+            complete(pkg, renv_graph_install_pool_send_failure(worker, Sys.time()))
+            next
+          }
+
           pool[[worker$id]] <- worker
 
           active[[pkg]] <- list(package = pkg, start = Sys.time(), worker = worker$id)
@@ -2142,6 +2151,17 @@ renv_graph_install <- function(descriptions) {
             if (!is.null(worker$request))
               worker <- renv_graph_install_pool_send(worker)
             pool[[worker$id]] <- worker
+
+            # as above: a request that couldn't be sent fails its package now
+            if (!is.null(worker$error)) {
+              pool[[id]] <- NULL
+              pkg <- worker$package
+              start <- active[[pkg]]$start
+              active[[pkg]] <- NULL
+              complete(pkg, renv_graph_install_pool_send_failure(worker, start))
+              if (showstatus && length(active) > 0L)
+                progress$update(names(active))
+            }
           } else {
             close(conn)
           }
@@ -2776,6 +2796,12 @@ renv_graph_install_pool_launch <- function(id, port, workdir, timeout) {
       install <- !!renv_graph_install_binary_worker
       test <- !!renv_install_test_impl
 
+      # the parent sends nothing while an install is in progress, so a
+      # readable socket means it has asked us to exit, or has gone away
+      abandoned <- function() {
+        socketSelect(list(conn), write = FALSE, timeout = 0)
+      }
+
       repeat {
 
         # NULL (or a closed connection) means the parent is done with us
@@ -2784,7 +2810,7 @@ renv_graph_install_pool_launch <- function(id, port, workdir, timeout) {
           break
 
         result <- tryCatch({
-          install(request$prepared, request$copy, request$tar)
+          install(request$prepared, request$copy, request$tar, abandoned)
           if (!is.null(request$test))
             test(request$prepared$package, request$test)
           character()
@@ -2833,18 +2859,34 @@ renv_graph_install_binary_request <- function(prepared) {
 }
 
 # send the worker its pending request. a write to a worker that has exited
-# fails here, and the package is then failed when its connection reports EOF
+# fails here, but so may one to a live worker, which then never sees the
+# request and never reports back; either way the worker is closed and the
+# failure recorded in 'error', for the caller to fail the package promptly
 renv_graph_install_pool_send <- function(worker) {
 
-  status <- catch(serialize(worker$request, worker$conn))
+  request <- worker$request
+  worker$request <- NULL
+
+  status <- catch(serialize(request, worker$conn))
   if (inherits(status, "error")) {
     dlog("graph", "failed to send request to binary worker %s: %s",
          worker$id, conditionMessage(status))
+    renv_graph_install_pool_close(worker)
+    worker$conn <- NULL
+    worker$error <- conditionMessage(status)
   }
 
-  worker$request <- NULL
   worker
 
+}
+
+# the install result for a package whose request could not be sent
+renv_graph_install_pool_send_failure <- function(worker, start) {
+  list(
+    success = FALSE,
+    output  = paste("failed to send request to binary worker:", worker$error),
+    elapsed = difftime(Sys.time(), start, units = "auto")
+  )
 }
 
 renv_graph_install_pool_close <- function(worker) {
@@ -2967,7 +3009,7 @@ renv_graph_install_binary <- function(prepared) {
 # This function is embedded in worker scripts: keep it self-contained, with
 # no references to the renv namespace or parent process state. It mirrors
 # renv_package_unpack() and renv_file_copy_dir() using only base R.
-renv_graph_install_binary_worker <- function(prepared, copy, tar) {
+renv_graph_install_binary_worker <- function(prepared, copy, tar, abandoned = NULL) {
 
   path <- prepared$path
   package <- prepared$package
@@ -3107,6 +3149,14 @@ renv_graph_install_binary_worker <- function(prepared, copy, tar) {
   if (!dir.exists(source)) {
     fmt <- "failed to move package to '%s' [no package directory at '%s']"
     stop(sprintf(fmt, target, source), call. = FALSE)
+  }
+
+  # the parent may have given up on this install (interrupt, deadline) while
+  # we were extracting; a package moved into the library now would be left
+  # there without ever being finalized
+  if (is.function(abandoned) && isTRUE(abandoned())) {
+    fmt <- "install of '%s' abandoned by parent process"
+    stop(sprintf(fmt, package), call. = FALSE)
   }
 
   # move the package into place; on Windows, file.rename() can fail
