@@ -216,13 +216,13 @@ test_that("finalization errors wait for outstanding workers and restore backups"
     worker
   })
 
-  # Fail bread as a load test failure would, removing the new installation.
+  # Fail bread's finalization, leaving its replacement in the library as a
+  # failure to update its DESCRIPTION would.
   finalized <- character()
   finalize <- renv_graph_install_finalize
   renv_scope_binding(asNamespace("renv"), "renv_graph_install_finalize", function(record, prepared, library, ...) {
     finalized <<- c(finalized, record$Package)
     if (identical(record$Package, "bread")) {
-      unlink(file.path(library, "bread"), recursive = TRUE)
       writeLines("", marker)
       stop("finalization failed")
     }

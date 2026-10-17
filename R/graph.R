@@ -1833,7 +1833,8 @@ renv_graph_install <- function(descriptions) {
   callbacks <- list()
 
   handle <- function(pkg, result) {
-    # restore any previous installation even if finalization fails
+    # restore any previous installation if this one failed, including when
+    # finalization throws
     on.exit(callbacks[[pkg]](), add = TRUE)
 
     entry <- entries[[pkg]]
@@ -1843,7 +1844,17 @@ renv_graph_install <- function(descriptions) {
 
     if (result$success && file.exists(installpath)) {
       renv_install_step_ok(message, entry$record, elapsed = result$elapsed)
-      renv_graph_install_finalize(entry$record, entry$prepared, installdir, project, linkable)
+
+      # remove a package that failed finalization, so that the callback
+      # restores the previous installation rather than discarding it
+      tryCatch(
+        renv_graph_install_finalize(entry$record, entry$prepared, installdir, project, linkable),
+        error = function(err) {
+          unlink(installpath, recursive = TRUE)
+          stop(err)
+        }
+      )
+
       all[[pkg]] <<- entry$record
     } else {
       unlink(installpath, recursive = TRUE)
