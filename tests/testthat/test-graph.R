@@ -230,6 +230,70 @@ test_that("renv_graph_install uses a cache entry that appeared after its up-fron
 
 })
 
+test_that("renv_graph_install installs cached packages while workers are busy", {
+
+  skip_on_cran()
+  skip_if(getRversion() < "4.0")
+  renv_tests_scope()
+  renv_scope_options(renv.config.install.jobs = 1L)
+
+  # build 'oatmeal' once, so we have a cache entry to copy from later
+  oldcache <- renv_scope_tempfile("renv-cache-")
+  renv_scope_envvars(RENV_PATHS_CACHE = oldcache)
+
+  init()
+  install("oatmeal")
+  entry <- renv_cache_path(file.path(renv_paths_library(), "oatmeal"))
+  expect_true(renv_cache_package_validate(entry))
+  remove("oatmeal")
+
+  # now install into a fresh, empty cache ...
+  newcache <- renv_scope_tempfile("renv-cache-")
+  ensure_directory(newcache)
+  renv_scope_envvars(RENV_PATHS_CACHE = newcache)
+  target <- renv_cache_path(entry)
+  expect_false(file.exists(target))
+
+  # ... which another process populates while 'bread' occupies the only
+  # worker slot: 'oatmeal' is then installed from the cache right away,
+  # rather than waiting for that slot to free up
+  events <- character()
+  launch <- get("renv_graph_install_launch_socket", envir = asNamespace("renv"))
+  renv_scope_binding(
+    envir       = asNamespace("renv"),
+    symbol      = "renv_graph_install_launch_socket",
+    replacement = function(prepared, ...) {
+      events <<- c(events, paste("launch", prepared$package))
+      renv_file_copy(entry, target)
+      launch(prepared, ...)
+    }
+  )
+
+  cache <- get("renv_install_package_cache", envir = asNamespace("renv"))
+  renv_scope_binding(
+    envir       = asNamespace("renv"),
+    symbol      = "renv_install_package_cache",
+    replacement = function(record, ...) {
+      events <<- c(events, paste("cache", record$Package))
+      cache(record, ...)
+    }
+  )
+
+  finalize <- get("renv_graph_install_finalize", envir = asNamespace("renv"))
+  renv_scope_binding(
+    envir       = asNamespace("renv"),
+    symbol      = "renv_graph_install_finalize",
+    replacement = function(record, ...) {
+      events <<- c(events, paste("finalize", record$Package))
+      finalize(record, ...)
+    }
+  )
+
+  install(c("bread", "oatmeal"))
+  expect_equal(events, c("launch bread", "cache oatmeal", "finalize bread"))
+
+})
+
 test_that("renv_graph_install prepares a package once while it waits for a worker", {
 
   skip_on_cran()

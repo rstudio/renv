@@ -1957,19 +1957,20 @@ renv_graph_install <- function(descriptions) {
         pkg <- ready[[i]]
         entry <- entries[[pkg]]
 
+        # install from the cache if the package was cached since we last
+        # looked; this needs no worker slot, so check before waiting for one
+        if (cached(pkg)) {
+          ready <- ready[-i]
+          if (showstatus) progress$tick()
+          release(pkg)
+          next
+        }
+
         # wait for a slot before preparing this package, as that work would
         # otherwise be repeated each time we came back to it
         types <- map_chr(names(active), function(name) entries[[name]]$type)
         if (sum(types == entry$type) >= jobs) {
           i <- i + 1L
-          next
-        }
-
-        # install from the cache if the package was cached since we last looked
-        if (cached(pkg)) {
-          ready <- ready[-i]
-          if (showstatus) progress$tick()
-          release(pkg)
           next
         }
 
@@ -2128,8 +2129,12 @@ renv_graph_install <- function(descriptions) {
 
     }
 
-    if (!is.null(aborted))
+    # report installs that failed while workers were draining before
+    # re-signaling, as the finalization error would otherwise hide them
+    if (!is.null(aborted)) {
+      renv_graph_install_errors(errors$data(), failed$data(), descriptions)
       stop(aborted)
+    }
 
     # mark packages stuck due to failed dependencies
     stuck <- names(indegree)[indegree > 0L]
@@ -2780,11 +2785,13 @@ renv_graph_install_binary_worker <- function(prepared, copy, tar) {
     status <- if (identical(prepared$archive, "zip")) {
       # unzip() warns rather than errors when extraction fails
       status <- tryCatch(utils::unzip(path, exdir = unpackdir), condition = identity)
-      if (inherits(status, "condition")) conditionMessage(status)
+      if (inherits(status, "condition"))
+        conditionMessage(status)
     } else if (identical(prepared$archive, "tar")) {
       # the internal tar warns about global PAX headers
       status <- suppressWarnings(utils::untar(path, exdir = unpackdir, tar = tar))
-      if (!identical(status, 0L)) paste("exit status", status)
+      if (!identical(status, 0L))
+        paste("exit status", status)
     } else {
       "unsupported archive type"
     }
@@ -2803,6 +2810,9 @@ renv_graph_install_binary_worker <- function(prepared, copy, tar) {
       recursive = TRUE,
       all.files = TRUE
     )
+
+    # a DESCRIPTION at the archive root has no package directory to move
+    files <- grep("/DESCRIPTION$", files, value = TRUE)
 
     expected <- file.path(package, "DESCRIPTION")
     matches <- if (!nzchar(subdir) && expected %in% files) {
@@ -2884,10 +2894,18 @@ renv_graph_install_binary_worker <- function(prepared, copy, tar) {
 
   }
 
-  # move the package into place; file.rename() can fail transiently on
-  # Windows while antivirus software scans the new files (#2156)
+  # a copy method may return without producing the package directory
+  if (!dir.exists(source)) {
+    fmt <- "failed to move package to '%s' [no package directory at '%s']"
+    stop(sprintf(fmt, target, source), call. = FALSE)
+  }
+
+  # move the package into place; on Windows, file.rename() can fail
+  # transiently while antivirus software scans the new files (#2156), so
+  # retry there; elsewhere, failures are permanent
   status <- tryCatch(file.rename(source, target), condition = identity)
-  for (attempt in 1:60) {
+  retries <- if (.Platform$OS.type == "windows") 60L else 0L
+  for (attempt in seq_len(retries)) {
     if (identical(status, TRUE))
       break
     Sys.sleep(1)

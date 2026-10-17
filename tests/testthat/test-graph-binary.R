@@ -309,6 +309,53 @@ test_that("finalization errors wait for outstanding workers and restore backups"
 
 })
 
+test_that("installs that fail while workers drain are still reported", {
+
+  skip_on_cran()
+  skip_if(getRversion() < "4.0")
+  skip_if(identical(.Platform$pkgType, "source"))
+  renv_tests_scope(isolated = TRUE)
+  renv_scope_binding(the, "install_pkg_type", "binary")
+  renv_scope_options(
+    pkgType = .Platform$pkgType,
+    renv.verbose = TRUE,
+    renv.config.cache.enabled = FALSE,
+    renv.config.install.jobs = 2L
+  )
+
+  # Hold egg's worker until bread's finalization has failed, then fail it too.
+  marker <- renv_scope_tempfile("renv-finalize-")
+  worker <- renv_graph_install_binary_worker
+  replacement <- function(prepared, copy, tar) {}
+  body(replacement) <- expr({
+    if (identical(prepared$package, "egg")) {
+      deadline <- Sys.time() + 30
+      while (!file.exists(!!marker)) {
+        if (Sys.time() > deadline)
+          stop("bread was not finalized")
+        Sys.sleep(0.05)
+      }
+      stop("egg extraction failed")
+    }
+    worker <- !!worker
+    worker(prepared, copy, tar)
+  })
+  renv_scope_binding(asNamespace("renv"), "renv_graph_install_binary_worker", replacement)
+
+  renv_scope_binding(asNamespace("renv"), "renv_graph_install_finalize", function(record, ...) {
+    writeLines("", marker)
+    stop("finalization failed")
+  })
+
+  # The finalization error is re-signaled, but egg's failure is reported first.
+  descriptions <- renv_graph_init(c("bread", "egg"))
+  expect_output(
+    expect_error(renv_graph_install(descriptions), "finalization failed"),
+    "egg extraction failed"
+  )
+
+})
+
 test_that("binary workers extract nested tar archives and copy directories", {
 
   renv_tests_scope()
@@ -338,6 +385,22 @@ test_that("binary workers extract nested tar archives and copy directories", {
     worker(prepared, copy = if (method == "extract") "r" else method, tar = "internal")
     expect_equal(readLines(file.path(library, "bread", ".hidden")), "payload")
   })
+
+  # An archive with DESCRIPTION at its root has no package directory to install.
+  flat <- file.path(root, "flat")
+  ensure_directory(flat)
+  write.dcf(data.frame(Package = "bread", Version = "1.0.0"), file.path(flat, "DESCRIPTION"))
+  renv_scope_wd(flat)
+  archive <- file.path(root, "flat.tar.gz")
+  utils::tar(archive, "DESCRIPTION", compression = "gzip", tar = "internal")
+
+  library <- renv_scope_tempfile("renv-binary-library-")
+  ensure_directory(library)
+  prepared <- list(
+    package = "bread", library = library,
+    method = "extract", archive = "tar", subdir = "", path = archive
+  )
+  expect_error(worker(prepared, copy = "r", tar = "internal"), "couldn't find DESCRIPTION")
 
 })
 
@@ -421,6 +484,12 @@ test_that("binary workers honor custom copy methods and propagate copy failures"
   expect_error(
     renv_graph_install_binary_worker(prepared, function(...) warning("copy failed"), "internal"),
     "copy failed"
+  )
+
+  # a copy method that produces no package directory fails without retrying
+  expect_error(
+    renv_graph_install_binary_worker(prepared, function(...) NULL, "internal"),
+    "no package directory"
   )
 
 })

@@ -228,7 +228,8 @@
     The number of packages to install concurrently during `install()` and
     `restore()`. On R >= 4.0, source builds and binary installs are limited
     separately, so up to this many of each can run at once as their
-    dependencies become ready. Set to `1L` to build one package at a time.
+    dependencies become ready. Setting this to `1L` builds one package at a
+    time, but binary packages are still installed while a build is running.
 
 - name: "install.verbose"
   type: "logical[1]"
