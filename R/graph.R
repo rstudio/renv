@@ -11,6 +11,10 @@ renv_graph_init <- function(remotes, records = list(), project = NULL, scope = p
   project <- project %||% renv_project_resolve()
   envir <- new.env(parent = emptyenv())
 
+  # Remotes supply sources for dependencies, but don't select packages for
+  # installation. Keep these records separate from the resolved graph.
+  sources <- new.env(parent = emptyenv())
+
   # when the user passes dependencies = TRUE/FALSE, install() sets
   # the$install_dependency_fields; apply extended fields (e.g. Suggests)
   # only to the top-level remotes, not to transitive dependencies.
@@ -49,6 +53,7 @@ renv_graph_init <- function(remotes, records = list(), project = NULL, scope = p
     deps <- renv_graph_resolve(
       remote  = remote,
       envir   = envir,
+      sources = sources,
       records = records,
       fields  = fields,
       pinned  = fixed
@@ -74,7 +79,7 @@ renv_graph_init <- function(remotes, records = list(), project = NULL, scope = p
   while (idx <= length(queue)) {
     remote <- queue[[idx]]
     idx <- idx + 1L
-    deps <- renv_graph_resolve(remote, envir, records = records, pinned = fixed)
+    deps <- renv_graph_resolve(remote, envir, sources, records = records, pinned = fixed)
     queue <- c(queue, as.list(deps))
   }
 
@@ -135,6 +140,7 @@ renv_graph_init <- function(remotes, records = list(), project = NULL, scope = p
 
 renv_graph_resolve <- function(remote,
                                envir,
+                               sources,
                                records = NULL,
                                fields = NULL,
                                override = FALSE,
@@ -151,11 +157,15 @@ renv_graph_resolve <- function(remote,
       return(character())
   }
 
-  # resolve the record; use pre-resolved record if available
-  record <- if (is.character(remote) && !is.null(records[[remote]]))
-    records[[remote]]
-  else
-    renv_remotes_resolve(remote)
+  # use a dependency's Remotes when this package is actually requested,
+  # unless the caller has pinned it to another record
+  record <- if (is.character(remote)) {
+    record <- records[[remote]]
+    if (!renv_graph_pinned_record(remote, records, pinned))
+      record <- sources[[remote]] %||% record
+    record
+  }
+  record <- record %||% renv_remotes_resolve(remote)
 
   # resolve lazy records (functions that produce the actual record)
   if (is.function(record))
@@ -175,6 +185,24 @@ renv_graph_resolve <- function(remote,
   # package recorded in a lockfile being restored on Linux (#2380)
   if (renv_record_ostype_incompatible(record))
     return(character())
+
+  if (override) {
+
+    # Record the source without traversing its dependencies. In particular,
+    # an unused Suggests remote must not enter the graph (#2415). Retain the
+    # first source, as we do for already-resolved non-repository packages.
+    if (!is.null(sources[[package]]))
+      return(character())
+    sources[[package]] <- record
+
+    # A later Remotes entry can still replace a repository package already
+    # selected by another root. Preserve that package's dependency fields
+    # so explicitly requested Suggests are also read from its replacement.
+    if (!exists(package, envir = envir, inherits = FALSE))
+      return(character())
+    fields <- attr(envir[[package]], "dependency_fields", exact = TRUE)
+
+  }
 
   # skip if already resolved; because we use BFS, top-level remotes
   # are always resolved before transitive dependencies, so the first
@@ -245,6 +273,7 @@ renv_graph_resolve <- function(remote,
   # retrieved from the same record; the caller's record can differ, e.g. when
   # a dependency's Remotes replaced it or the project's Remotes supplied it
   attr(desc, "record") <- record
+  attr(desc, "dependency_fields") <- fields
 
   # store the resolved description
   assign(package, desc, envir = envir)
@@ -252,11 +281,9 @@ renv_graph_resolve <- function(remote,
   # return dependencies for the caller to enqueue
   deps <- renv_graph_deps(desc, fields = fields)
 
-  # resolve any Remotes declared by this package; this pre-populates envir
-  # with the correct (e.g. GitHub) resolution so that when the BFS later
-  # encounters the bare package name, it finds it already resolved.
-  # override = TRUE allows these to replace default repository records
-  # that may have already been resolved into envir
+  # Register Remotes as sources for later dependency lookups, including
+  # indirect dependencies. Only packages already selected for installation
+  # are resolved here, to replace their default repository sources.
   if (config$install.remotes()) {
     remotes <- paste(exclude(desc[["Remotes"]], NA), collapse = ", ")
     specs <- strsplit(remotes, "\\s*,\\s*")[[1L]]
@@ -264,6 +291,7 @@ renv_graph_resolve <- function(remote,
       rdeps <- catch(renv_graph_resolve(
         remote   = spec,
         envir    = envir,
+        sources  = sources,
         records  = records,
         override = TRUE,
         pinned   = pinned

@@ -4,6 +4,11 @@
   including Windows ZIP binaries. Binary installs and source builds share the
   `install.jobs` worker limit and respect dependency ordering.
 
+* `renv::restore()` and `renv::install()` no longer install optional packages
+  just because they appear in a dependency's `Remotes` field. Remotes still
+  supply sources for required dependencies and explicitly requested
+  `Suggests` (#2415).
+
 * The generated `renv/activate.R` script no longer contains trailing
   whitespace, so tools like pre-commit's `trailing-whitespace` hook no longer
   modify it. (#2411)
