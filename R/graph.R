@@ -2575,7 +2575,14 @@ renv_graph_install_launch_socket <- function(prepared, port) {
 
 renv_graph_install_worker_cleanup <- function(worker) {
 
-  try(close(worker$conn), silent = TRUE)
+  if (!is.null(worker$conn))
+    tryCatch(
+      close(worker$conn),
+      error = function(e) {
+        dlog("graph", "failed to close worker connection for '%s': %s",
+             worker$package, conditionMessage(e))
+      }
+    )
 
   paths <- c(worker$script, worker$data)
   success <- unlink(paths) == 0L

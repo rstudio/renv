@@ -231,6 +231,36 @@ test_that("binary workers extract nested tar archives and copy directories", {
 
 })
 
+test_that("worker cleanup logs close failures and still removes files", {
+
+  log <- renv_scope_tempfile(fileext = ".log")
+  renv_scope_binding(the, "log_level", 1L)
+  renv_scope_binding(the, "log_scopes", "graph")
+  renv_scope_binding(the, "log_file", log)
+
+  script <- renv_scope_tempfile(fileext = ".R")
+  data <- renv_scope_tempfile(fileext = ".rds")
+  writeLines("invisible()", script)
+  saveRDS(list(), data)
+
+  conn <- rawConnection(raw(), open = "r")
+  close(conn)
+  error <- catch(close(conn))
+  worker <- list(package = "bread", conn = conn, script = script, data = data)
+
+  expect_true(renv_graph_install_worker_cleanup(worker))
+  expect_false(any(file.exists(c(script, data))))
+  output <- readLines(log)
+  expect_match(output, "graph: failed to close worker connection for 'bread':", fixed = TRUE)
+  expect_match(output, conditionMessage(error), fixed = TRUE)
+
+  # A worker that never connected has no connection to close.
+  worker$conn <- NULL
+  expect_true(renv_graph_install_worker_cleanup(worker))
+  expect_identical(readLines(log), output)
+
+})
+
 test_that("worker cleanup retries locked files on Windows", {
 
   skip_if_not(renv_platform_windows())
