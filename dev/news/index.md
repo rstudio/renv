@@ -2,6 +2,17 @@
 
 ## renv (development version)
 
+- Binary packages are now unpacked and installed in parallel on R \>=
+  4.0, including Windows ZIP binaries. Binary installs are handled by a
+  pool of up to `install.jobs` persistent worker processes, separate
+  from source builds, and respect dependency ordering. Those workers
+  also load-test the packages they install, so that check no longer runs
+  one package at a time. Archives are extracted beneath the library they
+  are installed into (the staging library, by default); on Windows,
+  where R cannot write paths longer than `MAX_PATH`, a project at a very
+  long path may need to be moved or have `RENV_PATHS_LIBRARY_STAGING`
+  set to a shorter location.
+
 - [`renv::restore()`](https://rstudio.github.io/renv/dev/reference/restore.md)
   and
   [`renv::install()`](https://rstudio.github.io/renv/dev/reference/install.md)

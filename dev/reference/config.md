@@ -261,9 +261,10 @@ The number of packages to install concurrently during
 [`install()`](https://rstudio.github.io/renv/dev/reference/install.md)
 and
 [`restore()`](https://rstudio.github.io/renv/dev/reference/restore.md).
-Packages within the same dependency wave are installed in parallel using
-this many concurrent R CMD INSTALL processes. Set to `1L` for sequential
-installation. Defaults to `4L`.
+On R \>= 4.0, source builds and binary installs are limited separately,
+so up to this many of each can run at once as their dependencies become
+ready. Setting this to `1L` builds one package at a time, but binary
+packages are still installed while a build is running. Defaults to `4L`.
 
 ### renv.config.install.verbose
 
@@ -476,6 +477,10 @@ You can also provide a custom copy method if required; e.g.
     options(renv.config.copy.method = function(src, dst) {
       # copy a file from 'src' to 'dst'
     })
+
+On R \>= 4.0, binary packages are installed by separate R processes,
+which may also call a custom copy method. Such functions should
+therefore not rely on objects defined in the global environment.
 
 Note that renv will always first attempt to copy a directory first to a
 temporary path within the target folder, and then rename that temporary

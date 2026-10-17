@@ -219,7 +219,7 @@ Defaults to <code>TRUE</code>.</p>
 </div>
 <div class="section">
 <h3 id="renv-config-install-jobs">renv.config.install.jobs<a class="anchor" aria-label="anchor" href="#renv-config-install-jobs"></a></h3>
-<p>The number of packages to install concurrently during <code><a href="install.html">install()</a></code> and <code><a href="restore.html">restore()</a></code>. Packages within the same dependency wave are installed in parallel using this many concurrent R CMD INSTALL processes. Set to <code>1L</code> for sequential installation.
+<p>The number of packages to install concurrently during <code><a href="install.html">install()</a></code> and <code><a href="restore.html">restore()</a></code>. On R &gt;= 4.0, source builds and binary installs are limited separately, so up to this many of each can run at once as their dependencies become ready. Setting this to <code>1L</code> builds one package at a time, but binary packages are still installed while a build is running.
 Defaults to <code>4L</code>.</p>
 </div>
 <div class="section">
@@ -352,6 +352,9 @@ appropriate.</p>
 <p></p><div class="sourceCode"><pre><code><span id="cb1-1"><a href="#cb1-1" tabindex="-1"></a><span class="fu">options</span>(<span class="at">renv.config.copy.method =</span> <span class="cf">function</span>(src, dst) {</span>
 <span id="cb1-2"><a href="#cb1-2" tabindex="-1"></a>  <span class="co"># copy a file from 'src' to 'dst'</span></span>
 <span id="cb1-3"><a href="#cb1-3" tabindex="-1"></a>})</span></code></pre><p></p></div>
+<p>On <span style="R">R</span> &gt;= 4.0, binary packages are installed by separate <span style="R">R</span> processes, which
+may also call a custom copy method. Such functions should therefore not
+rely on objects defined in the global environment.</p>
 <p>Note that renv will always first attempt to copy a directory first to a
 temporary path within the target folder, and then rename that temporary path
 to the final target destination. This helps avoid issues where a failed
