@@ -1848,7 +1848,13 @@ renv_graph_install <- function(descriptions) {
       # remove a package that failed finalization, so that the callback
       # restores the previous installation rather than discarding it
       tryCatch(
-        renv_graph_install_finalize(entry$record, entry$prepared, installdir, project, linkable),
+        renv_graph_install_finalize(
+          entry$record,
+          entry$prepared,
+          installdir,
+          project,
+          linkable
+        ),
         error = function(err) {
           unlink(installpath, recursive = TRUE)
           stop(err)
@@ -1878,6 +1884,13 @@ renv_graph_install <- function(descriptions) {
     defer(close(server$socket))
     active <- list()
 
+    # worker scripts and data live in one directory, removed once installation
+    # completes: on Windows, an exiting worker still holds its script open for
+    # a moment after sending its result, so deleting it right away would wait
+    workdir <- tempfile("renv-install-workers-")
+    ensure_directory(workdir)
+    defer(renv_graph_install_workdir_remove(workdir))
+
     # the first finalization error (e.g. a binary failing its load test),
     # re-signaled once outstanding workers have finished
     aborted <- NULL
@@ -1902,6 +1915,30 @@ renv_graph_install <- function(descriptions) {
         if (indegree[[dependent]] == 0L)
           ready <<- c(ready, dependent)
       }
+    }
+
+    # record the result for 'pkg', then unblock its dependents. if finalization
+    # fails, stop launching packages, but let outstanding workers finish so
+    # they don't modify the library after we've returned, and so their
+    # previous installations are restored
+    complete <- function(pkg, result) {
+
+      if (showstatus) {
+        progress$clear()
+        progress$tick()
+      }
+
+      status <- catch(handle(pkg, result))
+      if (inherits(status, "error")) {
+        aborted <<- aborted %||% status
+        ready <<- character()
+      }
+
+      # decrement dependents' indegree and enqueue newly ready
+      # (on failure: dependents keep indegree > 0, never enqueued)
+      if (result$success && is.null(aborted))
+        release(pkg)
+
     }
 
     repeat {
@@ -1947,9 +1984,20 @@ renv_graph_install <- function(descriptions) {
         callbacks[[pkg]] <- renv_graph_install_backup(installdir, pkg)
 
         ready <- ready[-1L]
-        active[[pkg]] <- renv_graph_install_launch_socket(
-          prepared, server$port
-        )
+
+        # with a single job, nothing else runs concurrently, so install
+        # binaries directly rather than paying for a worker process
+        if (identical(entry$type, "binary") && jobs == 1L) {
+          t0 <- Sys.time()
+          status <- catch(renv_graph_install_binary(prepared))
+          elapsed <- difftime(Sys.time(), t0, units = "auto")
+          success <- !inherits(status, "error")
+          output <- if (success) character() else conditionMessage(status)
+          complete(pkg, list(success = success, output = output, elapsed = elapsed))
+          next
+        }
+
+        active[[pkg]] <- renv_graph_install_launch_socket(prepared, server$port, workdir)
 
       }
 
@@ -2057,29 +2105,11 @@ renv_graph_install <- function(descriptions) {
           units = "auto"
         )
 
-        if (showstatus) {
-          progress$clear()
-          progress$tick()
-        }
-
         result <- renv_graph_install_parse_result(data, elapsed)
 
         renv_graph_install_worker_cleanup(active[[pkg]])
         active[[pkg]] <- NULL
-
-        # if finalization fails, stop launching packages, but let outstanding
-        # workers finish so they don't modify the library after we've
-        # returned, and so their previous installations are restored
-        status <- catch(handle(pkg, result))
-        if (inherits(status, "error")) {
-          aborted <- aborted %||% status
-          ready <- character()
-        }
-
-        # decrement dependents' indegree and enqueue newly ready
-        # (on failure: dependents keep indegree > 0, never enqueued)
-        if (result$success && is.null(aborted))
-          release(pkg)
+        complete(pkg, result)
 
         if (showstatus && length(active) > 0L)
           progress$update(names(active))
@@ -2418,15 +2448,14 @@ renv_graph_install_unpack_and_prepare <- function(record, type, staging, library
   path <- record$Path
   isarchive <- identical(renv_file_info(path)$isdir, FALSE)
 
-  # socket workers handle binary preparation as well as installation, so
-  # ZIP extraction and RemoteSubdir handling don't block the ready queue
-  if (identical(type, "binary") && getRversion() >= "4.0")
+  # binary archives are extracted, and any RemoteSubdir resolved, as part of
+  # installation itself; see renv_graph_install_binary_worker()
+  if (identical(type, "binary"))
     return(renv_graph_install_prepare(record, path, library, type, isarchive))
 
-  # archives can often be used directly: R CMD INSTALL handles source
-  # archives natively, and binary archives can be extracted straight
-  # into the library.  We only need to unpack up front when the
-  # package is nested (RemoteSubdir) or needs pre-building.
+  # R CMD INSTALL handles source archives natively, so we only need to
+  # unpack up front when the package is nested (RemoteSubdir), is a zip
+  # archive, or needs pre-building
   if (isarchive && !renv_graph_install_needs_unpack(record, type)) {
     return(renv_graph_install_prepare(record, path, library, type, isarchive = TRUE))
   }
@@ -2535,7 +2564,7 @@ renv_graph_install_collect <- function(worker) {
 
 }
 
-renv_graph_install_launch_socket <- function(prepared, port) {
+renv_graph_install_launch_socket <- function(prepared, port, workdir = tempdir()) {
 
   data <- NULL
   if (identical(prepared$type, "binary")) {
@@ -2543,7 +2572,7 @@ renv_graph_install_launch_socket <- function(prepared, port) {
     # serialize the copy method, which may be a function with a closure;
     # the worker itself uses only base R and utils, including when updating
     # renv or running a development / embedded copy of renv
-    data <- tempfile("renv-install-", fileext = ".rds")
+    data <- tempfile("renv-install-", tmpdir = workdir, fileext = ".rds")
     saveRDS(list(
       prepared = prepared,
       copy = config$copy.method(),
@@ -2613,7 +2642,7 @@ renv_graph_install_launch_socket <- function(prepared, port) {
 
   })
 
-  script <- tempfile("renv-install-", fileext = ".R")
+  script <- tempfile("renv-install-", tmpdir = workdir, fileext = ".R")
   writeLines(deparse(code), con = script)
 
   system2(
@@ -2624,7 +2653,13 @@ renv_graph_install_launch_socket <- function(prepared, port) {
     wait    = FALSE
   )
 
-  list(package = package, start = Sys.time(), conn = NULL, script = script, data = data)
+  list(
+    package = package,
+    start   = Sys.time(),
+    conn    = NULL,
+    script  = script,
+    data    = data
+  )
 
 }
 
@@ -2639,17 +2674,25 @@ renv_graph_install_worker_cleanup <- function(worker) {
       }
     )
 
-  paths <- c(worker$script, worker$data)
-  success <- unlink(paths) == 0L
-  if (success || !renv_platform_windows())
-    return(invisible(success))
+  # best effort: on Windows, an exiting worker may still hold its script
+  # open, in which case it's removed along with the worker directory
+  invisible(unlink(c(worker$script, worker$data)) == 0L)
+
+}
+
+renv_graph_install_workdir_remove <- function(workdir) {
+
+  if (unlink(workdir, recursive = TRUE) == 0L)
+    return(invisible(TRUE))
+  else if (!renv_platform_windows())
+    return(invisible(FALSE))
 
   # On Windows, R can still have its input script open after sending the
-  # result. Retry deletion briefly while the worker finishes exiting, but
-  # don't wait indefinitely for a failed or unresponsive worker.
+  # result. Retry briefly while workers finish exiting, but don't wait
+  # indefinitely for a failed or unresponsive worker.
   for (attempt in 1:100) {
     Sys.sleep(0.05)
-    if (unlink(paths) == 0L)
+    if (unlink(workdir, recursive = TRUE) == 0L)
       return(invisible(TRUE))
   }
 
@@ -2698,127 +2741,156 @@ renv_graph_install_backup <- function(installdir, pkg) {
 }
 
 renv_graph_install_binary <- function(prepared) {
-
-  package <- prepared$package
-  library <- prepared$library
-  installpath <- file.path(library, package)
-
-  if (identical(prepared$method, "copy"))
-    renv_file_copy(prepared$path, installpath, overwrite = TRUE)
-  else
-    renv_archive_decompress(prepared$path, exdir = library)
-
-  invisible(installpath)
-
+  copy <- config$copy.method()
+  tar <- renv_tar_exe(default = "internal")
+  renv_graph_install_binary_worker(prepared, copy, tar)
 }
 
-# This function is embedded in the worker script: keep it self-contained,
-# with no references to the renv namespace or parent process state.
+# This function is embedded in worker scripts: keep it self-contained, with
+# no references to the renv namespace or parent process state. It mirrors
+# renv_package_unpack() and renv_file_copy_dir() using only base R.
 renv_graph_install_binary_worker <- function(prepared, copy, tar) {
 
   path <- prepared$path
-  target <- file.path(prepared$library, prepared$package)
+  package <- prepared$package
+  subdir <- prepared$subdir
+  target <- file.path(prepared$library, package)
+
+  # work within the library so that the final rename stays on one
+  # filesystem; the temporary directory may be a small tmpfs
+  scratch <- tempfile(".renv-install-", tmpdir = prepared$library)
+  dir.create(scratch)
+  on.exit(unlink(scratch, recursive = TRUE), add = TRUE)
 
   if (identical(prepared$method, "extract")) {
 
-    # extract in the worker's temporary directory, keeping Windows paths
-    # short; moving the package into the library avoids a second copy when
-    # the temporary directory and library are on the same filesystem
-    unpackdir <- tempfile("renv-binary-")
+    unpackdir <- file.path(scratch, "unpack")
     dir.create(unpackdir)
-    on.exit(unlink(unpackdir, recursive = TRUE), add = TRUE)
 
-    if (identical(prepared$archive, "zip")) {
-      withCallingHandlers(
-        utils::unzip(path, exdir = unpackdir),
-        warning = function(w) stop(conditionMessage(w), call. = FALSE)
-      )
+    status <- if (identical(prepared$archive, "zip")) {
+      # unzip() warns rather than errors when extraction fails
+      status <- tryCatch(utils::unzip(path, exdir = unpackdir), condition = identity)
+      if (inherits(status, "condition")) conditionMessage(status)
     } else if (identical(prepared$archive, "tar")) {
+      # the internal tar warns about global PAX headers
       status <- suppressWarnings(utils::untar(path, exdir = unpackdir, tar = tar))
-      if (!identical(status, 0L))
-        stop("failed to decompress '", path, "'", call. = FALSE)
+      if (!identical(status, 0L)) paste("exit status", status)
     } else {
-      stop("unsupported binary archive '", path, "'", call. = FALSE)
+      "unsupported archive type"
     }
 
-    # locate the package, including archives with a RemoteSubdir or a
-    # top-level directory whose name differs from the package name
-    subdir <- prepared$subdir
-    expected <- file.path(prepared$package, "DESCRIPTION")
-    if (!nzchar(subdir) && file.exists(file.path(unpackdir, expected))) {
-      matches <- expected
+    if (is.character(status)) {
+      fmt <- "failed to decompress '%s' [%s]"
+      stop(sprintf(fmt, basename(path), status), call. = FALSE)
+    }
+
+    # locate the package's DESCRIPTION file: at the expected location, within
+    # the RemoteSubdir, or as the shallowest one; otherwise accept an archive
+    # re-packed so that the package is at the top level
+    files <- list.files(
+      unpackdir,
+      pattern = "^DESCRIPTION$",
+      recursive = TRUE,
+      all.files = TRUE
+    )
+
+    expected <- file.path(package, "DESCRIPTION")
+    matches <- if (!nzchar(subdir) && expected %in% files) {
+      expected
+    } else if (nzchar(subdir)) {
+      pattern <- sprintf("(?:^|/)\\Q%s\\E/DESCRIPTION$", subdir)
+      grep(pattern, files, perl = TRUE, value = TRUE)
     } else {
-      descriptions <- list.files(unpackdir, pattern = "^DESCRIPTION$", recursive = TRUE, all.files = TRUE)
-      if (nzchar(subdir)) {
-        pattern <- sprintf("(?:^|/)\\Q%s\\E/DESCRIPTION$", subdir)
-        matches <- grep(pattern, descriptions, perl = TRUE, value = TRUE)
-      } else {
-        lengths <- nchar(descriptions)
-        matches <- descriptions[lengths == min(c(lengths, Inf))]
-      }
-      if (length(matches) != 1L)
-        matches <- grep("^[^/]+/DESCRIPTION$", descriptions, value = TRUE)
+      files[nchar(files) == min(c(nchar(files), Inf))]
     }
 
     if (length(matches) != 1L)
-      stop("couldn't find DESCRIPTION file for package '", prepared$package, "'", call. = FALSE)
+      matches <- grep("^[^/]+/DESCRIPTION$", files, value = TRUE)
 
-    path <- file.path(unpackdir, dirname(matches))
-    if (isTRUE(suppressWarnings(file.rename(path, target))))
-      return(invisible(target))
+    if (length(matches) != 1L) {
+      fmt <- "couldn't find DESCRIPTION file for package '%s' in archive '%s'"
+      stop(sprintf(fmt, package, path), call. = FALSE)
+    }
 
-  } else if (nzchar(prepared$subdir)) {
-    path <- file.path(path, prepared$subdir)
-  }
+    source <- file.path(unpackdir, dirname(matches))
 
-  # use the configured copy method for directories and cross-device moves
-  staging <- tempfile(".renv-copy-", tmpdir = prepared$library)
-  dir.create(staging)
-  on.exit(unlink(staging, recursive = TRUE), add = TRUE)
-  destination <- file.path(staging, prepared$package)
+  } else {
 
-  withCallingHandlers({
+    # copy the package directory into the scratch directory with the
+    # configured copy method, treating warnings as failures
+    if (nzchar(subdir))
+      path <- file.path(path, subdir)
 
-    if (is.function(copy)) {
-      copy(path, destination)
+    source <- file.path(scratch, package)
+    method <- if (is.function(copy)) "custom" else tolower(copy)
+    if (!method %in% c("custom", "r", "cp", "rsync", "robocopy"))
+      method <- if (.Platform$OS.type == "windows") "robocopy" else "cp"
+
+    if (identical(method, "custom")) {
+
+      status <- tryCatch(copy(path, source), warning = identity, error = identity)
+      if (inherits(status, "condition"))
+        stop(conditionMessage(status), call. = FALSE)
+
+    } else if (identical(method, "r")) {
+
+      # R copies the directory to a sub-directory of the requested folder
+      status <- tryCatch(
+        file.copy(path, scratch, recursive = TRUE, copy.mode = TRUE, copy.date = TRUE),
+        warning = identity
+      )
+
+      if (inherits(status, "condition"))
+        stop(conditionMessage(status), call. = FALSE)
+      else if (!all(status))
+        stop(sprintf("failed to copy '%s' to '%s'", path, scratch), call. = FALSE)
+
+      source <- file.path(scratch, basename(path))
+
     } else {
 
-      method <- tolower(copy)
-      if (!method %in% c("r", "cp", "rsync", "robocopy"))
-        method <- if (.Platform$OS.type == "windows") "robocopy" else "cp"
+      from <- path.expand(path)
+      to <- path.expand(source)
+      args <- switch(
+        method,
+        cp = c("-PR", shQuote(sub("/*$", "/", from)), shQuote(to)),
+        rsync = c(
+          if (Sys.info()[["sysname"]] == "Darwin") "-aAX" else "-a",
+          shQuote(sub("/*$", "/", from)),
+          shQuote(to)
+        ),
+        robocopy = c("/E", "/Z", "/R:5", "/W:10", shQuote(from), shQuote(to))
+      )
 
-      if (identical(method, "r")) {
-
-        copied <- file.copy(path, staging, recursive = TRUE, copy.mode = TRUE, copy.date = TRUE)
-        if (!all(copied))
-          stop("failed to copy '", path, "' to '", target, "'", call. = FALSE)
-        destination <- file.path(staging, basename(path))
-
-      } else {
-
-        quote <- function(path) shQuote(path.expand(path))
-
-        args <- switch(method,
-          cp = c("-PR", quote(sub("/*$", "/", path)), quote(destination)),
-          rsync = c(if (Sys.info()[["sysname"]] == "Darwin") "-aAX" else "-a",
-                    quote(sub("/*$", "/", path)), quote(destination)),
-          robocopy = c("/E", "/Z", "/R:5", "/W:10", quote(path), quote(destination))
-        )
-
-        output <- suppressWarnings(system2(method, args, stdout = TRUE, stderr = TRUE))
-        status <- attr(output, "status")
-        success <- if (identical(method, "robocopy")) 0:7 else 0L
-        if (!is.null(status) && !status %in% success)
-          stop(paste(c("failed to copy package directory", output), collapse = "\n"), call. = FALSE)
-
+      output <- suppressWarnings(system2(method, args, stdout = TRUE, stderr = TRUE))
+      status <- attr(output, "status")
+      success <- if (identical(method, "robocopy")) 0:7 else 0L
+      if (!is.null(status) && !status %in% success) {
+        header <- sprintf("error copying directory [error code %i]", status)
+        stop(paste(c(header, output), collapse = "\n"), call. = FALSE)
       }
 
     }
 
-  }, warning = function(w) stop(conditionMessage(w), call. = FALSE))
+  }
 
-  if (!dir.exists(destination) || !file.rename(destination, target))
-    stop("failed to copy package directory to '", target, "'", call. = FALSE)
+  # move the package into place; file.rename() can fail transiently on
+  # Windows while antivirus software scans the new files (#2156)
+  status <- tryCatch(file.rename(source, target), condition = identity)
+  for (attempt in 1:60) {
+    if (identical(status, TRUE))
+      break
+    Sys.sleep(1)
+    status <- tryCatch(file.rename(source, target), condition = identity)
+  }
+
+  if (!identical(status, TRUE)) {
+    reason <- if (inherits(status, "condition"))
+      conditionMessage(status)
+    else
+      "unknown error"
+    stop(sprintf("failed to move package to '%s' [%s]", target, reason), call. = FALSE)
+  }
 
   invisible(target)
 
@@ -2831,15 +2903,8 @@ renv_graph_install_finalize <- function(record, prepared, library, project, link
 
   # test loading; R CMD INSTALL already tests source packages,
   # so we only need this for binaries (copy / extract)
-  if (identical(prepared$type, "binary")) {
-    tryCatch(
-      renv_install_test(package),
-      error = function(err) {
-        unlink(installpath, recursive = TRUE)
-        stop(err)
-      }
-    )
-  }
+  if (identical(prepared$type, "binary"))
+    renv_install_test(package)
 
   # augment package metadata
   renv_package_augment(installpath, record)

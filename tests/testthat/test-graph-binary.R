@@ -90,6 +90,8 @@ test_that("binary and source installs share the job limit", {
       info
     })
 
+    # Count packages between launch (in a worker, or in-process for binaries
+    # with a single job) and finalization.
     active <- maximum <- 0L
     types <- character()
     launch <- renv_graph_install_launch_socket
@@ -98,6 +100,12 @@ test_that("binary and source installs share the job limit", {
       maximum <<- max(maximum, active)
       types <<- c(types, prepared$type)
       launch(prepared, ...)
+    })
+    binary <- renv_graph_install_binary
+    renv_scope_binding(asNamespace("renv"), "renv_graph_install_binary", function(prepared) {
+      active <<- active + 1L
+      maximum <<- max(maximum, active)
+      binary(prepared)
     })
     finalize <- renv_graph_install_finalize
     renv_scope_binding(asNamespace("renv"), "renv_graph_install_finalize", function(...) {
@@ -109,9 +117,14 @@ test_that("binary and source installs share the job limit", {
     descriptions <- renv_graph_init(packages)
     records <- renv_graph_install(descriptions)
     expect_setequal(names(records), packages)
-    expect_setequal(types, c("binary", "source"))
     expect_equal(maximum, max(jobs, 1L))
     expect_equal(active, 0L)
+
+    # with a single job, binaries are installed in-process
+    expected <- if (jobs > 1L) c("binary", "source") else "source"
+    expect_setequal(types, expected)
+    for (package in packages)
+      expect_true(renv_package_installed(package), info = package)
   })
 
 })
@@ -141,13 +154,13 @@ test_that("failed binary extraction blocks dependents and rolls back staged inst
   launched <- character()
   workers <- list()
   launch <- renv_graph_install_launch_socket
-  renv_scope_binding(asNamespace("renv"), "renv_graph_install_launch_socket", function(prepared, port) {
+  renv_scope_binding(asNamespace("renv"), "renv_graph_install_launch_socket", function(prepared, ...) {
     launched <<- c(launched, prepared$package)
     # Corrupt the downloaded archive after classification, so the failure
     # occurs during extraction in the worker.
     if (identical(prepared$package, "bread"))
       writeLines("invalid binary archive", prepared$path)
-    worker <- launch(prepared, port)
+    worker <- launch(prepared, ...)
     workers[[prepared$package]] <<- worker
     worker
   })
@@ -309,36 +322,32 @@ test_that("worker cleanup logs close failures and still removes files", {
 
 })
 
-test_that("worker cleanup retries locked files on Windows", {
+test_that("worker directory removal retries locked files on Windows", {
 
   skip_if_not(renv_platform_windows())
 
-  script <- renv_scope_tempfile(fileext = ".R")
-  data <- renv_scope_tempfile(fileext = ".rds")
+  workdir <- renv_scope_tempfile("renv-install-workers-")
+  ensure_directory(workdir)
+  script <- file.path(workdir, "renv-install-1.R")
   writeLines("invisible()", script)
-  saveRDS(list(), data)
 
   # Keep the script open just as R does when launched with -f. Release the
   # lock during the retry wait, avoiding a timing-dependent subprocess.
   lock <- file(script, open = "r")
   defer(try(close(lock), silent = TRUE))
-  conn <- rawConnection(raw(), open = "r")
-  defer(try(close(conn), silent = TRUE))
-  worker <- list(conn = conn, script = script, data = data)
 
-  cleanup <- renv_graph_install_worker_cleanup
-  scope <- new.env(parent = environment(cleanup))
-  environment(cleanup) <- scope
+  remove <- renv_graph_install_workdir_remove
+  scope <- new.env(parent = environment(remove))
+  environment(remove) <- scope
   retried <- FALSE
   scope$Sys.sleep <- function(...) {
     retried <<- TRUE
     close(lock)
   }
 
-  cleanup(worker)
+  expect_true(remove(workdir))
   expect_true(retried)
-  expect_false(any(file.exists(c(script, data))))
-  expect_false(as.integer(conn) %in% getAllConnections())
+  expect_false(file.exists(workdir))
 
 })
 
