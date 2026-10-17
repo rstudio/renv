@@ -65,6 +65,10 @@
 #' })
 #' ```
 #'
+#' On \R >= 4.0, binary packages are installed by separate \R processes, which
+#' may also call a custom copy method. Such functions should therefore not
+#' rely on objects defined in the global environment.
+#'
 #' Note that renv will always first attempt to copy a directory first to a
 #' temporary path within the target folder, and then rename that temporary path
 #' to the final target destination. This helps avoid issues where a failed

@@ -165,7 +165,7 @@ test_that("failed binary extraction blocks dependents and rolls back staged inst
 
 })
 
-test_that("finalization errors clean up all outstanding workers", {
+test_that("finalization errors wait for outstanding workers and restore backups", {
 
   skip_on_cran()
   skip_if(getRversion() < "4.0")
@@ -175,8 +175,38 @@ test_that("finalization errors clean up all outstanding workers", {
   renv_scope_options(
     pkgType = .Platform$pkgType,
     renv.config.cache.enabled = FALSE,
-    renv.config.install.jobs = 2L
+    renv.config.install.jobs = 2L,
+    renv.config.install.staged = FALSE
   )
+
+  # Without staging, existing installations are moved aside in the library
+  # while their replacements are installed.
+  library <- renv_libpaths_active()
+  for (package in c("bread", "egg")) {
+    old <- file.path(library, package)
+    ensure_directory(old)
+    write.dcf(data.frame(Package = package, Version = "0.0.1"), file.path(old, "DESCRIPTION"))
+    writeLines("old installation", file.path(old, "sentinel"))
+  }
+
+  # Hold egg's worker until bread's finalization has failed, so that egg is
+  # still in flight when the error occurs.
+  marker <- renv_scope_tempfile("renv-finalize-")
+  worker <- renv_graph_install_binary_worker
+  replacement <- function(prepared, copy, tar) {}
+  body(replacement) <- expr({
+    if (identical(prepared$package, "egg")) {
+      deadline <- Sys.time() + 30
+      while (!file.exists(!!marker)) {
+        if (Sys.time() > deadline)
+          stop("bread was not finalized")
+        Sys.sleep(0.05)
+      }
+    }
+    worker <- !!worker
+    worker(prepared, copy, tar)
+  })
+  renv_scope_binding(asNamespace("renv"), "renv_graph_install_binary_worker", replacement)
 
   workers <- list()
   launch <- renv_graph_install_launch_socket
@@ -185,17 +215,35 @@ test_that("finalization errors clean up all outstanding workers", {
     workers[[worker$package]] <<- worker
     worker
   })
-  renv_scope_binding(asNamespace("renv"), "renv_graph_install_finalize", function(...) {
-    stop("finalization failed")
+
+  # Fail bread as a load test failure would, removing the new installation.
+  finalized <- character()
+  finalize <- renv_graph_install_finalize
+  renv_scope_binding(asNamespace("renv"), "renv_graph_install_finalize", function(record, prepared, library, ...) {
+    finalized <<- c(finalized, record$Package)
+    if (identical(record$Package, "bread")) {
+      unlink(file.path(library, "bread"), recursive = TRUE)
+      writeLines("", marker)
+      stop("finalization failed")
+    }
+    finalize(record, prepared, library, ...)
   })
 
   descriptions <- renv_graph_init(c("bread", "egg"))
   connections <- getAllConnections()
   expect_error(renv_graph_install(descriptions), "finalization failed")
   expect_setequal(getAllConnections(), connections)
+  expect_equal(finalized, c("bread", "egg"))
   expect_setequal(names(workers), c("bread", "egg"))
   for (worker in workers)
     expect_false(any(file.exists(c(worker$script, worker$data))))
+
+  # bread's previous installation is restored; egg's replacement completes
+  expect_equal(readLines(file.path(library, "bread", "sentinel")), "old installation")
+  expect_false(file.exists(file.path(library, "egg", "sentinel")))
+  expect_true(renv_package_installed("egg"))
+  backups <- list.files(library, pattern = "^[.]renv-backup-", all.files = TRUE)
+  expect_length(backups, 0L)
 
 })
 

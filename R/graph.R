@@ -1833,6 +1833,9 @@ renv_graph_install <- function(descriptions) {
   callbacks <- list()
 
   handle <- function(pkg, result) {
+    # restore any previous installation even if finalization fails
+    on.exit(callbacks[[pkg]](), add = TRUE)
+
     entry <- entries[[pkg]]
     installpath <- file.path(installdir, pkg)
     isbinary <- identical(entry$type, "binary")
@@ -1849,8 +1852,6 @@ renv_graph_install <- function(descriptions) {
       errors$push(list(package = pkg, message = "install failed", output = result$output))
       failed$push(pkg)
     }
-
-    callbacks[[pkg]]()
   }
 
   if (getRversion() >= "4.0") {
@@ -1866,8 +1867,12 @@ renv_graph_install <- function(descriptions) {
     defer(close(server$socket))
     active <- list()
 
-    # finalization can throw (e.g. a binary fails its load test); clean up
-    # every outstanding worker even when the event loop exits early
+    # the first finalization error (e.g. a binary failing its load test),
+    # re-signaled once outstanding workers have finished
+    aborted <- NULL
+
+    # clean up every outstanding worker if the event loop exits early
+    # (e.g. on interrupt)
     defer({
       for (worker in active)
         renv_graph_install_worker_cleanup(worker)
@@ -2050,11 +2055,19 @@ renv_graph_install <- function(descriptions) {
 
         renv_graph_install_worker_cleanup(active[[pkg]])
         active[[pkg]] <- NULL
-        handle(pkg, result)
+
+        # if finalization fails, stop launching packages, but let outstanding
+        # workers finish so they don't modify the library after we've
+        # returned, and so their previous installations are restored
+        status <- catch(handle(pkg, result))
+        if (inherits(status, "error")) {
+          aborted <- aborted %||% status
+          ready <- character()
+        }
 
         # decrement dependents' indegree and enqueue newly ready
         # (on failure: dependents keep indegree > 0, never enqueued)
-        if (result$success)
+        if (result$success && is.null(aborted))
           release(pkg)
 
         if (showstatus && length(active) > 0L)
@@ -2063,6 +2076,9 @@ renv_graph_install <- function(descriptions) {
       }
 
     }
+
+    if (!is.null(aborted))
+      stop(aborted)
 
     # mark packages stuck due to failed dependencies
     stuck <- names(indegree)[indegree > 0L]
