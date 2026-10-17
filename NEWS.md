@@ -1,8 +1,9 @@
 # renv (development version)
 
 * Binary packages are now unpacked and installed in parallel on R >= 4.0,
-  including Windows ZIP binaries. Binary installs and source builds share the
-  `install.jobs` worker limit and respect dependency ordering.
+  including Windows ZIP binaries. Binary installs have their own pool of
+  `install.jobs` workers, separate from source builds, and respect dependency
+  ordering.
 
 * `renv::restore()` and `renv::install()` no longer install optional packages
   just because they appear in a dependency's `Remotes` field. Remotes still

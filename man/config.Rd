@@ -98,7 +98,7 @@ Defaults to \code{TRUE}.}
 Defaults to \code{TRUE}.}
 \subsection{renv.config.install.transactional}{Perform a transactional install of packages during install and restore? When enabled, renv will first install packages into a temporary library, and later copy or move those packages back into the project library only if all packages were successfully downloaded and installed. This can be useful if you'd like to avoid mutating your project library if installation of one or more packages fails.
 Defaults to \code{TRUE}.}
-\subsection{renv.config.install.jobs}{The number of packages to install concurrently during \code{install()} and \code{restore()}. On R >= 4.0, binary extraction and source builds share this worker limit, with packages installed as their dependencies become ready. Set to \code{1L} for sequential installation.
+\subsection{renv.config.install.jobs}{The number of packages to install concurrently during \code{install()} and \code{restore()}. On R >= 4.0, source builds and binary installs are limited separately, so up to this many of each can run at once as their dependencies become ready. Set to \code{1L} to build one package at a time.
 Defaults to \code{4L}.}
 \subsection{renv.config.install.verbose}{Be verbose when installing R packages from sources? When \code{TRUE}, renv will stream any output generated during package build + installation to the console.
 Defaults to \code{FALSE}.}

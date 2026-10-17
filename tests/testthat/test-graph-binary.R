@@ -65,7 +65,7 @@ test_that("binary installs overlap and respect the worker limit", {
 
 })
 
-test_that("binary and source installs share the job limit", {
+test_that("binary and source installs each respect the job limit", {
 
   skip_on_cran()
   skip_if(getRversion() < "4.0")
@@ -90,35 +90,36 @@ test_that("binary and source installs share the job limit", {
       info
     })
 
-    # Count packages between launch (in a worker, or in-process for binaries
-    # with a single job) and finalization.
-    active <- maximum <- 0L
+    # Count packages of each type between launch (in a worker, or in-process
+    # for binaries with a single job) and finalization.
+    active <- maximum <- c(binary = 0L, source = 0L)
     types <- character()
     launch <- renv_graph_install_launch_socket
     renv_scope_binding(asNamespace("renv"), "renv_graph_install_launch_socket", function(prepared, ...) {
-      active <<- active + 1L
-      maximum <<- max(maximum, active)
+      active[[prepared$type]] <<- active[[prepared$type]] + 1L
+      maximum <<- pmax(maximum, active)
       types <<- c(types, prepared$type)
       launch(prepared, ...)
     })
     binary <- renv_graph_install_binary
     renv_scope_binding(asNamespace("renv"), "renv_graph_install_binary", function(prepared) {
-      active <<- active + 1L
-      maximum <<- max(maximum, active)
+      active[["binary"]] <<- active[["binary"]] + 1L
+      maximum <<- pmax(maximum, active)
       binary(prepared)
     })
     finalize <- renv_graph_install_finalize
-    renv_scope_binding(asNamespace("renv"), "renv_graph_install_finalize", function(...) {
-      active <<- active - 1L
-      finalize(...)
+    renv_scope_binding(asNamespace("renv"), "renv_graph_install_finalize", function(record, prepared, ...) {
+      active[[prepared$type]] <<- active[[prepared$type]] - 1L
+      finalize(record, prepared, ...)
     })
 
+    # Two binaries and one source package: each pool fills to its limit.
     packages <- c("bread", "egg", "oatmeal")
     descriptions <- renv_graph_init(packages)
     records <- renv_graph_install(descriptions)
     expect_setequal(names(records), packages)
-    expect_equal(maximum, max(jobs, 1L))
-    expect_equal(active, 0L)
+    expect_equal(maximum, c(binary = max(jobs, 1L), source = 1L))
+    expect_equal(active, c(binary = 0L, source = 0L))
 
     # with a single job, binaries are installed in-process
     expected <- if (jobs > 1L) c("binary", "source") else "source"
@@ -126,6 +127,54 @@ test_that("binary and source installs share the job limit", {
     for (package in packages)
       expect_true(renv_package_installed(package), info = package)
   })
+
+})
+
+test_that("binary installs are not held up behind source builds", {
+
+  skip_on_cran()
+  skip_if(getRversion() < "4.0")
+  skip_if(identical(.Platform$pkgType, "source"))
+  renv_tests_scope(isolated = TRUE)
+  source <- renv_graph_urls(renv_graph_init("egg"))$egg
+  renv_scope_binding(the, "install_pkg_type", "binary")
+  renv_scope_options(
+    pkgType = .Platform$pkgType,
+    renv.config.cache.enabled = FALSE,
+    renv.config.install.jobs = 1L
+  )
+
+  urls <- renv_graph_urls
+  renv_scope_binding(asNamespace("renv"), "renv_graph_urls", function(descriptions) {
+    info <- urls(descriptions)
+    info$egg <- source
+    info
+  })
+
+  # Record the order of events. With a single job, oatmeal is still installed
+  # while egg builds, as the two use separate pools.
+  events <- character()
+  launch <- renv_graph_install_launch_socket
+  renv_scope_binding(asNamespace("renv"), "renv_graph_install_launch_socket", function(prepared, ...) {
+    events <<- c(events, paste("launch", prepared$package))
+    launch(prepared, ...)
+  })
+  binary <- renv_graph_install_binary
+  renv_scope_binding(asNamespace("renv"), "renv_graph_install_binary", function(prepared) {
+    events <<- c(events, paste("binary", prepared$package))
+    binary(prepared)
+  })
+  finalize <- renv_graph_install_finalize
+  renv_scope_binding(asNamespace("renv"), "renv_graph_install_finalize", function(record, ...) {
+    events <<- c(events, paste("finalize", record$Package))
+    finalize(record, ...)
+  })
+
+  packages <- c("bread", "egg", "oatmeal")
+  records <- renv_graph_install(renv_graph_init(packages))
+  expect_setequal(names(records), packages)
+  expect_lt(match("launch egg", events), match("binary oatmeal", events))
+  expect_lt(match("binary oatmeal", events), match("finalize egg", events))
 
 })
 

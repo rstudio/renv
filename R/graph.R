@@ -1943,32 +1943,36 @@ renv_graph_install <- function(descriptions) {
 
     repeat {
 
-      # fill worker slots from ready queue
-      while (length(ready) > 0L) {
-        pkg <- ready[1L]
+      # fill worker slots from the ready queue. source builds and binary
+      # installs have separate pools of 'jobs' slots, so that ready binaries
+      # aren't held up behind long-running builds
+      i <- 1L
+      while (i <= length(ready)) {
+        pkg <- ready[[i]]
+        entry <- entries[[pkg]]
+
+        # wait for a slot before preparing this package, as that work would
+        # otherwise be repeated each time we came back to it
+        types <- map_chr(names(active), function(name) entries[[name]]$type)
+        if (sum(types == entry$type) >= jobs) {
+          i <- i + 1L
+          next
+        }
 
         # install from the cache if the package was cached since we last looked
         if (cached(pkg)) {
-          ready <- ready[-1L]
+          ready <- ready[-i]
           if (showstatus) progress$tick()
           release(pkg)
           next
         }
-
-        entry <- entries[[pkg]]
-
-        # all packages need a worker slot; wait for one before preparing
-        # this package, as that work would otherwise be repeated each time we
-        # came back to it
-        if (length(active) >= jobs)
-          break
 
         # unpack (if needed) and prepare
         prepared <- catch(renv_graph_install_unpack_and_prepare(
           entry$record, entry$type, staging, installdir
         ))
         if (inherits(prepared, "error")) {
-          ready <- ready[-1L]
+          ready <- ready[-i]
           msg <- conditionMessage(prepared)
           if (showstatus) progress$clear()
           writef("- Failed to prepare '%s': %s", pkg, msg)
