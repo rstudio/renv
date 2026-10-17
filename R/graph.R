@@ -1920,7 +1920,13 @@ renv_graph_install <- function(descriptions) {
     # record the result for 'pkg', then unblock its dependents. if finalization
     # fails, stop launching packages, but let outstanding workers finish so
     # they don't modify the library after we've returned, and so their
-    # previous installations are restored
+    # previous installations are restored.
+    #
+    # the error is re-signaled rather than recorded as a failed install, so
+    # that finalization errors (e.g. a binary failing its load test) keep
+    # surfacing as errors from install() and restore() rather than entering
+    # restore()'s retry flow; the trade-off is that the error is reported
+    # only once in-flight workers have finished
     complete <- function(pkg, result) {
 
       if (showstatus) {
@@ -1987,7 +1993,7 @@ renv_graph_install <- function(descriptions) {
 
         callbacks[[pkg]] <- renv_graph_install_backup(installdir, pkg)
 
-        ready <- ready[-1L]
+        ready <- ready[-i]
 
         # with a single job, nothing else runs concurrently, so install
         # binaries directly rather than paying for a worker process
