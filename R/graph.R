@@ -1838,6 +1838,13 @@ renv_graph_install <- function(descriptions) {
     defer(close(server$socket))
     active <- list()
 
+    # finalization can throw (e.g. a binary fails its load test); clean up
+    # every outstanding worker even when the event loop exits early
+    defer({
+      for (worker in active)
+        renv_graph_install_worker_cleanup(worker)
+    })
+
     if (showstatus)
       progress$reset("Installing", length(installnames))
 
@@ -2013,9 +2020,9 @@ renv_graph_install <- function(descriptions) {
 
         result <- renv_graph_install_parse_result(data, elapsed)
 
-        handle(pkg, result)
         renv_graph_install_worker_cleanup(active[[pkg]])
         active[[pkg]] <- NULL
+        handle(pkg, result)
 
         # decrement dependents' indegree and enqueue newly ready
         # (on failure: dependents keep indegree > 0, never enqueued)
@@ -2567,10 +2574,23 @@ renv_graph_install_launch_socket <- function(prepared, port) {
 }
 
 renv_graph_install_worker_cleanup <- function(worker) {
+
   try(close(worker$conn), silent = TRUE)
-  unlink(worker$script)
-  if (!is.null(worker$data))
-    unlink(worker$data)
+
+  # On Windows, R can still have its input script open after sending the
+  # result. Retry deletion briefly while the worker finishes exiting, but
+  # don't wait indefinitely for a failed or unresponsive worker.
+  paths <- c(worker$script, worker$data)
+  attempts <- if (renv_platform_windows()) 100L else 1L
+  for (attempt in seq_len(attempts)) {
+    if (attempt > 1L)
+      Sys.sleep(0.05)
+    if (unlink(paths) == 0L)
+      return(invisible(TRUE))
+  }
+
+  invisible(FALSE)
+
 }
 
 renv_graph_install_parse_result <- function(data, elapsed) {

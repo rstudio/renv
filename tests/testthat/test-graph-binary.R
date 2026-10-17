@@ -165,6 +165,40 @@ test_that("failed binary extraction blocks dependents and rolls back staged inst
 
 })
 
+test_that("finalization errors clean up all outstanding workers", {
+
+  skip_on_cran()
+  skip_if(getRversion() < "4.0")
+  skip_if(identical(.Platform$pkgType, "source"))
+  renv_tests_scope(isolated = TRUE)
+  renv_scope_binding(the, "install_pkg_type", "binary")
+  renv_scope_options(
+    pkgType = .Platform$pkgType,
+    renv.config.cache.enabled = FALSE,
+    renv.config.install.jobs = 2L
+  )
+
+  workers <- list()
+  launch <- renv_graph_install_launch_socket
+  renv_scope_binding(asNamespace("renv"), "renv_graph_install_launch_socket", function(...) {
+    worker <- launch(...)
+    workers[[worker$package]] <<- worker
+    worker
+  })
+  renv_scope_binding(asNamespace("renv"), "renv_graph_install_finalize", function(...) {
+    stop("finalization failed")
+  })
+
+  descriptions <- renv_graph_init(c("bread", "egg"))
+  connections <- getAllConnections()
+  expect_error(renv_graph_install(descriptions), "finalization failed")
+  expect_setequal(getAllConnections(), connections)
+  expect_setequal(names(workers), c("bread", "egg"))
+  for (worker in workers)
+    expect_false(any(file.exists(c(worker$script, worker$data))))
+
+})
+
 test_that("binary workers extract nested tar archives and copy directories", {
 
   renv_tests_scope()
@@ -194,6 +228,39 @@ test_that("binary workers extract nested tar archives and copy directories", {
     worker(prepared, copy = if (method == "extract") "r" else method, tar = "internal")
     expect_equal(readLines(file.path(library, "bread", ".hidden")), "payload")
   })
+
+})
+
+test_that("worker cleanup retries locked files on Windows", {
+
+  skip_if_not(renv_platform_windows())
+
+  script <- renv_scope_tempfile(fileext = ".R")
+  data <- renv_scope_tempfile(fileext = ".rds")
+  writeLines("invisible()", script)
+  saveRDS(list(), data)
+
+  # Keep the script open just as R does when launched with -f. Release the
+  # lock during the retry wait, avoiding a timing-dependent subprocess.
+  lock <- file(script, open = "r")
+  defer(try(close(lock), silent = TRUE))
+  conn <- rawConnection(raw(), open = "r")
+  defer(try(close(conn), silent = TRUE))
+  worker <- list(conn = conn, script = script, data = data)
+
+  cleanup <- renv_graph_install_worker_cleanup
+  scope <- new.env(parent = environment(cleanup))
+  environment(cleanup) <- scope
+  retried <- FALSE
+  scope$Sys.sleep <- function(...) {
+    retried <<- TRUE
+    close(lock)
+  }
+
+  cleanup(worker)
+  expect_true(retried)
+  expect_false(any(file.exists(c(script, data))))
+  expect_false(as.integer(conn) %in% getAllConnections())
 
 })
 
