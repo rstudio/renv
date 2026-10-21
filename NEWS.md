@@ -1,5 +1,11 @@
 # renv (development version)
 
+* `renv::diagnostics()` now reports which `tar` renv uses to extract archives
+  and install packages, and which one R's `untar()` uses by default. On
+  Windows, it notes when a `tar.exe` found on the `PATH` would be used in
+  place of the system tar, as some builds (e.g. from Git for Windows) do not
+  accept Windows-style paths. (#2418)
+
 * Binary packages are now unpacked and installed in parallel on R >= 4.0,
   including Windows ZIP binaries. Binary installs are handled by a pool of
   up to `install.jobs` persistent worker processes, separate from source
