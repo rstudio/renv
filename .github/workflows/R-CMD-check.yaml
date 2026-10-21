@@ -29,6 +29,11 @@ jobs:
           # use 4.1 to check with rtools40's older compiler
           - {os: windows-latest, r: '4.1'}
 
+          # Windows on ARM: binaries are served as ZIP files but installed
+          # via untar() on some builds of R, and public RSPM has no binaries,
+          # so dependencies are built from source (#2418)
+          - {os: windows-11-arm, r: 'release'}
+
           - {os: ubuntu-latest,   r: 'devel', http-user-agent: 'release'}
           - {os: ubuntu-latest,   r: 'release'}
           - {os: ubuntu-latest,   r: 'oldrel-1'}
