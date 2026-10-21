@@ -26,8 +26,9 @@ jobs:
 
           - {os: windows-latest, r: 'release'}
 
-          # use 4.1 to check with rtools40's older compiler
-          - {os: windows-latest, r: '4.1'}
+          # use 4.2 to check with rtools42's older compiler; Posit Package
+          # Manager no longer serves Windows binaries for R 4.1
+          - {os: windows-latest, r: '4.2'}
 
           # Windows on ARM: binaries are served as ZIP files but installed
           # via untar() on some builds of R, and public RSPM has no binaries,
