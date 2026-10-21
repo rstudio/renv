@@ -6,6 +6,13 @@
   some builds (e.g. from Git for Windows) do not accept Windows-style
   paths. (#2418)
 
+* renv no longer sets the `TAR` environment variable to `internal` for the
+  whole R session when loaded on Windows. Doing so changed how R itself
+  unpacks packages: `install.packages()` could no longer install binary
+  packages that R unpacks with `untar()`, such as the ZIP binaries r-universe
+  serves for Windows on ARM64. renv's own `untar()` calls still prefer R's
+  internal tar on Windows when `TAR` is unset. (#2418)
+
 * Fixed binary package handling on Windows builds of R with a custom binary
   package type, such as R for Windows on ARM64 (`windows.binary.clang-aarch64`).
   renv assumed such binaries were `.tar.xz` archives named with a build

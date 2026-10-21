@@ -66,7 +66,7 @@ untar <- function(tarfile,
                   files = NULL,
                   list = FALSE,
                   exdir = ".",
-                  tar = Sys.getenv("TAR"))
+                  tar = renv_tar_default())
 {
   # delegate to utils::untar()
   result <- utils::untar(
