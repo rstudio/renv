@@ -1,5 +1,12 @@
 # renv (development version)
 
+* renv no longer sets the `TAR` environment variable to `internal` for the
+  whole R session when loaded on Windows. Doing so changed how R itself
+  unpacks packages: `install.packages()` could no longer install binary
+  packages that R unpacks with `untar()`, such as the ZIP binaries r-universe
+  serves for Windows on ARM64. renv's own `untar()` calls still prefer R's
+  internal tar on Windows when `TAR` is unset. (#2418)
+
 * Binary packages are now unpacked and installed in parallel on R >= 4.0,
   including Windows ZIP binaries. Binary installs are handled by a pool of
   up to `install.jobs` persistent worker processes, separate from source

@@ -38,6 +38,22 @@ renv_tar_exe_impl <- function(default) {
 
 }
 
+# the tar used by renv's own untar() calls. on Windows, when TAR is unset,
+# we prefer R's internal tar, as utils::untar() would otherwise use whatever
+# tar.exe is on the PATH, which may not understand Windows paths (#521).
+#
+# this is only applied to renv's own calls; renv does not set TAR for the
+# session, as that would change how R itself installs packages (#2418)
+renv_tar_default <- function() {
+
+  tar <- Sys.getenv("TAR", unset = "")
+  if (renv_platform_windows() && !nzchar(tar))
+    return("internal")
+
+  tar
+
+}
+
 renv_tar_decompress <- function(tar, archive, files = NULL, exdir = ".", ...) {
 
   # build argument list
