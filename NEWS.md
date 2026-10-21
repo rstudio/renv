@@ -7,6 +7,27 @@
   custom binary types (for example, `.tar.xz` binaries) therefore no longer
   have their archives stored with a `.tgz` or `.zip` extension. (#2423)
 
+* `renv::diagnostics()` now reports which `tar` renv uses to extract archives
+  and install packages, and which one R's `untar()` uses by default. On
+  Windows, it notes when `TAR` selects a tar other than the system tar, as
+  some builds (e.g. from Git for Windows) do not accept Windows-style
+  paths. (#2418)
+
+* renv no longer sets the `TAR` environment variable to `internal` for the
+  whole R session when loaded on Windows. Doing so changed how R itself
+  unpacks packages: `install.packages()` could no longer install binary
+  packages that R unpacks with `untar()`, such as the ZIP binaries r-universe
+  serves for Windows on ARM64. renv's own `untar()` calls still prefer R's
+  internal tar on Windows when `TAR` is unset. (#2418)
+
+* Fixed binary package handling on Windows builds of R with a custom binary
+  package type, such as R for Windows on ARM64 (`windows.binary.clang-aarch64`).
+  renv assumed such binaries were `.tar.xz` archives named with a build
+  designation, as R produces on other platforms, but `R CMD INSTALL --build`
+  always writes `<package>_<version>.zip` on Windows, and repositories such as
+  r-universe serve `.zip` binaries. renv now downloads, installs, and finds
+  such binaries in the cellar correctly. (#2418)
+
 * Binary packages are now unpacked and installed in parallel on R >= 4.0,
   including Windows ZIP binaries. Binary installs are handled by a pool of
   up to `install.jobs` persistent worker processes, separate from source
