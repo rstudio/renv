@@ -157,9 +157,14 @@ renv_package_extensions <- function(type = NULL) {
   if (type == "source")
     return(".tar.gz")
 
-  # custom binary types may use any tar compression; the legacy Windows and
-  # macOS types have a single fixed extension. R builds with no binary type
-  # of their own (e.g. Linux) receive binaries at source-style URLs
+  # Windows binaries are always .zip files, even for custom binary types;
+  # see renv_pkgtype_windows()
+  if (renv_pkgtype_windows(.Platform$pkgType))
+    return(".zip")
+
+  # other custom binary types may use any tar compression; the legacy macOS
+  # types have a single fixed extension. R builds with no binary type of
+  # their own (e.g. Linux) receive binaries at source-style URLs
   switch(
     renv_pkgtype_class(.Platform$pkgType),
     other.binary = tarballs,

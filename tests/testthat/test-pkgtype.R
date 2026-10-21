@@ -25,16 +25,33 @@ test_that("package types map to the archive extensions R expects", {
   expect_equal(renv_pkgtype_ext("macos.binary.arm64"), ".tar.xz")
   expect_equal(renv_pkgtype_ext("linux.binary"), ".tar.xz")
 
+  # R CMD INSTALL --build always zips on Windows, whatever the type (#2418)
+  expect_equal(renv_pkgtype_ext("windows.binary.clang-aarch64"), ".zip")
+
+})
+
+test_that("Windows binary types are recognized whatever their build", {
+
+  expect_true(renv_pkgtype_windows("win.binary"))
+  expect_true(renv_pkgtype_windows("windows.binary"))
+  expect_true(renv_pkgtype_windows("windows.binary.clang-aarch64"))
+
+  expect_false(renv_pkgtype_windows("source"))
+  expect_false(renv_pkgtype_windows("mac.binary.big-sur-arm64"))
+  expect_false(renv_pkgtype_windows("macos.binary.arm64"))
+  expect_false(renv_pkgtype_windows("linux.binary"))
+
 })
 
 test_that("build designations match those written by R CMD INSTALL --build", {
 
   expect_equal(renv_pkgtype_build("macos.binary.arm64"), "macos-arm64")
-  expect_equal(renv_pkgtype_build("windows.binary.clang-aarch64"), "windows-clang-aarch64")
   expect_equal(renv_pkgtype_build("linux.binary"), "linux")
 
-  # legacy binary types carry no build designation in their file names
+  # legacy binary types carry no build designation in their file names,
+  # and neither do Windows binaries of any type (#2418)
   expect_null(renv_pkgtype_build("win.binary"))
+  expect_null(renv_pkgtype_build("windows.binary.clang-aarch64"))
   expect_null(renv_pkgtype_build("mac.binary.big-sur-arm64"))
 
 })
