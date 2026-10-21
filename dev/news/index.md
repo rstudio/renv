@@ -2,6 +2,16 @@
 
 ## renv (development version)
 
+- Fixed binary package handling on Windows builds of R with a custom
+  binary package type, such as R for Windows on ARM64
+  (`windows.binary.clang-aarch64`). renv assumed such binaries were
+  `.tar.xz` archives named with a build designation, as R produces on
+  other platforms, but `R CMD INSTALL --build` always writes
+  `<package>_<version>.zip` on Windows, and repositories such as
+  r-universe serve `.zip` binaries. renv now downloads, installs, and
+  finds such binaries in the cellar correctly.
+  ([\#2418](https://github.com/rstudio/renv/issues/2418))
+
 - Binary packages are now unpacked and installed in parallel on R \>=
   4.0, including Windows ZIP binaries. Binary installs are handled by a
   pool of up to `install.jobs` persistent worker processes, separate
