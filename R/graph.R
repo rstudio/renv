@@ -513,9 +513,10 @@ renv_graph_description_archive <- function(record) {
     }
   }
 
-  # download to the shared sources path so that the later retrieve of this
-  # same record reuses the tarball rather than downloading it a second time
-  destfile <- renv_retrieve_path(record, type = "source")
+  # download to the shared sources path, under the name the later retrieve of
+  # this same record will look for, so it reuses the tarball rather than
+  # downloading it a second time
+  destfile <- renv_retrieve_path(record, type = "source", name = name)
   ensure_parent_directory(destfile)
 
   for (repo in repos) {
@@ -1339,8 +1340,9 @@ renv_graph_url_repository_record <- function(desc, record) {
   if (is.null(repo))
     return(NULL)
 
-  # name the local copy after the file the repository advertises, so that
-  # e.g. a '.tar.xz' custom binary is not stored under a '.tgz' name (#2423)
+  # the local copy takes its extension from the file the repository
+  # advertises, so that e.g. a '.tar.xz' custom binary is not stored under a
+  # '.tgz' name (#2423)
   name <- renv_retrieve_repos_archive_name(record, type)
   url <- file.path(repo, name)
   destfile <- renv_retrieve_path(as.list(desc), type = type, name = name)

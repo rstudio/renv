@@ -332,22 +332,38 @@ renv_retrieve_name <- function(record, type = "source", ext = NULL) {
   sprintf("%s_%s%s", package, version, ext)
 }
 
-# the local path for a package archive. 'name' is the file name the
-# repository advertises for it (the 'File' field of its PACKAGES index, or
-# the name of a cellar archive); when it is not known, the name is derived
-# from the record and the archive extension assumed for this build of R
-renv_retrieve_path <- function(record, type = "source", ext = NULL, name = NULL) {
+# the archive extension for a local copy of 'name', the file a repository
+# advertises for a package (the 'File' field of its PACKAGES index, or the
+# name of a cellar or local archive). r-universe appends query parameters to
+# the 'Path' entries of its index, so tolerate them here too. anything that
+# does not end in a recognized archive extension (including an unknown name)
+# gets the extension assumed for packages of this type on this build of R
+renv_retrieve_ext <- function(name, type = "source") {
+
+  if (is.null(name))
+    return(renv_package_ext(type))
+
+  name <- sub("[?#].*$", "", name)
+  ext <- regmatches(name, regexpr(renv_package_ext_pattern(), name, perl = TRUE))
+  if (length(ext) == 1L && nzchar(ext))
+    return(ext)
+
+  renv_package_ext(type)
+
+}
+
+# the local path for a package archive. the file is named after the record
+# (its package and version, or the commit it was built from, when known) so
+# that e.g. r-universe builds of one version from different commits do not
+# share a file. only its extension follows 'name', the file the repository
+# advertises, so that e.g. a '.tar.xz' custom binary is not stored under a
+# '.tgz' name (#2423)
+renv_retrieve_path <- function(record, type = "source", name = NULL) {
 
   # extract relevant record information
   package <- record$Package
-  name <- name %||% renv_retrieve_name(record, type, ext)
-
-  # r-universe appends query parameters to the 'Path' entries of its index;
-  # should a 'File' entry ever carry them too, keep them out of file names.
-  # likewise keep only the file name, so that an index entry cannot direct
-  # the download outside its directory
-  name <- sub("[?#].*$", "", name)
-  name <- basename(chartr("\\", "/", name))
+  ext <- renv_retrieve_ext(name, type)
+  name <- renv_retrieve_name(record, type, ext)
 
   # if we have a destdir override, use this
   if (!is.null(the$destdir))

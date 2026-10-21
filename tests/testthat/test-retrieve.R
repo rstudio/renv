@@ -1099,16 +1099,78 @@ test_that("downloaded archives are named after the repository's File field", {
 
 })
 
-test_that("advertised file names cannot escape the download directory", {
+test_that("local archives are named after the record, with the advertised extension", {
 
   renv_scope_binding(the, "destdir", "downloads")
   record <- list(Package = "pkg", Version = "1.0")
 
+  # the advertised extension is kept even when it is not the one assumed
+  # for packages of that type on this build of R (#2423)
+  path <- renv_retrieve_path(record, name = "pkg_1.0.tar.xz")
+  expect_equal(path, "downloads/pkg_1.0.tar.xz")
+
+  path <- renv_retrieve_path(record, type = "binary", name = "pkg_1.0.zip")
+  expect_equal(path, "downloads/pkg_1.0.zip")
+
+  # only the extension is taken, so an index entry cannot direct the
+  # download outside its directory, and query strings never reach the name
   path <- renv_retrieve_path(record, name = "../pkg_1.0.tar.gz")
   expect_equal(path, "downloads/pkg_1.0.tar.gz")
 
-  path <- renv_retrieve_path(record, name = "..\\pkg_1.0.tar.gz?sha256=abc")
-  expect_equal(path, "downloads/pkg_1.0.tar.gz")
+  path <- renv_retrieve_path(record, name = "..\\pkg_1.0.tgz?sha256=abc")
+  expect_equal(path, "downloads/pkg_1.0.tgz")
+
+  # names without a recognized archive extension get the default one
+  for (name in c("", ".", "..", "?sha256=abc", "subdir/", "pkg_1.0.rds")) {
+    path <- renv_retrieve_path(record, name = name)
+    expect_equal(path, "downloads/pkg_1.0.tar.gz", info = name)
+  }
+
+  # records built from a commit (r-universe) keep it in the name, so that
+  # builds of one version from different commits do not share a file
+  sha <- strrep("a", 40L)
+  record <- list(Package = "pkg", Version = "1.0", RemoteSha = sha)
+  path <- renv_retrieve_path(record, type = "binary", name = "pkg_1.0.tgz")
+  expect_equal(path, sprintf("downloads/pkg_%s.tgz", sha))
+
+})
+
+test_that("binary archives keep their advertised extension on every platform", {
+
+  renv_tests_scope()
+
+  # the failure in #2423 was a '.zip' binary stored as '.tgz'. the round-trip
+  # test above can only exercise binaries on platforms with a binary type, so
+  # drive the planner and the sequential retrieval directly with a tagged
+  # index entry here, independent of .Platform$pkgType
+  repo <- "https://example.com/bin/contrib"
+  desc <- list(Package = "zippkg", Version = "1.0", Source = "Repository")
+  record <- renv_record_tag(
+    record = c(desc, File = "zippkg_1.0.zip"),
+    type   = "binary",
+    url    = repo,
+    name   = "example"
+  )
+
+  info <- renv_graph_url_repository_record(desc, record)
+  expect_equal(info$url, file.path(repo, "zippkg_1.0.zip"))
+  expect_equal(info$pkgtype, "binary")
+  expect_equal(basename(info$destfile), "zippkg_1.0.zip")
+  expect_equal(dirname(info$destfile), renv_paths_binary("repository", "zippkg"))
+
+  captured <- NULL
+  renv_scope_binding(
+    envir = asNamespace("renv"),
+    symbol = "renv_retrieve_package",
+    replacement = function(record, url, path, defer = FALSE) {
+      captured <<- list(url = url, path = path)
+      TRUE
+    }
+  )
+
+  expect_true(renv_retrieve_repos_impl(record))
+  expect_equal(captured$url, info$url)
+  expect_equal(captured$path, info$destfile)
 
 })
 

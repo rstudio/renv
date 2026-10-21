@@ -168,11 +168,12 @@ test_that("cellar binaries built for this build of R are advertised", {
   listing <- renv_available_packages_cellar("source")
   expect_true(basename(path) %in% listing$File)
 
-  # ... and the parallel download path resolves to that file
+  # ... and the parallel download path resolves to that file, copying it
+  # under the record's name with the archive's extension
   latest <- renv_available_packages_latest("buildpkg", type = "source")
   url <- renv_graph_url_cellar(latest)
   expect_equal(basename(url$url), basename(path))
-  expect_equal(basename(url$destfile), basename(path))
+  expect_equal(basename(url$destfile), "buildpkg_1.0.0.tar.gz")
   expect_true(file.exists(renv_url_local_path(url$url)))
 
 })

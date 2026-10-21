@@ -1827,6 +1827,43 @@ test_that("repository graph enriches a versionless archive record", {
 
 })
 
+test_that("archive enrichment stores the tarball where retrieval looks for it", {
+
+  renv_tests_scope()
+
+  tarball <- file.path(
+    renv_tests_repopath(),
+    "src/contrib/Archive/today/today_0.1.0.tar.gz"
+  )
+  archive <- renv_tests_archive_repo(
+    package = "today",
+    version = "0.1.0",
+    tarball = tarball
+  )
+  renv_scope_options(repos = c(ARCHIVED = archive$url))
+
+  latest <- renv_available_packages_latest_archive(
+    package = "today",
+    type = "source",
+    repos = c(ARCHIVED = archive$url)
+  )
+
+  # r-universe records carry the commit they were built from, which names the
+  # local copy. enrichment must save the tarball under that same name, or the
+  # planner's existing-file check misses it and downloads it again
+  sha <- strrep("a", 40L)
+  record <- latest
+  record$RemoteSha <- sha
+  desc <- renv_graph_description_archive_enrich(record)
+
+  name <- renv_retrieve_repos_archive_name(desc, type = "source")
+  destfile <- renv_retrieve_path(desc, type = "source", name = name)
+  expect_equal(basename(destfile), sprintf("today_%s.tar.gz", sha))
+  expect_true(file.exists(destfile))
+  expect_null(renv_graph_url_repository_record(desc, latest))
+
+})
+
 test_that("archive enrichment rejects an unreadable DESCRIPTION", {
 
   renv_tests_scope()
