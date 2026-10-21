@@ -172,6 +172,7 @@ test_that("cellar binaries built for this build of R are advertised", {
   latest <- renv_available_packages_latest("buildpkg", type = "source")
   url <- renv_graph_url_cellar(latest)
   expect_equal(basename(url$url), basename(path))
+  expect_equal(basename(url$destfile), basename(path))
   expect_true(file.exists(renv_url_local_path(url$url)))
 
 })

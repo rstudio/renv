@@ -332,11 +332,19 @@ renv_retrieve_name <- function(record, type = "source", ext = NULL) {
   sprintf("%s_%s%s", package, version, ext)
 }
 
-renv_retrieve_path <- function(record, type = "source", ext = NULL) {
+# the local path for a package archive. 'name' is the file name the
+# repository advertises for it (the 'File' field of its PACKAGES index, or
+# the name of a cellar archive); when it is not known, the name is derived
+# from the record and the archive extension assumed for this build of R
+renv_retrieve_path <- function(record, type = "source", ext = NULL, name = NULL) {
 
   # extract relevant record information
   package <- record$Package
-  name <- renv_retrieve_name(record, type, ext)
+  name <- name %||% renv_retrieve_name(record, type, ext)
+
+  # r-universe appends query parameters to the 'Path' entries of its index;
+  # should a 'File' entry ever carry them too, keep them out of file names
+  name <- sub("[?#].*$", "", name)
 
   # if we have a destdir override, use this
   if (!is.null(the$destdir))
@@ -1347,7 +1355,7 @@ renv_retrieve_repos_impl <- function(record,
   }
 
   url <- file.path(repo, name)
-  path <- renv_retrieve_path(record, type)
+  path <- renv_retrieve_path(record, type, name = name)
 
   renv_retrieve_package(record, url, path, defer = defer)
 

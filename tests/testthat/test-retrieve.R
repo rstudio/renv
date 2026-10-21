@@ -1014,3 +1014,87 @@ test_that("a retrieved package that differs from the record is reported", {
   expect_no_warning(renv_retrieve_successful(record, path, install = FALSE))
 
 })
+
+test_that("downloaded archives are named after the repository's File field", {
+  skip_on_cran()
+  project <- renv_tests_scope()
+
+  # a repository advertising archives whose names the type-to-extension
+  # mapping for this build of R would not guess, as custom binary types
+  # permit; R saves such files under their advertised names (#2423)
+  pkgdir <- renv_scope_tempfile("renv-file-pkg-")
+  ensure_directory(file.path(pkgdir, "xzpkg"))
+  writeLines(
+    c(
+      "Package: xzpkg",
+      "Version: 1.0.0",
+      "Title: A Package",
+      "Description: Test.",
+      "License: MIT"
+    ),
+    file.path(pkgdir, "xzpkg", "DESCRIPTION")
+  )
+
+  repopath <- renv_scope_tempfile("renv-file-repo-")
+  contrib <- file.path(repopath, "src/contrib")
+  ensure_directory(contrib)
+
+  renv_scope_wd(pkgdir)
+  tar(
+    tarfile     = file.path(contrib, "xzpkg_1.0.0.tar.xz"),
+    files       = "xzpkg",
+    compression = "xz"
+  )
+
+  writeLines(
+    c("Package: xzpkg", "Version: 1.0.0", "File: xzpkg_1.0.0.tar.xz", ""),
+    file.path(contrib, "PACKAGES")
+  )
+
+  renv_scope_options(repos = c(local = paste0("file://", repopath)))
+  record <- list(Package = "xzpkg", Version = "1.0.0")
+
+  # the parallel download planner names the local copy after the file ...
+  info <- renv_graph_url_repository(record)
+  expect_equal(basename(info$url), "xzpkg_1.0.0.tar.xz")
+  expect_equal(basename(info$destfile), "xzpkg_1.0.0.tar.xz")
+
+  # ... as does sequential retrieval
+  destdir <- renv_scope_tempfile("renv-file-destdir-")
+  ensure_directory(destdir)
+  result <- retrieve("xzpkg", destdir = destdir, project = project)
+  expect_equal(basename(result[["xzpkg"]]), "xzpkg_1.0.0.tar.xz")
+
+  # binaries served under a custom extension are named the same way
+  skip_if(identical(.Platform$pkgType, "source"))
+
+  bincontrib <- paste0(repopath, contrib.url("", type = "binary"))
+  ensure_directory(bincontrib)
+
+  # 'Meta' marks an installed package; only the archive name matters here
+  ensure_directory(file.path(pkgdir, "xzpkg", "Meta"))
+  file.create(file.path(pkgdir, "xzpkg", "Meta", "package.rds"))
+  tar(
+    tarfile     = file.path(bincontrib, "xzpkg_1.0.0.tar.xz"),
+    files       = "xzpkg",
+    compression = "xz"
+  )
+
+  writeLines(
+    c("Package: xzpkg", "Version: 1.0.0", "File: xzpkg_1.0.0.tar.xz", ""),
+    file.path(bincontrib, "PACKAGES")
+  )
+
+  renv_scope_options(pkgType = "binary")
+  info <- renv_graph_url_repository(record)
+  expect_equal(info$pkgtype, "binary")
+  expect_equal(basename(info$url), "xzpkg_1.0.0.tar.xz")
+  expect_equal(basename(info$destfile), "xzpkg_1.0.0.tar.xz")
+
+  destdir <- renv_scope_tempfile("renv-file-destdir-")
+  ensure_directory(destdir)
+  result <- retrieve("xzpkg", destdir = destdir, project = project)
+  expect_equal(basename(result[["xzpkg"]]), "xzpkg_1.0.0.tar.xz")
+  expect_equal(renv_package_type(result[["xzpkg"]]), "binary")
+
+})

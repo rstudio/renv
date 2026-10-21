@@ -1,5 +1,12 @@
 # renv (development version)
 
+* Package archives downloaded from a repository are now saved under the file
+  name the repository advertises in the `File` field of its `PACKAGES` index,
+  rather than under a name derived from the package type of the current build
+  of R; copies of cellar archives are named likewise. Repositories serving
+  custom binary types (for example, `.tar.xz` binaries) therefore no longer
+  have their archives stored with a `.tgz` or `.zip` extension. (#2423)
+
 * Binary packages are now unpacked and installed in parallel on R >= 4.0,
   including Windows ZIP binaries. Binary installs are handled by a pool of
   up to `install.jobs` persistent worker processes, separate from source
