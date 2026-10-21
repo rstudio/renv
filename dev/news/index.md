@@ -2,6 +2,15 @@
 
 ## renv (development version)
 
+- Package archives downloaded from a repository now keep the extension
+  of the file the repository advertises in the `File` field of its
+  `PACKAGES` index, rather than the extension implied by the package
+  type of the current build of R; copies of cellar archives are named
+  likewise. Repositories serving custom binary types (for example,
+  `.tar.xz` binaries) therefore no longer have their archives stored
+  with a `.tgz` or `.zip` extension.
+  ([\#2423](https://github.com/rstudio/renv/issues/2423))
+
 - [`renv::diagnostics()`](https://rstudio.github.io/renv/dev/reference/diagnostics.md)
   now reports which `tar` renv uses to extract archives and install
   packages, and which one R’s
