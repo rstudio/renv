@@ -1111,3 +1111,87 @@ test_that("advertised file names cannot escape the download directory", {
   expect_equal(path, "downloads/pkg_1.0.tar.gz")
 
 })
+
+test_that("Path entries shape the download URL but not the file name", {
+  skip_on_cran()
+  project <- renv_tests_scope()
+
+  pkgdir <- renv_scope_tempfile("renv-path-pkg-")
+  ensure_directory(file.path(pkgdir, "pathpkg"))
+  writeLines(
+    c(
+      "Package: pathpkg",
+      "Version: 1.0.0",
+      "Title: A Package",
+      "Description: Test.",
+      "License: MIT"
+    ),
+    file.path(pkgdir, "pathpkg", "DESCRIPTION")
+  )
+
+  renv_scope_wd(pkgdir)
+  tarball <- file.path(pkgdir, "pathpkg_1.0.0.tar.gz")
+  tar(tarfile = tarball, files = "pathpkg", compression = "gzip")
+
+  record <- list(Package = "pathpkg", Version = "1.0.0")
+
+  # a relative Path names a sub-directory of the index, as pak's repository does
+  repopath <- renv_scope_tempfile("renv-path-repo-")
+  contrib <- file.path(repopath, "src/contrib")
+  ensure_directory(file.path(contrib, "extras"))
+  file.copy(tarball, file.path(contrib, "extras"))
+  writeLines(
+    c(
+      "Package: pathpkg",
+      "Version: 1.0.0",
+      "Path: extras",
+      "File: pathpkg_1.0.0.tar.gz",
+      ""
+    ),
+    file.path(contrib, "PACKAGES")
+  )
+
+  renv_scope_options(repos = c(local = paste0("file://", repopath)))
+  info <- renv_graph_url_repository(record)
+  expect_true(endsWith(info$url, "/src/contrib/extras/pathpkg_1.0.0.tar.gz"))
+  expect_equal(basename(info$destfile), "pathpkg_1.0.0.tar.gz")
+
+  destdir <- renv_scope_tempfile("renv-path-destdir-")
+  ensure_directory(destdir)
+  result <- retrieve("pathpkg", destdir = destdir, project = project)
+  expect_equal(basename(result[["pathpkg"]]), "pathpkg_1.0.0.tar.gz")
+  expect_true(file.exists(result[["pathpkg"]]))
+
+  # r-universe's Path entries repeat the file name and append a query string;
+  # the URL must carry it (here, as a directory of that name), the file name
+  # must not. such a directory cannot exist on Windows
+  skip_on_windows()
+
+  query <- "pathpkg_1.0.0.tar.gz?sha256=abc&file="
+  repopath <- renv_scope_tempfile("renv-path-repo-")
+  contrib <- file.path(repopath, "src/contrib")
+  ensure_directory(file.path(contrib, query))
+  file.copy(tarball, file.path(contrib, query))
+  writeLines(
+    c(
+      "Package: pathpkg",
+      "Version: 1.0.0",
+      paste("Path:", query),
+      "File: pathpkg_1.0.0.tar.gz",
+      ""
+    ),
+    file.path(contrib, "PACKAGES")
+  )
+
+  renv_scope_options(repos = c(local = paste0("file://", repopath)))
+  info <- renv_graph_url_repository(record)
+  expect_true(endsWith(info$url, paste0("/src/contrib/", query, "/pathpkg_1.0.0.tar.gz")))
+  expect_equal(basename(info$destfile), "pathpkg_1.0.0.tar.gz")
+
+  destdir <- renv_scope_tempfile("renv-path-destdir-")
+  ensure_directory(destdir)
+  result <- retrieve("pathpkg", destdir = destdir, project = project)
+  expect_equal(basename(result[["pathpkg"]]), "pathpkg_1.0.0.tar.gz")
+  expect_true(file.exists(result[["pathpkg"]]))
+
+})
