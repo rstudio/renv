@@ -1098,3 +1098,16 @@ test_that("downloaded archives are named after the repository's File field", {
   expect_equal(renv_package_type(result[["xzpkg"]]), "binary")
 
 })
+
+test_that("advertised file names cannot escape the download directory", {
+
+  renv_scope_binding(the, "destdir", "downloads")
+  record <- list(Package = "pkg", Version = "1.0")
+
+  path <- renv_retrieve_path(record, name = "../pkg_1.0.tar.gz")
+  expect_equal(path, "downloads/pkg_1.0.tar.gz")
+
+  path <- renv_retrieve_path(record, name = "..\\pkg_1.0.tar.gz?sha256=abc")
+  expect_equal(path, "downloads/pkg_1.0.tar.gz")
+
+})

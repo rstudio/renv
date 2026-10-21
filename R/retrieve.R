@@ -343,8 +343,11 @@ renv_retrieve_path <- function(record, type = "source", ext = NULL, name = NULL)
   name <- name %||% renv_retrieve_name(record, type, ext)
 
   # r-universe appends query parameters to the 'Path' entries of its index;
-  # should a 'File' entry ever carry them too, keep them out of file names
+  # should a 'File' entry ever carry them too, keep them out of file names.
+  # likewise keep only the file name, so that an index entry cannot direct
+  # the download outside its directory
   name <- sub("[?#].*$", "", name)
+  name <- basename(chartr("\\", "/", name))
 
   # if we have a destdir override, use this
   if (!is.null(the$destdir))
