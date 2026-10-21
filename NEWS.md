@@ -2,9 +2,9 @@
 
 * `renv::diagnostics()` now reports which `tar` renv uses to extract archives
   and install packages, and which one R's `untar()` uses by default. On
-  Windows, it notes when a `tar.exe` found on the `PATH` would be used in
-  place of the system tar, as some builds (e.g. from Git for Windows) do not
-  accept Windows-style paths. (#2418)
+  Windows, it notes when `TAR` selects a tar other than the system tar, as
+  some builds (e.g. from Git for Windows) do not accept Windows-style
+  paths. (#2418)
 
 * Fixed binary package handling on Windows builds of R with a custom binary
   package type, such as R for Windows on ARM64 (`windows.binary.clang-aarch64`).

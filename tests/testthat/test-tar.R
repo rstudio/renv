@@ -10,7 +10,23 @@ test_that("renv_tar_r() reports the tar R's untar() would use", {
 
 })
 
-test_that("renv_tar_r() finds a tar.exe on the PATH on Windows", {
+test_that("renv_tar_r() reports the tar R resolves on Windows", {
+
+  skip_if(!renv_platform_windows())
+  renv_scope_envvars(TAR = NULL)
+
+  # R resolves 'tar.exe' through the Windows search path, which checks the
+  # system directory before the PATH, so this is normally the system tar
+  tar <- Sys.which("tar.exe")
+  expected <- if (nzchar(tar)) renv_path_normalize(tar) else "internal"
+  expect_equal(renv_tar_r(), expected)
+
+})
+
+test_that("renv_tar_r() falls back to the PATH when emulating Windows", {
+
+  # on Windows itself, the system directory takes precedence over the PATH
+  skip_on_os("windows")
 
   renv_scope_binding(renv_envir_self(), "renv_platform_windows", function() TRUE)
   renv_scope_envvars(TAR = NULL)
@@ -40,7 +56,7 @@ test_that("diagnostics describe the selected tars", {
 
   tar <- Sys.which("tar")
   skip_if(!nzchar(tar))
-  expect_match(renv_diagnostics_tar_describe(tar), "^.*tar \\[.+\\]$")
+  expect_match(renv_diagnostics_tar_describe(tar), "^.*tar(\\.exe)? \\[.+\\]$")
 
   # the note is only shown when R would bypass the system tar on Windows
   renv_scope_binding(renv_envir_self(), "renv_tar_exe", function(...) "internal")

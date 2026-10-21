@@ -274,15 +274,17 @@ renv_diagnostics_tar <- function(project) {
   writef("renv: %s", renv_diagnostics_tar_describe(renvtar))
   writef("R:    %s", renv_diagnostics_tar_describe(rtar))
 
-  # warn when R would use a PATH tar.exe rather than the system tar, as some
-  # builds (e.g. Git for Windows) don't accept Windows-style paths (#521)
+  # warn when R would use some other tar rather than the system tar, as some
+  # builds (e.g. Git for Windows) don't accept Windows-style paths (#521).
+  # in practice this means TAR has been set, as R resolves a bare 'tar.exe'
+  # to the system tar whenever one exists; see renv_tar_r()
   systar <- renv_tar_system()
   if (nzchar(systar) && !identical(rtar, "internal") && !identical(rtar, systar)) {
     writef()
     writef(c(
-      "NOTE: R's untar() will use a tar.exe found on the PATH rather than the",
-      "system tar at %s. Some builds of tar (e.g. from Git for Windows) do not",
-      "accept Windows-style paths. Set the TAR environment variable to override."
+      "NOTE: R's untar() will use the tar above rather than the system tar at",
+      "%s. Some builds of tar (e.g. from Git for Windows) do not accept",
+      "Windows-style paths. Unset the TAR environment variable to use the system tar."
     ), systar)
   }
 

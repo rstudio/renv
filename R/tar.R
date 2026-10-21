@@ -58,9 +58,14 @@ renv_tar_decompress <- function(tar, archive, files = NULL, exdir = ".", ...) {
 }
 
 # the tar utils::untar() uses by default in this session: TAR if set,
-# otherwise (on Windows) a tar.exe found on the PATH, otherwise R's
+# otherwise (on Windows) whatever 'tar.exe' resolves to, otherwise R's
 # internal implementation. this is R's choice, not renv's; renv's own
 # calls use renv_tar_exe() or the internal tar. reported by diagnostics()
+#
+# note that R resolves executables on Windows via the Win32 SearchPath()
+# API, which checks the system directory before the PATH, so a bare
+# 'tar.exe' is the system tar whenever one exists; the PATH only matters
+# on Windows builds without one
 renv_tar_r <- function() {
 
   tar <- Sys.getenv("TAR", unset = "")
