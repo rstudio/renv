@@ -1,5 +1,11 @@
 # renv (development version)
 
+* `renv::diagnostics()` now reports which `tar` renv uses to extract archives
+  and install packages, and which one R's `untar()` uses by default. On
+  Windows, it notes when `TAR` selects a tar other than the system tar, as
+  some builds (e.g. from Git for Windows) do not accept Windows-style
+  paths. (#2418)
+
 * renv no longer sets the `TAR` environment variable to `internal` for the
   whole R session when loaded on Windows. Doing so changed how R itself
   unpacks packages: `install.packages()` could no longer install binary

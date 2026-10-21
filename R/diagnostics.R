@@ -32,6 +32,7 @@ diagnostics <- function(project = NULL) {
     renv_diagnostics_sysreqs,
     renv_diagnostics_platform,
     renv_diagnostics_r,
+    renv_diagnostics_tar,
     renv_diagnostics_abi,
     renv_diagnostics_profile,
     renv_diagnostics_settings,
@@ -257,6 +258,47 @@ renv_diagnostics_packages_dependencies <- function(project) {
     errors = "reported",
     dev = TRUE
   )
+
+}
+
+renv_diagnostics_tar <- function(project) {
+
+  writef(header("Tar"))
+
+  # the tar renv uses to extract archives and install packages, versus the
+  # one R's untar() uses by default; these differ when TAR is unset on
+  # Windows, as renv avoids whatever tar.exe happens to be on the PATH
+  renvtar <- renv_tar_exe(default = "internal")
+  rtar <- renv_tar_r()
+
+  writef("renv: %s", renv_diagnostics_tar_describe(renvtar))
+  writef("R:    %s", renv_diagnostics_tar_describe(rtar))
+
+  # warn when R would use some other tar rather than the system tar, as some
+  # builds (e.g. Git for Windows) don't accept Windows-style paths (#521).
+  # in practice this means TAR has been set, as R resolves a bare 'tar.exe'
+  # to the system tar whenever one exists; see renv_tar_r()
+  systar <- renv_tar_system()
+  if (nzchar(systar) && !identical(rtar, "internal") && !identical(rtar, systar)) {
+    writef()
+    writef(c(
+      "NOTE: R's untar() will use the tar above rather than the system tar at",
+      "%s. Some builds of tar (e.g. from Git for Windows) do not accept",
+      "Windows-style paths. Unset the TAR environment variable to use the system tar."
+    ), systar)
+  }
+
+}
+
+# describe a tar as its path and version, for the diagnostics report
+renv_diagnostics_tar_describe <- function(tar) {
+
+  # TAR may be a command with flags; only annotate a plain path
+  if (identical(tar, "internal") || !file.exists(tar))
+    return(tar)
+
+  tool <- renv_platform_record_tool(tar, "--version")
+  sprintf("%s [%s]", tool$Path, tool$Version %||% "unknown version")
 
 }
 
