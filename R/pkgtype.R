@@ -39,9 +39,22 @@ renv_pkgtype_class <- function(type = NULL) {
 
 }
 
+# is this a Windows binary type? R's own tooling classifies the custom
+# 'windows.binary[.<build>]' types (e.g. R for Windows on ARM64) as
+# 'other.binary', but 'R CMD INSTALL --build' always writes a
+# '<package>_<version>.zip' archive on Windows, whatever the type, and
+# repositories such as r-universe serve such binaries as .zip files (#2418)
+renv_pkgtype_windows <- function(type = NULL) {
+  type <- renv_pkgtype_resolve(type)
+  grepl("^win(dows)?[.]binary(|[.].*)$", type)
+}
+
 # the archive extension R assumes for packages of this type when a repository's
 # PACKAGES index carries no 'File' field; see utils::download.packages()
 renv_pkgtype_ext <- function(type = NULL) {
+
+  if (renv_pkgtype_windows(type))
+    return(".zip")
 
   switch(
     renv_pkgtype_class(type),
@@ -61,8 +74,10 @@ renv_pkgtype_ext <- function(type = NULL) {
 renv_pkgtype_build <- function(type = NULL) {
 
   type <- renv_pkgtype_resolve(type)
-  class <- renv_pkgtype_class(type)
+  if (renv_pkgtype_windows(type))
+    return(NULL)
 
+  class <- renv_pkgtype_class(type)
   if (class == "other.binary") {
     pattern <- "^([[:lower:]]+)[.]binary(|[.]([[:alnum:]_-]+))$"
     build <- sub(pattern, "\\1\\2", type)
