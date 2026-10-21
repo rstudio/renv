@@ -37,21 +37,10 @@ renv_patch_rprofile <- function() {
 
 renv_patch_tar <- function() {
 
-  # read value of TAR
+  # allow empty / internal tars. note that renv's own untar() calls
+  # prefer the internal tar on Windows when TAR is unset; see
+  # renv_tar_default() for details
   tar <- Sys.getenv("TAR", unset = "")
-
-  # on Windows, if TAR is unset, then force the usage
-  # of R's internal tar implementation. this is done to
-  # avoid issues where e.g. versions of tar which do not
-  # understand Windows paths are on the PATH
-  #
-  # https://github.com/rstudio/renv/issues/521
-  if (renv_platform_windows() && !nzchar(tar)) {
-    Sys.setenv(TAR = "internal")
-    return(TRUE)
-  }
-
-  # otherwise, allow empty / internal tars
   if (tar %in% c("", "internal"))
     return(TRUE)
 
