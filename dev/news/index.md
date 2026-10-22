@@ -2,6 +2,14 @@
 
 ## renv (development version)
 
+- renv now detects whether a package archive is a tarball or a ZIP file
+  from its contents, falling back to the file extension only when the
+  contents are not recognized. Previously, renv trusted the extension
+  alone, so a ZIP binary served under a `.tar.xz` name (or any archive
+  served under an extension renv did not know) failed to extract even
+  though R could unpack it.
+  ([\#2424](https://github.com/rstudio/renv/issues/2424))
+
 - Package archives downloaded from a repository now keep the extension
   of the file the repository advertises in the `File` field of its
   `PACKAGES` index, rather than the extension implied by the package
