@@ -1,5 +1,11 @@
 # renv (development version)
 
+* renv now rejects downloaded archives which cannot be read, as was always
+  intended. Previously, the check was skipped because the temporary download
+  file had no extension, and even when it ran, a failure reported by the
+  system `tar` was ignored, so only R's internal tar (used on Windows) could
+  reject a corrupt download.
+
 * Package archives downloaded from a repository now keep the extension of the
   file the repository advertises in the `File` field of its `PACKAGES` index,
   rather than the extension implied by the package type of the current build
