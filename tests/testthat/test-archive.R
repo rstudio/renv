@@ -173,3 +173,37 @@ test_that("archive type is detected from contents, not just extension", {
   expect_equal(renv_archive_type("missing.tar.gz"), "tar")
 
 })
+
+test_that("compressed files which aren't tarballs aren't treated as archives", {
+
+  renv_scope_tempdir()
+
+  # R's internal tar errors when asked to list a non-tarball, while system
+  # tar only warns, so use the internal tar to catch the regression on every
+  # platform (#2428)
+  renv_scope_envvars(TAR = "internal")
+
+  # PACKAGES.gz and .rds files are gzip / bzip2 / xz streams, but not tarballs
+  saveRDS(list(a = 1), "packages.rds")
+  saveRDS(list(a = 1), "PACKAGES.rds", compress = "xz")
+  saveRDS(list(a = 1), "database.rds", compress = "bzip2")
+  con <- gzfile("PACKAGES.gz", open = "w")
+  writeLines(c("Package: pkg", "Version: 1.0"), con)
+  close(con)
+
+  for (file in c("packages.rds", "PACKAGES.rds", "database.rds", "PACKAGES.gz")) {
+    expect_equal(renv_archive_type(file), "unknown")
+    expect_false(renv_download_check_archive(file))
+  }
+
+  # a compressed non-tarball still falls back to its extension
+  file.copy("PACKAGES.gz", "pkg.tar.gz")
+  expect_equal(renv_archive_type("pkg.tar.gz"), "tar")
+
+  # downloads of such files aren't rejected as unreadable archives
+  url <- paste0("file:", renv_path_normalize("packages.rds"))
+  destfile <- renv_scope_tempfile("renv-download-", fileext = ".rds")
+  download(url, destfile = destfile, quiet = TRUE)
+  expect_equal(readRDS(destfile), list(a = 1))
+
+})

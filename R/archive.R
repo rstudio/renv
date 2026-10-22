@@ -45,20 +45,38 @@ renv_archive_type_sniff <- function(archive) {
   if (renv_archive_magic_matches(bytes, c(0x50, 0x4b)))
     return("zip")
 
-  # compressed tarballs; the tar tools detect the compression themselves
+  # uncompressed tar
+  if (renv_archive_tar_magic_matches(bytes))
+    return("tar")
+
+  # a compressed stream isn't necessarily a tarball: PACKAGES.gz and .rds
+  # files are gzip or xz streams too, and R's internal tar errors when asked
+  # to list them (#2428). check the decompressed header for the tar magic
+  # instead. gzfile() can't read zstd, so zstd falls back to the extension.
   magics <- list(
     gzip  = c(0x1f, 0x8b),
     bzip2 = c(0x42, 0x5a, 0x68),
-    xz    = c(0xfd, 0x37, 0x7a, 0x58, 0x5a, 0x00),
-    zstd  = c(0x28, 0xb5, 0x2f, 0xfd)
+    xz    = c(0xfd, 0x37, 0x7a, 0x58, 0x5a, 0x00)
   )
 
   for (magic in magics)
     if (renv_archive_magic_matches(bytes, magic))
-      return("tar")
+      return(renv_archive_type_sniff_compressed(archive))
 
-  # uncompressed tar
-  if (length(bytes) >= 262L && identical(bytes[258:262], charToRaw("ustar")))
+  NULL
+
+}
+
+# gzfile() transparently reads gzip, bzip2 and xz streams
+renv_archive_type_sniff_compressed <- function(archive) {
+
+  con <- catch(gzfile(archive, open = "rb"))
+  if (inherits(con, "error"))
+    return(NULL)
+  defer(close(con))
+
+  header <- catch(suppressWarnings(readBin(con, what = "raw", n = 262L)))
+  if (renv_archive_tar_magic_matches(header))
     return("tar")
 
   NULL
@@ -68,6 +86,10 @@ renv_archive_type_sniff <- function(archive) {
 renv_archive_magic_matches <- function(bytes, magic) {
   n <- length(magic)
   length(bytes) >= n && identical(bytes[seq_len(n)], as.raw(magic))
+}
+
+renv_archive_tar_magic_matches <- function(bytes) {
+  is.raw(bytes) && length(bytes) >= 262L && identical(bytes[258:262], charToRaw("ustar"))
 }
 
 renv_archive_list <- function(archive) {
