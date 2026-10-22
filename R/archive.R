@@ -42,7 +42,7 @@ renv_archive_type_sniff <- function(archive) {
   # any ZIP archive starts with 'PK'; the next two bytes differ between
   # local file headers (03 04), empty archives (05 06), and spanned
   # archives (07 08)
-  if (renv_raw_starts_with(bytes, c(0x50, 0x4b)))
+  if (renv_archive_magic_matches(bytes, c(0x50, 0x4b)))
     return("zip")
 
   # compressed tarballs; the tar tools detect the compression themselves
@@ -54,7 +54,7 @@ renv_archive_type_sniff <- function(archive) {
   )
 
   for (magic in magics)
-    if (renv_raw_starts_with(bytes, magic))
+    if (renv_archive_magic_matches(bytes, magic))
       return("tar")
 
   # uncompressed tar
@@ -65,9 +65,9 @@ renv_archive_type_sniff <- function(archive) {
 
 }
 
-renv_raw_starts_with <- function(bytes, prefix) {
-  n <- length(prefix)
-  length(bytes) >= n && identical(bytes[seq_len(n)], as.raw(prefix))
+renv_archive_magic_matches <- function(bytes, magic) {
+  n <- length(magic)
+  length(bytes) >= n && identical(bytes[seq_len(n)], as.raw(magic))
 }
 
 renv_archive_list <- function(archive) {
