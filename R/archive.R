@@ -1,5 +1,18 @@
-
+# detect the archive type from the file's contents, falling back to the
+# file extension when the path is not a readable file (e.g. a directory,
+# or a file which hasn't been downloaded yet) or the contents aren't
+# recognized. repositories don't always name binaries by their contents:
+# a ZIP binary may be served as '.tar.xz' and vice versa, as with Windows
+# custom binary types (#2422), and new extensions appear as repositories
+# adopt new compressions. R-devel (r90464) sniffs its custom binaries the
+# same way.
+#
+# https://github.com/rstudio/renv/issues/2424
 renv_archive_type <- function(archive) {
+
+  type <- renv_archive_type_sniff(archive)
+  if (!is.null(type))
+    return(type)
 
   ext <- fileext(archive)
 
@@ -12,6 +25,41 @@ renv_archive_type <- function(archive) {
     return("zip")
   else
     return("unknown")
+
+}
+
+renv_archive_type_sniff <- function(archive) {
+
+  info <- renv_file_info(archive)
+  if (!identical(info$isdir, FALSE))
+    return(NULL)
+
+  # gzfile() detects gzip, bzip2, xz and (when R was built with it) zstd
+  # compression from the file's own magic bytes and decompresses on the fly;
+  # anything else, including uncompressed data, is read as-is. see ?connections.
+  # a compressed stream isn't necessarily a tarball -- PACKAGES.gz and .rds
+  # files are gzip or xz streams too, and R's internal tar errors when asked
+  # to list them (#2428) -- so look for the tar magic in the decompressed data
+  con <- catch(suppressWarnings(gzfile(archive, open = "rb")))
+  if (inherits(con, "error"))
+    return(NULL)
+  defer(close(con))
+
+  # 'ustar' sits at offset 257 in a tar header
+  bytes <- catch(suppressWarnings(readBin(con, what = "raw", n = 262L)))
+  if (!is.raw(bytes))
+    return(NULL)
+
+  # any ZIP archive starts with 'PK'; the next two bytes differ between
+  # local file headers (03 04), empty archives (05 06), and spanned
+  # archives (07 08)
+  if (length(bytes) >= 2L && identical(bytes[1:2], as.raw(c(0x50, 0x4b))))
+    return("zip")
+
+  if (length(bytes) >= 262L && identical(bytes[258:262], charToRaw("ustar")))
+    return("tar")
+
+  NULL
 
 }
 
