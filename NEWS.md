@@ -1,5 +1,12 @@
 # renv (development version)
 
+* renv now detects whether a package archive is a tarball or a ZIP file from
+  its contents, falling back to the file extension only when the contents are
+  not recognized. Previously, renv trusted the extension alone, so a ZIP
+  binary served under a `.tar.xz` name (or any archive served under an
+  extension renv did not know) failed to extract even though R could unpack
+  it. (#2424)
+
 * `renv::diagnostics()` now reports which `tar` renv uses to extract archives
   and install packages, and which one R's `untar()` uses by default. On
   Windows, it notes when `TAR` selects a tar other than the system tar, as

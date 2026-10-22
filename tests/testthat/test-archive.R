@@ -120,3 +120,56 @@ test_that("tarballs using other compressions are recognized and handled", {
   expect_equal(renv_archive_type("pkg_1.0.rds"), "unknown")
 
 })
+
+test_that("archive type is detected from contents, not just extension", {
+
+  renv_scope_tempdir()
+  dir.create("pkg")
+  writeLines(c("Package: pkg", "Version: 1.0"), con = "pkg/DESCRIPTION")
+
+  tar("pkg.tgz", files = "pkg", compression = "gzip", tar = "internal")
+  tar("pkg.tar", files = "pkg", compression = "none", tar = "internal")
+  tar("pkg.tbz", files = "pkg", compression = "bzip2", tar = "internal")
+  tar("pkg.txz", files = "pkg", compression = "xz", tar = "internal")
+
+  # tarballs served under extensions renv doesn't recognize
+  for (tarball in c("pkg.tgz", "pkg.tar", "pkg.tbz", "pkg.txz")) {
+    file.copy(tarball, "pkg.bin", overwrite = TRUE)
+    expect_equal(renv_archive_type("pkg.bin"), "tar")
+    expect_true("pkg/DESCRIPTION" %in% renv_archive_list("pkg.bin"))
+  }
+
+  # a gzip tarball saved under a .zip extension
+  file.copy("pkg.tgz", "pkg.zip", overwrite = TRUE)
+  expect_equal(renv_archive_type("pkg.zip"), "tar")
+  expect_equal(renv_description_read("pkg.zip")$Package, "pkg")
+
+  # a zip archive saved under a tarball extension, and under an unknown one
+  zipper <- Sys.getenv("R_ZIPCMD", unset = "zip")
+  if (nzchar(Sys.which(zipper))) {
+
+    zip("pkg_1.0.zip", files = "pkg", extras = "-q")
+    file.copy("pkg_1.0.zip", "pkg_1.0.tar.xz", overwrite = TRUE)
+    file.copy("pkg_1.0.zip", "pkg_1.0.bin", overwrite = TRUE)
+
+    for (archive in c("pkg_1.0.zip", "pkg_1.0.tar.xz", "pkg_1.0.bin")) {
+      expect_equal(renv_archive_type(archive), "zip")
+      expect_equal(renv_description_read(archive)$Package, "pkg")
+      exdir <- renv_scope_tempfile()
+      renv_archive_decompress(archive, exdir = exdir)
+      expect_true(file.exists(file.path(exdir, "pkg/DESCRIPTION")))
+    }
+
+  }
+
+  # unrecognized contents fall back to the extension
+  writeLines("not an archive", con = "text.tar.gz")
+  expect_equal(renv_archive_type("text.tar.gz"), "tar")
+  writeLines("not an archive", con = "text.txt")
+  expect_equal(renv_archive_type("text.txt"), "unknown")
+
+  # directories and nonexistent paths use the extension alone
+  expect_equal(renv_archive_type("pkg"), "unknown")
+  expect_equal(renv_archive_type("missing.tar.gz"), "tar")
+
+})

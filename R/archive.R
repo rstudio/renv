@@ -1,5 +1,18 @@
-
+# detect the archive type from the file's contents, falling back to the
+# file extension when the path is not a readable file (e.g. a directory,
+# or a file which hasn't been downloaded yet) or the contents aren't
+# recognized. repositories don't always name binaries by their contents:
+# a ZIP binary may be served as '.tar.xz' and vice versa, as with Windows
+# custom binary types (#2422), and new extensions appear as repositories
+# adopt new compressions. R-devel (r90464) sniffs its custom binaries the
+# same way.
+#
+# https://github.com/rstudio/renv/issues/2424
 renv_archive_type <- function(archive) {
+
+  type <- renv_archive_type_sniff(archive)
+  if (!is.null(type))
+    return(type)
 
   ext <- fileext(archive)
 
@@ -13,6 +26,48 @@ renv_archive_type <- function(archive) {
   else
     return("unknown")
 
+}
+
+renv_archive_type_sniff <- function(archive) {
+
+  info <- renv_file_info(archive)
+  if (!identical(info$isdir, FALSE))
+    return(NULL)
+
+  # 'ustar' sits at offset 257 in an uncompressed tar header
+  bytes <- catch(readBin(archive, what = "raw", n = 262L))
+  if (!is.raw(bytes))
+    return(NULL)
+
+  # any ZIP archive starts with 'PK'; the next two bytes differ between
+  # local file headers (03 04), empty archives (05 06), and spanned
+  # archives (07 08)
+  if (renv_raw_starts_with(bytes, c(0x50, 0x4b)))
+    return("zip")
+
+  # compressed tarballs; the tar tools detect the compression themselves
+  magics <- list(
+    gzip  = c(0x1f, 0x8b),
+    bzip2 = c(0x42, 0x5a, 0x68),
+    xz    = c(0xfd, 0x37, 0x7a, 0x58, 0x5a, 0x00),
+    zstd  = c(0x28, 0xb5, 0x2f, 0xfd)
+  )
+
+  for (magic in magics)
+    if (renv_raw_starts_with(bytes, magic))
+      return("tar")
+
+  # uncompressed tar
+  if (length(bytes) >= 262L && identical(bytes[258:262], charToRaw("ustar")))
+    return("tar")
+
+  NULL
+
+}
+
+renv_raw_starts_with <- function(bytes, prefix) {
+  n <- length(prefix)
+  length(bytes) >= n && identical(bytes[seq_len(n)], as.raw(prefix))
 }
 
 renv_archive_list <- function(archive) {
