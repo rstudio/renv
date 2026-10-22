@@ -34,66 +34,33 @@ renv_archive_type_sniff <- function(archive) {
   if (!identical(info$isdir, FALSE))
     return(NULL)
 
-  # 'ustar' sits at offset 257 in an uncompressed tar header
-  bytes <- catch(readBin(archive, what = "raw", n = 262L))
+  # gzfile() detects gzip, bzip2, xz and (when R was built with it) zstd
+  # compression from the file's own magic bytes and decompresses on the fly;
+  # anything else, including uncompressed data, is read as-is. see ?connections.
+  # a compressed stream isn't necessarily a tarball -- PACKAGES.gz and .rds
+  # files are gzip or xz streams too, and R's internal tar errors when asked
+  # to list them (#2428) -- so look for the tar magic in the decompressed data
+  con <- catch(suppressWarnings(gzfile(archive, open = "rb")))
+  if (inherits(con, "error"))
+    return(NULL)
+  defer(close(con))
+
+  # 'ustar' sits at offset 257 in a tar header
+  bytes <- catch(suppressWarnings(readBin(con, what = "raw", n = 262L)))
   if (!is.raw(bytes))
     return(NULL)
 
   # any ZIP archive starts with 'PK'; the next two bytes differ between
   # local file headers (03 04), empty archives (05 06), and spanned
   # archives (07 08)
-  if (renv_archive_magic_matches(bytes, c(0x50, 0x4b)))
+  if (length(bytes) >= 2L && identical(bytes[1:2], as.raw(c(0x50, 0x4b))))
     return("zip")
 
-  # uncompressed tar
-  if (renv_archive_tar_magic_matches(bytes))
-    return("tar")
-
-  # a compressed stream isn't necessarily a tarball: PACKAGES.gz and .rds
-  # files are gzip or xz streams too, and R's internal tar errors when asked
-  # to list them (#2428). check the decompressed header for the tar magic
-  # instead
-  magics <- list(
-    gzip  = c(0x1f, 0x8b),
-    bzip2 = c(0x42, 0x5a, 0x68),
-    xz    = c(0xfd, 0x37, 0x7a, 0x58, 0x5a, 0x00),
-    zstd  = c(0x28, 0xb5, 0x2f, 0xfd)
-  )
-
-  for (magic in magics)
-    if (renv_archive_magic_matches(bytes, magic))
-      return(renv_archive_type_sniff_compressed(archive))
-
-  NULL
-
-}
-
-# gzfile() transparently reads gzip, bzip2 and xz streams, and zstd streams
-# when R (>= 4.5) was built with zstd support; see ?connections. without that
-# support the zstd frame is read as-is, no tar magic is found, and the type
-# falls back to the extension -- R's internal tar can't read zstd then either
-renv_archive_type_sniff_compressed <- function(archive) {
-
-  con <- catch(gzfile(archive, open = "rb"))
-  if (inherits(con, "error"))
-    return(NULL)
-  defer(close(con))
-
-  header <- catch(suppressWarnings(readBin(con, what = "raw", n = 262L)))
-  if (renv_archive_tar_magic_matches(header))
+  if (length(bytes) >= 262L && identical(bytes[258:262], charToRaw("ustar")))
     return("tar")
 
   NULL
 
-}
-
-renv_archive_magic_matches <- function(bytes, magic) {
-  n <- length(magic)
-  length(bytes) >= n && identical(bytes[seq_len(n)], as.raw(magic))
-}
-
-renv_archive_tar_magic_matches <- function(bytes) {
-  is.raw(bytes) && length(bytes) >= 262L && identical(bytes[258:262], charToRaw("ustar"))
 }
 
 renv_archive_list <- function(archive) {
