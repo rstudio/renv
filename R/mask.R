@@ -77,10 +77,14 @@ untar <- function(tarfile,
     tar     = tar
   )
 
-  # check for errors (tar returns a status code)
-  if (is.integer(result) && result != 0L) {
+  # check for errors. when extracting, tar returns a status code; when listing
+  # with an external tar, system(intern = TRUE) only warns on failure and
+  # attaches the status to the (empty) output instead, so a corrupt tarball
+  # would otherwise list as empty and pass validation
+  status <- if (is.integer(result)) result else attr(result, "status", exact = TRUE)
+  if (!is.null(status) && status != 0L) {
     call <- stringify(sys.call())
-    stopf("'%s' returned status code %i", call, result)
+    stopf("'%s' returned status code %i", call, as.integer(status))
   }
 
   # return other results as-is

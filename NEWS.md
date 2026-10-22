@@ -1,5 +1,11 @@
 # renv (development version)
 
+* renv now rejects downloaded archives which cannot be read, as was always
+  intended. Previously, the check was skipped because the temporary download
+  file had no extension, and even when it ran, a failure reported by the
+  system `tar` was ignored, so only R's internal tar (used on Windows) could
+  reject a corrupt download. (#2429)
+
 * renv now detects whether a package archive is a tarball or a ZIP file from
   its contents, falling back to the file extension only when the contents are
   not recognized. Previously, renv trusted the extension alone, so a ZIP

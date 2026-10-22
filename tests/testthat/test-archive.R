@@ -121,6 +121,37 @@ test_that("tarballs using other compressions are recognized and handled", {
 
 })
 
+test_that("corrupt tarballs are rejected with either tar", {
+  skip_on_cran()
+  skip_if_not_installed("webfakes")
+
+  renv_scope_tempdir()
+  writeLines("oh no", con = "pkg_1.0.tar.gz")
+
+  # serve the same contents over HTTP, as local file copies aren't validated
+  app <- webfakes::new_app()
+  app$get("/pkg_1.0.tar.gz", function(req, res) {
+    res$set_type("application/gzip")$send("oh no\n")
+  })
+  server <- webfakes::new_app_process(app)
+  url <- paste0(server$url(), "/pkg_1.0.tar.gz")
+
+  # R's internal tar reports the error itself; an external tar only warns
+  # via system(), so renv has to check its exit status
+  tars <- c("internal", Sys.which("tar"))
+  for (tar in tars[nzchar(tars)]) {
+
+    renv_scope_envvars(TAR = tar)
+    expect_error(renv_archive_list("pkg_1.0.tar.gz"))
+
+    destfile <- renv_scope_tempfile("renv-download-", fileext = ".tar.gz")
+    expect_error(download(url, destfile = destfile, quiet = TRUE), "archive cannot be read")
+    expect_false(file.exists(destfile))
+
+  }
+
+})
+
 test_that("archive type is detected from contents, not just extension", {
 
   renv_scope_tempdir()
