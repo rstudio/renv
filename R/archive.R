@@ -52,11 +52,12 @@ renv_archive_type_sniff <- function(archive) {
   # a compressed stream isn't necessarily a tarball: PACKAGES.gz and .rds
   # files are gzip or xz streams too, and R's internal tar errors when asked
   # to list them (#2428). check the decompressed header for the tar magic
-  # instead. gzfile() can't read zstd, so zstd falls back to the extension.
+  # instead
   magics <- list(
     gzip  = c(0x1f, 0x8b),
     bzip2 = c(0x42, 0x5a, 0x68),
-    xz    = c(0xfd, 0x37, 0x7a, 0x58, 0x5a, 0x00)
+    xz    = c(0xfd, 0x37, 0x7a, 0x58, 0x5a, 0x00),
+    zstd  = c(0x28, 0xb5, 0x2f, 0xfd)
   )
 
   for (magic in magics)
@@ -67,7 +68,10 @@ renv_archive_type_sniff <- function(archive) {
 
 }
 
-# gzfile() transparently reads gzip, bzip2 and xz streams
+# gzfile() transparently reads gzip, bzip2 and xz streams, and zstd streams
+# when R (>= 4.5) was built with zstd support; see ?connections. without that
+# support the zstd frame is read as-is, no tar magic is found, and the type
+# falls back to the extension -- R's internal tar can't read zstd then either
 renv_archive_type_sniff_compressed <- function(archive) {
 
   con <- catch(gzfile(archive, open = "rb"))

@@ -207,3 +207,27 @@ test_that("compressed files which aren't tarballs aren't treated as archives", {
   expect_equal(readRDS(destfile), list(a = 1))
 
 })
+
+test_that("zstd tarballs are detected from their contents", {
+
+  renv_scope_tempdir()
+  dir.create("pkg")
+  writeLines(c("Package: pkg", "Version: 1.0"), con = "pkg/DESCRIPTION")
+
+  # tar() only writes zstd when R (>= 4.5) was built with zstd support
+  status <- catch(tar("pkg.tar.zst", files = "pkg", compression = "zstd", tar = "internal"))
+  skip_if(inherits(status, "error"), "R was built without zstd support")
+
+  # R's internal tar reads zstd whenever gzfile() does
+  renv_scope_envvars(TAR = "internal")
+
+  file.copy("pkg.tar.zst", "pkg.bin")
+  expect_equal(renv_archive_type("pkg.bin"), "tar")
+  expect_true("pkg/DESCRIPTION" %in% renv_archive_list("pkg.bin"))
+
+  # a zstd-compressed non-tarball isn't an archive
+  saveRDS(list(a = 1), "database.rds", compress = "zstd")
+  expect_equal(renv_archive_type("database.rds"), "unknown")
+  expect_false(renv_download_check_archive("database.rds"))
+
+})
