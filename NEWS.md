@@ -1,5 +1,12 @@
 # renv (development version)
 
+* Parse errors and other problems found while scanning a file for
+  dependencies are now reported by every scan in a session, not just the
+  first. Previously, the quiet dependency scan run when a project is loaded
+  cached each file's result without its problems, so later calls to
+  `renv::status()`, `renv::snapshot()`, and `renv::dependencies()` reported
+  the project as out-of-sync without explaining why. (#2430)
+
 * `renv::diagnostics()` now reports which `tar` renv uses to extract archives
   and install packages, and which one R's `untar()` uses by default. On
   Windows, it notes when `TAR` selects a tar other than the system tar, as

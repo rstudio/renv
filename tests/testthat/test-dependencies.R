@@ -1049,3 +1049,28 @@ test_that("DESCRIPTION dependency constraints are parsed, including '!='", {
   expect_equal(deps$Version, c("1.0.0", "", "0.1.0"))
 
 })
+
+test_that("dependency errors are reported even when the file scan was cached", {
+
+  renv_tests_scope()
+  renv_scope_options(renv.config.filebacked.cache = TRUE)
+  renv_scope_caution(FALSE)
+
+  writeLines(c("library(A)", "foo("), con = "broken.R")
+
+  # a quiet scan (as done on project load) populates the per-file cache
+  # https://github.com/rstudio/renv/issues/2430
+  deps <- dependencies(errors = "ignored")
+  expect_false("A" %in% deps$Package)
+
+  # a later scan in the same session should still report the parse error
+  problems <- NULL
+  withCallingHandlers(
+    dependencies(errors = "reported"),
+    renv.dependencies.problems = function(cnd) problems <<- cnd$data
+  )
+
+  expect_length(problems, 1L)
+  expect_equal(basename(problems[[1L]]$file), "broken.R")
+
+})

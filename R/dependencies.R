@@ -521,13 +521,41 @@ renv_dependencies_discover_impl <- function(path) {
     return(NULL)
   }
 
-  status <- catch(filebacked("dependencies", path, callback))
+  status <- catch(filebacked("dependencies", path, renv_dependencies_discover_cached, callback))
   if (inherits(status, "error")) {
     signalCondition(warnify(status))
-    NULL
+    return(NULL)
   }
 
-  status
+  # replay any problems recorded when this file was first scanned; otherwise,
+  # a quiet scan (e.g. the synchronization check on load) would populate the
+  # cache and later scans would never report them
+  #
+  # https://github.com/rstudio/renv/issues/2430
+  state <- renv_dependencies_state()
+  if (!is.null(state))
+    do.call(state$problems$push, status$problems)
+
+  status$dependencies
+
+}
+
+renv_dependencies_discover_cached <- function(path, callback) {
+
+  # record how many problems were already reported, so we can
+  # pick out the ones added while scanning this file
+  state <- renv_dependencies_state()
+  before <- if (is.null(state)) 0L else length(state$problems$data())
+
+  dependencies <- callback(path)
+
+  problems <- list()
+  if (!is.null(state)) {
+    all <- state$problems$data()
+    problems <- tail(all, n = length(all) - before)
+  }
+
+  list(dependencies = dependencies, problems = problems)
 
 }
 
