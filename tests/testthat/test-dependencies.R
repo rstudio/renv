@@ -1049,3 +1049,54 @@ test_that("DESCRIPTION dependency constraints are parsed, including '!='", {
   expect_equal(deps$Version, c("1.0.0", "", "0.1.0"))
 
 })
+
+test_that("dependency errors are reported even when the file scan was cached", {
+
+  renv_tests_scope()
+  renv_scope_options(renv.config.filebacked.cache = TRUE)
+  renv_scope_caution(FALSE)
+
+  writeLines(c("library(A)", "foo("), con = "broken.R")
+
+  # the initial (uncached) scan should report the parse error exactly once
+  problems <- NULL
+  withCallingHandlers(
+    dependencies(errors = "reported"),
+    renv.dependencies.problems = function(cnd) problems <<- cnd$data
+  )
+
+  expect_length(problems, 1L)
+  expect_equal(basename(problems[[1L]]$file), "broken.R")
+
+  # a later scan in the same session (now served from the per-file cache)
+  # should report it again, still exactly once
+  # https://github.com/rstudio/renv/issues/2430
+  problems <- NULL
+  withCallingHandlers(
+    dependencies(errors = "reported"),
+    renv.dependencies.problems = function(cnd) problems <<- cnd$data
+  )
+
+  expect_length(problems, 1L)
+  expect_equal(basename(problems[[1L]]$file), "broken.R")
+
+})
+
+test_that("dependency errors are reported once when the file cache is disabled", {
+
+  renv_tests_scope()
+  renv_scope_options(renv.config.filebacked.cache = FALSE)
+  renv_scope_caution(FALSE)
+
+  writeLines(c("library(A)", "foo("), con = "broken.R")
+
+  problems <- NULL
+  withCallingHandlers(
+    dependencies(errors = "reported"),
+    renv.dependencies.problems = function(cnd) problems <<- cnd$data
+  )
+
+  expect_length(problems, 1L)
+  expect_equal(basename(problems[[1L]]$file), "broken.R")
+
+})
