@@ -513,9 +513,10 @@ renv_graph_description_archive <- function(record) {
     }
   }
 
-  # download to the shared sources path so that the later retrieve of this
-  # same record reuses the tarball rather than downloading it a second time
-  destfile <- renv_retrieve_path(record, type = "source")
+  # download to the shared sources path, under the name the later retrieve of
+  # this same record will look for, so it reuses the tarball rather than
+  # downloading it a second time
+  destfile <- renv_retrieve_path(record, type = "source", name = name)
   ensure_parent_directory(destfile)
 
   for (repo in repos) {
@@ -1249,7 +1250,7 @@ renv_graph_url_repository <- function(desc) {
     reponame <- attr(record, "name", exact = TRUE)
     name <- renv_retrieve_repos_archive_name(as.list(desc), "source")
     url <- file.path(root, name)
-    destfile <- renv_retrieve_path(as.list(desc), type = "source")
+    destfile <- renv_retrieve_path(as.list(desc), type = "source", name = name)
     return(list(
       url      = url,
       destfile = destfile,
@@ -1339,7 +1340,12 @@ renv_graph_url_repository_record <- function(desc, record) {
   if (is.null(repo))
     return(NULL)
 
-  destfile <- renv_retrieve_path(as.list(desc), type = type)
+  # the local copy takes its extension from the file the repository
+  # advertises, so that e.g. a '.tar.xz' custom binary is not stored under a
+  # '.tgz' name (#2423)
+  name <- renv_retrieve_repos_archive_name(record, type)
+  url <- file.path(repo, name)
+  destfile <- renv_retrieve_path(as.list(desc), type = type, name = name)
 
   # archive enrichment already downloaded and validated this tarball while
   # reading its DESCRIPTION. route it through sequential retrieval, whose
@@ -1347,9 +1353,6 @@ renv_graph_url_repository_record <- function(desc, record) {
   # the parallel batch
   if (renv_record_archived(desc) && file.exists(destfile))
     return(NULL)
-
-  name <- renv_retrieve_repos_archive_name(record, type)
-  url <- file.path(repo, name)
 
   # carry repository metadata so install can tag the record
   # for renv_package_augment (RemoteRepos, RemoteReposName)
@@ -1441,7 +1444,7 @@ renv_graph_url_local <- function(desc) {
       next
 
     path <- renv_path_normalize(path, mustWork = TRUE)
-    destfile <- renv_retrieve_path(as.list(desc))
+    destfile <- renv_retrieve_path(as.list(desc), name = basename(path))
 
     # use a file URI so the parallel downloaders can handle it uniformly
     url <- paste0("file://", path)
@@ -1466,7 +1469,7 @@ renv_graph_url_cellar <- function(desc) {
   name <- renv_retrieve_repos_archive_name(as.list(desc), type)
   href <- file.path(url, name)
 
-  destfile <- renv_retrieve_path(as.list(desc), type = type)
+  destfile <- renv_retrieve_path(as.list(desc), type = type, name = name)
 
   list(
     url       = href,
