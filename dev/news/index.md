@@ -2,6 +2,18 @@
 
 ## renv (development version)
 
+- Parse errors and other problems found while scanning a file for
+  dependencies are now reported by every scan in a session, not just the
+  first. Previously, the quiet dependency scan run when a project is
+  loaded cached each file’s result without its problems, so later calls
+  to
+  [`renv::status()`](https://rstudio.github.io/renv/dev/reference/status.md),
+  [`renv::snapshot()`](https://rstudio.github.io/renv/dev/reference/snapshot.md),
+  and
+  [`renv::dependencies()`](https://rstudio.github.io/renv/dev/reference/dependencies.md)
+  reported the project as out-of-sync without explaining why.
+  ([\#2430](https://github.com/rstudio/renv/issues/2430))
+
 - renv now rejects downloaded archives which cannot be read, as was
   always intended. Previously, the check was skipped because the
   temporary download file had no extension, and even when it ran, a
