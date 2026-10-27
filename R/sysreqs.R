@@ -389,8 +389,34 @@ renv_sysreqs_crandb <- function(package, version = NULL) {
 
   record <- versions[[version]]
 
+  fields <- c("Depends", "Imports", "LinkingTo")
+  converted <- catch(renv_sysreqs_crandb_convert(record, fields))
+  if (!inherits(converted, "error"))
+    return(converted)
+
+  # HACK: crandb mangles repeated dependency names, so it can't report this
+  # record's dependencies faithfully (see renv_graph_description_crandb_convert(),
+  # #2432). its system requirements are still usable, so resolve just the
+  # dependencies the same way installation would
+  query <- list(Package = package, Version = version, Source = "Repository")
+  desc <- catch(renv_graph_description_repository(query))
+  if (inherits(desc, "error")) {
+    fmt <- "could not determine the dependencies of package '%s' %s"
+    warningf(fmt, package, version)
+    desc <- list()
+  }
+
+  for (field in fields)
+    record[[field]] <- desc[[field]]
+
+  record
+
+}
+
+renv_sysreqs_crandb_convert <- function(record, fields) {
+
   # crandb provides dependencies as objects mapping packages to constraints
-  for (field in c("Depends", "Imports", "LinkingTo")) {
+  for (field in fields) {
     value <- record[[field]]
     if (!is.null(value))
       record[[field]] <- renv_graph_description_crandb_convert(value)

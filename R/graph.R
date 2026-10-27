@@ -387,7 +387,8 @@ renv_graph_description_repository <- function(record) {
   # the requested version wasn't found in configured repos; try crandb for the
   # specific version's dependency fields. this must come before any fallback
   # that reuses the latest entry's fields with an overridden version, since
-  # dependency constraints can change between versions (e.g. #2278)
+  # dependency constraints can change between versions (e.g. #2278). crandb
+  # records whose dependencies it has mangled are rejected here (#2432)
   if (!is.null(version)) {
     crandb <- catch(renv_graph_description_crandb(package, version))
     if (!inherits(crandb, "error"))
@@ -627,6 +628,21 @@ renv_graph_description_crandb <- function(package, version) {
 }
 
 renv_graph_description_crandb_convert <- function(value) {
+
+  # HACK: this check works around a defect in crandb. crandb stores each
+  # dependency field as a JSON object keyed by package name, and its JSON
+  # serializer renames duplicated keys with make.unique(); a package listed
+  # twice in a field (e.g. 'utils' in partykit 1.3-0) is served as 'utils'
+  # and 'utils.1'. that is indistinguishable from a dependency on a real
+  # package called 'utils.1', so rather than guess, reject these records and
+  # let callers fall back to a source with the original DESCRIPTION (#2432)
+  keys <- names(value)
+  base <- sub("[.][0-9]+$", "", keys)
+  ambiguous <- keys[base != keys & base %in% keys]
+  if (length(ambiguous)) {
+    fmt <- "crandb dependency names are ambiguous: %s"
+    stopf(fmt, paste(shQuote(ambiguous), collapse = ", "))
+  }
 
   parts <- enum_chr(value, function(name, version) {
     sprintf("%s (%s)", name, version)
