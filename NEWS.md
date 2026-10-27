@@ -1,5 +1,8 @@
 # renv (development version)
 
+* Fixed a test failure on platforms using musl libc (e.g. Alpine Linux), whose
+  `iconv()` cannot convert text to GBK. (#2434)
+
 * Parse errors and other problems found while scanning a file for
   dependencies are now reported by every scan in a session, not just the
   first. Previously, the quiet dependency scan run when a project is loaded
