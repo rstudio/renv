@@ -1,5 +1,10 @@
 # renv (development version)
 
+* renv's compiled extensions are now resolved once when the package is
+  loaded, and called via their native symbols, rather than being looked up
+  by name on every `.Call()`. This modestly speeds up dependency discovery,
+  which calls into the extensions for each expression scanned.
+
 * `renv::diagnostics()` now reports which `tar` renv uses to extract archives
   and install packages, and which one R's `untar()` uses by default. On
   Windows, it notes when `TAR` selects a tar other than the system tar, as

@@ -20,6 +20,13 @@ renv_ext_init <- function() {
     return()
 
   envir <- renv_envir_self()
+
+  # resolve the registered routines once, so that the ffi wrappers can hand
+  # .Call() a native symbol rather than a name to be looked up on each call
+  routines <- getDLLRegisteredRoutines(the$dll_info)[[".Call"]]
+  for (name in names(routines))
+    renv_binding_replace(envir, name, routines[[name]])
+
   symbols <- ls(envir = envir, pattern = "^__ffi__")
   map(symbols, function(symbol) {
     renv_binding_replace(
