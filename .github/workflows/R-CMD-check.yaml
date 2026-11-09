@@ -32,8 +32,12 @@ jobs:
 
           # Windows on ARM: binaries are served as ZIP files but installed
           # via untar() on some builds of R, and public RSPM has no binaries,
-          # so dependencies are built from source (#2418)
-          - {os: windows-11-arm, r: 'release'}
+          # so dependencies are built from source (#2418). The ARM build of R
+          # defaults to r-universe as its CRAN mirror; use CRAN itself so that
+          # pak accepts the cached library (it only trusts installed source
+          # packages whose DESCRIPTION says 'Repository: CRAN') rather than
+          # rebuilding every package on every run
+          - {os: windows-11-arm, r: 'release', cran: 'https://cloud.r-project.org'}
 
           - {os: ubuntu-latest,   r: 'devel', http-user-agent: 'release'}
           - {os: ubuntu-latest,   r: 'release'}
@@ -55,6 +59,7 @@ jobs:
         with:
           r-version: ${{ matrix.config.r }}
           http-user-agent: ${{ matrix.config.http-user-agent }}
+          cran: ${{ matrix.config.cran }}
           use-public-rspm: true
 
       - uses: r-lib/actions/setup-r-dependencies@v2

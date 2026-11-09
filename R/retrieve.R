@@ -332,10 +332,37 @@ renv_retrieve_name <- function(record, type = "source", ext = NULL) {
   sprintf("%s_%s%s", package, version, ext)
 }
 
-renv_retrieve_path <- function(record, type = "source", ext = NULL) {
+# the archive extension for a local copy of 'name', the file a repository
+# advertises for a package (the 'File' field of its PACKAGES index, or the
+# name of a cellar or local archive). r-universe appends query parameters to
+# the 'Path' entries of its index, so tolerate them here too. anything that
+# does not end in a recognized archive extension (including an unknown name)
+# gets the extension assumed for packages of this type on this build of R
+renv_retrieve_ext <- function(name, type = "source") {
+
+  if (is.null(name))
+    return(renv_package_ext(type))
+
+  name <- sub("[?#].*$", "", name)
+  ext <- regmatches(name, regexpr(renv_package_ext_pattern(), name, perl = TRUE))
+  if (length(ext) == 1L && nzchar(ext))
+    return(ext)
+
+  renv_package_ext(type)
+
+}
+
+# the local path for a package archive. the file is named after the record
+# (its package and version, or the commit it was built from, when known) so
+# that e.g. r-universe builds of one version from different commits do not
+# share a file. only its extension follows 'name', the file the repository
+# advertises, so that e.g. a '.tar.xz' custom binary is not stored under a
+# '.tgz' name (#2423)
+renv_retrieve_path <- function(record, type = "source", name = NULL) {
 
   # extract relevant record information
   package <- record$Package
+  ext <- renv_retrieve_ext(name, type)
   name <- renv_retrieve_name(record, type, ext)
 
   # if we have a destdir override, use this
@@ -1347,7 +1374,7 @@ renv_retrieve_repos_impl <- function(record,
   }
 
   url <- file.path(repo, name)
-  path <- renv_retrieve_path(record, type)
+  path <- renv_retrieve_path(record, type, name = name)
 
   renv_retrieve_package(record, url, path, defer = defer)
 
