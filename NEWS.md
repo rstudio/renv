@@ -1,5 +1,14 @@
 # renv (development version)
 
+* Fixed `renv::restore()` and `renv::install()` failing with errors like
+  "package 'utils.1' is not available" when a package version that is no
+  longer available from the configured repositories lists the same dependency
+  twice. crandb, which renv consults for the dependencies of such versions,
+  renames repeated dependencies (e.g. `utils` becomes `utils.1`); renv now
+  ignores those crandb records and reads the package's DESCRIPTION from the
+  repository archive instead. `renv::sysreqs()` no longer reports such renamed
+  packages as dependencies either. (#2432)
+
 * Fixed a test failure on platforms using musl libc (e.g. Alpine Linux), whose
   `iconv()` cannot convert text to GBK. (#2434)
 
