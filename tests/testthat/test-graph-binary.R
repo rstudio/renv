@@ -519,10 +519,14 @@ test_that("binary workers preserve custom copy method closures and are reused", 
   ensure_directory(workdir)
   server <- renv_socket_server()
   defer(close(server$socket))
-  worker <- renv_graph_install_pool_launch("1", server$port, workdir, 60)
+  worker <- renv_graph_install_pool_launch("1", server$port, workdir)
   defer(renv_graph_install_pool_close(worker))
   worker$conn <- renv_socket_accept(server$socket, open = "r+b", timeout = 30)
-  expect_identical(unserialize(worker$conn), list(worker = "1"))
+
+  # the worker announces its id, and its pid so it can be terminated on timeout
+  hello <- unserialize(worker$conn)
+  expect_identical(hello$worker, "1")
+  expect_true(is.integer(hello$pid) && hello$pid > 0L)
 
   # the same worker serves successive requests; the fixture has nothing to
   # load, so don't load-test it yet

@@ -100,6 +100,8 @@ Defaults to \code{TRUE}.}
 Defaults to \code{TRUE}.}
 \subsection{renv.config.install.jobs}{The number of packages to install concurrently during \code{install()} and \code{restore()}. On R >= 4.0, source builds and binary installs are limited separately, so up to this many of each can run at once as their dependencies become ready. Setting this to \code{1L} builds one package at a time, but binary packages are still installed while a build is running.
 Defaults to \code{4L}.}
+\subsection{renv.config.install.timeout}{The maximum time, in seconds, that a single package may take to install during \code{install()} and \code{restore()}. A package that exceeds this limit is reported as having failed to install, and its worker process is terminated; other packages are unaffected. By default there is no limit, as large packages can legitimately take hours to build from source on slower machines. renv detects worker processes that exit unexpectedly without relying on this setting.
+Defaults to \code{NULL}.}
 \subsection{renv.config.install.verbose}{Be verbose when installing R packages from sources? When \code{TRUE}, renv will stream any output generated during package build + installation to the console.
 Defaults to \code{FALSE}.}
 \subsection{renv.config.locking.enabled}{Use interprocess locks when invoking methods which might mutate the project library? Enable this to allow multiple processes to use the same renv project, while minimizing risks relating to concurrent access to the project library. Disable this if you encounter locking issues. Locks are stored as files within the project at \code{renv/lock}; if you need to manually remove a stale lock you can do so via \code{unlink("renv/lock", recursive = TRUE)}.

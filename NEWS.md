@@ -1,5 +1,14 @@
 # renv (development version)
 
+* `renv::install()` and `renv::restore()` no longer abandon source builds
+  that take longer than an hour with the error `worker process timed out`.
+  Previously, a single one-hour budget applied to the whole install, so slow
+  builds (e.g. `duckdb` on a single-core machine) were killed partway
+  through. There is now no limit by default; the new `install.timeout`
+  configuration setting bounds how long each individual package may take,
+  and a package that exceeds it fails on its own, with its worker process
+  terminated, while the rest of the install continues. (#2437)
+
 * `renv::diagnostics()` now reports which `tar` renv uses to extract archives
   and install packages, and which one R's `untar()` uses by default. On
   Windows, it notes when `TAR` selects a tar other than the system tar, as

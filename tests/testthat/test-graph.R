@@ -2040,3 +2040,60 @@ test_that("repository graph reads DESCRIPTION from a git commit for r-universe r
   expect_equal(desc$Depends, "egg")
 
 })
+
+# https://github.com/rstudio/renv/issues/2437
+test_that("renv_graph_install applies the install timeout per package", {
+
+  skip_on_cran()
+  skip_on_os("windows")
+  skip_if(getRversion() < "4.0")
+  renv_tests_scope()
+  renv_scope_options(
+    renv.verbose                = TRUE,
+    renv.config.install.jobs    = 2L,
+    renv.config.install.timeout = 1
+  )
+
+  # use an empty cache, so that every package needs to be built
+  cache <- renv_scope_tempfile("renv-cache-")
+  renv_scope_envvars(RENV_PATHS_CACHE = cache)
+
+  # make 'bread' stall before its build starts; 'oatmeal' builds as usual
+  prepare <- get("renv_graph_install_unpack_and_prepare", envir = asNamespace("renv"))
+  renv_scope_binding(
+    envir       = asNamespace("renv"),
+    symbol      = "renv_graph_install_unpack_and_prepare",
+    replacement = function(record, ...) {
+      prepared <- prepare(record, ...)
+      if (identical(record$Package, "bread"))
+        prepared$command <- paste("sleep 30 &&", prepared$command)
+      prepared
+    }
+  )
+
+  # install non-transactionally, so that a failure does not roll back the
+  # packages that did install
+  init()
+  output <- capture.output(
+    status <- tryCatch(
+      install(c("bread", "oatmeal"), transactional = FALSE),
+      error = identity
+    )
+  )
+
+  # only the slow package failed, and the reason names the setting to adjust
+  expect_s3_class(status, "error")
+  expect_match(conditionMessage(status), "package installation failed")
+  expect_match(conditionMessage(status), "bread")
+  expect_no_match(conditionMessage(status), "oatmeal")
+  expect_match(
+    paste(output, collapse = "\n"),
+    "installation timed out after .* 'install.timeout'"
+  )
+
+  # the rest of the install carried on
+  library <- renv_paths_library()
+  expect_false(file.exists(file.path(library, "bread")))
+  expect_true(file.exists(file.path(library, "oatmeal")))
+
+})
