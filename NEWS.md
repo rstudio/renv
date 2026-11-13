@@ -1,5 +1,10 @@
 # renv (development version)
 
+* renv's compiled extensions are now resolved once when the package is
+  loaded, and called via their native symbols, rather than being looked up
+  by name on every `.Call()`. This modestly speeds up dependency discovery,
+  which calls into the extensions for each expression scanned.
+
 * Fixed `renv::restore()` and `renv::install()` failing with errors like
   "package 'utils.1' is not available" when a package version that is no
   longer available from the configured repositories lists the same dependency
