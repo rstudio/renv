@@ -266,6 +266,20 @@ so up to this many of each can run at once as their dependencies become
 ready. Setting this to `1L` builds one package at a time, but binary
 packages are still installed while a build is running. Defaults to `4L`.
 
+### renv.config.install.timeout
+
+The maximum time, in seconds, that a single package may take to install
+during
+[`install()`](https://rstudio.github.io/renv/dev/reference/install.md)
+and
+[`restore()`](https://rstudio.github.io/renv/dev/reference/restore.md).
+A package that exceeds this limit is reported as having failed to
+install, and its worker process is terminated; other packages are
+unaffected. By default there is no limit, as large packages can
+legitimately take hours to build from source on slower machines. renv
+detects worker processes that exit unexpectedly without relying on this
+setting. Defaults to `NULL`.
+
 ### renv.config.install.verbose
 
 Be verbose when installing R packages from sources? When `TRUE`, renv

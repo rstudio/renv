@@ -223,6 +223,11 @@ Defaults to <code>TRUE</code>.</p>
 Defaults to <code>4L</code>.</p>
 </div>
 <div class="section">
+<h3 id="renv-config-install-timeout">renv.config.install.timeout<a class="anchor" aria-label="anchor" href="#renv-config-install-timeout"></a></h3>
+<p>The maximum time, in seconds, that a single package may take to install during <code><a href="install.html">install()</a></code> and <code><a href="restore.html">restore()</a></code>. A package that exceeds this limit is reported as having failed to install, and its worker process is terminated; other packages are unaffected. By default there is no limit, as large packages can legitimately take hours to build from source on slower machines. renv detects worker processes that exit unexpectedly without relying on this setting.
+Defaults to <code>NULL</code>.</p>
+</div>
+<div class="section">
 <h3 id="renv-config-install-verbose">renv.config.install.verbose<a class="anchor" aria-label="anchor" href="#renv-config-install-verbose"></a></h3>
 <p>Be verbose when installing R packages from sources? When <code>TRUE</code>, renv will stream any output generated during package build + installation to the console.
 Defaults to <code>FALSE</code>.</p>
