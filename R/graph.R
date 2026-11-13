@@ -1361,7 +1361,9 @@ renv_graph_url_repository_record <- function(desc, record) {
   # '.tgz' name (#2423)
   name <- renv_retrieve_repos_archive_name(record, type)
   url <- file.path(repo, name)
-  destfile <- renv_retrieve_path(as.list(desc), type = type, name = name)
+  destfile <- renv_retrieve_path(
+    as.list(desc), type = type, name = name, url = repo
+  )
 
   # archive enrichment already downloaded and validated this tarball while
   # reading its DESCRIPTION. route it through sequential retrieval, whose

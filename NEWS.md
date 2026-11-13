@@ -1,5 +1,9 @@
 # renv (development version)
 
+* On Linux, packages retrieved from P3M binary repositories are now stored in
+  the binary cache directory, separate from source archives of the same
+  package version. (#2427)
+
 * renv's compiled extensions are now resolved once when the package is
   loaded, and called via their native symbols, rather than being looked up
   by name on every `.Call()`. This modestly speeds up dependency discovery,
