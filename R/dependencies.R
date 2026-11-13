@@ -857,8 +857,10 @@ renv_dependencies_discover_rmd_yaml_header <- function(path, mode) {
   })
 
   # check for dependency on bslib
-  theme <- catchall(yaml[[c("output", "html_document", "theme")]])
-  if (!inherits(theme, "error") && is.list(theme))
+  output <- yaml[["output"]]
+  html <- if (is.list(output)) output[["html_document"]]
+  theme <- if (is.list(html)) html[["theme"]]
+  if (is.list(theme))
     deps$push("bslib")
 
   # check for knitr opts_chunk dev in the YAML header
@@ -1224,52 +1226,10 @@ renv_dependencies_discover_r <- function(path  = NULL,
   if (!is.null(state))
     renv_scope_binding(state, "path", path)
 
-  methods <- c(
-    renv_dependencies_discover_r_methods,
-    renv_dependencies_discover_r_xfun,
-    renv_dependencies_discover_r_library_require,
-    renv_dependencies_discover_r_require_namespace,
-    renv_dependencies_discover_r_rlang,
-    renv_dependencies_discover_r_colon,
-    renv_dependencies_discover_r_citation,
-    renv_dependencies_discover_r_system_file,
-    renv_dependencies_discover_r_data,
-    renv_dependencies_discover_r_pacman,
-    renv_dependencies_discover_r_modules,
-    renv_dependencies_discover_r_import,
-    renv_dependencies_discover_r_use,
-    renv_dependencies_discover_r_targets,
-    renv_dependencies_discover_r_glue,
-    renv_dependencies_discover_r_ggplot2,
-    renv_dependencies_discover_r_parsnip,
-    renv_dependencies_discover_r_testthat,
-    renv_dependencies_discover_r_knitr,
-    renv_dependencies_discover_r_database
-  )
-
   envir <- envir %||% new.env(parent = emptyenv())
-  callback <- if (renv_ext_enabled()) {
-
-    function(node) {
-      node <- renv_call_normalize(node)
-      for (method in methods)
-        method(node, envir)
-      invisible(node)
-    }
-
-  } else {
-
-    function(node) {
-
-      node <- renv_call_normalize(node)
-      for (method in methods)
-        method(node, envir)
-
-      assign("object", node, envir = parent.frame())
-      invisible(node)
-
-    }
-
+  dispatch <- renv_dependencies_discover_r_dispatch()
+  callback <- function(node) {
+    renv_dependencies_discover_r_node(node, envir, dispatch)
   }
 
   renv_dependencies_recurse(expr, callback)
@@ -1289,6 +1249,101 @@ renv_dependencies_discover_r <- function(path  = NULL,
   }
 
   renv_dependencies_list(path, packages, dev = dev)
+}
+
+# the name of the function invoked by a call: 'foo' for 'foo()',
+# 'pkg::foo()', and 'x$foo()'; NULL if there's no such name
+renv_dependencies_discover_r_head <- function(node) {
+
+  if (!is.call(node))
+    return(NULL)
+
+  head <- node[[1L]]
+  if (is.symbol(head))
+    return(as.character(head))
+
+  if (is.call(head) && length(head) == 3L) {
+    op <- head[[1L]]
+    ok <- is.symbol(op) && (op == "::" || op == ":::" || op == "$")
+    if (ok && is.symbol(name <- head[[3L]]))
+      return(as.character(name))
+  }
+
+  NULL
+
+}
+
+# returns the (possibly normalized) node, which is what gets recursed into
+renv_dependencies_discover_r_node <- function(node, envir, dispatch) {
+
+  name <- renv_dependencies_discover_r_head(node)
+  if (is.null(name))
+    return(invisible(node))
+
+  # rewrite magrittr pipes as regular calls, then dispatch on the new call
+  if (name == "%>%" || name == "%T>%" || name == "%<>%") {
+    node <- renv_call_normalize(node)
+    name <- renv_dependencies_discover_r_head(node)
+    if (is.null(name))
+      return(invisible(node))
+  }
+
+  for (method in dispatch[[name]])
+    method(node, envir)
+
+  invisible(node)
+
+}
+
+# maps function names to the discovery methods that handle calls to them, so
+# that each call is only checked by the methods that could match it. a method
+# must be registered for every function name it can match.
+renv_dependencies_discover_r_dispatch <- function() {
+
+  # the database can be configured, so rebuild if it has changed
+  db <- renv_dependencies_database()
+  cache <- the$dependencies_dispatch
+  if (!is.null(cache) && identical(cache$db, db))
+    return(cache$table)
+
+  testthat <- c(
+    "$",
+    "R6Class",
+    names(renv_dependencies_discover_r_testthat_implied()),
+    renv_dependencies_discover_r_testthat_runners()
+  )
+
+  entries <- list(
+    list(renv_dependencies_discover_r_methods,           c("setClass", "setGeneric")),
+    list(renv_dependencies_discover_r_xfun,              c("pkg_attach", "pkg_attach2")),
+    list(renv_dependencies_discover_r_library_require,   c("library", "require")),
+    list(renv_dependencies_discover_r_require_namespace, c("requireNamespace", "loadNamespace")),
+    list(renv_dependencies_discover_r_rlang,             c("check_installed", "is_installed")),
+    list(renv_dependencies_discover_r_colon,             c("::", ":::")),
+    list(renv_dependencies_discover_r_citation,          "citation"),
+    list(renv_dependencies_discover_r_system_file,       "system.file"),
+    list(renv_dependencies_discover_r_data,              "data"),
+    list(renv_dependencies_discover_r_pacman,            "p_load"),
+    list(renv_dependencies_discover_r_modules,           c("import", "module")),
+    list(renv_dependencies_discover_r_import,            c("from", "here", "into")),
+    list(renv_dependencies_discover_r_use,               "use"),
+    list(renv_dependencies_discover_r_targets,           "tar_option_set"),
+    list(renv_dependencies_discover_r_glue,              "glue"),
+    list(renv_dependencies_discover_r_ggplot2,           "ggsave"),
+    list(renv_dependencies_discover_r_parsnip,           "set_engine"),
+    list(renv_dependencies_discover_r_testthat,          testthat),
+    list(renv_dependencies_discover_r_knitr,             "set"),
+    list(renv_dependencies_discover_r_database,          unlist(lapply(db, names)))
+  )
+
+  table <- new.env(parent = emptyenv())
+  for (entry in entries)
+    for (name in unique(entry[[2L]]))
+      table[[name]] <- c(table[[name]], entry[[1L]])
+
+  the$dependencies_dispatch <- list(db = db, table = table)
+  table
+
 }
 
 renv_dependencies_discover_r_methods <- function(node, envir) {
@@ -1806,15 +1861,7 @@ renv_dependencies_discover_r_testthat <- function(node, envir) {
   }
 
   # check for usages of testthat functions requiring optional packages
-  implied <- list(
-    expect_known_hash = "digest",
-    expect_s7_class   = "S7",
-    expect_vector     = "vctrs",
-    run_cpp_tests     = "xml2",
-    skip_if_offline   = "curl",
-    snapshot_review   = c("shiny", "diffviewer")
-  )
-
+  implied <- renv_dependencies_discover_r_testthat_implied()
   call <- renv_call_expect(node, "testthat", names(implied))
   if (!is.null(call)) {
     packages <- implied[[as.character(call[[1L]])]]
@@ -1824,12 +1871,8 @@ renv_dependencies_discover_r_testthat <- function(node, envir) {
   }
 
   # check for calls to various test runners, which accept a reporter
-  node <- renv_call_expect(
-    node,
-    "testthat",
-    c("test_package", "test_dir", "test_file", "test_check", "test_local")
-  )
-
+  runners <- renv_dependencies_discover_r_testthat_runners()
+  node <- renv_call_expect(node, "testthat", runners)
   if (is.null(node))
     return(FALSE)
 
@@ -1852,6 +1895,21 @@ renv_dependencies_discover_r_testthat <- function(node, envir) {
 
   FALSE
 
+}
+
+renv_dependencies_discover_r_testthat_implied <- function() {
+  list(
+    expect_known_hash = "digest",
+    expect_s7_class   = "S7",
+    expect_vector     = "vctrs",
+    run_cpp_tests     = "xml2",
+    skip_if_offline   = "curl",
+    snapshot_review   = c("shiny", "diffviewer")
+  )
+}
+
+renv_dependencies_discover_r_testthat_runners <- function() {
+  c("test_package", "test_dir", "test_file", "test_check", "test_local")
 }
 
 renv_dependencies_discover_r_knitr <- function(node, envir) {
@@ -2311,23 +2369,33 @@ renv_dependencies_eval <- function(expr) {
 
 }
 
+# used when the compiled extensions are unavailable; as with those, if the
+# callback returns a call, that call is recursed into in place of the original
 renv_dependencies_recurse <- function(object, callback) {
 
-  if (is.call(object))
-    callback(object)
+  if (is.call(object) || is.pairlist(object))
+    return(renv_dependencies_recurse_impl(object, callback))
 
   if (is.recursive(object))
     for (i in seq_along(object))
-      if (is.call(object[[i]]))
+      if (is.call(object[[i]]) || (is.pairlist(object[[i]]) && length(object[[i]])))
         renv_dependencies_recurse_impl(object[[i]], callback)
 
 }
 
 renv_dependencies_recurse_impl <- function(object, callback) {
-  callback(object)
+
+  if (is.call(object)) {
+    result <- callback(object)
+    if (is.call(result))
+      object <- result
+  }
+
+  # pairlists hold function formals, whose defaults can use packages
   for (i in seq_along(object))
-    if (is.call(object[[i]]))
+    if (is.call(object[[i]]) || (is.pairlist(object[[i]]) && length(object[[i]])))
       renv_dependencies_recurse_impl(object[[i]], callback)
+
 }
 
 renv_dependencies_fields <- function(fields = NULL, project = NULL) {
