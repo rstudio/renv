@@ -10,6 +10,42 @@ test_that("all ffi methods have matching formal definitions", {
 
 })
 
+test_that("ffi wrappers call the extension routines by native symbol", {
+
+  skip_if_not(renv_ext_enabled())
+  skip_if(is.null(the$dll_info))
+
+  envir <- renv_envir_self()
+  routines <- getDLLRegisteredRoutines(the$dll_info)[[".Call"]]
+  expect_gt(length(routines), 0L)
+
+  # every registered routine was bound into the namespace at load
+  for (name in names(routines))
+    expect_s3_class(get(name, envir = envir), "NativeSymbolInfo")
+
+  # and every wrapper hands .Call() one of those bindings, not a string
+  wrappers <- ls(envir = envir, pattern = "^__ffi__")
+  for (wrapper in wrappers) {
+    calls <- list()
+    recurse(body(get(wrapper, envir = envir)), function(node) {
+      if (renv_call_matches(node, ".Call"))
+        calls[[length(calls) + 1L]] <<- node
+    })
+    expect_length(calls, 1L)
+    routine <- calls[[1L]][[2L]]
+    expect_true(is.symbol(routine))
+    expect_true(as.character(routine) %in% names(routines))
+  }
+
+  # and the wrappers work
+  node <- quote(methods::setClass("Foo"))
+  expect_identical(
+    `__ffi__renv_call_expect`(node, "methods", c("setClass", "setGeneric")),
+    quote(setClass("Foo"))
+  )
+
+})
+
 test_that("the renv extensions library was loaded if available", {
 
   skip_if_not(renv_ext_enabled())
