@@ -1,5 +1,14 @@
 # renv (development version)
 
+* `renv::install()` and `renv::restore()` no longer abandon source builds
+  that take longer than an hour with the error `worker process timed out`.
+  Previously, a single one-hour budget applied to the whole install, so slow
+  builds (e.g. `duckdb` on a single-core machine) were killed partway
+  through. There is now no limit by default; the new `install.timeout`
+  configuration setting bounds how long each individual package may take,
+  and a package that exceeds it fails on its own, with its worker process
+  terminated, while the rest of the install continues. (#2437)
+
 * renv's compiled extensions are now resolved once when the package is
   loaded, and called via their native symbols, rather than being looked up
   by name on every `.Call()`. This modestly speeds up dependency discovery,

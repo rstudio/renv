@@ -240,6 +240,15 @@ config <- list(
     )
   },
 
+  install.timeout = function(..., default = NULL) {
+    renv_config_get(
+      name    = "install.timeout",
+      type    = "numeric[1]",
+      default = default,
+      args    = list(...)
+    )
+  },
+
   install.verbose = function(..., default = FALSE) {
     renv_config_get(
       name    = "install.verbose",

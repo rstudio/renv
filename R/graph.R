@@ -1940,8 +1940,13 @@ renv_graph_install <- function(descriptions) {
     if (showstatus)
       progress$reset("Installing", length(installnames))
 
-    timeout <- getOption("renv.install.timeout", default = 3600L)
-    deadline <- Sys.time() + timeout
+    # each package may take at most this long (in seconds) to install; by
+    # default there is no limit, since large packages can legitimately take
+    # hours to build from source, and workers that die are detected through
+    # their socket closing rather than by a timeout (#2437)
+    timeout <- config$install.timeout() %||% Inf
+    if (!is.finite(timeout) || timeout <= 0)
+      timeout <- Inf
 
     # once 'pkg' is installed, its dependents are one step closer to ready
     release <- function(pkg) {
@@ -2041,7 +2046,7 @@ renv_graph_install <- function(descriptions) {
           } else {
             poolid <- poolid + 1L
             id <- as.character(poolid)
-            renv_graph_install_pool_launch(id, server$port, workdir, timeout)
+            renv_graph_install_pool_launch(id, server$port, workdir)
           }
 
           worker$package <- pkg
@@ -2065,6 +2070,50 @@ renv_graph_install <- function(descriptions) {
       if (showstatus)
         progress$update(names(active))
 
+      # fail any package that has exceeded the install timeout. the limit is
+      # per package, so a slow build only fails itself, and the rest of the
+      # install carries on
+      now <- Sys.time()
+      for (pkg in names(active)) {
+
+        elapsed <- difftime(now, active[[pkg]]$start, units = "auto")
+        if (as.double(elapsed, units = "secs") <= timeout)
+          next
+
+        if (showstatus) {
+          progress$clear()
+          progress$tick()
+        }
+
+        fmt <- paste(
+          "package installation timed out after %s;",
+          "see the 'install.timeout' setting in ?renv::config to adjust this limit"
+        )
+        handle(pkg, list(
+          success = FALSE,
+          output  = sprintf(fmt, renv_difftime_format(elapsed)),
+          elapsed = elapsed
+        ))
+
+        id <- active[[pkg]]$worker
+        if (is.null(id)) {
+          renv_graph_install_worker_kill(active[[pkg]])
+          renv_graph_install_worker_cleanup(active[[pkg]])
+        } else {
+          renv_graph_install_worker_kill(pool[[id]])
+          renv_graph_install_pool_close(pool[[id]])
+          pool[[id]] <- NULL
+        }
+
+        active[[pkg]] <- NULL
+
+      }
+
+      # if every worker has been retired, go back and fill the freed slots
+      # (or finish, if nothing is left to install)
+      if (length(active) == 0L)
+        next
+
       # collect connected worker sockets: one per source package being
       # built, and one per binary worker
       conns <- list()
@@ -2077,27 +2126,9 @@ renv_graph_install <- function(descriptions) {
         if (!is.null(pool[[id]]$conn))
           poolconns[[id]] <- pool[[id]]$conn
 
-      remaining <- as.double(deadline - Sys.time(), units = "secs")
-      if (remaining <= 0) {
-        for (pkg in names(active)) {
-          elapsed <- difftime(
-            Sys.time(), active[[pkg]]$start, units = "auto"
-          )
-          handle(pkg, list(
-            success = FALSE,
-            output  = "worker process timed out",
-            elapsed = elapsed
-          ))
-          if (is.null(active[[pkg]]$worker))
-            renv_graph_install_worker_cleanup(active[[pkg]])
-        }
-        active <- list()
-        break
-      }
-
       # wait for activity on server socket (new connections) or
       # worker sockets (results / EOF); server is always first
-      wait <- min(5, remaining)
+      wait <- min(5, timeout)
       sockets <- c(list(server$socket), conns, poolconns)
       flags <- socketSelect(sockets, write = FALSE, timeout = wait)
 
@@ -2152,12 +2183,15 @@ renv_graph_install <- function(descriptions) {
         )
         if (!inherits(conn, "error")) {
           hello <- tryCatch(unserialize(conn), error = identity)
+          package <- if (is.list(hello)) hello$package
           id <- if (is.list(hello)) hello$worker
-          if (is.character(hello) && hello %in% names(active)) {
-            active[[hello]]$conn <- conn
+          if (is.character(package) && package %in% names(active)) {
+            active[[package]]$conn <- conn
+            active[[package]]$pid <- hello$pid
           } else if (is.character(id) && id %in% names(pool)) {
             worker <- pool[[id]]
             worker$conn <- conn
+            worker$pid <- hello$pid
             if (!is.null(worker$request))
               worker <- renv_graph_install_pool_send(worker)
             pool[[worker$id]] <- worker
@@ -2714,7 +2748,8 @@ renv_graph_install_launch_socket <- function(prepared, port, workdir = tempdir()
   # 3. sends the result on the same connection
   #
   # the persistent connection lets the parent detect worker death via
-  # socketSelect() + EOF, without needing PID files or polling
+  # socketSelect() + EOF, without needing PID files or polling; the pid is
+  # included so the parent can terminate a worker that has timed out
   code <- expr({
 
     main <- function() {
@@ -2730,7 +2765,7 @@ renv_graph_install_launch_socket <- function(prepared, port, workdir = tempdir()
       on.exit(close(conn), add = TRUE)
 
       # notify parent of the package we're installing
-      serialize(!!package, conn)
+      serialize(list(package = !!package, pid = Sys.getpid()), conn)
 
       # install the package and send the result back;
       # on success 'output' is a character vector with a "status"
@@ -2769,10 +2804,17 @@ renv_graph_install_launch_socket <- function(prepared, port, workdir = tempdir()
 }
 
 # launch a persistent binary worker: it connects to the parent, announces
-# its id, then installs (and load-tests) packages as requests arrive, until
-# it is sent NULL or the parent goes away. 'timeout' bounds how long it
-# waits idle for the next request
-renv_graph_install_pool_launch <- function(id, port, workdir, timeout) {
+# its id (and pid, so the parent can terminate it on timeout), then installs
+# (and load-tests) packages as requests arrive, until it is sent NULL or the
+# parent goes away
+renv_graph_install_pool_launch <- function(id, port, workdir) {
+
+  # a binary whose dependencies are still being built can keep its worker
+  # waiting for as long as those builds take, which is unbounded by default,
+  # so the worker should only give up when the parent goes away (its socket
+  # then closes). R documents that socket timeouts of up to 31 days are
+  # portable, so use that rather than a timeout tied to the install
+  timeout <- 30L * 86400L
 
   # the worker uses only base R and utils, including when updating renv or
   # running a development / embedded copy of renv, so the functions it
@@ -2790,7 +2832,7 @@ renv_graph_install_pool_launch <- function(id, port, workdir, timeout) {
       )
       on.exit(close(conn), add = TRUE)
 
-      serialize(list(worker = !!id), conn)
+      serialize(list(worker = !!id, pid = Sys.getpid()), conn)
 
       install <- !!renv_graph_install_binary_worker
       test <- !!renv_install_test_impl
@@ -2903,6 +2945,28 @@ renv_graph_install_worker_cleanup <- function(worker) {
   # best effort: on Windows, an exiting worker may still hold its script
   # open, in which case it's removed along with the worker directory
   invisible(unlink(worker$script) == 0L)
+
+}
+
+# terminate a worker that has exceeded the install timeout. this ends the
+# worker's R process; the build it launched (R CMD INSTALL and the compilers
+# under it) is not in a process group of its own, so it is left to exit on
+# its own once its output pipe closes. best effort: a worker that never
+# connected has no known pid, and one that has already exited is just gone
+renv_graph_install_worker_kill <- function(worker) {
+
+  pid <- worker$pid
+  if (is.null(pid))
+    return(invisible(FALSE))
+
+  status <- catch(renv_process_kill(pid))
+  if (inherits(status, "error")) {
+    dlog("graph", "failed to terminate worker process %s: %s",
+         pid, conditionMessage(status))
+    return(invisible(FALSE))
+  }
+
+  invisible(TRUE)
 
 }
 
