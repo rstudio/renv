@@ -2,6 +2,13 @@
 
 ## renv (development version)
 
+- renv’s compiled extensions are now resolved once when the package is
+  loaded, and called via their native symbols, rather than being looked
+  up by name on every
+  [`.Call()`](https://rdrr.io/r/base/CallExternal.html). This modestly
+  speeds up dependency discovery, which calls into the extensions for
+  each expression scanned.
+
 - Fixed
   [`renv::restore()`](https://rstudio.github.io/renv/dev/reference/restore.md)
   and
