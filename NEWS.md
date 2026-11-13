@@ -9,6 +9,45 @@
   and a package that exceeds it fails on its own, with its worker process
   terminated, while the rest of the install continues. (#2437)
 
+* Fixed `renv::restore()` and `renv::install()` failing with errors like
+  "package 'utils.1' is not available" when a package version that is no
+  longer available from the configured repositories lists the same dependency
+  twice. crandb, which renv consults for the dependencies of such versions,
+  renames repeated dependencies (e.g. `utils` becomes `utils.1`); renv now
+  ignores those crandb records and reads the package's DESCRIPTION from the
+  repository archive instead. `renv::sysreqs()` no longer reports such renamed
+  packages as dependencies either. (#2432)
+
+* Fixed a test failure on platforms using musl libc (e.g. Alpine Linux), whose
+  `iconv()` cannot convert text to GBK. (#2434)
+
+* Parse errors and other problems found while scanning a file for
+  dependencies are now reported by every scan in a session, not just the
+  first. Previously, the quiet dependency scan run when a project is loaded
+  cached each file's result without its problems, so later calls to
+  `renv::status()`, `renv::snapshot()`, and `renv::dependencies()` reported
+  the project as out-of-sync without explaining why. (#2430)
+
+* renv now rejects downloaded archives which cannot be read, as was always
+  intended. Previously, the check was skipped because the temporary download
+  file had no extension, and even when it ran, a failure reported by the
+  system `tar` was ignored, so only R's internal tar (used on Windows) could
+  reject a corrupt download. (#2429)
+
+* renv now detects whether a package archive is a tarball or a ZIP file from
+  its contents, falling back to the file extension only when the contents are
+  not recognized. Previously, renv trusted the extension alone, so a ZIP
+  binary served under a `.tar.xz` name (or any archive served under an
+  extension renv did not know) failed to extract even though R could unpack
+  it. (#2424)
+
+* Package archives downloaded from a repository now keep the extension of the
+  file the repository advertises in the `File` field of its `PACKAGES` index,
+  rather than the extension implied by the package type of the current build
+  of R; copies of cellar archives are named likewise. Repositories serving
+  custom binary types (for example, `.tar.xz` binaries) therefore no longer
+  have their archives stored with a `.tgz` or `.zip` extension. (#2423)
+
 * `renv::diagnostics()` now reports which `tar` renv uses to extract archives
   and install packages, and which one R's `untar()` uses by default. On
   Windows, it notes when `TAR` selects a tar other than the system tar, as

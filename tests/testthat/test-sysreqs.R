@@ -372,6 +372,47 @@ test_that("crandb lookups fall back to the latest CRAN release", {
 
 })
 
+# https://github.com/rstudio/renv/issues/2432
+test_that("crandb dependencies renamed by make.unique() are resolved elsewhere", {
+
+  renv_tests_scope()
+
+  # crandb serves a field listing 'toast' twice with the duplicate renamed
+  renv_scope_binding(
+    envir = asNamespace("renv"),
+    symbol = "renv_available_packages_crandb_query",
+    replacement = function(package) {
+      record <- list(
+        Package = package,
+        Version = "1.0.0",
+        Depends = list(oatmeal = "*", toast = ">= 1.0.0", toast.1 = "*"),
+        SystemRequirements = "zlib"
+      )
+      list(versions = list("1.0.0" = record), latest = "1.0.0")
+    }
+  )
+
+  # the system requirements still come from crandb, but the dependencies
+  # come from the repository
+  expect_no_warning(
+    record <- renv_sysreqs_lookup("breakfast", sources = "crandb", lockfile = NULL)
+  )
+
+  expect_equal(record$SystemRequirements, "zlib")
+  expect_equal(record$Depends, "oatmeal, toast (>= 1.0.0)")
+
+  # when nothing else can provide the dependencies, drop them rather than
+  # guess which of the names are real
+  expect_warning(
+    record <- renv_sysreqs_lookup("no.such.package", sources = "crandb", lockfile = NULL),
+    "could not determine the dependencies"
+  )
+
+  expect_equal(record$SystemRequirements, "zlib")
+  expect_null(record$Depends)
+
+})
+
 test_that("a failed crandb lookup doesn't provide a record", {
 
   renv_tests_scope()

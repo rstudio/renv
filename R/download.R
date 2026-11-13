@@ -76,8 +76,9 @@ download <- function(url,
   callback <- renv_file_backup(destfile)
   defer(callback())
 
-  # form path to temporary file
-  tempfile <- renv_scope_tempfile(tmpdir = dirname(destfile))
+  # form path to temporary file. keep the destination's extension so that
+  # the archive check below can recognize the download as an archive
+  tempfile <- renv_scope_tempfile(tmpdir = dirname(destfile), fileext = fileext(destfile))
 
   # request the download
   before <- Sys.time()
