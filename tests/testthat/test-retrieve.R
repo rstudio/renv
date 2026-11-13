@@ -1135,6 +1135,49 @@ test_that("local archives are named after the record, with the advertised extens
 
 })
 
+test_that("P3M Linux archives use binary paths on source platforms", {
+
+  renv_tests_scope()
+  renv_scope_options(
+    pkgType = "source",
+    renv.config.ppm.enabled = TRUE
+  )
+
+  repo <- "https://packagemanager.posit.co/cran/__linux__/noble/latest"
+  record <- list(Package = "p3mpkg", Version = "1.0.0", Source = "Repository")
+  expected <- renv_paths_binary("repository", "p3mpkg", "p3mpkg_1.0.0.tar.gz")
+
+  # A lockfile record has no URL attribute, so the repository selected during
+  # restore must be passed to the path helper explicitly.
+  expect_equal(renv_retrieve_path(record, url = repo), expected)
+
+  captured <- NULL
+  renv_scope_binding(
+    envir = asNamespace("renv"),
+    symbol = "renv_retrieve_package",
+    replacement = function(record, url, path, defer = FALSE) {
+      captured <<- list(url = url, path = path)
+      TRUE
+    }
+  )
+
+  expect_true(renv_retrieve_repos_impl(record, repo = repo))
+  expect_equal(captured$url, file.path(repo, "p3mpkg_1.0.0.tar.gz"))
+  expect_equal(captured$path, expected)
+
+  # The parallel planner receives the same repository URL on its tagged index
+  # record and should choose the same local path as sequential retrieval.
+  tagged <- renv_record_tag(
+    c(record, File = "p3mpkg_1.0.0.tar.gz"),
+    type = "source",
+    url = repo,
+    name = "CRAN"
+  )
+  info <- renv_graph_url_repository_record(record, tagged)
+  expect_equal(info$destfile, expected)
+
+})
+
 test_that("binary archives keep their advertised extension on every platform", {
 
   renv_tests_scope()

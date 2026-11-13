@@ -358,7 +358,8 @@ renv_retrieve_ext <- function(name, type = "source") {
 # share a file. only its extension follows 'name', the file the repository
 # advertises, so that e.g. a '.tar.xz' custom binary is not stored under a
 # '.tgz' name (#2423)
-renv_retrieve_path <- function(record, type = "source", name = NULL) {
+renv_retrieve_path <- function(record, type = "source", name = NULL,
+                               url = NULL) {
 
   # extract relevant record information
   package <- record$Package
@@ -373,7 +374,7 @@ renv_retrieve_path <- function(record, type = "source", name = NULL) {
   # update the package type if known
   source <- renv_record_source(record)
   if (renv_ppm_enabled()) {
-    url <- attr(record, "url")
+    url <- url %||% attr(record, "url")
     if (is.character(url) && grepl("/__[^_]+__/", url))
       type <- "binary"
   }
@@ -1374,7 +1375,7 @@ renv_retrieve_repos_impl <- function(record,
   }
 
   url <- file.path(repo, name)
-  path <- renv_retrieve_path(record, type, name = name)
+  path <- renv_retrieve_path(record, type, name = name, url = repo)
 
   renv_retrieve_package(record, url, path, defer = defer)
 
