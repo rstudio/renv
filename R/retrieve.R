@@ -479,7 +479,7 @@ renv_retrieve_path_publish_impl <- function(file, target) {
 
   # rename() replaces an existing file atomically, so that another process
   # reading 'target' sees a whole archive throughout
-  if (suppressWarnings(file.rename(file, target)))
+  if (renv_file_rename(file, target))
     return(target)
 
   # a file can't be renamed across filesystems, which 'file' and 'target'
@@ -489,7 +489,7 @@ renv_retrieve_path_publish_impl <- function(file, target) {
 
   ok <-
     suppressWarnings(file.copy(file, copy)) &&
-    suppressWarnings(file.rename(copy, target))
+    renv_file_rename(copy, target)
 
   if (!ok)
     stopf("could not save archive to %s", renv_path_pretty(target))

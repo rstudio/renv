@@ -1317,6 +1317,64 @@ test_that("archives are saved by the type of package they contain", {
 
 })
 
+test_that("archives are published whole, even across filesystems", {
+
+  renv_tests_scope()
+
+  target <- renv_paths_source("repository", "renamedpkg", "renamedpkg_1.0.0.tar.gz")
+  ensure_parent_directory(target)
+  writeLines("an older archive", con = target)
+
+  file <- renv_retrieve_path_staging(target)
+  writeLines("a newer archive", con = file)
+
+  # a file can't be renamed across filesystems. have the first attempt fail
+  # as it would there, and look at the target once the archive has been
+  # copied, just before that copy is renamed into place
+  rename <- renv_file_rename
+  attempts <- 0L
+  failing <- FALSE
+  seen <- NULL
+
+  renv_scope_binding(
+    envir = asNamespace("renv"),
+    symbol = "renv_file_rename",
+    replacement = function(source, target) {
+
+      attempts <<- attempts + 1L
+      if (failing || attempts == 1L)
+        return(FALSE)
+
+      seen <<- readLines(target)
+      rename(source, target)
+
+    }
+  )
+
+  expect_equal(renv_retrieve_path_publish_impl(file, target), target)
+  expect_equal(attempts, 2L)
+  expect_equal(seen, "an older archive")
+  expect_equal(readLines(target), "a newer archive")
+  expect_false(file.exists(file))
+  expect_equal(list.files(dirname(target)), basename(target))
+
+  # if the copy can't be renamed into place either, the target and the
+  # private file are left as they were, with no copy left behind
+  file <- renv_retrieve_path_staging(target)
+  writeLines("the newest archive", con = file)
+  failing <- TRUE
+
+  expect_error(
+    renv_retrieve_path_publish_impl(file, target),
+    "could not save archive"
+  )
+
+  expect_equal(readLines(target), "a newer archive")
+  expect_equal(readLines(file), "the newest archive")
+  expect_setequal(list.files(dirname(target)), basename(c(target, file)))
+
+})
+
 test_that("binaries served from a source repository are filed as binaries", {
 
   skip_on_cran()
