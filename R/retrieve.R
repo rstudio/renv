@@ -477,12 +477,24 @@ renv_retrieve_path_publish_impl <- function(file, target) {
 
   ensure_parent_directory(target)
 
-  # where it can, rename() replaces an existing file atomically, so that
-  # another process reading 'target' sees a whole archive throughout
-  renamed <- suppressWarnings(file.rename(file, target))
-  if (!renamed)
-    renv_file_move(file, target, overwrite = TRUE)
+  # rename() replaces an existing file atomically, so that another process
+  # reading 'target' sees a whole archive throughout
+  if (suppressWarnings(file.rename(file, target)))
+    return(target)
 
+  # a file can't be renamed across filesystems, which 'file' and 'target'
+  # may be on; copy it next to 'target', and rename the copy into place
+  copy <- renv_retrieve_path_staging(target)
+  defer(unlink(copy))
+
+  ok <-
+    suppressWarnings(file.copy(file, copy)) &&
+    suppressWarnings(file.rename(copy, target))
+
+  if (!ok)
+    stopf("could not save archive to %s", renv_path_pretty(target))
+
+  unlink(file)
   target
 
 }
