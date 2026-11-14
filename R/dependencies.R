@@ -2407,18 +2407,6 @@ renv_dependencies_eval <- function(expr) {
 # callback returns a call, that call is recursed into in place of the original
 renv_dependencies_recurse <- function(object, callback) {
 
-  if (is.call(object) || is.pairlist(object))
-    return(renv_dependencies_recurse_impl(object, callback))
-
-  if (is.recursive(object))
-    for (i in seq_along(object))
-      if (is.call(object[[i]]) || (is.pairlist(object[[i]]) && length(object[[i]])))
-        renv_dependencies_recurse_impl(object[[i]], callback)
-
-}
-
-renv_dependencies_recurse_impl <- function(object, callback) {
-
   if (is.call(object)) {
     result <- callback(object)
     if (is.call(result))
@@ -2426,9 +2414,10 @@ renv_dependencies_recurse_impl <- function(object, callback) {
   }
 
   # pairlists hold function formals, whose defaults can use packages
-  for (i in seq_along(object))
-    if (is.call(object[[i]]) || (is.pairlist(object[[i]]) && length(object[[i]])))
-      renv_dependencies_recurse_impl(object[[i]], callback)
+  if (is.recursive(object))
+    for (i in seq_along(object))
+      if (is.call(object[[i]]) || is.pairlist(object[[i]]))
+        renv_dependencies_recurse(object[[i]], callback)
 
 }
 

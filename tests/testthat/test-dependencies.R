@@ -1089,13 +1089,15 @@ test_that("dependencies in default arguments are discovered", {
 
 })
 
-test_that("R recursion visits default arguments and calls returned by the callback", {
+test_that("recursion visits default arguments and calls returned by the callback", {
 
+  # the compiled recursion evaluates the callback's body directly,
+  # so the callback cannot use return()
   visited <- list()
   callback <- function(node) {
     visited[[length(visited) + 1L]] <<- node
     if (identical(node, quote(rewrite())))
-      return(quote(replaced(inner())))
+      quote(replaced(inner()))
   }
 
   code <- quote({
@@ -1103,7 +1105,7 @@ test_that("R recursion visits default arguments and calls returned by the callba
     rewrite()
   })
 
-  renv_dependencies_recurse_impl(code, callback)
+  renv_dependencies_recurse(code, callback)
 
   seen <- function(call) any(map_lgl(visited, identical, call))
   expect_true(seen(quote(pkg::fn())))
