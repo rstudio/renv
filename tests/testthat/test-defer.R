@@ -97,6 +97,32 @@ test_that("renv_defer_execute can run handlers earlier", {
   expect_false(exists("x", inherits = FALSE))
 })
 
+test_that("defer() unregisters a scope once it exits", {
+
+  before <- length(the$defer_envirs)
+  scoped <- function() {
+    defer(NULL)
+    defer(NULL)
+    length(the$defer_envirs)
+  }
+
+  expect_equal(scoped(), before + 1L)
+  expect_equal(length(the$defer_envirs), before)
+
+})
+
+test_that("handlers on other environments run once when executed", {
+
+  x <- 0
+  envir <- new.env(parent = emptyenv())
+  defer(x <- x + 1, scope = envir)
+
+  renv_defer_execute(envir)
+  renv_defer_execute(envir)
+  expect_equal(x, 1)
+
+})
+
 test_that("renv_scope_options inside catch does not leak", {
 
   wrapper <- function() {

@@ -1,6 +1,9 @@
 
-# environment hosting exit callbacks
-the$defer_callbacks <- new.env(parent = emptyenv())
+# environments with pending exit handlers, and those handlers. environments
+# are matched by identity: keying a table by their formatted addresses would
+# intern a new symbol, which is never freed, for each environment seen
+the$defer_envirs <- list()
+the$defer_handlers <- list()
 
 renv_defer_init <- function() {
 
@@ -24,35 +27,33 @@ defer <- function(expr, scope = parent.frame()) {
 
 }
 
-renv_defer_id <- function(envir) {
-  format.default(envir)
+renv_defer_index <- function(envir) {
+
+  # search from the end, as handlers are usually added to recent scopes
+  envirs <- the$defer_envirs
+  i <- length(envirs)
+  while (i > 0L) {
+    if (identical(envirs[[i]], envir))
+      return(i)
+    i <- i - 1L
+  }
+
+  0L
+
 }
 
 renv_defer_get <- function(envir) {
-  id <- renv_defer_id(envir)
-  the$defer_callbacks[[id]]
-}
-
-renv_defer_set <- function(envir, handlers) {
-
-  # get any previously-set handlers. if we don't see any handlers registered,
-  # this must be our first time registering exit handlers on the environment,
-  # and so we'll want to register an on.exit handler to call our handlers
-  oldhandlers <- renv_defer_get(envir)
-  if (is.null(oldhandlers)) {
-    call <- as.call(list(renv_defer_execute, envir))
-    do.call(base::on.exit, list(substitute(call), TRUE), envir = envir)
-  }
-
-  # register the newly-set handlers
-  id <- renv_defer_id(envir)
-  the$defer_callbacks[[id]] <- handlers
-
+  index <- renv_defer_index(envir)
+  if (index > 0L)
+    the$defer_handlers[[index]]
 }
 
 renv_defer_remove <- function(envir) {
-  id <- renv_defer_id(envir)
-  rm(list = id, envir = the$defer_callbacks)
+  index <- renv_defer_index(envir)
+  if (index > 0L) {
+    the$defer_envirs[[index]] <- NULL
+    the$defer_handlers[[index]] <- NULL
+  }
 }
 
 renv_defer_execute <- function(envir = parent.frame()) {
@@ -73,7 +74,22 @@ renv_defer_execute <- function(envir = parent.frame()) {
 }
 
 renv_defer_add <- function(envir, handler) {
-  handlers <- c(list(handler), renv_defer_get(envir))
-  renv_defer_set(envir, handlers)
+
+  # handlers run in LIFO order
+  index <- renv_defer_index(envir)
+  if (index > 0L) {
+    the$defer_handlers[[index]] <- c(list(handler), the$defer_handlers[[index]])
+    return(handler)
+  }
+
+  # this is the first handler for this environment, so also arrange for
+  # the handlers to be run when it exits
+  call <- as.call(list(renv_defer_execute, envir))
+  do.call(base::on.exit, list(call, TRUE), envir = envir)
+
+  index <- length(the$defer_envirs) + 1L
+  the$defer_envirs[[index]] <- envir
+  the$defer_handlers[[index]] <- list(handler)
   handler
+
 }

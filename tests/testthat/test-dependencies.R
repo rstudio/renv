@@ -1055,6 +1055,80 @@ test_that("DESCRIPTION dependency constraints are parsed, including '!='", {
 
 })
 
+test_that("discovery methods are dispatched on the called function's name", {
+
+  name <- renv_dependencies_discover_r_head
+  expect_equal(name(quote(library(foo))), "library")
+  expect_equal(name(quote(base::library(foo))), "library")
+  expect_equal(name(quote(base:::library(foo))), "library")
+  expect_equal(name(quote(opts_chunk$set(dev = "png"))), "set")
+  expect_equal(name(quote(JunitReporter$new)), "$")
+  expect_null(name(quote(f()())))
+  expect_null(name(quote(foo)))
+
+})
+
+test_that("the dependencies database can be customized", {
+
+  db <- list(foo = list(bar = "baz"))
+  renv_scope_binding(the, "dependencies_database", db)
+
+  file <- renv_scope_tempfile("renv-test-", fileext = ".R")
+  writeLines(c("bar()", "foo::bar()"), con = file)
+  deps <- dependencies(file, quiet = TRUE)
+  expect_setequal(deps$Package, c("baz", "foo"))
+
+})
+
+test_that("dependencies in default arguments are discovered", {
+
+  file <- renv_scope_tempfile("renv-test-", fileext = ".R")
+  writeLines("f <- function(open = rlang::is_interactive()) NULL", con = file)
+  deps <- dependencies(file, quiet = TRUE)
+  expect_contains(deps$Package, "rlang")
+
+})
+
+test_that("recursion visits default arguments and calls returned by the callback", {
+
+  # the compiled recursion evaluates the callback's body directly,
+  # so the callback cannot use return()
+  visited <- list()
+  callback <- function(node) {
+    visited[[length(visited) + 1L]] <<- node
+    if (identical(node, quote(rewrite())))
+      quote(replaced(inner()))
+  }
+
+  code <- quote({
+    f <- function(x = pkg::fn(), y) NULL
+    rewrite()
+  })
+
+  renv_dependencies_recurse(code, callback)
+
+  seen <- function(call) any(map_lgl(visited, identical, call))
+  expect_true(seen(quote(pkg::fn())))
+  expect_true(seen(quote(inner())))
+
+})
+
+test_that("bslib is only implied by an html_document theme", {
+
+  check <- function(header, expected) {
+    file <- renv_scope_tempfile("renv-test-", fileext = ".Rmd")
+    writeLines(c("---", header, "---"), con = file)
+    deps <- dependencies(file, quiet = TRUE)
+    expect_equal("bslib" %in% deps$Package, expected)
+  }
+
+  check(c("output:", "  html_document:", "    theme:", "      version: 5"), TRUE)
+  check("output: html_document", FALSE)
+  check(c("output:", "  html_document:", "    toc: true"), FALSE)
+  check(c("output:", "  html_document:", "    theme: cerulean"), FALSE)
+
+})
+
 test_that("dependency errors are reported even when the file scan was cached", {
 
   renv_tests_scope()
