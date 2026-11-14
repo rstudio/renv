@@ -1850,8 +1850,8 @@ renv_graph_install <- function(descriptions) {
     type <- renv_graph_install_classify(record)
 
     # an archive downloaded to a private file can be published, now that we
-    # know the type of package it contains. if that fails, the archive is
-    # still installed from the private file
+    # know the type of package it contains. should that fail outright, the
+    # archive is still installed from the private file
     path <- destinations[[package]]
     if (!is.null(path)) {
       published <- catch(renv_retrieve_path_publish(record$Path, path, type))

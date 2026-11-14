@@ -1303,14 +1303,17 @@ test_that("archives are saved by the type of package they contain", {
   expect_false(file.exists(staging))
   expect_equal(renv_package_type(source), "binary")
 
-  # an archive that can't be saved under the tree for its type is saved
-  # to the path it was destined for; no directory can be created in a file
+  # an archive that can't be saved under the tree for its type is kept for
+  # this session, apart from the archives of other types. no directory can
+  # be created within a file, so nothing can be published under this tree
   unlink(source)
   renv_scope_envvars(RENV_PATHS_BINARY = file.path(srcpkg, "binary"))
-  expect_equal(renv_retrieve_download(url, source, quiet = TRUE), source)
+  path <- renv_retrieve_download(url, source, quiet = TRUE)
   expect_equal(downloads, 5L)
-  expect_equal(renv_package_type(source), "binary")
-  expect_equal(list.files(dirname(source)), basename(source))
+  expect_equal(basename(path), basename(source))
+  expect_equal(renv_package_type(path), "binary")
+  expect_false(file.exists(source))
+  expect_length(list.files(dirname(source)), 0L)
 
 })
 

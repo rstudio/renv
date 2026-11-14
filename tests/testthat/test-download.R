@@ -76,6 +76,18 @@ test_that("an up-to-date copy of a file at an alternate path is used as-is", {
   expect_equal(downloads, 1L)
   expect_equal(readLines(destfile), "an earlier download")
 
+  # if that copy can't be put there, the download is reported as failed
+  missing <- file.path(tempdir(), "no-such-directory", "file.txt")
+  ok <- renv_download_parallel_sequential(
+    urls       = c(file = url),
+    destfiles  = missing,
+    types      = "unknown",
+    alternates = list(alternate)
+  )
+
+  expect_false(ok[["file"]])
+  expect_equal(downloads, 1L)
+
 })
 
 test_that("we can successfully tweak the user agent string", {

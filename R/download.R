@@ -802,8 +802,11 @@ renv_download_parallel_sequential_impl <- function(url, destfile, type, alternat
 
   # an up-to-date copy of the file at an alternate path stood in for the
   # download, but the file is expected at 'destfile'; copy it there
-  if (!file.exists(destfile) && file.exists(path))
-    file.copy(path, destfile)
+  if (!file.exists(destfile)) {
+    copied <- suppressWarnings(file.copy(path, destfile))
+    if (!copied)
+      unlink(destfile)
+  }
 
   file.exists(destfile)
 

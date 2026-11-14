@@ -450,23 +450,26 @@ renv_retrieve_path_staging <- function(path) {
 
 # publish the archive that was downloaded to the private file 'file', in
 # place of 'path', under the tree for the type of package it contains.
-# returns the path it was published to. 'type' is the type of that package,
-# if known
+# returns the path to the archive. 'type' is the type of that package, if
+# known
 renv_retrieve_path_publish <- function(file, path, type = NULL) {
 
   type <- type %||% renv_package_type(file, quiet = TRUE)
   target <- renv_retrieve_path_retype(path, type)
 
-  # if the archive can't be saved under the tree for its type (that tree
-  # might not be writable, say), save it to the path it was destined for
   status <- catch(renv_retrieve_path_publish_impl(file, target))
-  if (inherits(status, "error") && !renv_path_same(target, path))
-    status <- catch(renv_retrieve_path_publish_impl(file, path))
+  if (!inherits(status, "error"))
+    return(target)
 
-  if (inherits(status, "error"))
-    stop(status)
+  # the archive couldn't be saved for later (the tree for its type might not
+  # be writable, say), but it can still be used now. keep it for this session
+  # only, rather than under a tree where it'd pass for another type of package
+  private <- tempfile("renv-archive-")
+  ensure_directory(private)
 
-  status
+  target <- file.path(private, basename(path))
+  renv_file_move(file, target)
+  target
 
 }
 
