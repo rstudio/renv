@@ -1,5 +1,12 @@
 # renv (development version)
 
+* Fixed an issue where binary packages served from the URLs of a source
+  repository -- as Posit Package Manager does on Linux -- were downloaded to
+  the same path as the sources for that package version, where a binary built
+  for one platform or version of R could also be picked up by another. renv
+  now stores each downloaded package archive according to the type of
+  package it contains. (#2427)
+
 * `renv::install()` and `renv::restore()` no longer abandon source builds
   that take longer than an hour with the error `worker process timed out`.
   Previously, a single one-hour budget applied to the whole install, so slow

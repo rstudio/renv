@@ -369,22 +369,101 @@ renv_retrieve_path <- function(record, type = "source", name = NULL) {
   if (!is.null(the$destdir))
     return(file.path(the$destdir, name))
 
-  # check for packages from an PPM binary URL, and
-  # update the package type if known
+  # form path for package to be downloaded. 'type' is the type of package
+  # that was asked for, which isn't always the type a repository serves;
+  # see renv_retrieve_path_finalize()
   source <- renv_record_source(record)
-  if (renv_ppm_enabled()) {
-    url <- attr(record, "url")
-    if (is.character(url) && grepl("/__[^_]+__/", url))
-      type <- "binary"
-  }
-
-  # form path for package to be downloaded
   if (type == "source")
     renv_paths_source(source, package, name)
   else if (type == "binary")
     renv_paths_binary(source, package, name)
   else
     stopf("unrecognized type '%s'", type)
+}
+
+# does the name of this archive leave the type of its package open? source
+# packages are always '.tar.gz' files, but so are the binaries built for
+# platforms with no binary package type of their own: P3M, for one, serves
+# its Linux binaries from the URLs, and under the names, that the sources
+# for those packages would otherwise have (#2427)
+renv_retrieve_path_ambiguous <- function(path) {
+  fileext(path) %in% renv_package_extensions("source")
+}
+
+# the path the archive at 'path' has under the tree for packages of this
+# type, or 'path' itself if it isn't in either tree (e.g. it was downloaded
+# to a directory of the user's choosing)
+renv_retrieve_path_retype <- function(path, type) {
+
+  # archives are laid out as <tree>/<source>/<package>/<file>;
+  # see renv_retrieve_path()
+  file    <- basename(path)
+  package <- basename(dirname(path))
+  source  <- basename(dirname(dirname(path)))
+  tree    <- dirname(dirname(dirname(path)))
+
+  known <-
+    renv_path_same(tree, renv_paths_source()) ||
+    renv_path_same(tree, renv_paths_binary())
+
+  if (!known)
+    return(path)
+
+  switch(
+    type,
+    source = renv_paths_source(source, package, file),
+    binary = renv_paths_binary(source, package, file),
+    stopf("unrecognized type '%s'", type)
+  )
+
+}
+
+# an archive whose type couldn't be told from its name was filed by its
+# contents once downloaded, so an earlier download of the archive that is
+# about to be saved to 'path' might be under the tree for the other type of
+# package instead. returns the other paths it could have, for download() to
+# check before downloading it again
+renv_retrieve_path_alternates <- function(path) {
+
+  if (!renv_retrieve_path_ambiguous(path))
+    return(character())
+
+  paths <- c(
+    renv_retrieve_path_retype(path, "source"),
+    renv_retrieve_path_retype(path, "binary")
+  )
+
+  paths[!renv_path_same(paths, path)]
+
+}
+
+# file a downloaded archive under the tree for the type of package it turned
+# out to contain, and return its path there. that way a binary never shares
+# a path with the sources for its version, nor with a binary built for
+# another platform or version of R, whichever type was asked for (#2427).
+# 'type' is the type of the package in the archive, if already known
+renv_retrieve_path_finalize <- function(path, type = NULL) {
+
+  if (!renv_retrieve_path_ambiguous(path))
+    return(path)
+
+  type <- type %||% renv_package_type(path, quiet = TRUE)
+  target <- renv_retrieve_path_retype(path, type)
+  if (renv_path_same(path, target))
+    return(path)
+
+  # the archive is usable from where it is, so a failure to move it
+  # shouldn't get in the way of installing it
+  status <- catch({
+    ensure_parent_directory(target)
+    renv_file_move(path, target, overwrite = TRUE)
+  })
+
+  if (inherits(status, "error"))
+    return(path)
+
+  target
+
 }
 
 renv_retrieve_bioconductor <- function(record) {
@@ -1404,7 +1483,15 @@ renv_retrieve_package <- function(record, url, path, defer = FALSE) {
 
   status <- local({
     renv_scope_auth(record)
-    catch(download(url, preamble = preamble, destfile = path, type = type))
+    catch(
+      download(
+        url,
+        preamble   = preamble,
+        destfile   = path,
+        alternates = renv_retrieve_path_alternates(path),
+        type       = type
+      )
+    )
   })
 
   # collect the deferred download status, clearing it eagerly so that
@@ -1440,6 +1527,13 @@ renv_retrieve_package <- function(record, url, path, defer = FALSE) {
   # emit deferred output for the successful download
   if (defer)
     cat(output, file = stdout())
+
+  # download() returns the path to the archive, which is that of an earlier
+  # download when one was reused. file it by the type of package it contains
+  if (is.character(status))
+    path <- status
+
+  path <- renv_retrieve_path_finalize(path)
 
   # handle success
   renv_retrieve_successful(record, path)

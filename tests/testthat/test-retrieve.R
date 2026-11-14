@@ -1174,6 +1174,145 @@ test_that("binary archives keep their advertised extension on every platform", {
 
 })
 
+test_that("archives are filed by the type of package they contain", {
+
+  renv_tests_scope()
+
+  # a source and a binary build of one package version, both named as a
+  # source package would be; P3M serves its Linux binaries this way (#2427)
+  pkgdir <- renv_scope_tempfile("renv-filed-pkg-")
+  ensure_directory(file.path(pkgdir, "filedpkg"))
+  writeLines(
+    c("Package: filedpkg", "Version: 1.0.0"),
+    file.path(pkgdir, "filedpkg", "DESCRIPTION")
+  )
+
+  renv_scope_wd(pkgdir)
+  srcpkg <- file.path(pkgdir, "source.tar.gz")
+  tar(tarfile = srcpkg, files = "filedpkg", compression = "gzip")
+
+  # 'Meta' marks an installed package
+  ensure_directory(file.path(pkgdir, "filedpkg", "Meta"))
+  file.create(file.path(pkgdir, "filedpkg", "Meta", "package.rds"))
+  binpkg <- file.path(pkgdir, "binary.tar.gz")
+  tar(tarfile = binpkg, files = "filedpkg", compression = "gzip")
+
+  source <- renv_paths_source("repository", "filedpkg", "filedpkg_1.0.0.tar.gz")
+  binary <- renv_paths_binary("repository", "filedpkg", "filedpkg_1.0.0.tar.gz")
+  ensure_parent_directory(source)
+
+  # a binary downloaded to the path for a source package is moved ...
+  file.copy(binpkg, source)
+  expect_equal(renv_retrieve_path_finalize(source), binary)
+  expect_false(file.exists(source))
+  expect_equal(renv_package_type(binary), "binary")
+
+  # ... to where a later request for that archive looks for it
+  expect_equal(renv_retrieve_path_alternates(source), binary)
+  expect_equal(renv_retrieve_path_alternates(binary), source)
+
+  # the sources for that version are kept alongside it, not in its place
+  file.copy(srcpkg, source)
+  expect_equal(renv_retrieve_path_finalize(source), source)
+  expect_equal(renv_package_type(source), "source")
+  expect_equal(renv_package_type(binary), "binary")
+
+  # the type is already known when the caller has inspected the archive
+  unlink(binary)
+  expect_equal(renv_retrieve_path_finalize(source, type = "binary"), binary)
+  expect_equal(renv_retrieve_path_finalize(binary, type = "source"), source)
+
+  # an archive whose name gives its type away is left where it was put
+  tgz <- renv_paths_source("repository", "filedpkg", "filedpkg_1.0.0.tgz")
+  file.copy(binpkg, tgz)
+  expect_equal(renv_retrieve_path_finalize(tgz), tgz)
+  expect_length(renv_retrieve_path_alternates(tgz), 0L)
+  expect_true(file.exists(tgz))
+
+  # as is one downloaded to a directory of the user's choosing
+  destdir <- renv_scope_tempfile("renv-filed-destdir-")
+  ensure_directory(destdir)
+  renv_scope_binding(the, "destdir", destdir)
+  path <- renv_retrieve_path(list(Package = "filedpkg", Version = "1.0.0"))
+  file.copy(binpkg, path)
+  expect_equal(renv_retrieve_path_finalize(path), path)
+  expect_length(renv_retrieve_path_alternates(path), 0L)
+  expect_true(file.exists(path))
+
+})
+
+test_that("binaries served from a source repository are filed as binaries", {
+
+  skip_on_cran()
+  project <- renv_tests_scope()
+
+  # build a binary package ...
+  pkgdir <- renv_scope_tempfile("renv-served-pkg-")
+  ensure_directory(file.path(pkgdir, "servedpkg"))
+  writeLines(
+    c(
+      "Package: servedpkg",
+      "Version: 1.0.0",
+      "Title: A Package",
+      "Description: Test.",
+      "License: MIT"
+    ),
+    file.path(pkgdir, "servedpkg", "DESCRIPTION")
+  )
+  file.create(file.path(pkgdir, "servedpkg", "NAMESPACE"))
+
+  library <- renv_scope_tempfile("renv-served-library-")
+  ensure_directory(library)
+  args <- c(
+    "CMD", "INSTALL",
+    "-l", renv_shell_path(library),
+    renv_shell_path(file.path(pkgdir, "servedpkg"))
+  )
+  renv_system_exec(R(), args, action = "installing servedpkg")
+
+  # ... and serve it the way P3M serves its Linux binaries: from the URLs,
+  # and under the name, that the sources for the package would have (#2427)
+  repopath <- renv_scope_tempfile("renv-served-repo-")
+  contrib <- file.path(repopath, "src/contrib")
+  ensure_directory(contrib)
+
+  local({
+    renv_scope_wd(library)
+    tar(
+      tarfile     = file.path(contrib, "servedpkg_1.0.0.tar.gz"),
+      files       = "servedpkg",
+      compression = "gzip"
+    )
+  })
+
+  writeLines(
+    c("Package: servedpkg", "Version: 1.0.0", ""),
+    file.path(contrib, "PACKAGES")
+  )
+
+  renv_scope_options(
+    repos   = c(local = paste0("file://", repopath)),
+    pkgType = "source"
+  )
+
+  source <- renv_paths_source("repository", "servedpkg", "servedpkg_1.0.0.tar.gz")
+  binary <- renv_paths_binary("repository", "servedpkg", "servedpkg_1.0.0.tar.gz")
+
+  # sequential retrieval files the archive with the binaries
+  result <- retrieve("servedpkg", project = project)
+  expect_equal(result[["servedpkg"]], binary)
+  expect_true(file.exists(binary))
+  expect_false(file.exists(source))
+
+  # as do the parallel downloads made on install
+  unlink(binary)
+  install("servedpkg")
+  expect_true(renv_package_installed("servedpkg"))
+  expect_true(file.exists(binary))
+  expect_false(file.exists(source))
+
+})
+
 test_that("Path entries shape the download URL but not the file name", {
   skip_on_cran()
   project <- renv_tests_scope()

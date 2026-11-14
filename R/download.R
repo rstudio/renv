@@ -3,13 +3,17 @@
 # argument tells us the remote type, which is used to motivate
 # what form of authentication is appropriate; the 'quiet'
 # argument is used to display / suppress output. use 'headers'
-# (as a named character vector) to supply additional headers
+# (as a named character vector) to supply additional headers.
+# 'alternates' names other paths the file may have been saved to by
+# an earlier download; an up-to-date copy at any of them is used as-is.
+# returns the path to the downloaded file
 download <- function(url,
                      destfile,
                      preamble = NULL,
                      type = NULL,
                      quiet = FALSE,
-                     headers = NULL)
+                     headers = NULL,
+                     alternates = NULL)
 {
   # allow for user-defined overrides
   override <- getOption("renv.download.override")
@@ -63,12 +67,14 @@ download <- function(url,
 
   # if the file already exists, compare its size with
   # the server's reported size for that file
-  info <- renv_file_info(destfile)
-  if (identical(info$isdir, FALSE)) {
-    size <- renv_download_size(url, type, headers)
-    if (info$size == size) {
-      renv_download_status("OK [file is up to date]")
-      return(destfile)
+  for (existing in c(destfile, alternates)) {
+    info <- renv_file_info(existing)
+    if (identical(info$isdir, FALSE)) {
+      size <- renv_download_size(url, type, headers)
+      if (info$size == size) {
+        renv_download_status("OK [file is up to date]")
+        return(existing)
+      }
     }
   }
 

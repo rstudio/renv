@@ -516,7 +516,8 @@ renv_graph_description_archive <- function(record) {
 
   # download to the shared sources path, under the name the later retrieve of
   # this same record will look for, so it reuses the tarball rather than
-  # downloading it a second time
+  # downloading it a second time. a repository may serve a binary from its
+  # archive, so file the tarball as retrieval does, by what it contains
   destfile <- renv_retrieve_path(record, type = "source", name = name)
   ensure_parent_directory(destfile)
 
@@ -527,11 +528,22 @@ renv_graph_description_archive <- function(record) {
       next
 
     url <- file.path(root, name)
-    status <- catch(download(url, destfile = destfile, type = "source", quiet = TRUE))
-    if (inherits(status, "error"))
+
+    path <- catch(
+      download(
+        url,
+        destfile   = destfile,
+        alternates = renv_retrieve_path_alternates(destfile),
+        type       = "source",
+        quiet      = TRUE
+      )
+    )
+
+    if (inherits(path, "error"))
       next
 
-    desc <- catch(renv_description_read(destfile))
+    path <- renv_retrieve_path_finalize(path)
+    desc <- catch(renv_description_read(path))
     if (!inherits(desc, "error"))
       return(as.list(desc))
 
@@ -1366,9 +1378,13 @@ renv_graph_url_repository_record <- function(desc, record) {
   # archive enrichment already downloaded and validated this tarball while
   # reading its DESCRIPTION. route it through sequential retrieval, whose
   # normal existing-file check reuses it, instead of downloading it again in
-  # the parallel batch
-  if (renv_record_archived(desc) && file.exists(destfile))
-    return(NULL)
+  # the parallel batch. the tarball was filed by the type of package it
+  # contains, so it need not be at the path for the type we asked for
+  if (renv_record_archived(desc)) {
+    paths <- c(destfile, renv_retrieve_path_alternates(destfile))
+    if (any(file.exists(paths)))
+      return(NULL)
+  }
 
   # carry repository metadata so install can tag the record
   # for renv_package_augment (RemoteRepos, RemoteReposName)
@@ -1815,6 +1831,11 @@ renv_graph_install <- function(descriptions) {
     }
 
     type <- renv_graph_install_classify(record)
+
+    # the download was saved to the path for the type of package we asked
+    # for; now that we know what it contains, file it accordingly
+    record$Path <- renv_retrieve_path_finalize(record$Path, type)
+
     entries[[package]] <- list(record = record, type = type)
 
   }
