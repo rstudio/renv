@@ -1902,6 +1902,56 @@ test_that("archive enrichment stores the tarball where retrieval looks for it", 
 
 })
 
+test_that("archive enrichment files a binary where retrieval looks for it", {
+
+  renv_tests_scope()
+
+  # P3M serves binaries for archived versions too, from the archive's URLs
+  # and under the names of the sources (#2427)
+  pkgdir <- renv_scope_tempfile("renv-archived-pkg-")
+  ensure_directory(file.path(pkgdir, "archivedpkg", "Meta"))
+  file.create(file.path(pkgdir, "archivedpkg", "Meta", "package.rds"))
+  writeLines(
+    c("Package: archivedpkg", "Version: 0.1.0"),
+    file.path(pkgdir, "archivedpkg", "DESCRIPTION")
+  )
+
+  tarball <- file.path(pkgdir, "archivedpkg_0.1.0.tar.gz")
+  local({
+    renv_scope_wd(pkgdir)
+    tar(tarfile = tarball, files = "archivedpkg", compression = "gzip")
+  })
+
+  archive <- renv_tests_archive_repo(
+    package = "archivedpkg",
+    version = "0.1.0",
+    tarball = tarball
+  )
+  renv_scope_options(repos = c(ARCHIVED = archive$url))
+
+  latest <- renv_available_packages_latest_archive(
+    package = "archivedpkg",
+    type = "source",
+    repos = c(ARCHIVED = archive$url)
+  )
+
+  desc <- renv_graph_description_archive_enrich(latest)
+  expect_equal(desc$Version, "0.1.0")
+
+  name <- renv_retrieve_repos_archive_name(desc, type = "source")
+  source <- renv_retrieve_path(desc, type = "source", name = name)
+  binary <- renv_retrieve_path(desc, type = "binary", name = name)
+  expect_true(file.exists(binary))
+  expect_false(file.exists(source))
+
+  # the planner finds the archive there, as does a second enrichment, rather
+  # than downloading it again to the path for a source package
+  expect_null(renv_graph_url_repository_record(desc, latest))
+  renv_graph_description_archive_enrich(latest)
+  expect_false(file.exists(source))
+
+})
+
 test_that("archive enrichment rejects an unreadable DESCRIPTION", {
 
   renv_tests_scope()

@@ -1174,6 +1174,279 @@ test_that("binary archives keep their advertised extension on every platform", {
 
 })
 
+test_that("archives are saved by the type of package they contain", {
+
+  renv_tests_scope()
+
+  # a source and a binary build of one package version, both named as a
+  # source package would be; P3M serves its Linux binaries this way (#2427)
+  pkgdir <- renv_scope_tempfile("renv-staged-pkg-")
+  ensure_directory(file.path(pkgdir, "stagedpkg"))
+  writeLines(
+    c("Package: stagedpkg", "Version: 1.0.0"),
+    file.path(pkgdir, "stagedpkg", "DESCRIPTION")
+  )
+
+  renv_scope_wd(pkgdir)
+  srcpkg <- file.path(pkgdir, "source.tar.gz")
+  tar(tarfile = srcpkg, files = "stagedpkg", compression = "gzip")
+
+  # 'Meta' marks an installed package
+  ensure_directory(file.path(pkgdir, "stagedpkg", "Meta"))
+  file.create(file.path(pkgdir, "stagedpkg", "Meta", "package.rds"))
+  binpkg <- file.path(pkgdir, "binary.tar.gz")
+  tar(tarfile = binpkg, files = "stagedpkg", compression = "gzip")
+
+  source <- renv_paths_source("repository", "stagedpkg", "stagedpkg_1.0.0.tar.gz")
+  binary <- renv_paths_binary("repository", "stagedpkg", "stagedpkg_1.0.0.tar.gz")
+  ensure_parent_directory(source)
+
+  # such an archive could be published under either tree ...
+  expect_true(renv_retrieve_path_staged(source))
+  expect_equal(renv_retrieve_path_candidates(source), c(source, binary))
+  expect_equal(renv_retrieve_path_candidates(binary), c(source, binary))
+
+  # ... unlike one whose name gives its type away, or one that's being
+  # downloaded to a directory of the user's choosing
+  tgz <- renv_paths_binary("repository", "stagedpkg", "stagedpkg_1.0.0.tgz")
+  expect_false(renv_retrieve_path_staged(tgz))
+  expect_equal(renv_retrieve_path_candidates(tgz), tgz)
+
+  local({
+    renv_scope_binding(the, "destdir", "downloads")
+    path <- renv_retrieve_path(list(Package = "stagedpkg", Version = "1.0.0"))
+    expect_false(renv_retrieve_path_staged(path))
+    expect_equal(renv_retrieve_path_candidates(path), path)
+  })
+
+  # a repository serving 'served' at this URL
+  url <- "https://example.com/src/contrib/stagedpkg_1.0.0.tar.gz"
+  served <- binpkg
+  downloads <- 0L
+
+  renv_scope_binding(
+    envir = asNamespace("renv"),
+    symbol = "renv_download_size",
+    replacement = function(url, type = NULL, headers = NULL) file.size(served)
+  )
+
+  # while one download of the archive is in flight, another may start and
+  # finish, as when two processes share these paths
+  concurrent <- FALSE
+  other <- NULL
+
+  renv_scope_binding(
+    envir = asNamespace("renv"),
+    symbol = "renv_download_impl",
+    replacement = function(url, destfile, ...) {
+
+      downloads <<- downloads + 1L
+      if (concurrent) {
+        concurrent <<- FALSE
+        other <<- renv_retrieve_download(url, source, quiet = TRUE)
+      }
+
+      file.copy(served, destfile, overwrite = TRUE)
+      0L
+
+    }
+  )
+
+  # the sources for this version were downloaded earlier, from elsewhere
+  file.copy(srcpkg, source)
+
+  # a binary served in their place is saved with the binaries, leaving the
+  # sources, and nothing else, behind
+  path <- renv_retrieve_download(url, source, quiet = TRUE)
+  expect_equal(path, binary)
+  expect_equal(downloads, 1L)
+  expect_equal(renv_package_type(binary), "binary")
+  expect_equal(renv_package_type(source), "source")
+  expect_equal(list.files(dirname(source)), basename(source))
+  expect_equal(list.files(dirname(binary)), basename(binary))
+
+  # the binary is found there by the next request, whichever type that
+  # asks for, and is not downloaded again
+  expect_equal(renv_retrieve_download(url, source, quiet = TRUE), binary)
+  expect_equal(renv_retrieve_download(url, binary, quiet = TRUE), binary)
+  expect_equal(downloads, 1L)
+
+  # the sources are found the same way, when that's what is being served
+  served <- srcpkg
+  expect_equal(renv_retrieve_download(url, binary, quiet = TRUE), source)
+  expect_equal(downloads, 1L)
+
+  # a stale archive is replaced by the one downloaded in its place
+  served <- binpkg
+  file.copy(srcpkg, binary, overwrite = TRUE)
+  expect_equal(renv_retrieve_download(url, source, quiet = TRUE), binary)
+  expect_equal(downloads, 2L)
+  expect_equal(renv_package_type(binary), "binary")
+  expect_equal(renv_package_type(source), "source")
+
+  # overlapping downloads of one archive each publish a whole archive
+  unlink(binary)
+  concurrent <- TRUE
+  path <- renv_retrieve_download(url, source, quiet = TRUE)
+  expect_equal(path, binary)
+  expect_equal(other, binary)
+  expect_equal(downloads, 4L)
+  expect_equal(renv_package_type(binary), "binary")
+  expect_equal(renv_package_type(source), "source")
+  expect_equal(list.files(dirname(source)), basename(source))
+  expect_equal(list.files(dirname(binary)), basename(binary))
+
+  # the type is not read from an archive whose type is already known
+  staging <- renv_retrieve_path_staging(source)
+  file.copy(binpkg, staging)
+  expect_equal(renv_retrieve_path_publish(staging, binary, type = "source"), source)
+  expect_false(file.exists(staging))
+  expect_equal(renv_package_type(source), "binary")
+
+  # an archive that can't be saved under the tree for its type is kept for
+  # this session, apart from the archives of other types. no directory can
+  # be created within a file, so nothing can be published under this tree
+  unlink(source)
+  renv_scope_envvars(RENV_PATHS_BINARY = file.path(srcpkg, "binary"))
+  path <- renv_retrieve_download(url, source, quiet = TRUE)
+  expect_equal(downloads, 5L)
+  expect_equal(basename(path), basename(source))
+  expect_equal(renv_package_type(path), "binary")
+  expect_false(file.exists(source))
+  expect_length(list.files(dirname(source)), 0L)
+
+})
+
+test_that("archives are published whole, even across filesystems", {
+
+  renv_tests_scope()
+
+  target <- renv_paths_source("repository", "renamedpkg", "renamedpkg_1.0.0.tar.gz")
+  ensure_parent_directory(target)
+  writeLines("an older archive", con = target)
+
+  file <- renv_retrieve_path_staging(target)
+  writeLines("a newer archive", con = file)
+
+  # a file can't be renamed across filesystems. have the first attempt fail
+  # as it would there, and look at the target once the archive has been
+  # copied, just before that copy is renamed into place
+  rename <- renv_file_rename
+  attempts <- 0L
+  failing <- FALSE
+  seen <- NULL
+
+  renv_scope_binding(
+    envir = asNamespace("renv"),
+    symbol = "renv_file_rename",
+    replacement = function(source, target) {
+
+      attempts <<- attempts + 1L
+      if (failing || attempts == 1L)
+        return(FALSE)
+
+      seen <<- readLines(target)
+      rename(source, target)
+
+    }
+  )
+
+  expect_equal(renv_retrieve_path_publish_impl(file, target), target)
+  expect_equal(attempts, 2L)
+  expect_equal(seen, "an older archive")
+  expect_equal(readLines(target), "a newer archive")
+  expect_false(file.exists(file))
+  expect_equal(list.files(dirname(target)), basename(target))
+
+  # if the copy can't be renamed into place either, the target and the
+  # private file are left as they were, with no copy left behind
+  file <- renv_retrieve_path_staging(target)
+  writeLines("the newest archive", con = file)
+  failing <- TRUE
+
+  expect_error(
+    renv_retrieve_path_publish_impl(file, target),
+    "could not save archive"
+  )
+
+  expect_equal(readLines(target), "a newer archive")
+  expect_equal(readLines(file), "the newest archive")
+  expect_setequal(list.files(dirname(target)), basename(c(target, file)))
+
+})
+
+test_that("binaries served from a source repository are filed as binaries", {
+
+  skip_on_cran()
+  project <- renv_tests_scope()
+
+  # build a binary package ...
+  pkgdir <- renv_scope_tempfile("renv-served-pkg-")
+  ensure_directory(file.path(pkgdir, "servedpkg"))
+  writeLines(
+    c(
+      "Package: servedpkg",
+      "Version: 1.0.0",
+      "Title: A Package",
+      "Description: Test.",
+      "License: MIT"
+    ),
+    file.path(pkgdir, "servedpkg", "DESCRIPTION")
+  )
+  file.create(file.path(pkgdir, "servedpkg", "NAMESPACE"))
+
+  library <- renv_scope_tempfile("renv-served-library-")
+  ensure_directory(library)
+  args <- c(
+    "CMD", "INSTALL",
+    "-l", renv_shell_path(library),
+    renv_shell_path(file.path(pkgdir, "servedpkg"))
+  )
+  renv_system_exec(R(), args, action = "installing servedpkg")
+
+  # ... and serve it the way P3M serves its Linux binaries: from the URLs,
+  # and under the name, that the sources for the package would have (#2427)
+  repopath <- renv_scope_tempfile("renv-served-repo-")
+  contrib <- file.path(repopath, "src/contrib")
+  ensure_directory(contrib)
+
+  local({
+    renv_scope_wd(library)
+    tar(
+      tarfile     = file.path(contrib, "servedpkg_1.0.0.tar.gz"),
+      files       = "servedpkg",
+      compression = "gzip"
+    )
+  })
+
+  writeLines(
+    c("Package: servedpkg", "Version: 1.0.0", ""),
+    file.path(contrib, "PACKAGES")
+  )
+
+  renv_scope_options(
+    repos   = c(local = paste0("file://", repopath)),
+    pkgType = "source"
+  )
+
+  source <- renv_paths_source("repository", "servedpkg", "servedpkg_1.0.0.tar.gz")
+  binary <- renv_paths_binary("repository", "servedpkg", "servedpkg_1.0.0.tar.gz")
+
+  # sequential retrieval files the archive with the binaries
+  result <- retrieve("servedpkg", project = project)
+  expect_equal(result[["servedpkg"]], binary)
+  expect_true(file.exists(binary))
+  expect_false(file.exists(source))
+
+  # as do the parallel downloads made on install
+  unlink(binary)
+  install("servedpkg")
+  expect_true(renv_package_installed("servedpkg"))
+  expect_true(file.exists(binary))
+  expect_false(file.exists(source))
+
+})
+
 test_that("Path entries shape the download URL but not the file name", {
   skip_on_cran()
   project <- renv_tests_scope()

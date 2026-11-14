@@ -516,7 +516,8 @@ renv_graph_description_archive <- function(record) {
 
   # download to the shared sources path, under the name the later retrieve of
   # this same record will look for, so it reuses the tarball rather than
-  # downloading it a second time
+  # downloading it a second time. a repository may serve a binary from its
+  # archive, so download it as retrieval does, to be saved by what it contains
   destfile <- renv_retrieve_path(record, type = "source", name = name)
   ensure_parent_directory(destfile)
 
@@ -527,11 +528,11 @@ renv_graph_description_archive <- function(record) {
       next
 
     url <- file.path(root, name)
-    status <- catch(download(url, destfile = destfile, type = "source", quiet = TRUE))
-    if (inherits(status, "error"))
+    path <- catch(renv_retrieve_download(url, destfile, type = "source", quiet = TRUE))
+    if (inherits(path, "error"))
       next
 
-    desc <- catch(renv_description_read(destfile))
+    desc <- catch(renv_description_read(path))
     if (!inherits(desc, "error"))
       return(as.list(desc))
 
@@ -1366,9 +1367,13 @@ renv_graph_url_repository_record <- function(desc, record) {
   # archive enrichment already downloaded and validated this tarball while
   # reading its DESCRIPTION. route it through sequential retrieval, whose
   # normal existing-file check reuses it, instead of downloading it again in
-  # the parallel batch
-  if (renv_record_archived(desc) && file.exists(destfile))
-    return(NULL)
+  # the parallel batch. the tarball was saved by the type of package it
+  # contains, so it need not be at the path for the type we asked for
+  if (renv_record_archived(desc)) {
+    candidates <- renv_retrieve_path_candidates(destfile)
+    if (any(file.exists(candidates)))
+      return(NULL)
+  }
 
   # carry repository metadata so install can tag the record
   # for renv_package_augment (RemoteRepos, RemoteReposName)
@@ -1609,6 +1614,10 @@ renv_graph_install <- function(descriptions) {
   count <- 0L
   downloaded <- list()
 
+  # the paths that archives downloaded to private files are destined for,
+  # by package; see renv_retrieve_path_staged()
+  destinations <- list()
+
   if (length(remaining) > 0L) {
 
     writef(header("Downloading packages"))
@@ -1622,6 +1631,26 @@ renv_graph_install <- function(descriptions) {
     streamed <- character()
 
     if (length(downloadable)) {
+
+      # the type of package in an archive can't always be told before it's
+      # downloaded. download such archives to private files, to be published
+      # once we've seen what they contain. an earlier download of one could
+      # be under either tree, for downloaders that look for one
+      alternates <- vector("list", length(downloadable))
+      names(alternates) <- names(downloadable)
+
+      for (pkg in names(downloadable)) {
+        destfile <- downloadable[[pkg]]$destfile
+        if (renv_retrieve_path_staged(destfile)) {
+          destinations[[pkg]] <- destfile
+          alternates[[pkg]] <- renv_retrieve_path_candidates(destfile)
+          downloadable[[pkg]]$destfile <- renv_retrieve_path_staging(destfile)
+        }
+      }
+
+      # clean up those left unpublished, e.g. by a failed download
+      unpublished <- map_chr(downloadable[names(destinations)], `[[`, "destfile")
+      defer(unlink(unpublished))
 
       urls      <- vapply(downloadable, `[[`, character(1L), "url")
       destfiles <- vapply(downloadable, `[[`, character(1L), "destfile")
@@ -1682,10 +1711,11 @@ renv_graph_install <- function(descriptions) {
 
       # perform the actual download
       ok <- renv_download_parallel(
-        urls      = urls,
-        destfiles = destfiles,
-        types     = types,
-        callback  = if (!testing()) callback
+        urls       = urls,
+        destfiles  = destfiles,
+        types      = types,
+        callback   = if (!testing()) callback,
+        alternates = alternates
       )
 
       # clear up and determine what packages need 'fallback' downloads
@@ -1712,6 +1742,9 @@ renv_graph_install <- function(descriptions) {
     # https://github.com/rstudio/renv/issues/2340
     downloaderrors <- list()
     for (pkg in fallbacks) {
+
+      # sequential retrieval publishes the archive itself
+      destinations[[pkg]] <- NULL
 
       status <- catch({
         renv_scope_options(renv.download.headers = NULL)
@@ -1815,6 +1848,17 @@ renv_graph_install <- function(descriptions) {
     }
 
     type <- renv_graph_install_classify(record)
+
+    # an archive downloaded to a private file can be published, now that we
+    # know the type of package it contains. should that fail outright, the
+    # archive is still installed from the private file
+    path <- destinations[[package]]
+    if (!is.null(path)) {
+      published <- catch(renv_retrieve_path_publish(record$Path, path, type))
+      if (!inherits(published, "error"))
+        record$Path <- published
+    }
+
     entries[[package]] <- list(record = record, type = type)
 
   }

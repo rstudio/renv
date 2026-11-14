@@ -21,6 +21,75 @@ test_that("we avoid downloading files twice", {
 
 })
 
+test_that("an up-to-date copy of a file at an alternate path is used as-is", {
+
+  url <- "https://example.com/file.txt"
+  destfile <- renv_scope_tempfile("renv-download-", fileext = ".txt")
+  alternate <- renv_scope_tempfile("renv-download-", fileext = ".txt")
+  writeLines("an earlier download", con = alternate)
+
+  # the size the server reports for the file, and what it then sends
+  size <- file.size(alternate)
+  renv_scope_binding(
+    envir = asNamespace("renv"),
+    symbol = "renv_download_size",
+    replacement = function(url, type = NULL, headers = NULL) size
+  )
+
+  downloads <- 0L
+  renv_scope_binding(
+    envir = asNamespace("renv"),
+    symbol = "renv_download_impl",
+    replacement = function(url, destfile, ...) {
+      downloads <<- downloads + 1L
+      writeLines("a newer, longer download", con = destfile)
+      0L
+    }
+  )
+
+  # a copy matching the server's is returned, with nothing downloaded
+  path <- download(url, destfile, quiet = TRUE, alternates = alternate)
+  expect_equal(path, alternate)
+  expect_equal(downloads, 0L)
+  expect_false(file.exists(destfile))
+
+  # a stale copy is left alone, and the file downloaded to 'destfile'
+  size <- size + 1
+  path <- download(url, destfile, quiet = TRUE, alternates = alternate)
+  expect_equal(path, destfile)
+  expect_equal(downloads, 1L)
+  expect_equal(readLines(destfile), "a newer, longer download")
+  expect_equal(readLines(alternate), "an earlier download")
+
+  # the stand-in for the parallel downloaders uses such a copy as well,
+  # leaving the file where its caller will look for it
+  unlink(destfile)
+  size <- file.size(alternate)
+  ok <- renv_download_parallel_sequential(
+    urls       = c(file = url),
+    destfiles  = destfile,
+    types      = "unknown",
+    alternates = list(alternate)
+  )
+
+  expect_true(ok[["file"]])
+  expect_equal(downloads, 1L)
+  expect_equal(readLines(destfile), "an earlier download")
+
+  # if that copy can't be put there, the download is reported as failed
+  missing <- file.path(tempdir(), "no-such-directory", "file.txt")
+  ok <- renv_download_parallel_sequential(
+    urls       = c(file = url),
+    destfiles  = missing,
+    types      = "unknown",
+    alternates = list(alternate)
+  )
+
+  expect_false(ok[["file"]])
+  expect_equal(downloads, 1L)
+
+})
+
 test_that("we can successfully tweak the user agent string", {
 
   utils <- asNamespace("utils")
