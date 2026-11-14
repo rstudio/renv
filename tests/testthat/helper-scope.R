@@ -98,7 +98,10 @@ renv_tests_scope_crandb <- function(enabled = FALSE, scope = parent.frame()) {
 renv_tests_scope_system_cache <- function(scope = parent.frame()) {
   skip_on_cran()
   renv_scope_options(repos = c(CRAN = "https://cloud.r-project.org"), scope = scope)
-  cache <- file.path(renv_paths_root_default_impl(), "cache")
+
+  # a cache that's been configured explicitly is already the one to use
+  default <- file.path(renv_paths_root_default_impl(), "cache")
+  cache <- renv_paths_override("cache") %||% default
   renv_scope_envvars(RENV_PATHS_CACHE = cache, scope = scope)
 }
 
