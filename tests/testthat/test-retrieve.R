@@ -245,10 +245,13 @@ test_that("explicit path to binary packages work", {
   binpath <- renv_tests_path("local/skeleton/skeleton_1.0.1.tgz")
   defer(unlink(binpath))
 
-  # create the binary
+  # create the binary. building one installs the package first; have that
+  # go to a temporary library, not the first library on the library paths
   local({
     renv_scope_wd(dirname(srcpath))
-    args <- c("CMD", "INSTALL", "--build", basename(srcpath))
+    library <- renv_scope_tempfile("renv-library-")
+    ensure_directory(library)
+    args <- c("CMD", "INSTALL", "--build", "-l", renv_shell_path(library), basename(srcpath))
     renv_system_exec(R(), args)
   })
 

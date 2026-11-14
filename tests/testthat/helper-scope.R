@@ -92,10 +92,14 @@ renv_tests_scope_crandb <- function(enabled = FALSE, scope = parent.frame()) {
 
 }
 
+# use the package cache of the user running the tests, so that packages
+# which are slow to build are only built once. only the cache is shared;
+# packages are still downloaded to the root set up for the tests
 renv_tests_scope_system_cache <- function(scope = parent.frame()) {
   skip_on_cran()
   renv_scope_options(repos = c(CRAN = "https://cloud.r-project.org"), scope = scope)
-  renv_scope_envvars(RENV_PATHS_ROOT = renv_paths_root_default_impl(), scope = scope)
+  cache <- file.path(renv_paths_root_default_impl(), "cache")
+  renv_scope_envvars(RENV_PATHS_CACHE = cache, scope = scope)
 }
 
 renv_scope_local <- function() {

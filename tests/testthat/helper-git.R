@@ -213,6 +213,16 @@ renv_tests_git_scope_protocol_v0 <- function(scope = parent.frame()) {
 
 }
 
+# have git ignore the configuration of the user running the tests. that
+# can redirect the https URLs used in tests to ssh ones (via
+# 'url.<base>.insteadOf'), which only work with that user's keys. git reads
+# this variable as of 2.32; older versions use the configuration as before
+renv_tests_git_scope_config <- function(scope = parent.frame()) {
+  config <- renv_scope_tempfile("renv-gitconfig-", scope = scope)
+  file.create(config)
+  renv_scope_envvars(GIT_CONFIG_GLOBAL = config, scope = scope)
+}
+
 renv_tests_git_version <- function() {
   output <- renv_system_exec("git", "--version", action = "git version")
   version <- regmatches(output, regexpr("[0-9]+([.][0-9]+)+", output))
