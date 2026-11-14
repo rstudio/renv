@@ -408,7 +408,15 @@ renv_download_curl_config <- function() {
 
 }
 
-renv_download_parallel <- function(urls, destfiles, types, callback = NULL) {
+# 'alternates' lists, for each download, other paths that the file may have
+# been saved to by an earlier download; see download(). only the sequential
+# backend looks for an earlier download, as the parallel ones always download
+renv_download_parallel <- function(urls,
+                                   destfiles,
+                                   types,
+                                   callback = NULL,
+                                   alternates = NULL)
+{
 
   # make sure we're using forward slashes uniformly
   urls <- chartr("\\", "/", urls)
@@ -426,7 +434,7 @@ renv_download_parallel <- function(urls, destfiles, types, callback = NULL) {
   switch(method,
     libcurl = renv_download_parallel_libcurl(urls, destfiles, types),
     curl    = renv_download_parallel_curl(urls, destfiles, types, callback = callback),
-    renv_download_parallel_sequential(urls, destfiles, types)
+    renv_download_parallel_sequential(urls, destfiles, types, alternates)
   )
 
 }
@@ -762,11 +770,13 @@ renv_download_parallel_libcurl <- function(urls, destfiles, types) {
 
 }
 
-renv_download_parallel_sequential <- function(urls, destfiles, types) {
+renv_download_parallel_sequential <- function(urls, destfiles, types, alternates = NULL) {
+
+  alternates <- alternates %||% vector("list", length(urls))
 
   ok <- as.logical(.mapply(
     renv_download_parallel_sequential_impl,
-    list(urls, destfiles, types),
+    list(urls, destfiles, types, alternates),
     NULL
   ))
 
@@ -775,18 +785,27 @@ renv_download_parallel_sequential <- function(urls, destfiles, types) {
 
 }
 
-renv_download_parallel_sequential_impl <- function(url, destfile, type) {
+renv_download_parallel_sequential_impl <- function(url, destfile, type, alternates = NULL) {
 
-  status <- catch(
+  path <- catch(
     download(
-      url      = url,
-      destfile = destfile,
-      type     = type,
-      quiet    = TRUE
+      url        = url,
+      destfile   = destfile,
+      type       = type,
+      quiet      = TRUE,
+      alternates = alternates
     )
   )
 
-  !inherits(status, "error") && file.exists(destfile)
+  if (inherits(path, "error"))
+    return(FALSE)
+
+  # an up-to-date copy of the file at an alternate path stood in for the
+  # download, but the file is expected at 'destfile'; copy it there
+  if (!file.exists(destfile) && file.exists(path))
+    file.copy(path, destfile)
+
+  file.exists(destfile)
 
 }
 

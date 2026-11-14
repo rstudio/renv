@@ -450,11 +450,28 @@ renv_retrieve_path_staging <- function(path) {
 
 # publish the archive that was downloaded to the private file 'file', in
 # place of 'path', under the tree for the type of package it contains.
-# returns its path there. 'type' is the type of that package, if known
+# returns the path it was published to. 'type' is the type of that package,
+# if known
 renv_retrieve_path_publish <- function(file, path, type = NULL) {
 
   type <- type %||% renv_package_type(file, quiet = TRUE)
   target <- renv_retrieve_path_retype(path, type)
+
+  # if the archive can't be saved under the tree for its type (that tree
+  # might not be writable, say), save it to the path it was destined for
+  status <- catch(renv_retrieve_path_publish_impl(file, target))
+  if (inherits(status, "error") && !renv_path_same(target, path))
+    status <- catch(renv_retrieve_path_publish_impl(file, path))
+
+  if (inherits(status, "error"))
+    stop(status)
+
+  status
+
+}
+
+renv_retrieve_path_publish_impl <- function(file, target) {
+
   ensure_parent_directory(target)
 
   # where it can, rename() replaces an existing file atomically, so that

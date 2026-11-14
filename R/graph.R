@@ -1634,11 +1634,16 @@ renv_graph_install <- function(descriptions) {
 
       # the type of package in an archive can't always be told before it's
       # downloaded. download such archives to private files, to be published
-      # once we've seen what they contain
+      # once we've seen what they contain. an earlier download of one could
+      # be under either tree, for downloaders that look for one
+      alternates <- vector("list", length(downloadable))
+      names(alternates) <- names(downloadable)
+
       for (pkg in names(downloadable)) {
         destfile <- downloadable[[pkg]]$destfile
         if (renv_retrieve_path_staged(destfile)) {
           destinations[[pkg]] <- destfile
+          alternates[[pkg]] <- renv_retrieve_path_candidates(destfile)
           downloadable[[pkg]]$destfile <- renv_retrieve_path_staging(destfile)
         }
       }
@@ -1706,10 +1711,11 @@ renv_graph_install <- function(descriptions) {
 
       # perform the actual download
       ok <- renv_download_parallel(
-        urls      = urls,
-        destfiles = destfiles,
-        types     = types,
-        callback  = if (!testing()) callback
+        urls       = urls,
+        destfiles  = destfiles,
+        types      = types,
+        callback   = if (!testing()) callback,
+        alternates = alternates
       )
 
       # clear up and determine what packages need 'fallback' downloads

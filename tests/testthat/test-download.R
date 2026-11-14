@@ -61,6 +61,21 @@ test_that("an up-to-date copy of a file at an alternate path is used as-is", {
   expect_equal(readLines(destfile), "a newer, longer download")
   expect_equal(readLines(alternate), "an earlier download")
 
+  # the stand-in for the parallel downloaders uses such a copy as well,
+  # leaving the file where its caller will look for it
+  unlink(destfile)
+  size <- file.size(alternate)
+  ok <- renv_download_parallel_sequential(
+    urls       = c(file = url),
+    destfiles  = destfile,
+    types      = "unknown",
+    alternates = list(alternate)
+  )
+
+  expect_true(ok[["file"]])
+  expect_equal(downloads, 1L)
+  expect_equal(readLines(destfile), "an earlier download")
+
 })
 
 test_that("we can successfully tweak the user agent string", {
