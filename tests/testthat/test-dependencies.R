@@ -962,12 +962,17 @@ test_that("R script header checks tolerate non-native encodings", {
 
   # https://github.com/rstudio/renv/issues/2362
   comment <- paste("#", intToUtf8(c(0x4e2d, 0x6587, 0x6d4b, 0x8bd5)))
-  text <- c(comment, "library(dplyr)")
 
-  for (encoding in c("UTF-8", "GBK")) {
+  # musl's iconv() can't encode to GBK, so spell out the bytes.
+  # https://github.com/rstudio/renv/issues/2434
+  comments <- list(
+    "UTF-8" = charToRaw(enc2utf8(comment)),
+    "GBK"   = as.raw(c(0x23, 0x20, 0xd6, 0xd0, 0xce, 0xc4, 0xb2, 0xe2, 0xca, 0xd4))
+  )
+
+  for (bytes in comments) {
     file <- renv_scope_tempfile(fileext = ".R")
-    encoded <- iconv(text, from = "UTF-8", to = encoding)
-    writeLines(encoded, file, useBytes = TRUE)
+    writeBin(c(bytes, charToRaw("\nlibrary(dplyr)\n")), file)
 
     expect_no_warning(deps <- dependencies(file, quiet = TRUE))
     expect_equal(deps$Package, "dplyr")
@@ -1119,5 +1124,56 @@ test_that("bslib is only implied by an html_document theme", {
   check("output: html_document", FALSE)
   check(c("output:", "  html_document:", "    toc: true"), FALSE)
   check(c("output:", "  html_document:", "    theme: cerulean"), FALSE)
+
+})
+
+test_that("dependency errors are reported even when the file scan was cached", {
+
+  renv_tests_scope()
+  renv_scope_options(renv.config.filebacked.cache = TRUE)
+  renv_scope_caution(FALSE)
+
+  writeLines(c("library(A)", "foo("), con = "broken.R")
+
+  # the initial (uncached) scan should report the parse error exactly once
+  problems <- NULL
+  withCallingHandlers(
+    dependencies(errors = "reported"),
+    renv.dependencies.problems = function(cnd) problems <<- cnd$data
+  )
+
+  expect_length(problems, 1L)
+  expect_equal(basename(problems[[1L]]$file), "broken.R")
+
+  # a later scan in the same session (now served from the per-file cache)
+  # should report it again, still exactly once
+  # https://github.com/rstudio/renv/issues/2430
+  problems <- NULL
+  withCallingHandlers(
+    dependencies(errors = "reported"),
+    renv.dependencies.problems = function(cnd) problems <<- cnd$data
+  )
+
+  expect_length(problems, 1L)
+  expect_equal(basename(problems[[1L]]$file), "broken.R")
+
+})
+
+test_that("dependency errors are reported once when the file cache is disabled", {
+
+  renv_tests_scope()
+  renv_scope_options(renv.config.filebacked.cache = FALSE)
+  renv_scope_caution(FALSE)
+
+  writeLines(c("library(A)", "foo("), con = "broken.R")
+
+  problems <- NULL
+  withCallingHandlers(
+    dependencies(errors = "reported"),
+    renv.dependencies.problems = function(cnd) problems <<- cnd$data
+  )
+
+  expect_length(problems, 1L)
+  expect_equal(basename(problems[[1L]]$file), "broken.R")
 
 })

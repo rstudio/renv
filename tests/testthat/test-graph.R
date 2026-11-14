@@ -1779,6 +1779,44 @@ test_that("repository graph reads archived DESCRIPTION when crandb fails", {
 
 })
 
+# https://github.com/rstudio/renv/issues/2432
+test_that("crandb dependencies renamed by make.unique() are rejected", {
+
+  # crandb serves 'Imports: utils, strucchange, utils' like this
+  value <- list(utils = "*", strucchange = "*", utils.1 = "*")
+  expect_error(renv_graph_description_crandb_convert(value), "utils.1")
+
+  # names which merely end in a number are left alone
+  value <- list(ISO6976.2016 = "*", TH.data = ">= 1.0")
+  converted <- renv_graph_description_crandb_convert(value)
+  expect_equal(converted, "ISO6976.2016, TH.data (>= 1.0)")
+
+})
+
+# https://github.com/rstudio/renv/issues/2432
+test_that("repository graph reads archived DESCRIPTION when crandb mangles dependencies", {
+
+  renv_tests_scope()
+
+  # a crandb record for a version listing 'toast' twice, as crandb serves it
+  renv_scope_binding(
+    envir = asNamespace("renv"),
+    symbol = "renv_graph_description_crandb",
+    replacement = function(package, version) {
+      depends <- list(R = ">= 1.0.0", toast = "*", toast.1 = "*")
+      depends <- renv_graph_description_crandb_convert(depends)
+      list(Package = package, Version = version, Depends = depends)
+    }
+  )
+
+  record <- list(Package = "today", Version = "0.1.0", Source = "Repository")
+  desc <- renv_graph_description_repository(record)
+
+  expect_equal(desc$Version, "0.1.0")
+  expect_equal(desc$Depends, "R (>= 1.0.0)")
+
+})
+
 test_that("repository graph enriches a versionless archive record", {
 
   renv_tests_scope()
@@ -1823,6 +1861,43 @@ test_that("repository graph enriches a versionless archive record", {
 
   # DESCRIPTION enrichment downloaded the tarball already; do not send it
   # through the parallel downloader a second time
+  expect_null(renv_graph_url_repository_record(desc, latest))
+
+})
+
+test_that("archive enrichment stores the tarball where retrieval looks for it", {
+
+  renv_tests_scope()
+
+  tarball <- file.path(
+    renv_tests_repopath(),
+    "src/contrib/Archive/today/today_0.1.0.tar.gz"
+  )
+  archive <- renv_tests_archive_repo(
+    package = "today",
+    version = "0.1.0",
+    tarball = tarball
+  )
+  renv_scope_options(repos = c(ARCHIVED = archive$url))
+
+  latest <- renv_available_packages_latest_archive(
+    package = "today",
+    type = "source",
+    repos = c(ARCHIVED = archive$url)
+  )
+
+  # r-universe records carry the commit they were built from, which names the
+  # local copy. enrichment must save the tarball under that same name, or the
+  # planner's existing-file check misses it and downloads it again
+  sha <- strrep("a", 40L)
+  record <- latest
+  record$RemoteSha <- sha
+  desc <- renv_graph_description_archive_enrich(record)
+
+  name <- renv_retrieve_repos_archive_name(desc, type = "source")
+  destfile <- renv_retrieve_path(desc, type = "source", name = name)
+  expect_equal(basename(destfile), sprintf("today_%s.tar.gz", sha))
+  expect_true(file.exists(destfile))
   expect_null(renv_graph_url_repository_record(desc, latest))
 
 })
@@ -2038,5 +2113,62 @@ test_that("repository graph reads DESCRIPTION from a git commit for r-universe r
   expect_no_warning(desc <- renv_graph_description_repository(record))
   expect_equal(desc$Version, "0.5.0")
   expect_equal(desc$Depends, "egg")
+
+})
+
+# https://github.com/rstudio/renv/issues/2437
+test_that("renv_graph_install applies the install timeout per package", {
+
+  skip_on_cran()
+  skip_on_os("windows")
+  skip_if(getRversion() < "4.0")
+  renv_tests_scope()
+  renv_scope_options(
+    renv.verbose                = TRUE,
+    renv.config.install.jobs    = 2L,
+    renv.config.install.timeout = 1
+  )
+
+  # use an empty cache, so that every package needs to be built
+  cache <- renv_scope_tempfile("renv-cache-")
+  renv_scope_envvars(RENV_PATHS_CACHE = cache)
+
+  # make 'bread' stall before its build starts; 'oatmeal' builds as usual
+  prepare <- get("renv_graph_install_unpack_and_prepare", envir = asNamespace("renv"))
+  renv_scope_binding(
+    envir       = asNamespace("renv"),
+    symbol      = "renv_graph_install_unpack_and_prepare",
+    replacement = function(record, ...) {
+      prepared <- prepare(record, ...)
+      if (identical(record$Package, "bread"))
+        prepared$command <- paste("sleep 30 &&", prepared$command)
+      prepared
+    }
+  )
+
+  # install non-transactionally, so that a failure does not roll back the
+  # packages that did install
+  init()
+  output <- capture.output(
+    status <- tryCatch(
+      install(c("bread", "oatmeal"), transactional = FALSE),
+      error = identity
+    )
+  )
+
+  # only the slow package failed, and the reason names the setting to adjust
+  expect_s3_class(status, "error")
+  expect_match(conditionMessage(status), "package installation failed")
+  expect_match(conditionMessage(status), "bread")
+  expect_no_match(conditionMessage(status), "oatmeal")
+  expect_match(
+    paste(output, collapse = "\n"),
+    "installation timed out after .* 'install.timeout'"
+  )
+
+  # the rest of the install carried on
+  library <- renv_paths_library()
+  expect_false(file.exists(file.path(library, "bread")))
+  expect_true(file.exists(file.path(library, "oatmeal")))
 
 })

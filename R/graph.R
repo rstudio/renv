@@ -387,7 +387,8 @@ renv_graph_description_repository <- function(record) {
   # the requested version wasn't found in configured repos; try crandb for the
   # specific version's dependency fields. this must come before any fallback
   # that reuses the latest entry's fields with an overridden version, since
-  # dependency constraints can change between versions (e.g. #2278)
+  # dependency constraints can change between versions (e.g. #2278). crandb
+  # records whose dependencies it has mangled are rejected here (#2432)
   if (!is.null(version)) {
     crandb <- catch(renv_graph_description_crandb(package, version))
     if (!inherits(crandb, "error"))
@@ -513,9 +514,10 @@ renv_graph_description_archive <- function(record) {
     }
   }
 
-  # download to the shared sources path so that the later retrieve of this
-  # same record reuses the tarball rather than downloading it a second time
-  destfile <- renv_retrieve_path(record, type = "source")
+  # download to the shared sources path, under the name the later retrieve of
+  # this same record will look for, so it reuses the tarball rather than
+  # downloading it a second time
+  destfile <- renv_retrieve_path(record, type = "source", name = name)
   ensure_parent_directory(destfile)
 
   for (repo in repos) {
@@ -626,6 +628,21 @@ renv_graph_description_crandb <- function(package, version) {
 }
 
 renv_graph_description_crandb_convert <- function(value) {
+
+  # HACK: this check works around a defect in crandb. crandb stores each
+  # dependency field as a JSON object keyed by package name, and its JSON
+  # serializer renames duplicated keys with make.unique(); a package listed
+  # twice in a field (e.g. 'utils' in partykit 1.3-0) is served as 'utils'
+  # and 'utils.1'. that is indistinguishable from a dependency on a real
+  # package called 'utils.1', so rather than guess, reject these records and
+  # let callers fall back to a source with the original DESCRIPTION (#2432)
+  keys <- names(value)
+  base <- sub("[.][0-9]+$", "", keys)
+  ambiguous <- keys[base != keys & base %in% keys]
+  if (length(ambiguous)) {
+    fmt <- "crandb dependency names are ambiguous: %s"
+    stopf(fmt, paste(shQuote(ambiguous), collapse = ", "))
+  }
 
   parts <- enum_chr(value, function(name, version) {
     sprintf("%s (%s)", name, version)
@@ -1249,7 +1266,7 @@ renv_graph_url_repository <- function(desc) {
     reponame <- attr(record, "name", exact = TRUE)
     name <- renv_retrieve_repos_archive_name(as.list(desc), "source")
     url <- file.path(root, name)
-    destfile <- renv_retrieve_path(as.list(desc), type = "source")
+    destfile <- renv_retrieve_path(as.list(desc), type = "source", name = name)
     return(list(
       url      = url,
       destfile = destfile,
@@ -1339,7 +1356,12 @@ renv_graph_url_repository_record <- function(desc, record) {
   if (is.null(repo))
     return(NULL)
 
-  destfile <- renv_retrieve_path(as.list(desc), type = type)
+  # the local copy takes its extension from the file the repository
+  # advertises, so that e.g. a '.tar.xz' custom binary is not stored under a
+  # '.tgz' name (#2423)
+  name <- renv_retrieve_repos_archive_name(record, type)
+  url <- file.path(repo, name)
+  destfile <- renv_retrieve_path(as.list(desc), type = type, name = name)
 
   # archive enrichment already downloaded and validated this tarball while
   # reading its DESCRIPTION. route it through sequential retrieval, whose
@@ -1347,9 +1369,6 @@ renv_graph_url_repository_record <- function(desc, record) {
   # the parallel batch
   if (renv_record_archived(desc) && file.exists(destfile))
     return(NULL)
-
-  name <- renv_retrieve_repos_archive_name(record, type)
-  url <- file.path(repo, name)
 
   # carry repository metadata so install can tag the record
   # for renv_package_augment (RemoteRepos, RemoteReposName)
@@ -1441,7 +1460,7 @@ renv_graph_url_local <- function(desc) {
       next
 
     path <- renv_path_normalize(path, mustWork = TRUE)
-    destfile <- renv_retrieve_path(as.list(desc))
+    destfile <- renv_retrieve_path(as.list(desc), name = basename(path))
 
     # use a file URI so the parallel downloaders can handle it uniformly
     url <- paste0("file://", path)
@@ -1466,7 +1485,7 @@ renv_graph_url_cellar <- function(desc) {
   name <- renv_retrieve_repos_archive_name(as.list(desc), type)
   href <- file.path(url, name)
 
-  destfile <- renv_retrieve_path(as.list(desc), type = type)
+  destfile <- renv_retrieve_path(as.list(desc), type = type, name = name)
 
   list(
     url       = href,
@@ -1921,8 +1940,13 @@ renv_graph_install <- function(descriptions) {
     if (showstatus)
       progress$reset("Installing", length(installnames))
 
-    timeout <- getOption("renv.install.timeout", default = 3600L)
-    deadline <- Sys.time() + timeout
+    # each package may take at most this long (in seconds) to install; by
+    # default there is no limit, since large packages can legitimately take
+    # hours to build from source, and workers that die are detected through
+    # their socket closing rather than by a timeout (#2437)
+    timeout <- config$install.timeout() %||% Inf
+    if (!is.finite(timeout) || timeout <= 0)
+      timeout <- Inf
 
     # once 'pkg' is installed, its dependents are one step closer to ready
     release <- function(pkg) {
@@ -2022,7 +2046,7 @@ renv_graph_install <- function(descriptions) {
           } else {
             poolid <- poolid + 1L
             id <- as.character(poolid)
-            renv_graph_install_pool_launch(id, server$port, workdir, timeout)
+            renv_graph_install_pool_launch(id, server$port, workdir)
           }
 
           worker$package <- pkg
@@ -2046,6 +2070,50 @@ renv_graph_install <- function(descriptions) {
       if (showstatus)
         progress$update(names(active))
 
+      # fail any package that has exceeded the install timeout. the limit is
+      # per package, so a slow build only fails itself, and the rest of the
+      # install carries on
+      now <- Sys.time()
+      for (pkg in names(active)) {
+
+        elapsed <- difftime(now, active[[pkg]]$start, units = "auto")
+        if (as.double(elapsed, units = "secs") <= timeout)
+          next
+
+        if (showstatus) {
+          progress$clear()
+          progress$tick()
+        }
+
+        fmt <- paste(
+          "package installation timed out after %s;",
+          "see the 'install.timeout' setting in ?renv::config to adjust this limit"
+        )
+        handle(pkg, list(
+          success = FALSE,
+          output  = sprintf(fmt, renv_difftime_format(elapsed)),
+          elapsed = elapsed
+        ))
+
+        id <- active[[pkg]]$worker
+        if (is.null(id)) {
+          renv_graph_install_worker_kill(active[[pkg]])
+          renv_graph_install_worker_cleanup(active[[pkg]])
+        } else {
+          renv_graph_install_worker_kill(pool[[id]])
+          renv_graph_install_pool_close(pool[[id]])
+          pool[[id]] <- NULL
+        }
+
+        active[[pkg]] <- NULL
+
+      }
+
+      # if every worker has been retired, go back and fill the freed slots
+      # (or finish, if nothing is left to install)
+      if (length(active) == 0L)
+        next
+
       # collect connected worker sockets: one per source package being
       # built, and one per binary worker
       conns <- list()
@@ -2058,27 +2126,9 @@ renv_graph_install <- function(descriptions) {
         if (!is.null(pool[[id]]$conn))
           poolconns[[id]] <- pool[[id]]$conn
 
-      remaining <- as.double(deadline - Sys.time(), units = "secs")
-      if (remaining <= 0) {
-        for (pkg in names(active)) {
-          elapsed <- difftime(
-            Sys.time(), active[[pkg]]$start, units = "auto"
-          )
-          handle(pkg, list(
-            success = FALSE,
-            output  = "worker process timed out",
-            elapsed = elapsed
-          ))
-          if (is.null(active[[pkg]]$worker))
-            renv_graph_install_worker_cleanup(active[[pkg]])
-        }
-        active <- list()
-        break
-      }
-
       # wait for activity on server socket (new connections) or
       # worker sockets (results / EOF); server is always first
-      wait <- min(5, remaining)
+      wait <- min(5, timeout)
       sockets <- c(list(server$socket), conns, poolconns)
       flags <- socketSelect(sockets, write = FALSE, timeout = wait)
 
@@ -2133,12 +2183,15 @@ renv_graph_install <- function(descriptions) {
         )
         if (!inherits(conn, "error")) {
           hello <- tryCatch(unserialize(conn), error = identity)
+          package <- if (is.list(hello)) hello$package
           id <- if (is.list(hello)) hello$worker
-          if (is.character(hello) && hello %in% names(active)) {
-            active[[hello]]$conn <- conn
+          if (is.character(package) && package %in% names(active)) {
+            active[[package]]$conn <- conn
+            active[[package]]$pid <- hello$pid
           } else if (is.character(id) && id %in% names(pool)) {
             worker <- pool[[id]]
             worker$conn <- conn
+            worker$pid <- hello$pid
             if (!is.null(worker$request))
               worker <- renv_graph_install_pool_send(worker)
             pool[[worker$id]] <- worker
@@ -2695,7 +2748,8 @@ renv_graph_install_launch_socket <- function(prepared, port, workdir = tempdir()
   # 3. sends the result on the same connection
   #
   # the persistent connection lets the parent detect worker death via
-  # socketSelect() + EOF, without needing PID files or polling
+  # socketSelect() + EOF, without needing PID files or polling; the pid is
+  # included so the parent can terminate a worker that has timed out
   code <- expr({
 
     main <- function() {
@@ -2711,7 +2765,7 @@ renv_graph_install_launch_socket <- function(prepared, port, workdir = tempdir()
       on.exit(close(conn), add = TRUE)
 
       # notify parent of the package we're installing
-      serialize(!!package, conn)
+      serialize(list(package = !!package, pid = Sys.getpid()), conn)
 
       # install the package and send the result back;
       # on success 'output' is a character vector with a "status"
@@ -2750,10 +2804,17 @@ renv_graph_install_launch_socket <- function(prepared, port, workdir = tempdir()
 }
 
 # launch a persistent binary worker: it connects to the parent, announces
-# its id, then installs (and load-tests) packages as requests arrive, until
-# it is sent NULL or the parent goes away. 'timeout' bounds how long it
-# waits idle for the next request
-renv_graph_install_pool_launch <- function(id, port, workdir, timeout) {
+# its id (and pid, so the parent can terminate it on timeout), then installs
+# (and load-tests) packages as requests arrive, until it is sent NULL or the
+# parent goes away
+renv_graph_install_pool_launch <- function(id, port, workdir) {
+
+  # a binary whose dependencies are still being built can keep its worker
+  # waiting for as long as those builds take, which is unbounded by default,
+  # so the worker should only give up when the parent goes away (its socket
+  # then closes). R documents that socket timeouts of up to 31 days are
+  # portable, so use that rather than a timeout tied to the install
+  timeout <- 30L * 86400L
 
   # the worker uses only base R and utils, including when updating renv or
   # running a development / embedded copy of renv, so the functions it
@@ -2771,7 +2832,7 @@ renv_graph_install_pool_launch <- function(id, port, workdir, timeout) {
       )
       on.exit(close(conn), add = TRUE)
 
-      serialize(list(worker = !!id), conn)
+      serialize(list(worker = !!id, pid = Sys.getpid()), conn)
 
       install <- !!renv_graph_install_binary_worker
       test <- !!renv_install_test_impl
@@ -2884,6 +2945,28 @@ renv_graph_install_worker_cleanup <- function(worker) {
   # best effort: on Windows, an exiting worker may still hold its script
   # open, in which case it's removed along with the worker directory
   invisible(unlink(worker$script) == 0L)
+
+}
+
+# terminate a worker that has exceeded the install timeout. this ends the
+# worker's R process; the build it launched (R CMD INSTALL and the compilers
+# under it) is not in a process group of its own, so it is left to exit on
+# its own once its output pipe closes. best effort: a worker that never
+# connected has no known pid, and one that has already exited is just gone
+renv_graph_install_worker_kill <- function(worker) {
+
+  pid <- worker$pid
+  if (is.null(pid))
+    return(invisible(FALSE))
+
+  status <- catch(renv_process_kill(pid))
+  if (inherits(status, "error")) {
+    dlog("graph", "failed to terminate worker process %s: %s",
+         pid, conditionMessage(status))
+    return(invisible(FALSE))
+  }
+
+  invisible(TRUE)
 
 }
 
