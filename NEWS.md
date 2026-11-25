@@ -1,11 +1,10 @@
 # renv (development version)
 
-* `renv::dependencies()` no longer evaluates the chunk headers of R Markdown,
-  Quarto and Sweave documents when parsing their options, and no longer calls
-  namespace-qualified functions found in chunk options or in
-  `targets::tar_option_set(packages = )`. A chunk option such as
-  `eval = knitr::is_html_output()` now falls back to its default, so the chunk
-  is scanned for dependencies.
+* `renv::dependencies()` is now stricter when extracting chunk options from
+  R Markdown, Quarto and Sweave documents, and package names from
+  `targets::tar_option_set(packages = )`. A chunk option written as a
+  namespace-qualified call, such as `eval = knitr::is_html_output()`, now falls
+  back to its default, so the chunk is scanned for dependencies.
 
 * `renv::dependencies()` is now substantially faster. Each call in a document
   is only checked by the discovery methods that handle the function it calls,
