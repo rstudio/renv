@@ -1115,6 +1115,7 @@ test_that("recursion visits default arguments and calls returned by the callback
 
 test_that("bslib is only implied by an html_document theme", {
 
+  skip_if_not_installed("yaml")
   check <- function(header, expected) {
     file <- renv_scope_tempfile("renv-test-", fileext = ".Rmd")
     writeLines(c("---", header, "---"), con = file)

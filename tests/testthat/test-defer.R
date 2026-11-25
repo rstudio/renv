@@ -99,15 +99,15 @@ test_that("renv_defer_execute can run handlers earlier", {
 
 test_that("defer() unregisters a scope once it exits", {
 
-  before <- length(the$defer_envirs)
+  before <- length(the$defer_registry)
   scoped <- function() {
     defer(NULL)
     defer(NULL)
-    length(the$defer_envirs)
+    length(the$defer_registry)
   }
 
   expect_equal(scoped(), before + 1L)
-  expect_equal(length(the$defer_envirs), before)
+  expect_equal(length(the$defer_registry), before)
 
 })
 

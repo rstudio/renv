@@ -1,9 +1,10 @@
 
-# environments with pending exit handlers, and those handlers. environments
-# are matched by identity: keying a table by their formatted addresses would
-# intern a new symbol, which is never freed, for each environment seen
-the$defer_envirs <- list()
-the$defer_handlers <- list()
+# environments with pending exit handlers, as list(envir, handlers) entries.
+# environments are matched by identity: keying a table by their formatted
+# addresses would intern a new symbol, which is never freed, for each
+# environment seen. each entry is updated with a single assignment, so an
+# interrupt can't leave an environment paired with another's handlers
+the$defer_registry <- list()
 
 renv_defer_init <- function() {
 
@@ -30,10 +31,10 @@ defer <- function(expr, scope = parent.frame()) {
 renv_defer_index <- function(envir) {
 
   # search from the end, as handlers are usually added to recent scopes
-  envirs <- the$defer_envirs
-  i <- length(envirs)
+  registry <- the$defer_registry
+  i <- length(registry)
   while (i > 0L) {
-    if (identical(envirs[[i]], envir))
+    if (identical(registry[[i]]$envir, envir))
       return(i)
     i <- i - 1L
   }
@@ -45,15 +46,13 @@ renv_defer_index <- function(envir) {
 renv_defer_get <- function(envir) {
   index <- renv_defer_index(envir)
   if (index > 0L)
-    the$defer_handlers[[index]]
+    the$defer_registry[[index]]$handlers
 }
 
 renv_defer_remove <- function(envir) {
   index <- renv_defer_index(envir)
-  if (index > 0L) {
-    the$defer_envirs[[index]] <- NULL
-    the$defer_handlers[[index]] <- NULL
-  }
+  if (index > 0L)
+    the$defer_registry[[index]] <- NULL
 }
 
 renv_defer_execute <- function(envir = parent.frame()) {
@@ -78,7 +77,9 @@ renv_defer_add <- function(envir, handler) {
   # handlers run in LIFO order
   index <- renv_defer_index(envir)
   if (index > 0L) {
-    the$defer_handlers[[index]] <- c(list(handler), the$defer_handlers[[index]])
+    entry <- the$defer_registry[[index]]
+    entry$handlers <- c(list(handler), entry$handlers)
+    the$defer_registry[[index]] <- entry
     return(handler)
   }
 
@@ -87,9 +88,8 @@ renv_defer_add <- function(envir, handler) {
   call <- as.call(list(renv_defer_execute, envir))
   do.call(base::on.exit, list(call, TRUE), envir = envir)
 
-  index <- length(the$defer_envirs) + 1L
-  the$defer_envirs[[index]] <- envir
-  the$defer_handlers[[index]] <- list(handler)
+  entry <- list(envir = envir, handlers = list(handler))
+  the$defer_registry[[length(the$defer_registry) + 1L]] <- entry
   handler
 
 }

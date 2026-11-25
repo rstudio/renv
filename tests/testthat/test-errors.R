@@ -3,7 +3,7 @@ test_that("tracebacks are captured by catch", {
   skip_if(getRversion() < "3.3.0")
 
   output <- catch(stop("ouch"))
-  expect_true(length(output$calls) > 0)
+  expect_true(length(output$stack) > 0)
 
   traceback <- renv_error_traceback(output)
   expect_true(is.character(traceback))
@@ -13,4 +13,10 @@ test_that("tracebacks are captured by catch", {
 test_that("catch() doesn't retain the calls of the last caught error", {
   output <- catch(stop("ouch"))
   expect_null(the$error_calls)
+})
+
+test_that("caught abort() conditions keep a NULL call", {
+  output <- catch(abort("ouch"))
+  expect_null(conditionCall(output))
+  expect_true(length(renv_error_traceback(output)) > 0)
 })

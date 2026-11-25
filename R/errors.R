@@ -148,15 +148,17 @@ renv_error_capture <- function(e) {
   the$error_calls <- head(sys.calls(), n = -2L)
 }
 
+# not 'calls': conditions from abort() have no 'call' field, so
+# conditionCall()'s e$call would partially match it
 renv_error_tag <- function(e) {
-  e$calls <- the$error_calls
+  e$stack <- the$error_calls
   the$error_calls <- NULL
   e
 }
 
 renv_error_traceback <- function(e) {
-  if (length(e$calls))
-    renv_error_format(e$calls, frames = NULL)
+  if (length(e$stack))
+    renv_error_format(e$stack, frames = NULL)
 }
 
 renv_error_handler_call <- function() {
