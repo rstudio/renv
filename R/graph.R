@@ -604,10 +604,21 @@ renv_graph_description_remote <- function(record) {
 
 renv_graph_description_crandb <- function(package, version) {
 
-  url <- sprintf("https://crandb.r-pkg.org/%s/%s", package, version)
-  destfile <- renv_scope_tempfile("renv-crandb-")
-  download(url, destfile = destfile, quiet = TRUE)
-  json <- renv_json_read(file = destfile)
+  # if the history couldn't be retrieved, crandb is most likely unreachable,
+  # so don't spend another request (and possibly timeout) on the same host
+  history <- renv_available_packages_crandb_query(package)
+  if (is.null(history))
+    stopf("could not retrieve crandb history for package '%s'", package)
+
+  versions <- if (is.list(history)) history[["versions"]]
+  json <- if (is.list(versions)) versions[[version]]
+
+  if (!is.list(json)) {
+    url <- sprintf("https://crandb.r-pkg.org/%s/%s", package, version)
+    destfile <- renv_scope_tempfile("renv-crandb-")
+    download(url, destfile = destfile, quiet = TRUE)
+    json <- renv_json_read(file = destfile)
+  }
 
   # convert to DESCRIPTION-like list
   desc <- list(
