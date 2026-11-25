@@ -1754,6 +1754,95 @@ test_that("repository graph prefers crandb over latest-with-overridden-version",
 
 })
 
+# https://github.com/rstudio/renv/issues/2287
+test_that("crandb graph lookups reuse the version history", {
+
+  package <- "renv.test.crandb.graph.history"
+  urls <- character()
+  versions <- list(
+    "1.0.0" = list(
+      Depends = list(R = ">= 4.0"),
+      Imports = list(cli = "*"),
+      LinkingTo = list(cpp11 = "*"),
+      Suggests = list(testthat = ">= 3.0"),
+      Enhances = list(covr = "*")
+    ),
+    "1.0.1" = list(Imports = list(rlang = ">= 1.0"))
+  )
+  fallback <- list(Imports = list(glue = "*"))
+
+  local_mocked_bindings(download = function(url, destfile, ...) {
+    urls <<- c(urls, url)
+    endpoint <- sub(".*/", "", url)
+    response <- if (endpoint == "all") list(versions = versions) else versions[[endpoint]] %||% fallback
+    renv_json_write(response, file = destfile)
+    invisible(destfile)
+  })
+
+  expect_identical(
+    renv_graph_description_crandb(package, "1.0.0"),
+    list(
+      Package = package,
+      Version = "1.0.0",
+      Depends = "R (>= 4.0)",
+      Imports = "cli",
+      LinkingTo = "cpp11",
+      Suggests = "testthat (>= 3.0)",
+      Enhances = "covr"
+    )
+  )
+  expect_identical(
+    renv_graph_description_crandb(package, "1.0.1"),
+    list(Package = package, Version = "1.0.1", Imports = "rlang (>= 1.0)")
+  )
+  expect_identical(renv_available_packages_crandb_query(package)$versions, versions)
+  expect_identical(
+    renv_graph_description_crandb(package, "0.9.0"),
+    list(Package = package, Version = "0.9.0", Imports = "glue")
+  )
+  expect_identical(
+    urls,
+    sprintf("https://crandb.r-pkg.org/%s/%s", package, c("all", "0.9.0"))
+  )
+
+})
+
+test_that("crandb graph falls back for unusable history responses", {
+
+  package <- "renv.test.crandb.graph.unusable"
+  urls <- character()
+  local_mocked_bindings(download = function(url, destfile, ...) {
+    urls <<- c(urls, url)
+    response <- if (endsWith(url, "/all")) list(versions = "unusable") else list(Imports = list(glue = "*"))
+    renv_json_write(response, file = destfile)
+    invisible(destfile)
+  })
+
+  expect_identical(
+    renv_graph_description_crandb(package, "1.0.0"),
+    list(Package = package, Version = "1.0.0", Imports = "glue")
+  )
+  expect_identical(
+    urls,
+    sprintf("https://crandb.r-pkg.org/%s/%s", package, c("all", "1.0.0"))
+  )
+
+})
+
+test_that("crandb graph lookups make one request when crandb is unreachable", {
+
+  package <- "renv.test.crandb.graph.unreachable"
+  urls <- character()
+  local_mocked_bindings(download = function(url, destfile, ...) {
+    urls <<- c(urls, url)
+    stop("Could not resolve host: crandb.r-pkg.org")
+  })
+
+  expect_error(renv_graph_description_crandb(package, "1.0.0"))
+  expect_identical(urls, sprintf("https://crandb.r-pkg.org/%s/all", package))
+
+})
+
 # https://github.com/rstudio/renv/issues/2315
 test_that("repository graph reads archived DESCRIPTION when crandb fails", {
 
