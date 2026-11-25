@@ -1352,6 +1352,10 @@ renv_dependencies_discover_r_dispatch <- function() {
     renv_dependencies_discover_r_testthat_runners()
   )
 
+  # unnamed rules in a customized database can't match any call
+  database <- unlist(lapply(db, names))
+  database <- database[nzchar(database)]
+
   entries <- list(
     list(renv_dependencies_discover_r_methods,           c("setClass", "setGeneric")),
     list(renv_dependencies_discover_r_xfun,              c("pkg_attach", "pkg_attach2")),
@@ -1372,7 +1376,7 @@ renv_dependencies_discover_r_dispatch <- function() {
     list(renv_dependencies_discover_r_parsnip,           "set_engine"),
     list(renv_dependencies_discover_r_testthat,          testthat),
     list(renv_dependencies_discover_r_knitr,             "set"),
-    list(renv_dependencies_discover_r_database,          unlist(lapply(db, names)))
+    list(renv_dependencies_discover_r_database,          database)
   )
 
   table <- new.env(parent = emptyenv())

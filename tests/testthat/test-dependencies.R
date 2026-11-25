@@ -1090,6 +1090,18 @@ test_that("the dependencies database can be customized", {
 
 })
 
+test_that("unnamed rules in a customized database are ignored", {
+
+  db <- list(foo = list("unused", bar = "baz"))
+  renv_scope_binding(the, "dependencies_database", db)
+
+  file <- renv_scope_tempfile("renv-test-", fileext = ".R")
+  writeLines(c("bar()", "library(qux)"), con = file)
+  deps <- dependencies(file, quiet = TRUE)
+  expect_setequal(deps$Package, c("baz", "qux"))
+
+})
+
 test_that("dependencies in default arguments are discovered", {
 
   file <- renv_scope_tempfile("renv-test-", fileext = ".R")
