@@ -89,6 +89,7 @@ test_that("we can parse a variety of remotes", {
   expect_equal(record$RemoteSha, "958296dbbbf7f1d82f7f5dd1b121c7558604809f")
 
   # git - https
+  renv_tests_git_scope_config()
   record <- renv_remotes_resolve("git::https://github.com/kevinushey/renv.git1.git@main")
   expect_equal(record$Package, "renv.git1")
   expect_equal(record$Version, "0.0.0.9000")
