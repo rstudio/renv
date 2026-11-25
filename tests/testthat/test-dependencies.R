@@ -650,6 +650,58 @@ test_that("we tolerate calls when parsing dependencies", {
 
 })
 
+test_that("chunk headers are parsed without being evaluated", {
+
+  renv_scope_envvars(RENV_TESTS_EVALUATED = NULL)
+
+  # the unbalanced ')' closes the alist() that header options are parsed into
+  document <- heredoc('
+    ```{r x = 1) + Sys.setenv(RENV_TESTS_EVALUATED = "header"}
+    library(A)
+    ```
+
+    ```{r}
+    #| x = 1) + Sys.setenv(RENV_TESTS_EVALUATED = "comment"
+    library(B)
+    ```
+  ')
+
+  file <- renv_scope_tempfile("renv-test-", fileext = ".Rmd")
+  writeLines(document, con = file)
+
+  deps <- dependencies(file)
+  expect_equal(Sys.getenv("RENV_TESTS_EVALUATED"), "")
+  expect_true(all(c("A", "B") %in% deps$Package))
+
+})
+
+test_that("namespace-qualified calls are not evaluated during discovery", {
+
+  renv_scope_envvars(RENV_TESTS_EVALUATED = NULL)
+
+  document <- heredoc('
+    ```{r, eval = base::Sys.setenv(RENV_TESTS_EVALUATED = "option")}
+    library(A)
+    ```
+  ')
+
+  rmd <- renv_scope_tempfile("renv-test-", fileext = ".Rmd")
+  writeLines(document, con = rmd)
+
+  deps <- dependencies(rmd)
+  expect_equal(Sys.getenv("RENV_TESTS_EVALUATED"), "")
+  expect_true("A" %in% deps$Package)
+
+  code <- 'targets::tar_option_set(packages = base::Sys.setenv(RENV_TESTS_EVALUATED = "targets"))'
+  script <- renv_scope_tempfile("renv-test-", fileext = ".R")
+  writeLines(code, con = script)
+
+  deps <- dependencies(script)
+  expect_equal(Sys.getenv("RENV_TESTS_EVALUATED"), "")
+  expect_true("targets" %in% deps$Package)
+
+})
+
 test_that("dependencies() notifies the user if directories contain lots of files", {
   project <- renv_tests_scope()
   init()

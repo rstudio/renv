@@ -37,15 +37,23 @@ renv_knitr_options_header_impl <- function(rest) {
     rest <- substring(rest, matches[[3L]] + 1L)
   }
 
-  # parse as alist
-  params <- catch(parse(text = sprintf("alist(%s)", rest))[[1]])
-  if (inherits(params, "error"))
+  # parse as alist, but build the list from the call rather than evaluating
+  # it: a ')' within the header can close the alist() early, and turn the
+  # remainder into code that would otherwise be run
+  exprs <- catch(parse(text = sprintf("alist(%s)", rest)))
+  if (inherits(exprs, "error") || length(exprs) != 1L)
     return(list())
+
+  call <- exprs[[1L]]
+  if (!renv_call_matches(call, "alist"))
+    return(list())
+
+  params <- as.list(call)[-1L]
 
   # insert the label back in
   names(params) <- names(params) %||% rep.int("", length(params))
-  if (length(params) > 1L && identical(names(params)[[2L]], ""))
-    names(params)[[2L]] <- "label"
+  if (length(params) > 0L && identical(names(params)[[1L]], ""))
+    names(params)[[1L]] <- "label"
 
   # fix up 'label' if it's a missing value
   if (identical(params[["label"]], quote(expr = )))
@@ -55,8 +63,7 @@ renv_knitr_options_header_impl <- function(rest) {
   if (is.null(params[["label"]]) && nzchar(label))
     params[["label"]] <- label
 
-  # evaluate the alist
-  eval(params, envir = parent.frame())
+  params
 
 }
 

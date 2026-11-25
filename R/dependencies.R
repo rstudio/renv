@@ -2392,11 +2392,12 @@ renv_dependencies_report <- function(errors) {
 renv_dependencies_eval <- function(expr) {
 
   # create environment with small subset of "safe" symbols, that
-  # are commonly used for chunk expressions
+  # are commonly used for chunk expressions; don't add '::' or ':::',
+  # which would let these expressions call any function in any package
   syms <- c(
     "list", "c", "T", "F",
     "{", "(", "[", "[[",
-    "::", ":::", "$", "@",
+    "$", "@",
     ":",
     "+", "-", "*", "/",
     "<", ">", "<=", ">=", "==", "!=",
