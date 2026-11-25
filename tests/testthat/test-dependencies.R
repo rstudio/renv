@@ -650,6 +650,68 @@ test_that("we tolerate calls when parsing dependencies", {
 
 })
 
+test_that("unbalanced parentheses in chunk headers are handled", {
+
+  renv_scope_envvars(RENV_TESTS_VALUE = NULL)
+
+  document <- heredoc('
+    ```{r x = 1) + Sys.setenv(RENV_TESTS_VALUE = "header"}
+    library(A)
+    ```
+
+    ```{r}
+    #| x = 1) + Sys.setenv(RENV_TESTS_VALUE = "comment"
+    library(B)
+    ```
+  ')
+
+  file <- renv_scope_tempfile("renv-test-", fileext = ".Rmd")
+  writeLines(document, con = file)
+
+  deps <- dependencies(file)
+  expect_equal(Sys.getenv("RENV_TESTS_VALUE"), "")
+  expect_true(all(c("A", "B") %in% deps$Package))
+
+})
+
+test_that("namespace-qualified calls resolve only to permitted base functions", {
+
+  renv_scope_envvars(RENV_TESTS_VALUE = NULL)
+
+  document <- heredoc('
+    ```{r, eval = base::Sys.setenv(RENV_TESTS_VALUE = "option")}
+    library(A)
+    ```
+
+    ```{r, eval = base::c(FALSE)}
+    library(B)
+    ```
+  ')
+
+  rmd <- renv_scope_tempfile("renv-test-", fileext = ".Rmd")
+  writeLines(document, con = rmd)
+
+  deps <- dependencies(rmd)
+  expect_equal(Sys.getenv("RENV_TESTS_VALUE"), "")
+  expect_true("A" %in% deps$Package)
+  expect_false("B" %in% deps$Package)
+
+  code <- c(
+    'targets::tar_option_set(packages = base:::Sys.setenv(RENV_TESTS_VALUE = "targets"))',
+    'targets::tar_option_set(packages = base::c("C", "D"))',
+    'targets::tar_option_set(packages = "base"::c("E"))',
+    'targets::tar_option_set(packages = base::"c"("F"))'
+  )
+
+  script <- renv_scope_tempfile("renv-test-", fileext = ".R")
+  writeLines(code, con = script)
+
+  deps <- dependencies(script)
+  expect_equal(Sys.getenv("RENV_TESTS_VALUE"), "")
+  expect_setequal(deps$Package, c("base", "C", "D", "E", "F", "targets"))
+
+})
+
 test_that("dependencies() notifies the user if directories contain lots of files", {
   project <- renv_tests_scope()
   init()
