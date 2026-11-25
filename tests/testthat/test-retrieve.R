@@ -1427,8 +1427,9 @@ test_that("binaries served from a source repository are filed as binaries", {
     file.path(contrib, "PACKAGES")
   )
 
+  fmt <- if (renv_platform_windows()) "file:///%s" else "file://%s"
   renv_scope_options(
-    repos   = c(local = paste0("file://", repopath)),
+    repos   = c(local = sprintf(fmt, repopath)),
     pkgType = "source"
   )
 
