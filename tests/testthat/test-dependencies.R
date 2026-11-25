@@ -652,15 +652,15 @@ test_that("we tolerate calls when parsing dependencies", {
 
 test_that("unbalanced parentheses in chunk headers are handled", {
 
-  renv_scope_envvars(RENV_TESTS_EVALUATED = NULL)
+  renv_scope_envvars(RENV_TESTS_VALUE = NULL)
 
   document <- heredoc('
-    ```{r x = 1) + Sys.setenv(RENV_TESTS_EVALUATED = "header"}
+    ```{r x = 1) + Sys.setenv(RENV_TESTS_VALUE = "header"}
     library(A)
     ```
 
     ```{r}
-    #| x = 1) + Sys.setenv(RENV_TESTS_EVALUATED = "comment"
+    #| x = 1) + Sys.setenv(RENV_TESTS_VALUE = "comment"
     library(B)
     ```
   ')
@@ -669,17 +669,17 @@ test_that("unbalanced parentheses in chunk headers are handled", {
   writeLines(document, con = file)
 
   deps <- dependencies(file)
-  expect_equal(Sys.getenv("RENV_TESTS_EVALUATED"), "")
+  expect_equal(Sys.getenv("RENV_TESTS_VALUE"), "")
   expect_true(all(c("A", "B") %in% deps$Package))
 
 })
 
 test_that("namespace-qualified calls in chunk options and tar_option_set() are ignored", {
 
-  renv_scope_envvars(RENV_TESTS_EVALUATED = NULL)
+  renv_scope_envvars(RENV_TESTS_VALUE = NULL)
 
   document <- heredoc('
-    ```{r, eval = base::Sys.setenv(RENV_TESTS_EVALUATED = "option")}
+    ```{r, eval = base::Sys.setenv(RENV_TESTS_VALUE = "option")}
     library(A)
     ```
   ')
@@ -688,15 +688,15 @@ test_that("namespace-qualified calls in chunk options and tar_option_set() are i
   writeLines(document, con = rmd)
 
   deps <- dependencies(rmd)
-  expect_equal(Sys.getenv("RENV_TESTS_EVALUATED"), "")
+  expect_equal(Sys.getenv("RENV_TESTS_VALUE"), "")
   expect_true("A" %in% deps$Package)
 
-  code <- 'targets::tar_option_set(packages = base::Sys.setenv(RENV_TESTS_EVALUATED = "targets"))'
+  code <- 'targets::tar_option_set(packages = base::Sys.setenv(RENV_TESTS_VALUE = "targets"))'
   script <- renv_scope_tempfile("renv-test-", fileext = ".R")
   writeLines(code, con = script)
 
   deps <- dependencies(script)
-  expect_equal(Sys.getenv("RENV_TESTS_EVALUATED"), "")
+  expect_equal(Sys.getenv("RENV_TESTS_VALUE"), "")
   expect_true("targets" %in% deps$Package)
 
 })
