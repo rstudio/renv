@@ -2,6 +2,27 @@
 
 ## renv (development version)
 
+- [`renv::dependencies()`](https://rstudio.github.io/renv/dev/reference/dependencies.md)
+  is now substantially faster. Each call in a document is only checked
+  by the discovery methods that handle the function it calls, rather
+  than by every method, and errors caught during discovery (e.g. from
+  files that fail to parse) no longer format a traceback that is never
+  shown. On a project containing the sources of several large packages,
+  discovery runs about four times faster.
+
+- Fixed an issue where renv’s R implementation of dependency discovery,
+  used on Windows and when renv’s compiled extensions are unavailable,
+  missed packages used in the default values of function arguments, as
+  in `function(open = rlang::is_interactive())`.
+
+- Fixed a memory leak in renv’s internal exit-handler bookkeeping: renv
+  created a new R symbol, which is never freed, for almost every
+  function call that registered a cleanup action. These accumulated over
+  long-running sessions (about 8,000 per
+  [`renv::dependencies()`](https://rstudio.github.io/renv/dev/reference/dependencies.md)
+  call on a large project), slowing garbage collection. Registering a
+  cleanup action is also about five times cheaper.
+
 - Fixed an issue where binary packages served from the URLs of a source
   repository – as Posit Package Manager does on Linux – were downloaded
   to the same path as the sources for that package version, where a
