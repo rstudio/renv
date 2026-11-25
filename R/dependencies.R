@@ -1835,23 +1835,13 @@ renv_dependencies_discover_r_targets <- function(node, envir) {
   # TODO: evaluation can fail for a multitude of reasons;
   # are any of these worth signalling to the user?
   if (inherits(packages, "error"))
-    packages <- renv_dependencies_discover_r_targets_literals(node$packages)
+    return(TRUE)
 
   if (is.character(packages))
     for (package in packages)
       envir[[package]] <- TRUE
 
   TRUE
-
-}
-
-renv_dependencies_discover_r_targets_literals <- function(packages) {
-
-  if (!renv_call_matches(packages, "c"))
-    return(NULL)
-
-  args <- as.list(packages)[-1L]
-  unlist(Filter(is.character, args), use.names = FALSE)
 
 }
 
