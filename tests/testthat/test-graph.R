@@ -2212,10 +2212,14 @@ test_that("renv_graph_install applies the install timeout per package", {
   skip_on_os("windows")
   skip_if(getRversion() < "4.0")
   renv_tests_scope()
+
+  # the limit covers starting the install worker as well as the build, so it
+  # must leave 'oatmeal' room to build on a slow CI runner; it must also stay
+  # well below the time 'bread' stalls for, below
   renv_scope_options(
     renv.verbose                = TRUE,
     renv.config.install.jobs    = 2L,
-    renv.config.install.timeout = 1
+    renv.config.install.timeout = 10
   )
 
   # use an empty cache, so that every package needs to be built
