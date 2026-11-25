@@ -139,18 +139,26 @@ renv_error_handler <- function(...) {
 
 }
 
-the$traceback <- NULL
+the$error_calls <- NULL
 
+# catch() records the calls active when a condition is signaled, but only
+# formats them via renv_error_traceback() on request: most caught errors are
+# discarded, and formatting a deep call stack is expensive
 renv_error_capture <- function(e) {
-  calls <- head(sys.calls(), n = -2L)
-  frames <- head(sys.frames(), n = -2L)
-  traceback <- renv_error_format(calls, frames)
-  the$traceback <- traceback
+  the$error_calls <- head(sys.calls(), n = -2L)
 }
 
+# not 'calls': conditions from abort() have no 'call' field, so
+# conditionCall()'s e$call would partially match it
 renv_error_tag <- function(e) {
-  e$traceback <- the$traceback
+  e$stack <- the$error_calls
+  the$error_calls <- NULL
   e
+}
+
+renv_error_traceback <- function(e) {
+  if (length(e$stack))
+    renv_error_format(e$stack, frames = NULL)
 }
 
 renv_error_handler_call <- function() {
