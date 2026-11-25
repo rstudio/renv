@@ -190,26 +190,31 @@ test_that("snapshot includes own package when include-self is set", {
 
 })
 
-test_that("include-self: FALSE excludes own package in golem projects", {
+test_that("snapshot ignores own package in golem projects", {
 
   renv_tests_scope()
   ensure_directory("bread")
   renv_scope_wd("bread")
 
-  writeLines(
-    c(
-      "Type: Package",
-      "Package: bread",
-      "Config/renv/snapshot/include-self: FALSE"
-    ),
-    con = "DESCRIPTION"
-  )
+  writeLines(c("Type: Package", "Package: bread"), con = "DESCRIPTION")
 
-  # golem projects normally include self in the lockfile
+  # a golem application, deployed with the app.R that golem generates
+  # https://github.com/rstudio/renv/issues/2444
   ensure_directory("inst")
   writeLines("default: {}", con = "inst/golem-config.yml")
+  writeLines("bread::run_app()", con = "app.R")
 
-  expect_equal(renv_project_ignored_packages_self(getwd()), "bread")
+  install("bread")
+
+  lockfile <- snapshot(lockfile = NULL)
+  records <- renv_lockfile_records(lockfile)
+  expect_true(is.null(records[["bread"]]))
+
+  # rsconnect snapshots the packages it discovers in the bundle
+  deps <- dependencies()
+  lockfile <- snapshot(packages = deps$Package, lockfile = NULL)
+  records <- renv_lockfile_records(lockfile)
+  expect_true(is.null(records[["bread"]]))
 
 })
 
