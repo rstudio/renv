@@ -2,6 +2,17 @@
 
 ## renv (development version)
 
+- [`renv::dependencies()`](https://rstudio.github.io/renv/dev/reference/dependencies.md)
+  is now stricter when extracting chunk options from R Markdown, Quarto
+  and Sweave documents, and package names from
+  `targets::tar_option_set(packages = )`. A chunk option such as
+  `eval = knitr::is_html_output()` now falls back to its default, so the
+  chunk is scanned for dependencies; previously, the chunk was skipped,
+  as
+  [`knitr::is_html_output()`](https://rdrr.io/pkg/knitr/man/output_type.html)
+  returns `FALSE` outside of a knit.
+  ([\#2448](https://github.com/rstudio/renv/issues/2448))
+
 - renv now excludes a `golem` application’s own package from the
   lockfile, as it does for other package projects. Previously, renv
   included it by default, so deploying a `golem` application with
