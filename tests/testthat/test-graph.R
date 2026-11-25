@@ -1754,6 +1754,95 @@ test_that("repository graph prefers crandb over latest-with-overridden-version",
 
 })
 
+# https://github.com/rstudio/renv/issues/2287
+test_that("crandb graph lookups reuse the version history", {
+
+  package <- "renv.test.crandb.graph.history"
+  urls <- character()
+  versions <- list(
+    "1.0.0" = list(
+      Depends = list(R = ">= 4.0"),
+      Imports = list(cli = "*"),
+      LinkingTo = list(cpp11 = "*"),
+      Suggests = list(testthat = ">= 3.0"),
+      Enhances = list(covr = "*")
+    ),
+    "1.0.1" = list(Imports = list(rlang = ">= 1.0"))
+  )
+  fallback <- list(Imports = list(glue = "*"))
+
+  local_mocked_bindings(download = function(url, destfile, ...) {
+    urls <<- c(urls, url)
+    endpoint <- sub(".*/", "", url)
+    response <- if (endpoint == "all") list(versions = versions) else versions[[endpoint]] %||% fallback
+    renv_json_write(response, file = destfile)
+    invisible(destfile)
+  })
+
+  expect_identical(
+    renv_graph_description_crandb(package, "1.0.0"),
+    list(
+      Package = package,
+      Version = "1.0.0",
+      Depends = "R (>= 4.0)",
+      Imports = "cli",
+      LinkingTo = "cpp11",
+      Suggests = "testthat (>= 3.0)",
+      Enhances = "covr"
+    )
+  )
+  expect_identical(
+    renv_graph_description_crandb(package, "1.0.1"),
+    list(Package = package, Version = "1.0.1", Imports = "rlang (>= 1.0)")
+  )
+  expect_identical(renv_available_packages_crandb_query(package)$versions, versions)
+  expect_identical(
+    renv_graph_description_crandb(package, "0.9.0"),
+    list(Package = package, Version = "0.9.0", Imports = "glue")
+  )
+  expect_identical(
+    urls,
+    sprintf("https://crandb.r-pkg.org/%s/%s", package, c("all", "0.9.0"))
+  )
+
+})
+
+test_that("crandb graph falls back for unusable history responses", {
+
+  package <- "renv.test.crandb.graph.unusable"
+  urls <- character()
+  local_mocked_bindings(download = function(url, destfile, ...) {
+    urls <<- c(urls, url)
+    response <- if (endsWith(url, "/all")) list(versions = "unusable") else list(Imports = list(glue = "*"))
+    renv_json_write(response, file = destfile)
+    invisible(destfile)
+  })
+
+  expect_identical(
+    renv_graph_description_crandb(package, "1.0.0"),
+    list(Package = package, Version = "1.0.0", Imports = "glue")
+  )
+  expect_identical(
+    urls,
+    sprintf("https://crandb.r-pkg.org/%s/%s", package, c("all", "1.0.0"))
+  )
+
+})
+
+test_that("crandb graph lookups make one request when crandb is unreachable", {
+
+  package <- "renv.test.crandb.graph.unreachable"
+  urls <- character()
+  local_mocked_bindings(download = function(url, destfile, ...) {
+    urls <<- c(urls, url)
+    stop("Could not resolve host: crandb.r-pkg.org")
+  })
+
+  expect_error(renv_graph_description_crandb(package, "1.0.0"))
+  expect_identical(urls, sprintf("https://crandb.r-pkg.org/%s/all", package))
+
+})
+
 # https://github.com/rstudio/renv/issues/2315
 test_that("repository graph reads archived DESCRIPTION when crandb fails", {
 
@@ -1899,6 +1988,56 @@ test_that("archive enrichment stores the tarball where retrieval looks for it", 
   expect_equal(basename(destfile), sprintf("today_%s.tar.gz", sha))
   expect_true(file.exists(destfile))
   expect_null(renv_graph_url_repository_record(desc, latest))
+
+})
+
+test_that("archive enrichment files a binary where retrieval looks for it", {
+
+  renv_tests_scope()
+
+  # P3M serves binaries for archived versions too, from the archive's URLs
+  # and under the names of the sources (#2427)
+  pkgdir <- renv_scope_tempfile("renv-archived-pkg-")
+  ensure_directory(file.path(pkgdir, "archivedpkg", "Meta"))
+  file.create(file.path(pkgdir, "archivedpkg", "Meta", "package.rds"))
+  writeLines(
+    c("Package: archivedpkg", "Version: 0.1.0"),
+    file.path(pkgdir, "archivedpkg", "DESCRIPTION")
+  )
+
+  tarball <- file.path(pkgdir, "archivedpkg_0.1.0.tar.gz")
+  local({
+    renv_scope_wd(pkgdir)
+    tar(tarfile = tarball, files = "archivedpkg", compression = "gzip")
+  })
+
+  archive <- renv_tests_archive_repo(
+    package = "archivedpkg",
+    version = "0.1.0",
+    tarball = tarball
+  )
+  renv_scope_options(repos = c(ARCHIVED = archive$url))
+
+  latest <- renv_available_packages_latest_archive(
+    package = "archivedpkg",
+    type = "source",
+    repos = c(ARCHIVED = archive$url)
+  )
+
+  desc <- renv_graph_description_archive_enrich(latest)
+  expect_equal(desc$Version, "0.1.0")
+
+  name <- renv_retrieve_repos_archive_name(desc, type = "source")
+  source <- renv_retrieve_path(desc, type = "source", name = name)
+  binary <- renv_retrieve_path(desc, type = "binary", name = name)
+  expect_true(file.exists(binary))
+  expect_false(file.exists(source))
+
+  # the planner finds the archive there, as does a second enrichment, rather
+  # than downloading it again to the path for a source package
+  expect_null(renv_graph_url_repository_record(desc, latest))
+  renv_graph_description_archive_enrich(latest)
+  expect_false(file.exists(source))
 
 })
 
@@ -2123,10 +2262,14 @@ test_that("renv_graph_install applies the install timeout per package", {
   skip_on_os("windows")
   skip_if(getRversion() < "4.0")
   renv_tests_scope()
+
+  # the limit covers starting the install worker as well as the build, so it
+  # must leave 'oatmeal' room to build on a slow CI runner; it must also stay
+  # well below the time 'bread' stalls for, below
   renv_scope_options(
     renv.verbose                = TRUE,
     renv.config.install.jobs    = 2L,
-    renv.config.install.timeout = 1
+    renv.config.install.timeout = 10
   )
 
   # use an empty cache, so that every package needs to be built
