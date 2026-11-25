@@ -1829,6 +1829,20 @@ test_that("crandb graph falls back for unusable history responses", {
 
 })
 
+test_that("crandb graph lookups make one request when crandb is unreachable", {
+
+  package <- "renv.test.crandb.graph.unreachable"
+  urls <- character()
+  local_mocked_bindings(download = function(url, destfile, ...) {
+    urls <<- c(urls, url)
+    stop("Could not resolve host: crandb.r-pkg.org")
+  })
+
+  expect_error(renv_graph_description_crandb(package, "1.0.0"))
+  expect_identical(urls, sprintf("https://crandb.r-pkg.org/%s/all", package))
+
+})
+
 # https://github.com/rstudio/renv/issues/2315
 test_that("repository graph reads archived DESCRIPTION when crandb fails", {
 

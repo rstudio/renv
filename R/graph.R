@@ -604,7 +604,12 @@ renv_graph_description_remote <- function(record) {
 
 renv_graph_description_crandb <- function(package, version) {
 
+  # if the history couldn't be retrieved, crandb is most likely unreachable,
+  # so don't spend another request (and possibly timeout) on the same host
   history <- renv_available_packages_crandb_query(package)
+  if (is.null(history))
+    stopf("could not retrieve crandb history for package '%s'", package)
+
   versions <- if (is.list(history)) history[["versions"]]
   json <- if (is.list(versions)) versions[[version]]
 
