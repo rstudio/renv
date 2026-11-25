@@ -3,13 +3,17 @@
 # argument tells us the remote type, which is used to motivate
 # what form of authentication is appropriate; the 'quiet'
 # argument is used to display / suppress output. use 'headers'
-# (as a named character vector) to supply additional headers
+# (as a named character vector) to supply additional headers.
+# 'alternates' names other paths the file may have been saved to by
+# an earlier download; an up-to-date copy at any of them is used as-is.
+# returns the path to the downloaded file
 download <- function(url,
                      destfile,
                      preamble = NULL,
                      type = NULL,
                      quiet = FALSE,
-                     headers = NULL)
+                     headers = NULL,
+                     alternates = NULL)
 {
   # allow for user-defined overrides
   override <- getOption("renv.download.override")
@@ -63,12 +67,14 @@ download <- function(url,
 
   # if the file already exists, compare its size with
   # the server's reported size for that file
-  info <- renv_file_info(destfile)
-  if (identical(info$isdir, FALSE)) {
-    size <- renv_download_size(url, type, headers)
-    if (info$size == size) {
-      renv_download_status("OK [file is up to date]")
-      return(destfile)
+  for (existing in c(destfile, alternates)) {
+    info <- renv_file_info(existing)
+    if (identical(info$isdir, FALSE)) {
+      size <- renv_download_size(url, type, headers)
+      if (info$size == size) {
+        renv_download_status("OK [file is up to date]")
+        return(existing)
+      }
     }
   }
 
@@ -402,7 +408,15 @@ renv_download_curl_config <- function() {
 
 }
 
-renv_download_parallel <- function(urls, destfiles, types, callback = NULL) {
+# 'alternates' lists, for each download, other paths that the file may have
+# been saved to by an earlier download; see download(). only the sequential
+# backend looks for an earlier download, as the parallel ones always download
+renv_download_parallel <- function(urls,
+                                   destfiles,
+                                   types,
+                                   callback = NULL,
+                                   alternates = NULL)
+{
 
   # make sure we're using forward slashes uniformly
   urls <- chartr("\\", "/", urls)
@@ -420,7 +434,7 @@ renv_download_parallel <- function(urls, destfiles, types, callback = NULL) {
   switch(method,
     libcurl = renv_download_parallel_libcurl(urls, destfiles, types),
     curl    = renv_download_parallel_curl(urls, destfiles, types, callback = callback),
-    renv_download_parallel_sequential(urls, destfiles, types)
+    renv_download_parallel_sequential(urls, destfiles, types, alternates)
   )
 
 }
@@ -756,11 +770,13 @@ renv_download_parallel_libcurl <- function(urls, destfiles, types) {
 
 }
 
-renv_download_parallel_sequential <- function(urls, destfiles, types) {
+renv_download_parallel_sequential <- function(urls, destfiles, types, alternates = NULL) {
+
+  alternates <- alternates %||% vector("list", length(urls))
 
   ok <- as.logical(.mapply(
     renv_download_parallel_sequential_impl,
-    list(urls, destfiles, types),
+    list(urls, destfiles, types, alternates),
     NULL
   ))
 
@@ -769,18 +785,30 @@ renv_download_parallel_sequential <- function(urls, destfiles, types) {
 
 }
 
-renv_download_parallel_sequential_impl <- function(url, destfile, type) {
+renv_download_parallel_sequential_impl <- function(url, destfile, type, alternates = NULL) {
 
-  status <- catch(
+  path <- catch(
     download(
-      url      = url,
-      destfile = destfile,
-      type     = type,
-      quiet    = TRUE
+      url        = url,
+      destfile   = destfile,
+      type       = type,
+      quiet      = TRUE,
+      alternates = alternates
     )
   )
 
-  !inherits(status, "error") && file.exists(destfile)
+  if (inherits(path, "error"))
+    return(FALSE)
+
+  # an up-to-date copy of the file at an alternate path stood in for the
+  # download, but the file is expected at 'destfile'; copy it there
+  if (!file.exists(destfile)) {
+    copied <- suppressWarnings(file.copy(path, destfile))
+    if (!copied)
+      unlink(destfile)
+  }
+
+  file.exists(destfile)
 
 }
 

@@ -1,5 +1,12 @@
 # renv (development version)
 
+* Fixed an issue where binary packages served from the URLs of a source
+  repository -- as Posit Package Manager does on Linux -- were downloaded to
+  the same path as the sources for that package version, where a binary built
+  for one platform or version of R could also be picked up by another. renv
+  now stores each downloaded package archive according to the type of
+  package it contains. (#2427)
+
 * When looking up the dependencies of a package version that is no longer
   available from the configured repositories, renv now reads them from the
   package's crandb version history, which is cached for the session and
