@@ -281,11 +281,6 @@ renv_project_ignored_packages_self <- function(project) {
   if (!is.null(include))
     return(if (truthy(include)) NULL else package)
 
-  # don't ignore self in golem projets
-  golem <- file.path(project, "inst/golem-config.yml")
-  if (file.exists(golem))
-    return(NULL)
-
   # hack for renv: don't depend on self
   if (identical(package, "renv"))
     return(NULL)
