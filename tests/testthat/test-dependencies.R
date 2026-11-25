@@ -698,7 +698,10 @@ test_that("namespace-qualified calls resolve only to permitted base functions", 
 
   code <- c(
     'targets::tar_option_set(packages = base:::Sys.setenv(RENV_TESTS_VALUE = "targets"))',
-    'targets::tar_option_set(packages = base::c("C", "D"))'
+    'targets::tar_option_set(packages = base::c("C", "D"))',
+    'targets::tar_option_set(packages = "base"::c("E"))',
+    'targets::tar_option_set(packages = base::"c"("F"))',
+    'targets::tar_option_set(packages = c("G", base::getOption("renv.tests.unset")))'
   )
 
   script <- renv_scope_tempfile("renv-test-", fileext = ".R")
@@ -706,7 +709,7 @@ test_that("namespace-qualified calls resolve only to permitted base functions", 
 
   deps <- dependencies(script)
   expect_equal(Sys.getenv("RENV_TESTS_VALUE"), "")
-  expect_setequal(deps$Package, c("base", "C", "D", "targets"))
+  expect_setequal(deps$Package, c("base", "C", "D", "E", "F", "G", "targets"))
 
 })
 
