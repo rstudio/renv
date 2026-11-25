@@ -650,11 +650,10 @@ test_that("we tolerate calls when parsing dependencies", {
 
 })
 
-test_that("chunk headers are parsed without being evaluated", {
+test_that("unbalanced parentheses in chunk headers are handled", {
 
   renv_scope_envvars(RENV_TESTS_EVALUATED = NULL)
 
-  # the unbalanced ')' closes the alist() that header options are parsed into
   document <- heredoc('
     ```{r x = 1) + Sys.setenv(RENV_TESTS_EVALUATED = "header"}
     library(A)
@@ -675,7 +674,7 @@ test_that("chunk headers are parsed without being evaluated", {
 
 })
 
-test_that("namespace-qualified calls are not evaluated during discovery", {
+test_that("namespace-qualified calls in chunk options and tar_option_set() are ignored", {
 
   renv_scope_envvars(RENV_TESTS_EVALUATED = NULL)
 

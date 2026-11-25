@@ -37,9 +37,7 @@ renv_knitr_options_header_impl <- function(rest) {
     rest <- substring(rest, matches[[3L]] + 1L)
   }
 
-  # parse as alist, but build the list from the call rather than evaluating
-  # it: a ')' within the header can close the alist() early, and turn the
-  # remainder into code that would otherwise be run
+  # parse as alist
   exprs <- catch(parse(text = sprintf("alist(%s)", rest)))
   if (inherits(exprs, "error") || length(exprs) != 1L)
     return(list())
