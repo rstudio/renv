@@ -1,9 +1,10 @@
 # renv (development version)
 
 * renv now excludes a `golem` application's own package from the lockfile,
-  as it does for other package projects. Previously, renv always included it,
-  so deploying a `golem` application with `rsconnect` warned that the package
-  was not installed, or failed if it had been installed from local sources.
+  as it does for other package projects. Previously, renv included it by
+  default, so deploying a `golem` application with `rsconnect` warned that the
+  package was not installed, or failed if it had been installed from local
+  sources.
   Projects that need the package itself in the lockfile can set
   `Config/renv/snapshot/include-self: TRUE` in their `DESCRIPTION` file.
   (#2444)
