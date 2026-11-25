@@ -123,6 +123,25 @@ test_that("handlers on other environments run once when executed", {
 
 })
 
+test_that("a scope that registers handlers when evaluated gets one entry", {
+
+  x <- character()
+  envir <- new.env(parent = emptyenv())
+  scope <- function() {
+    defer(x <<- c(x, "inner"), scope = envir)
+    envir
+  }
+
+  before <- length(the$defer_registry)
+  defer(x <- c(x, "outer"), scope = scope())
+  expect_equal(length(the$defer_registry), before + 1L)
+
+  renv_defer_execute(envir)
+  expect_equal(x, c("outer", "inner"))
+  expect_equal(length(the$defer_registry), before)
+
+})
+
 test_that("renv_scope_options inside catch does not leak", {
 
   wrapper <- function() {

@@ -1299,8 +1299,13 @@ renv_dependencies_discover_r_head <- function(node) {
   if (is.call(head) && length(head) == 3L) {
     op <- head[[1L]]
     ok <- is.symbol(op) && (op == "::" || op == ":::" || op == "$")
-    if (ok && is.symbol(name <- head[[3L]]))
-      return(as.character(name))
+    # the member can be the empty symbol, as in `$`(x, )(), which can't be
+    # bound to a variable without erroring when it is next evaluated
+    if (ok && is.symbol(head[[3L]])) {
+      name <- as.character(head[[3L]])
+      if (nzchar(name))
+        return(name)
+    }
   }
 
   NULL

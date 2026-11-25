@@ -1065,6 +1065,16 @@ test_that("discovery methods are dispatched on the called function's name", {
   expect_equal(name(quote(JunitReporter$new)), "$")
   expect_null(name(quote(f()())))
   expect_null(name(quote(foo)))
+  expect_null(name(quote(`$`(x, )())))
+
+})
+
+test_that("a call with a missing member name doesn't stop discovery", {
+
+  file <- renv_scope_tempfile("renv-test-", fileext = ".R")
+  writeLines(c("`$`(x, )()", "library(foo)"), con = file)
+  deps <- dependencies(file, quiet = TRUE)
+  expect_equal(deps$Package, "foo")
 
 })
 

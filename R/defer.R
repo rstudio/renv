@@ -30,6 +30,10 @@ defer <- function(expr, scope = parent.frame()) {
 
 renv_defer_index <- function(envir) {
 
+  # evaluate the scope before reading the registry, as evaluating it
+  # can register handlers too, e.g. renv_dynamic_envir()
+  force(envir)
+
   # search from the end, as handlers are usually added to recent scopes
   registry <- the$defer_registry
   i <- length(registry)
