@@ -2,6 +2,14 @@
 
 ## renv (development version)
 
+- When looking up the dependencies of a package version that is no
+  longer available from the configured repositories, renv now reads them
+  from the package’s crandb version history, which is cached for the
+  session and shared with
+  [`renv::sysreqs()`](https://rstudio.github.io/renv/dev/reference/sysreqs.md),
+  rather than requesting each version from crandb separately.
+  ([\#2287](https://github.com/rstudio/renv/issues/2287))
+
 - [`renv::install()`](https://rstudio.github.io/renv/dev/reference/install.md)
   and
   [`renv::restore()`](https://rstudio.github.io/renv/dev/reference/restore.md)
