@@ -674,13 +674,17 @@ test_that("unbalanced parentheses in chunk headers are handled", {
 
 })
 
-test_that("namespace-qualified calls in chunk options and tar_option_set() are ignored", {
+test_that("namespace-qualified calls resolve only to permitted base functions", {
 
   renv_scope_envvars(RENV_TESTS_VALUE = NULL)
 
   document <- heredoc('
     ```{r, eval = base::Sys.setenv(RENV_TESTS_VALUE = "option")}
     library(A)
+    ```
+
+    ```{r, eval = base::c(FALSE)}
+    library(B)
     ```
   ')
 
@@ -690,14 +694,19 @@ test_that("namespace-qualified calls in chunk options and tar_option_set() are i
   deps <- dependencies(rmd)
   expect_equal(Sys.getenv("RENV_TESTS_VALUE"), "")
   expect_true("A" %in% deps$Package)
+  expect_false("B" %in% deps$Package)
 
-  code <- 'targets::tar_option_set(packages = base::Sys.setenv(RENV_TESTS_VALUE = "targets"))'
+  code <- c(
+    'targets::tar_option_set(packages = base:::Sys.setenv(RENV_TESTS_VALUE = "targets"))',
+    'targets::tar_option_set(packages = base::c("C", "D"))'
+  )
+
   script <- renv_scope_tempfile("renv-test-", fileext = ".R")
   writeLines(code, con = script)
 
   deps <- dependencies(script)
   expect_equal(Sys.getenv("RENV_TESTS_VALUE"), "")
-  expect_true("targets" %in% deps$Package)
+  expect_setequal(deps$Package, c("base", "C", "D", "targets"))
 
 })
 

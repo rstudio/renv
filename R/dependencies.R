@@ -2407,8 +2407,31 @@ renv_dependencies_eval <- function(expr) {
   vals <- mget(syms, envir = baseenv())
   envir <- list2env(vals, parent = emptyenv())
 
+  expr <- renv_dependencies_eval_unqualify(expr, syms)
+
   # evaluate in that environment
   eval(expr, envir = envir)
+
+}
+
+renv_dependencies_eval_unqualify <- function(expr, syms) {
+
+  if (renv_call_matches(expr, names = c("::", ":::"), nargs = 2L)) {
+    name <- expr[[3L]]
+    ok <-
+      identical(expr[[2L]], quote(base)) &&
+      is.symbol(name) &&
+      as.character(name) %in% syms
+    if (ok)
+      return(name)
+  }
+
+  if (is.call(expr))
+    for (i in seq_along(expr))
+      if (is.call(expr[[i]]))
+        expr[[i]] <- renv_dependencies_eval_unqualify(expr[[i]], syms)
+
+  expr
 
 }
 
