@@ -99,6 +99,17 @@ test_that("renv warns when large number of files found in total", {
 
 })
 
+# https://github.com/rstudio/renv/issues/1657
+test_that("renv does not warn about large numbers of files when the limit is Inf", {
+
+  renv_scope_options(renv.config.dependencies.limit = Inf)
+
+  paths <- sprintf("%.4i.R", 1:1500)
+  expect_silent(ok <- renv_dependencies_discover_preflight(paths, "reported"))
+  expect_true(ok)
+
+})
+
 test_that("renv warns when large number of files found and .renvignore exists", {
 
   renv_scope_options(renv.config.dependencies.limit = 6L)
