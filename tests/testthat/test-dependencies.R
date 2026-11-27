@@ -42,6 +42,32 @@ test_that("inline chunks are parsed for dependencies", {
   expect_setequal(pkgs, c("rmarkdown", "inline", "multiple", "separate"))
 })
 
+# https://github.com/rstudio/renv/issues/1856
+test_that("a fenced code block is not mistaken for inline code", {
+
+  lines <- c(
+    "---",
+    "title: test",
+    "format: html",
+    "---",
+    "",
+    "Shortcodes can be shown in a code block:",
+    "",
+    "```r ",
+    "{{{< include _demo.R >}}}",
+    "```",
+    "",
+    "Real inline code is still found: `r digest::digest(1)`."
+  )
+
+  path <- renv_scope_tempfile("renv-", fileext = ".qmd")
+  writeLines(lines, path)
+
+  deps <- dependencies(path, errors = "fatal")
+  expect_true("digest" %in% deps$Package)
+
+})
+
 test_that("usages of S4 tools are discovered", {
   file <- renv_test_code({setClass("ClassSet")})
   deps <- dependencies(file)

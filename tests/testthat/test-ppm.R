@@ -641,3 +641,139 @@ test_that("manylinux URLs are normalized when installing source packages", {
   source_url <- "https://p3m.dev/cran/latest"
   expect_equal(unname(renv_ppm_transform(manylinux_url)), source_url)
 })
+
+# https://github.com/rstudio/renv/issues/2188
+test_that("bin/linux repository URLs are not rewritten as __linux__ URLs", {
+  skip_on_cran()
+  skip_on_os("windows")
+
+  renv_scope_envvars(
+    RENV_PPM_OS = "__linux__",
+    RENV_PPM_PLATFORM = "noble"
+  )
+
+  renv_scope_binding(the, "install_pkg_type", "binary")
+
+  urls <- c(
+    "https://packagemanager.posit.co/cran/latest/bin/linux/noble-x86_64/4.5",
+    "https://packagemanager.posit.co/cran/2025-01-01/bin/linux/noble-aarch64/4.4"
+  )
+
+  for (url in urls)
+    expect_equal(unname(renv_ppm_transform(url)), url)
+
+})
+
+test_that("bin/linux repository URLs are normalized to source URLs", {
+  skip_on_cran()
+  skip_on_os("windows")
+
+  expect_equal(
+    renv_ppm_normalize("https://packagemanager.posit.co/cran/latest/bin/linux/noble-x86_64/4.5"),
+    "https://packagemanager.posit.co/cran/latest"
+  )
+
+  expect_equal(
+    renv_ppm_normalize("https://packagemanager.posit.co/cran/2025-01-01/bin/linux/noble-aarch64/4.4/"),
+    "https://packagemanager.posit.co/cran/2025-01-01"
+  )
+
+  # URLs without a binary component are left alone
+  expect_equal(
+    renv_ppm_normalize("https://packagemanager.posit.co/cran/latest"),
+    "https://packagemanager.posit.co/cran/latest"
+  )
+
+  renv_scope_envvars(
+    RENV_PPM_OS = "__linux__",
+    RENV_PPM_PLATFORM = "noble"
+  )
+
+  renv_scope_binding(the, "install_pkg_type", "source")
+
+  binurl <- "https://packagemanager.posit.co/cran/latest/bin/linux/noble-x86_64/4.5"
+  srcurl <- "https://packagemanager.posit.co/cran/latest"
+  expect_equal(unname(renv_ppm_transform(binurl)), srcurl)
+
+})
+
+test_that("bin/linux repository URLs are written to the lockfile as source URLs", {
+  skip_on_cran()
+
+  renv_tests_scope()
+  renv_scope_options(repos = c(CRAN = "https://packagemanager.posit.co/cran/latest/bin/linux/noble-x86_64/4.5"))
+  lockfile <- snapshot(lockfile = NULL)
+  actual <- convert(lockfile$R$Repositories, "character")
+  expected <- c(CRAN = "https://packagemanager.posit.co/cran/latest")
+  expect_identical(actual, expected)
+
+})
+
+test_that("bin/linux repository URLs in a lockfile are loaded for this platform", {
+  skip_on_cran()
+  skip_on_os("windows")
+
+  renv_scope_envvars(
+    RENV_PPM_OS = "__linux__",
+    RENV_PPM_PLATFORM = "noble"
+  )
+
+  # recorded on another distribution, with another version of R
+  renv_scope_options(repos = NULL)
+  renv_load_r_repos(list(CRAN = "https://packagemanager.posit.co/cran/latest/bin/linux/jammy-aarch64/4.4"))
+
+  expected <- c(CRAN = "https://packagemanager.posit.co/cran/__linux__/noble/latest")
+  expect_equal(getOption("repos"), expected)
+
+})
+
+test_that("restore() uses the source repository for a lockfile's bin/linux URL", {
+  skip_on_cran()
+
+  renv_tests_scope("bread")
+  init()
+
+  # the lockfile names a binary repository that isn't available here;
+  # the test repository plays the part of its source repository
+  repo <- getOption("repos")[["CRAN"]]
+  lockfile <- renv_lockfile_read("renv.lock")
+  lockfile$R$Repositories <- list(CRAN = file.path(repo, "bin/linux/noble-x86_64/4.5"))
+  renv_lockfile_write(lockfile, "renv.lock")
+
+  seen <- NULL
+  renv_scope_binding(
+    envir       = asNamespace("renv"),
+    symbol      = "renv_scope_git_clones",
+    replacement = function(...) seen <<- getOption("repos")
+  )
+
+  restore()
+  expect_equal(seen, c(CRAN = repo))
+
+})
+
+test_that("packages found in a bin/linux repository are downloaded from it", {
+  skip_on_cran()
+
+  renv_tests_scope()
+
+  # as on Posit Package Manager, the binary repository lives within the
+  # source repository, and both provide the package at 'src/contrib'
+  srcrepo <- renv_scope_tempfile("renv-repos-")
+  binrepo <- file.path(srcrepo, "bin/linux/noble-x86_64/4.5")
+  ensure_directory(c(srcrepo, binrepo))
+
+  testrepo <- file.path(renv_tests_repopath(), "src")
+  file.copy(testrepo, srcrepo, recursive = TRUE)
+  file.copy(testrepo, binrepo, recursive = TRUE)
+
+  fmt <- if (renv_platform_windows()) "file:///%s" else "file://%s"
+  srcurl <- sprintf(fmt, renv_path_normalize(srcrepo))
+  binurl <- file.path(srcurl, "bin/linux/noble-x86_64/4.5")
+  renv_scope_options(repos = c(CRAN = binurl))
+
+  desc <- renv_graph_description_repository(list(Package = "bread"))
+  info <- renv_graph_url_repository(desc)
+  expect_equal(info$repourl, contrib.url(binurl, type = "source"))
+
+})

@@ -4,6 +4,21 @@
   the project has a `DESCRIPTION` file without a `Package` field, as is common
   when `DESCRIPTION` is only used to declare explicit dependencies. (#1692)
 
+* renv no longer rewrites Posit Package Manager Linux binary repository URLs of
+  the form `<repo>/<snapshot>/bin/linux/<platform>/<R version>` into invalid
+  `__linux__` URLs, which made it impossible to query available packages.
+  Packages found in such a repository are also downloaded from it, rather than
+  from the source repository it belongs to. As with `__linux__` URLs, renv
+  records the corresponding source repository URL in the lockfile, and uses it
+  when installing packages with `type = "source"`. (#2188)
+
+* `renv::dependencies()` no longer mistakes the opening of a code fence in an
+  R Markdown or Quarto document for the start of inline R code. Previously, a
+  fence written as ```` ```r ```` (with trailing whitespace) could make renv
+  treat the contents of the code block as R code, which could report spurious
+  parse errors, for example for a Quarto shortcode shown in a code block.
+  (#1856)
+
 * `renv::snapshot()` now keeps recording a virtualenv by name when it lives in
   the virtualenv home (`WORKON_HOME`, or `~/.virtualenvs` by default). Before,
   it replaced the name with an absolute path when that location was spelled
