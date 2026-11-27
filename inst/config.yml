@@ -51,19 +51,18 @@
   default: ~
   description: >
     Control how renv uses the [crandb](https://github.com/r-hub/crandb)
-    service. By default, renv only asks crandb about package versions it
-    already knows it needs: for the dependencies of a version which is no
-    longer available from the configured repositories, and (in
-    [sysreqs()]) for the system requirements of packages which it cannot
-    determine from the lockfile or the installed package. When `TRUE`, renv will
-    also query crandb to find the latest version of a package compatible with
-    the current version of R. This can be useful when an older version of R is
-    being used, and the latest version of a package on CRAN requires a newer
-    version of R. When `FALSE`, renv will not contact crandb unless explicitly
-    asked to (e.g. via `renv::sysreqs(source = "crandb")`), and will read the
-    dependencies of such package versions from the configured repositories
-    instead. This can be useful when crandb cannot be reached from your
-    network.
+    service. By default, renv asks crandb for the dependencies of a package
+    version which is no longer available from the configured repositories,
+    and (in [sysreqs()]) for the system requirements of packages which it
+    cannot determine from the lockfile or the installed package. When `TRUE`,
+    renv will also query crandb to find the latest version of a package
+    compatible with the current version of R. This can be useful when an older
+    version of R is being used, and the latest version of a package on CRAN
+    requires a newer version of R. When `FALSE`, renv will not contact crandb
+    unless explicitly asked to (e.g. via `renv::sysreqs(source = "crandb")`),
+    and will read the dependencies of such package versions from the
+    configured repositories instead. This can be useful when crandb cannot be
+    reached from your network.
 
 - name: "connect.timeout"
   type: "integer[1]"
