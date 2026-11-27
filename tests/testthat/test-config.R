@@ -60,6 +60,28 @@ test_that("we can query options without warnings", {
 
 })
 
+# https://github.com/rstudio/renv/issues/1657
+test_that("dependencies.limit can be set to Inf", {
+
+  local({
+    renv_scope_options(renv.config.dependencies.limit = Inf)
+    expect_silent(limit <- config$dependencies.limit())
+    expect_identical(limit, Inf)
+  })
+
+  local({
+    renv_scope_envvars(RENV_CONFIG_DEPENDENCIES_LIMIT = "Inf")
+    expect_silent(limit <- config$dependencies.limit())
+    expect_identical(limit, Inf)
+  })
+
+  local({
+    renv_scope_options(renv.config.dependencies.limit = 5L)
+    expect_equal(config$dependencies.limit(), 5)
+  })
+
+})
+
 test_that("invalid configuration options trigger a warning", {
 
   local({
