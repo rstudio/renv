@@ -5,7 +5,7 @@
   `__linux__` URLs, which made it impossible to query available packages. These
   URLs are also converted to the corresponding source repository URL when
   installing packages with `type = "source"`, or when restoring a lockfile.
-  (#2458)
+  (#2188)
 
 * `renv::dependencies()` is now stricter when extracting chunk options from
   R Markdown, Quarto and Sweave documents, and package names from
