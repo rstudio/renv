@@ -1,5 +1,11 @@
 # renv (development version)
 
+* `renv::dependencies()` now handles escaped delimiters that are adjacent to an
+  expression in `glue::glue()` strings, such as `glue("Hello {{{name}}}")` or
+  `glue("{{.strong {name}}}")`. Previously, renv treated the closing `}}` of
+  these as an escape, and reported a parse error for the code inside the
+  expression. (#1891)
+
 * `renv::update()` and `renv::install()` no longer fail when pak is enabled and
   the project has a `DESCRIPTION` file without a `Package` field, as is common
   when `DESCRIPTION` is only used to declare explicit dependencies. (#1692)
