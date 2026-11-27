@@ -7,8 +7,9 @@
   from a repository which does not provide it, a `bioc::<version>/<package>`
   remote could resolve to a CRAN release recorded as a Bioconductor package,
   and `renv::upgrade()` could try to install renv from repositories which do
-  not have it rather than from GitHub. crandb is now only consulted when renv
-  is looking for a version of a package to install.
+  not have it rather than from GitHub. These checks, and the choice of a `pak`
+  release stream, no longer use crandb; the version it reports is only used
+  when renv is looking for a version of a package to install.
 
 * When the `renv.config.crandb.enabled` option is set, renv no longer uses
   crandb to install packages which have been archived on CRAN, unless the
