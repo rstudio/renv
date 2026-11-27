@@ -8,14 +8,14 @@
   remote could resolve to a CRAN release recorded as a Bioconductor package,
   and `renv::upgrade()` could try to install renv from repositories which do
   not have it rather than from GitHub. These checks, and the choice of a `pak`
-  release stream, no longer use crandb; the version it reports is only used
-  when renv is looking for a version of a package to install.
+  release stream, no longer use crandb.
 
-* When the `renv.config.crandb.enabled` option is set, renv no longer uses
-  crandb to install packages which have been archived on CRAN, unless the
-  `renv.install.allowArchivedPackages` option is also set. Installing archived
-  packages has been opt-in since renv 1.1.4, but crandb reported the last
-  release of such packages regardless.
+* When the `renv.config.crandb.enabled` option is set, renv no longer lets
+  crandb choose the version of a package which has been archived on CRAN,
+  unless the `renv.install.allowArchivedPackages` option is also set. Looking
+  up archived packages in a repository has been opt-in since renv 1.1.4, but
+  crandb reported the last release of such packages regardless. A specific
+  version of an archived package can still be requested, as before.
 
 * `renv::dependencies()` is now stricter when extracting chunk options from
   R Markdown, Quarto and Sweave documents, and package names from
