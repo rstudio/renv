@@ -73,6 +73,15 @@ test_that("renv_repos_baseurl strips contrib.url suffixes", {
 
 })
 
+# https://github.com/rstudio/renv/issues/2188
+test_that("renv_repos_baseurl keeps a repository's own 'bin' components", {
+
+  binurl <- "https://packagemanager.posit.co/cran/latest/bin/linux/noble-x86_64/4.5"
+  expect_equal(renv_repos_baseurl(binurl), binurl)
+  expect_equal(renv_repos_baseurl(file.path(binurl, "src/contrib")), binurl)
+
+})
+
 test_that("repository names are always set", {
 
   skip_on_cran()
