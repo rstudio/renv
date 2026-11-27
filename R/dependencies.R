@@ -1131,18 +1131,21 @@ renv_dependencies_discover_chunks_quarto_header <- function(contents) {
 
 renv_dependencies_discover_chunks_inline <- function(path, contents, patterns, ranges) {
 
-  # inline code is only recognized in the text between chunks
+  # inline code within a comment is not used
+  comment <- patterns$inline.comment
+  if (!is.null(comment))
+    contents[grepl(comment, contents)] <- ""
+
+  # inline code is only recognized in the text between chunks; search each
+  # stretch of text separately, as inline code cannot span a chunk
   chunks <- unlist(.mapply(seq.int, list(ranges$lhs, ranges$rhs), NULL))
-  contents[chunks] <- ""
+  prose <- !seq_along(contents) %in% chunks
+  regions <- split(contents[prose], cumsum(!prose)[prose])
+  text <- map_chr(regions, paste, collapse = "\n")
 
-  pasted <- paste(contents, collapse = "\n")
-  matches <- gregexpr(patterns$inline.code, pasted, perl = TRUE)[[1L]]
-  if (identical(c(matches), -1L))
-    return(list())
-
-  starts <- attr(matches, "capture.start")[, 1L]
-  lengths <- attr(matches, "capture.length")[, 1L]
-  code <- substring(pasted, starts, starts + lengths - 1L)
+  pattern <- patterns$inline.code
+  matches <- unlist(regmatches(text, gregexpr(pattern, text, perl = TRUE)))
+  code <- sub(pattern, "\\1", matches, perl = TRUE)
 
   # handle each piece of code on its own, so that one which fails to parse
   # does not hide the dependencies of the others

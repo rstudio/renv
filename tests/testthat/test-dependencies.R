@@ -72,6 +72,8 @@ test_that("a fenced code block is not mistaken for inline code", {
 test_that("inline code is not looked for within chunks", {
 
   lines <- c(
+    "An unfinished `r opener does not reach past the next chunk.",
+    "",
     "```{r, eval = FALSE}",
     "writeLines(\"Inline code looks like `r digest::digest(1)`.\")",
     "```",
@@ -98,6 +100,7 @@ test_that("inline code in Sweave documents is written with \\Sexpr{}", {
     "\\documentclass{article}",
     "\\begin{document}",
     "The digest is \\Sexpr{digest::digest(1)}; not `r glue::glue('')`.",
+    "% a comment: \\Sexpr{not valid}",
     "\\end{document}"
   )
 
