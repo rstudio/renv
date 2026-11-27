@@ -617,7 +617,7 @@ renv_available_packages_latest_crandb <- function(package,
                                                   repos = NULL)
 {
   # letting crandb choose the version to use is opt-in
-  if (!identical(config$crandb.enabled(), TRUE))
+  if (!config$crandb.enabled(default = FALSE))
     return(NULL)
 
   # query crandb for all versions of this package
@@ -663,7 +663,7 @@ renv_available_packages_latest_crandb <- function(package,
 # on renv's own initiative must check this first, since crandb may not be
 # reachable (or welcome) on the user's network (#2450)
 renv_available_packages_crandb_disabled <- function() {
-  identical(config$crandb.enabled(), FALSE)
+  !config$crandb.enabled(default = TRUE)
 }
 
 renv_available_packages_crandb_query <- function(package) {

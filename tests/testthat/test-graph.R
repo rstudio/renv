@@ -1770,14 +1770,15 @@ test_that("repository graph doesn't consult crandb when it is disabled", {
     }
   )
 
-  # as above, bread 0.1.0 isn't in the test repository's PACKAGES; it is in
-  # the repository's archive, which is where it should be read from instead
-  record <- list(Package = "bread", Version = "0.1.0", Source = "Repository")
+  # 'today' is 1.0.0 in the repository with 'Depends: R (>= 99.99.99)', while
+  # the archived 0.1.0 has 'Depends: R (>= 1.0.0)'. with crandb out of the
+  # picture, the dependencies of 0.1.0 must be read from the archive.
+  record <- list(Package = "today", Version = "0.1.0", Source = "Repository")
   desc <- renv_graph_description_repository(record)
 
   expect_false(crandb_called)
   expect_equal(desc$Version, "0.1.0")
-  expect_false(identical(desc$Depends, "crandb-marker"))
+  expect_equal(desc$Depends, "R (>= 1.0.0)")
 
 })
 
