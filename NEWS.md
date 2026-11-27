@@ -1,5 +1,11 @@
 # renv (development version)
 
+* When a project uses Bioconductor and BiocManager is not yet installed,
+  `renv::restore()` and `renv::load()` now install the version of BiocManager
+  recorded in the lockfile, if any, rather than looking up the latest version
+  from the active package repositories. This lets a restore succeed from the
+  cache when the repositories are unavailable. (#1902)
+
 * `renv::restore(retry = TRUE)` (and the interactive retry prompt) now retries
   only the packages that failed to install at the latest available version.
   Previously, packages that were never attempted because one of their

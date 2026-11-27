@@ -170,7 +170,7 @@ restore <- function(project = NULL,
   # set up Bioconductor version + repositories
   biocversion <- getOption("renv.bioconductor.version") %||% lockfile$Bioconductor$Version
   if (!is.null(biocversion)) {
-    renv_bioconductor_init(library = library)
+    renv_bioconductor_init(library = library, lockfile = lockfile)
     biocversion <- package_version(biocversion)
     renv_scope_options(renv.bioconductor.version = biocversion)
   }

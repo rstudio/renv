@@ -138,7 +138,7 @@ load <- function(project = NULL, quiet = FALSE, profile = NULL, ...) {
   if (length(lockfile)) {
     renv_load_r(project, lockfile$R)
     renv_load_python(project, lockfile$Python)
-    renv_load_bioconductor(project, lockfile$Bioconductor)
+    renv_load_bioconductor(project, lockfile$Bioconductor, lockfile)
   }
 
   # allow failure to write infrastructure here to be non-fatal
@@ -622,7 +622,7 @@ renv_load_python_condaenv <- function(project, fields) {
 
 }
 
-renv_load_bioconductor <- function(project, bioconductor) {
+renv_load_bioconductor <- function(project, bioconductor, lockfile = NULL) {
 
   # we don't try to support older R anymore
   if (getRversion() < "3.4")
@@ -634,7 +634,7 @@ renv_load_bioconductor <- function(project, bioconductor) {
     return()
 
   # initialize bioconductor
-  renv_bioconductor_init()
+  renv_bioconductor_init(lockfile = lockfile)
 
   # validate version if necessary
   # avoid doing this in non-interactive sessions, as it can rely on

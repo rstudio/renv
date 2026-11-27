@@ -146,23 +146,30 @@ renv_bioconductor_validate <- function(version, prompt = interactive()) {
 
 }
 
-renv_bioconductor_init <- function(library = NULL) {
+renv_bioconductor_init <- function(library = NULL, lockfile = NULL) {
   renv_scope_options(renv.verbose = FALSE)
 
   if (identical(renv_bioconductor_manager(), "BiocManager"))
-    renv_bioconductor_init_biocmanager(library)
+    renv_bioconductor_init_biocmanager(library, lockfile)
   else
     renv_bioconductor_init_biocinstaller(library)
 }
 
-renv_bioconductor_init_biocmanager <- function(library = NULL) {
+renv_bioconductor_init_biocmanager <- function(library = NULL, lockfile = NULL) {
 
   library <- library %||% renv_libpaths_active()
   if (renv_package_installed("BiocManager", lib.loc = library))
     return(TRUE)
 
+  # if the lockfile records a version of BiocManager, install that one rather
+  # than the latest: finding the latest version requires querying the active
+  # repositories, even when the recorded version is available in the cache
+  # https://github.com/rstudio/renv/issues/1902
+  record <- lockfile$Packages[["BiocManager"]]
+  packages <- if (is.null(record)) "BiocManager" else list(BiocManager = record)
+
   ensure_directory(library)
-  install("BiocManager", library = library, prompt = FALSE)
+  install(packages, library = library, prompt = FALSE)
 
   TRUE
 
