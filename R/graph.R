@@ -1588,6 +1588,7 @@ renv_graph_install <- function(descriptions) {
   # track results, failures, and error messages
   all <- list()
   failed <- stack("character")
+  blocked <- character()
   errors <- stack()
   verbose <- config$install.verbose()
   timer <- timer()
@@ -2338,9 +2339,12 @@ renv_graph_install <- function(descriptions) {
       stop(aborted)
     }
 
-    # mark packages stuck due to failed dependencies
+    # mark packages stuck due to failed dependencies; these were never
+    # attempted, so remember them separately from the packages which
+    # failed themselves (#2452)
     stuck <- names(indegree)[indegree > 0L]
     stuck <- setdiff(stuck, failed$data())
+    blocked <- stuck
     for (pkg in stuck) failed$push(pkg)
 
   } else {
@@ -2532,11 +2536,16 @@ renv_graph_install <- function(descriptions) {
   if (!is.null(trash))
     unlink(trash, recursive = TRUE)
 
-  # also report which packages failed directly, so callers can retry them
-  # differently from packages that were merely rolled back; this includes
-  # dependencies outside the requested set, e.g. excluded packages
+  # also report which packages failed, so callers can retry them differently
+  # from packages that were merely rolled back; this includes dependencies
+  # outside the requested set, e.g. excluded packages
   if (!failed$empty())
     attr(all, "failed") <- failed$data()
+
+  # of those, the 'blocked' packages were never attempted, as one of their
+  # dependencies failed; callers can retry them as originally requested (#2452)
+  if (length(blocked))
+    attr(all, "blocked") <- blocked
 
   # report errors
   renv_graph_install_errors(errors$data(), failed$data(), descriptions)
