@@ -1,5 +1,9 @@
 # renv (development version)
 
+* Setting `renv.config.dependencies.limit` (or `RENV_CONFIG_DEPENDENCIES_LIMIT`)
+  to `Inf` now works as documented. Previously, renv warned that `Inf` is not
+  an integer and fell back to the default limit of 1000. (#1657)
+
 * `renv::dependencies()` is now stricter when extracting chunk options from
   R Markdown, Quarto and Sweave documents, and package names from
   `targets::tar_option_set(packages = )`. A chunk option such as
