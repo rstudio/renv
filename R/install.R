@@ -838,29 +838,20 @@ renv_install_package_options <- function(package) {
 
 renv_install_postamble <- function(packages) {
 
+  # restarting R wouldn't help after use(), which warns about the loaded
+  # packages it couldn't replace by itself; see renv_use_check_loaded()
+  if (the$use_active)
+    return(TRUE)
+
   # only diagnose packages currently loaded
   packages <- renv_vector_intersect(packages, loadedNamespaces())
 
   installed <- map_chr(packages, renv_package_version)
   loaded <- map_chr(packages, renv_namespace_version)
-  stale <- packages[installed != loaded]
-
-  # use() installs into a temporary library, which is discarded when R is
-  # restarted, so restarting wouldn't make the new versions available. the
-  # packages need to be installed before they're loaded instead
-  # https://github.com/rstudio/renv/issues/1951
-  if (the$use_active) {
-    bulletin(
-      c("", "The following loaded package(s) could not be replaced by the requested versions:"),
-      stale,
-      "Call `renv::use()` before these packages are loaded, such as at the start of a new R session."
-    )
-    return(TRUE)
-  }
 
   bulletin(
     c("", "The following loaded package(s) have been updated:"),
-    stale,
+    packages[installed != loaded],
     "Restart your R session to use the new versions."
   )
 

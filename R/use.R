@@ -1,8 +1,8 @@
 
 the$use_libpath <- NULL
 
-# is a call to 'use()' in progress? it installs into a temporary library, which
-# changes what we should tell users about loaded packages that were updated
+# is a call to 'use()' in progress? use() reports the loaded packages it
+# couldn't replace by itself; see renv_use_check_loaded()
 the$use_active <- FALSE
 
 #' @rdname embed
@@ -85,6 +85,12 @@ use <- function(...,
   # if we were supplied a lockfile, use it
   if (!is.null(lockfile)) {
     renv_scope_options(renv.verbose = verbose)
+
+    if (is.character(lockfile))
+      lockfile <- renv_lockfile_read(lockfile)
+
+    renv_use_check_loaded(renv_lockfile_records(renv_lockfile_override(lockfile)))
+
     if (cacheonly)
       records <- renv_use_cacheonly_restore(lockfile = lockfile, library = library)
     else
@@ -104,6 +110,11 @@ use <- function(...,
   # so that dependencies of already-installed packages are still considered
   if (cacheonly)
     records <- renv_use_cacheonly_resolve(records = records, library = library)
+
+  # this happens before the installed packages are filtered out below, so
+  # that calling use() again for the same packages warns again
+  renv_use_check_loaded(records)
+  requested <- names(records)
 
   # remove any remotes which already appear to be installed
   compat <- enum_lgl(records, function(package, record) {
@@ -137,6 +148,9 @@ use <- function(...,
     })
   }
 
+  # the requested packages were checked above; that leaves their dependencies
+  renv_use_check_loaded(records[setdiff(names(records), requested)])
+
   # automatically load the requested remotes
   if (attach) {
     enumerate(records, function(package, remote) {
@@ -151,6 +165,42 @@ use <- function(...,
 
 renv_use_libpath <- function() {
   (the$use_libpath <- the$use_libpath %||% tempfile("renv-use-libpath-"))
+}
+
+# R can't replace a namespace that's already loaded, so the session keeps
+# using the loaded version of a package whatever use() installs. restarting R
+# doesn't help either, as that discards the library use() installed into
+# https://github.com/rstudio/renv/issues/1951
+renv_use_check_loaded <- function(records) {
+
+  # renv is always loaded by the time use() is called, so there's nothing
+  # the caller could do about a different version of renv in a lockfile
+  packages <- renv_vector_intersect(names(records), loadedNamespaces())
+  packages <- setdiff(packages, "renv")
+
+  requested <- map_chr(records[packages], function(record) {
+    record$Version %||% NA_character_
+  })
+  loaded <- map_chr(packages, renv_namespace_version)
+
+  stale <- !is.na(requested) & requested != loaded
+  if (!any(stale))
+    return(invisible(character()))
+
+  lines <- c(
+    "renv::use() could not replace the following loaded package(s):",
+    sprintf(
+      "- %s [%s loaded, %s requested]",
+      packages[stale],
+      loaded[stale],
+      requested[stale]
+    ),
+    "Call renv::use() before these packages are loaded, such as at the start of a new R session."
+  )
+  warning(paste(lines, collapse = "\n"), call. = FALSE)
+
+  invisible(packages[stale])
+
 }
 
 renv_use_cacheonly_restore <- function(lockfile, library) {

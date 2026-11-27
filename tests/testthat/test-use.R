@@ -200,7 +200,7 @@ test_that("use(repos = NULL) installs from cache only", {
 })
 
 # https://github.com/rstudio/renv/issues/1951
-test_that("use() does not ask for a restart when a loaded package can't be replaced", {
+test_that("use() warns when a loaded package can't be replaced", {
 
   skip_on_cran()
 
@@ -208,24 +208,52 @@ test_that("use() does not ask for a restart when a loaded package can't be repla
   renv_scope_libpaths()
   renv_scope_options(renv.caution.verbose = TRUE)
 
-  # load an older version of 'bread'
+  # load an older version of 'bread'. the name is passed in a variable, as
+  # 'R CMD check' takes a literal for an undeclared dependency of the tests
   old <- renv_scope_tempfile("renv-library-")
   ensure_directory(old)
   quietly(install("bread@0.1.0", library = old))
-  loadNamespace("bread", lib.loc = old)
+  package <- "bread"
+  loadNamespace(package, lib.loc = old)
   defer(unloadNamespace("bread"))
   expect_equal(renv_namespace_version("bread"), "0.1.0")
 
-  # use() installs into a temporary library, which a restart would discard
+  stale <- "- bread [0.1.0 loaded, 1.0.0 requested]"
   renv_scope_binding(the, "use_libpath", NULL)
-  output <- capture.output(
-    use("bread@1.0.0", isolate = TRUE, sandbox = FALSE, verbose = TRUE)
-  )
-  text <- paste(output, collapse = "\n")
 
-  expect_match(text, "loaded package(s) could not be replaced", fixed = TRUE)
-  expect_match(text, "bread", fixed = TRUE)
-  expect_no_match(text, "Restart your R session", fixed = TRUE)
+  # 'toast' depends on 'bread', which is installed alongside it
+  expect_warning(
+    use("toast", isolate = TRUE, sandbox = FALSE, verbose = FALSE),
+    stale,
+    fixed = TRUE
+  )
+
+  # the requested version is installed by now, so nothing gets installed
+  expect_warning(
+    use("bread@1.0.0", isolate = TRUE, sandbox = FALSE, verbose = FALSE),
+    stale,
+    fixed = TRUE
+  )
+
+  # installing from the cache
+  the$use_libpath <- NULL
+  expect_warning(
+    use("bread@1.0.0", repos = NULL, isolate = TRUE, sandbox = FALSE, verbose = FALSE),
+    stale,
+    fixed = TRUE
+  )
+
+  # installing from a repository; a restart would discard the library
+  the$use_libpath <- NULL
+  output <- capture.output(
+    warnings <- capture_warnings(
+      use("bread@1.0.0", isolate = TRUE, sandbox = FALSE, verbose = TRUE)
+    )
+  )
+  expect_length(warnings, 1L)
+  expect_match(warnings, stale, fixed = TRUE)
+  expect_match(paste(output, collapse = "\n"), "Successfully installed", fixed = TRUE)
+  expect_no_match(paste(output, collapse = "\n"), "Restart your R session", fixed = TRUE)
 
   # install() has no such constraint, so it still suggests a restart
   library <- renv_scope_tempfile("renv-library-")
@@ -234,5 +262,51 @@ test_that("use() does not ask for a restart when a loaded package can't be repla
     install("bread@1.0.0", library = library)
   )
   expect_match(paste(output, collapse = "\n"), "Restart your R session", fixed = TRUE)
+
+})
+
+test_that("use(lockfile) warns when a loaded package can't be replaced", {
+
+  skip_on_cran()
+  skip_on_windows()
+
+  renv_tests_scope("bread")
+  init()
+
+  old <- renv_scope_tempfile("renv-library-")
+  ensure_directory(old)
+  quietly(install("bread@0.1.0", library = old))
+  package <- "bread"
+  loadNamespace(package, lib.loc = old)
+  defer(unloadNamespace("bread"))
+
+  stale <- "- bread [0.1.0 loaded, 1.0.0 requested]"
+  renv_scope_libpaths()
+  renv_scope_binding(the, "use_libpath", NULL)
+
+  expect_warning(
+    use(lockfile = "renv.lock", isolate = TRUE, sandbox = FALSE, verbose = FALSE),
+    stale,
+    fixed = TRUE
+  )
+
+  the$use_libpath <- NULL
+  expect_warning(
+    use(lockfile = "renv.lock", repos = NULL, isolate = TRUE, sandbox = FALSE, verbose = FALSE),
+    stale,
+    fixed = TRUE
+  )
+
+})
+
+test_that("use() doesn't warn about packages the caller can't act on", {
+
+  # renv itself is always loaded, and lockfiles commonly record another version
+  records <- list(renv = list(Package = "renv", Version = "0.0.1"))
+  expect_no_warning(renv_use_check_loaded(records))
+
+  # records without a version match whatever is loaded
+  records <- list(utils = list(Package = "utils"))
+  expect_no_warning(renv_use_check_loaded(records))
 
 })

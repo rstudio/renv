@@ -1,9 +1,10 @@
 # renv (development version)
 
-* `renv::use()` no longer tells you to restart R when a package it installed
-  could not replace a version that was already loaded. Restarting would discard
-  the temporary library `renv::use()` installs into, so the message now
-  suggests calling `renv::use()` before the packages are loaded. (#1951)
+* `renv::use()` now warns when a requested package is already loaded at a
+  different version, as the loaded version stays in use. Previously, it told
+  you to restart R, which would discard the temporary library `renv::use()`
+  installs into, or said nothing at all if the requested version was already
+  installed or came from the cache. (#1951)
 
 * `renv::restore(retry = TRUE)` (and the interactive retry prompt) now retries
   only the packages that failed to install at the latest available version.
