@@ -88,6 +88,41 @@ test_that("renv can bind to virtualenvs in WORKON_HOME", {
 
 })
 
+# https://github.com/rstudio/renv/issues/2137
+test_that("virtualenvs in WORKON_HOME are recorded by name, however it is spelled", {
+
+  skip_on_os("windows")
+
+  project <- renv_scope_tempfile("renv-project-")
+  dir.create(project)
+
+  root <- renv_scope_tempfile("renv-virtualenvs-")
+  dir.create(file.path(root, "home", ".virtualenvs", "foo"), recursive = TRUE)
+  dir.create(file.path(root, "work", "foo"), recursive = TRUE)
+
+  # the default location is the unexpanded '~/.virtualenvs'
+  local({
+    renv_scope_envvars(HOME = file.path(root, "home"), WORKON_HOME = NULL)
+    path <- renv_path_normalize(file.path(root, "home", ".virtualenvs", "foo"))
+    expect_equal(renv_python_envname(project, path, "virtualenv"), "foo")
+  })
+
+  # a trailing slash does not make a different location
+  local({
+    renv_scope_envvars(WORKON_HOME = paste0(file.path(root, "work"), "/"))
+    path <- renv_path_normalize(file.path(root, "work", "foo"))
+    expect_equal(renv_python_envname(project, path, "virtualenv"), "foo")
+  })
+
+  # environments elsewhere are still recorded by path
+  local({
+    renv_scope_envvars(WORKON_HOME = file.path(root, "work"))
+    path <- renv_path_normalize(file.path(root, "home", ".virtualenvs", "foo"))
+    expect_equal(renv_python_envname(project, path, "virtualenv"), path)
+  })
+
+})
+
 test_that("installed Python packages are snapshotted / restored [virtualenv]", {
 
   skip_slow()

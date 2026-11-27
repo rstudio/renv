@@ -1,5 +1,11 @@
 # renv (development version)
 
+* `renv::snapshot()` now keeps recording a virtualenv by name when it lives in
+  the virtualenv home (`WORKON_HOME`, or `~/.virtualenvs` by default). Before,
+  it replaced the name with an absolute path when that location was spelled
+  differently from the path of the environment in use, for example with `~` or
+  a trailing slash, which made the lockfile specific to one machine. (#2137)
+
 * Setting `renv.config.dependencies.limit` (or `RENV_CONFIG_DEPENDENCIES_LIMIT`)
   to `Inf` now works as documented. Previously, renv warned that `Inf` is not
   an integer and fell back to the default limit of 1000. (#1657)
