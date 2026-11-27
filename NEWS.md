@@ -1,5 +1,9 @@
 # renv (development version)
 
+* `renv::update()` and `renv::install()` no longer fail when pak is enabled and
+  the project has a `DESCRIPTION` file without a `Package` field, as is common
+  when `DESCRIPTION` is only used to declare explicit dependencies. (#1692)
+
 * `renv::restore(retry = TRUE)` (and the interactive retry prompt) now retries
   only the packages that failed to install at the latest available version.
   Previously, packages that were never attempted because one of their

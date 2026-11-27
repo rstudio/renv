@@ -173,10 +173,14 @@ renv_pak_update <- function(project, library, prompt) {
   
   pak <- renv_namespace_load("pak")
 
-  # if this project contains a DESCRIPTION file, use it when
-  # determining which packages to update
-  if (file.exists(file.path(project, "DESCRIPTION"))) {
-    
+  # if this project contains a DESCRIPTION file, use it when determining
+  # which packages to update. pak only treats a directory as a package if its
+  # DESCRIPTION has a 'Package' field, and DESCRIPTION files used just to
+  # declare explicit dependencies don't need one
+  # https://github.com/rstudio/renv/issues/1692
+  description <- file.path(project, "DESCRIPTION")
+  if (file.exists(description) && any(grepl("^Package: ", readLines(description, warn = FALSE)))) {
+
     result <- pak$local_install_dev_deps(
       root = project,
       lib  = library[[1L]],
