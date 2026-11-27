@@ -1430,6 +1430,32 @@ test_that("renv_graph_install reports packages discarded by a transactional roll
 
 })
 
+test_that("renv_graph_install reports packages blocked by a failed dependency", {
+
+  # older versions of R attempt every package, so nothing is ever blocked
+  skip_if(getRversion() < "4.0")
+
+  renv_tests_scope()
+
+  # use a fresh cache so that bread is actually built (and fails)
+  # rather than being copied from the cache
+  renv_scope_envvars(RENV_PATHS_CACHE = renv_scope_tempfile())
+
+  # bread fails to install, so toast (which depends on it) is never attempted
+  renv_scope_options(install.opts = list(bread = "--libs-only"))
+
+  descriptions <- renv_graph_init("toast")
+  records <- renv_graph_install(descriptions)
+
+  # both packages are reported as failed, but only toast as blocked, so
+  # callers can tell it apart from the package which failed itself
+  # https://github.com/rstudio/renv/issues/2452
+  expect_length(records, 0L)
+  expect_setequal(attr(records, "failed"), c("bread", "toast"))
+  expect_equal(attr(records, "blocked"), "toast")
+
+})
+
 test_that("renv_graph_install_failed reports the cause of a rollback", {
 
   # requested packages which failed, or are otherwise missing, are reported
