@@ -1144,13 +1144,19 @@ renv_dependencies_discover_chunks_inline <- function(path, contents, patterns, r
   text <- map_chr(regions, paste, collapse = "\n")
 
   pattern <- patterns$inline.code
-  matches <- unlist(regmatches(text, gregexpr(pattern, text, perl = TRUE)))
-  code <- sub(pattern, "\\1", matches, perl = TRUE)
+  matches <- regmatches(text, gregexpr(pattern, text, perl = TRUE))
+  code <- sub(pattern, "\\1", unlist(matches, use.names = FALSE), perl = TRUE)
 
-  # handle each piece of code on its own, so that one which fails to parse
-  # does not hide the dependencies of the others
+  # handle each piece of code on its own, so that one which cannot be
+  # handled does not hide the dependencies of the others
   bapply(code, function(text) {
-    renv_dependencies_discover_r(path = path, text = text)
+
+    deps <- catch(renv_dependencies_discover_r(path = path, text = text))
+    if (inherits(deps, "error"))
+      return(renv_dependencies_error(path, error = deps))
+
+    deps
+
   })
 
 }

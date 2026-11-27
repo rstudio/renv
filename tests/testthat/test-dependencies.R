@@ -90,6 +90,7 @@ test_that("inline code is not looked for within chunks", {
 
   deps <- dependencies(path, errors = "fatal")
   expect_setequal(deps$Package, c("glue", "rmarkdown"))
+  expect_named(deps, c("Source", "Package", "Require", "Version", "Dev"))
 
 })
 
