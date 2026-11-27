@@ -6,6 +6,10 @@
   differently from the path of the environment in use, for example with `~` or
   a trailing slash, which made the lockfile specific to one machine. (#2137)
 
+* Setting `renv.config.dependencies.limit` (or `RENV_CONFIG_DEPENDENCIES_LIMIT`)
+  to `Inf` now works as documented. Previously, renv warned that `Inf` is not
+  an integer and fell back to the default limit of 1000. (#1657)
+
 * `renv::restore(retry = TRUE)` (and the interactive retry prompt) now retries
   only the packages that failed to install at the latest available version.
   Previously, packages that were never attempted because one of their
