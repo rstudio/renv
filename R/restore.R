@@ -131,8 +131,14 @@ restore <- function(project = NULL,
     renv_sysreqs_check(sysreqs, prompt = prompt)
   }
 
+  # a lockfile written by an older version of renv can name a binary
+  # repository for the platform it was created on; use its source repository
+  lockrepos <- lockfile$R$Repositories
+  if (renv_ppm_enabled())
+    lockrepos <- map(lockrepos, renv_ppm_normalize)
+
   # override repositories if requested
-  repos <- repos %||% config$repos.override() %||% lockfile$R$Repositories
+  repos <- repos %||% config$repos.override() %||% lockrepos
 
   # transform PPM repositories if appropriate
   if (renv_ppm_enabled())
