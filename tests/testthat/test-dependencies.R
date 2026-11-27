@@ -319,11 +319,16 @@ test_that("glue::glue() package usages are found", {
 # https://github.com/rstudio/renv/issues/1891
 test_that("glue::glue() escapes next to expressions are handled", {
 
-  file <- renv_test_code({
-    glue::glue("Hello {{{A::f()}}}")
-    glue::glue("Hello {{.strong {B::f()}}}")
-    glue::glue("{{ {C::f({D::g()})} }}")
-  })
+  # written as strings, since R CMD check requires packages used via '::'
+  # in test code to be declared in DESCRIPTION
+  code <- c(
+    'glue::glue("Hello {{{A::f()}}}")',
+    'glue::glue("Hello {{.strong {B::f()}}}")',
+    'glue::glue("{{ {C::f({D::g()})} }}")'
+  )
+
+  file <- renv_scope_tempfile("renv-test-", fileext = ".R")
+  writeLines(code, con = file)
 
   deps <- dependencies(file, errors = "fatal")
   expect_setequal(deps$Package, c("glue", "A", "B", "C", "D"))
