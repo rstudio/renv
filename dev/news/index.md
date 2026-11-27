@@ -2,6 +2,14 @@
 
 ## renv (development version)
 
+- [`renv::dependencies()`](https://rstudio.github.io/renv/dev/reference/dependencies.md)
+  no longer mistakes the opening of a code fence in an R Markdown or
+  Quarto document for the start of inline R code. Previously, a fence
+  written as ```` ```r ```` (with trailing whitespace) could make renv
+  treat the contents of the code block as R code, which could report
+  spurious parse errors, for example for a Quarto shortcode shown in a
+  code block. ([\#1856](https://github.com/rstudio/renv/issues/1856))
+
 - [`renv::snapshot()`](https://rstudio.github.io/renv/dev/reference/snapshot.md)
   now keeps recording a virtualenv by name when it lives in the
   virtualenv home (`WORKON_HOME`, or `~/.virtualenvs` by default).
