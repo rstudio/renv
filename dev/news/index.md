@@ -2,6 +2,15 @@
 
 ## renv (development version)
 
+- [`renv::use()`](https://rstudio.github.io/renv/dev/reference/embed.md)
+  now warns when a requested package is already loaded at a different
+  version, as the loaded version stays in use. Previously, it told you
+  to restart R, which would discard the temporary library
+  [`renv::use()`](https://rstudio.github.io/renv/dev/reference/embed.md)
+  installs into, or said nothing at all if the requested version was
+  already installed or came from the cache.
+  ([\#1951](https://github.com/rstudio/renv/issues/1951))
+
 - [`renv::dependencies()`](https://rstudio.github.io/renv/dev/reference/dependencies.md)
   now handles escaped delimiters that are adjacent to an expression in
   [`glue::glue()`](https://glue.tidyverse.org/reference/glue.html)
