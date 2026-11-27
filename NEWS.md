@@ -1,5 +1,12 @@
 # renv (development version)
 
+* `renv::dependencies()` is now more careful when looking for inline R code in
+  R Markdown, Quarto and Sweave documents. Inline code is no longer looked for
+  within code chunks; Sweave (`.Rnw`) documents are searched for `\Sexpr{}`
+  rather than for Markdown-style `` `r ` `` inline code; and inline code that
+  fails to parse no longer hides the dependencies of the other inline code in
+  the same document. (#2468)
+
 * `renv::dependencies()` now handles escaped delimiters that are adjacent to an
   expression in `glue::glue()` strings, such as `glue("Hello {{{name}}}")` or
   `glue("{{.strong {name}}}")`. Previously, renv treated the closing `}}` of

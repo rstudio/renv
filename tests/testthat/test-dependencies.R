@@ -68,6 +68,74 @@ test_that("a fenced code block is not mistaken for inline code", {
 
 })
 
+# https://github.com/rstudio/renv/issues/2468
+test_that("inline code is not looked for within chunks", {
+
+  lines <- c(
+    "```{r, eval = FALSE}",
+    "writeLines(\"Inline code looks like `r digest::digest(1)`.\")",
+    "```",
+    "",
+    "```{r}",
+    "writeLines(\"Inline code looks like `r not valid`.\")",
+    "```",
+    "",
+    "Real inline code is still found: `r glue::glue('')`."
+  )
+
+  path <- renv_scope_tempfile("renv-", fileext = ".Rmd")
+  writeLines(lines, path)
+
+  deps <- dependencies(path, errors = "fatal")
+  expect_setequal(deps$Package, c("glue", "rmarkdown"))
+
+})
+
+# https://github.com/rstudio/renv/issues/2468
+test_that("inline code in Sweave documents is written with \\Sexpr{}", {
+
+  lines <- c(
+    "\\documentclass{article}",
+    "\\begin{document}",
+    "The digest is \\Sexpr{digest::digest(1)}; not `r glue::glue('')`.",
+    "\\end{document}"
+  )
+
+  path <- renv_scope_tempfile("renv-", fileext = ".Rnw")
+  writeLines(lines, path)
+
+  deps <- dependencies(path, errors = "fatal")
+  expect_equal(deps$Package, "digest")
+
+})
+
+# https://github.com/rstudio/renv/issues/2468
+test_that("inline code that fails to parse does not hide other inline code", {
+
+  renv_scope_caution(FALSE)
+
+  lines <- c(
+    "The digest is `r digest::digest(1)`.",
+    "",
+    "This one is broken: `r not valid`.",
+    "",
+    "And `r glue::glue('')` comes after it."
+  )
+
+  path <- renv_scope_tempfile("renv-", fileext = ".Rmd")
+  writeLines(lines, path)
+
+  problems <- NULL
+  deps <- withCallingHandlers(
+    dependencies(path, errors = "reported"),
+    renv.dependencies.problems = function(cnd) problems <<- cnd$data
+  )
+
+  expect_length(problems, 1L)
+  expect_setequal(deps$Package, c("digest", "glue", "rmarkdown"))
+
+})
+
 test_that("usages of S4 tools are discovered", {
   file <- renv_test_code({setClass("ClassSet")})
   deps <- dependencies(file)

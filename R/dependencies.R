@@ -1049,7 +1049,7 @@ renv_dependencies_discover_chunks <- function(path, mode) {
   })
 
   # check for dependencies in inline chunks as well
-  ideps <- renv_dependencies_discover_chunks_inline(path, contents)
+  ideps <- renv_dependencies_discover_chunks_inline(path, contents, patterns, ranges)
 
   # if this is a .qmd, infer dependencies implied by the bound engine
   qdeps <- NULL
@@ -1129,22 +1129,26 @@ renv_dependencies_discover_chunks_quarto_header <- function(contents) {
 
 }
 
-renv_dependencies_discover_chunks_inline <- function(path, contents) {
+renv_dependencies_discover_chunks_inline <- function(path, contents, patterns, ranges) {
 
-  # the lookbehind avoids matching the opening of a code fence (```r ), as
-  # the code in that fence would otherwise be taken as inline code
+  # inline code is only recognized in the text between chunks
+  chunks <- unlist(.mapply(seq.int, list(ranges$lhs, ranges$rhs), NULL))
+  contents[chunks] <- ""
+
   pasted <- paste(contents, collapse = "\n")
-  matches <- gregexpr("(?<!``)`r ([^`]+)`", pasted, perl = TRUE)
-  if (identical(c(matches[[1L]]), -1L))
+  matches <- gregexpr(patterns$inline.code, pasted, perl = TRUE)[[1L]]
+  if (identical(c(matches), -1L))
     return(list())
 
-  text <- unlist(regmatches(pasted, matches), use.names = FALSE, recursive = FALSE)
-  code <- substring(text, 4L, nchar(text) - 1L)
-  deps <- renv_dependencies_discover_r(path = path, text = code)
-  if (inherits(deps, "error"))
-    return(renv_dependencies_error(path, error = deps))
+  starts <- attr(matches, "capture.start")[, 1L]
+  lengths <- attr(matches, "capture.length")[, 1L]
+  code <- substring(pasted, starts, starts + lengths - 1L)
 
-  deps
+  # handle each piece of code on its own, so that one which fails to parse
+  # does not hide the dependencies of the others
+  bapply(code, function(text) {
+    renv_dependencies_discover_r(path = path, text = text)
+  })
 
 }
 

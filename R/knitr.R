@@ -146,7 +146,9 @@ renv_knitr_patterns <- function() {
       chunk.begin = "^[\t >]*```+\\s*\\{([a-zA-Z0-9_]+( *[ ,].*)?)\\}\\s*$",
       chunk.end = "^[\t >]*```+\\s*$",
       ref.chunk = "^\\s*<<(.+)>>\\s*$",
-      inline.code = "(?<!(^|\n)``)`r[ #]([^`]+)\\s*`"
+      # the lookbehind avoids matching the opening of a code fence (```r ), as
+      # the code in that fence would otherwise be taken as inline code
+      inline.code = "(?<!``)`r ([^`]+)`"
     ),
 
     rst = list(
