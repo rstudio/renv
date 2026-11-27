@@ -430,6 +430,57 @@ test_that("crandb is still used when the repositories have no candidate", {
 
 })
 
+test_that("crandb can be left out of the lookup", {
+
+  renv_tests_scope()
+  renv_scope_options(renv.config.crandb.enabled = TRUE)
+
+  # crandb names a version without saying where it can be installed from, and
+  # knows nothing of the repositories in use. callers asking what those
+  # repositories provide have to be able to leave it out
+  local_mocked_bindings(
+    renv_available_packages_latest_crandb = function(package, ...) {
+      list(
+        Package    = package,
+        Version    = "9.9.9",
+        Source     = "Repository",
+        Repository = "CRAN"
+      )
+    }
+  )
+
+  record <- renv_available_packages_latest("nonexistent.package")
+  expect_equal(record$Version, "9.9.9")
+
+  expect_error(
+    renv_available_packages_latest("nonexistent.package", crandb = FALSE),
+    "not available"
+  )
+
+})
+
+test_that("crandb only offers packages archived on CRAN when those are allowed", {
+
+  renv_scope_options(renv.config.crandb.enabled = TRUE)
+
+  local_mocked_bindings(
+    renv_available_packages_crandb_query = function(package) {
+      list(
+        versions = list("1.0.0" = list(Package = package, Version = "1.0.0")),
+        archived = TRUE
+      )
+    }
+  )
+
+  renv_scope_options(renv.install.allowArchivedPackages = FALSE)
+  expect_null(renv_available_packages_latest_crandb("renv.test.crandb.archived"))
+
+  renv_scope_options(renv.install.allowArchivedPackages = TRUE)
+  record <- renv_available_packages_latest_crandb("renv.test.crandb.archived")
+  expect_equal(record$Version, "1.0.0")
+
+})
+
 test_that("the archive is consulted when the repositories have no candidate", {
 
   renv_tests_scope()

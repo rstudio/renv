@@ -1,5 +1,21 @@
 # renv (development version)
 
+* Fixed several issues seen when the `renv.config.crandb.enabled` option is
+  set, where renv asked crandb whether a package was available from the
+  repositories in use. crandb is not restricted to those repositories, so
+  `renv::snapshot()` could record a package with no recorded source as coming
+  from a repository which does not provide it, a `bioc::<version>/<package>`
+  remote could resolve to a CRAN release recorded as a Bioconductor package,
+  and `renv::upgrade()` could try to install renv from repositories which do
+  not have it rather than from GitHub. crandb is now only consulted when renv
+  is looking for a version of a package to install.
+
+* When the `renv.config.crandb.enabled` option is set, renv no longer uses
+  crandb to install packages which have been archived on CRAN, unless the
+  `renv.install.allowArchivedPackages` option is also set. Installing archived
+  packages has been opt-in since renv 1.1.4, but crandb reported the last
+  release of such packages regardless.
+
 * `renv::dependencies()` is now stricter when extracting chunk options from
   R Markdown, Quarto and Sweave documents, and package names from
   `targets::tar_option_set(packages = )`. A chunk option such as

@@ -763,3 +763,33 @@ test_that("the fields of a git record are not interpreted by the shell", {
   expect_false(file.exists(file.path(path, "marker")))
 
 })
+
+test_that("crandb doesn't resolve packages requested from a Bioconductor release", {
+
+  renv_tests_scope()
+  renv_scope_options(renv.config.crandb.enabled = TRUE)
+
+  # crandb only knows about CRAN, so a version it names must not be recorded
+  # as coming from the Bioconductor release that was asked for
+  local_mocked_bindings(
+    renv_available_packages_latest_crandb = function(package, ...) {
+      list(
+        Package    = package,
+        Version    = "9.9.9",
+        Source     = "Repository",
+        Repository = "CRAN"
+      )
+    }
+  )
+
+  local_mocked_bindings(
+    renv_remotes_resolve_bioc_version = function(version) version,
+    renv_bioconductor_repos           = function(...) getOption("repos")
+  )
+
+  expect_error(
+    renv_remotes_resolve("bioc::3.20/nonexistent.package"),
+    "not available"
+  )
+
+})

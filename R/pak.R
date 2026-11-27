@@ -124,7 +124,11 @@ renv_pak_stream <- function() {
   streams <- c("stable", "rc", "devel")
   for (stream in streams) {
     repos <- renv_pak_repos(stream)
-    latest <- renv_available_packages_latest("pak", repos = repos)
+    latest <- renv_available_packages_latest(
+      "pak",
+      repos  = repos,
+      crandb = FALSE
+    )
     version <- numeric_version(latest$Version)
     if (version >= the$pak_minver)
       return(stream)

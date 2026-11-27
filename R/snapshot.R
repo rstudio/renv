@@ -445,7 +445,7 @@ renv_snapshot_validate_bioconductor <- function(project, lockfile, libpaths) {
 
   # collect latest versions of these packages
   bioc$Latest <- vapply(bioc$Package, function(package) {
-    entry <- catch(renv_available_packages_latest(package))
+    entry <- catch(renv_available_packages_latest(package, crandb = FALSE))
     if (inherits(entry, "error"))
       return("<NA>")
     entry$Version
@@ -1069,7 +1069,7 @@ renv_snapshot_description_source_hack <- function(package, dcf) {
   }
 
   # check available packages
-  latest <- catch(renv_available_packages_latest(package))
+  latest <- catch(renv_available_packages_latest(package, crandb = FALSE))
   if (is.null(latest) || inherits(latest, "error"))
     return(list(Source = "unknown"))
 
