@@ -316,6 +316,20 @@ test_that("glue::glue() package usages are found", {
   expect_false(any(letters %in% deps$Package))
 })
 
+# https://github.com/rstudio/renv/issues/1891
+test_that("glue::glue() escapes next to expressions are handled", {
+
+  file <- renv_test_code({
+    glue::glue("Hello {{{A::f()}}}")
+    glue::glue("Hello {{.strong {B::f()}}}")
+    glue::glue("{{ {C::f({D::g()})} }}")
+  })
+
+  deps <- dependencies(file, errors = "fatal")
+  expect_setequal(deps$Package, c("glue", "A", "B", "C", "D"))
+
+})
+
 test_that("set_engine() package usages are found", {
   deps <- dependencies("resources/parsnip.R")
   expect_setequal(deps$Package, c("glmnet"))

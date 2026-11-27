@@ -1,5 +1,11 @@
 # renv (development version)
 
+* `renv::dependencies()` now handles escaped delimiters that are adjacent to an
+  expression in `glue::glue()` strings, such as `glue("Hello {{{name}}}")` or
+  `glue("{{.strong {name}}}")`. Previously, renv treated the closing `}}` of
+  these as an escape, and reported a parse error for the code inside the
+  expression. (#1891)
+
 * `renv::restore(retry = TRUE)` (and the interactive retry prompt) now retries
   only the packages that failed to install at the latest available version.
   Previously, packages that were never attempted because one of their
