@@ -1131,8 +1131,10 @@ renv_dependencies_discover_chunks_quarto_header <- function(contents) {
 
 renv_dependencies_discover_chunks_inline <- function(path, contents) {
 
+  # the lookbehind avoids matching the opening of a code fence (```r ), as
+  # the code in that fence would otherwise be taken as inline code
   pasted <- paste(contents, collapse = "\n")
-  matches <- gregexpr("`r ([^`]+)`", pasted, perl = TRUE)
+  matches <- gregexpr("(?<!``)`r ([^`]+)`", pasted, perl = TRUE)
   if (identical(c(matches[[1L]]), -1L))
     return(list())
 
