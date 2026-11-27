@@ -1,5 +1,12 @@
 # renv (development version)
 
+* `renv::dependencies()` no longer mistakes the opening of a code fence in an
+  R Markdown or Quarto document for the start of inline R code. Previously, a
+  fence written as ```` ```r ```` (with trailing whitespace) could make renv
+  treat the contents of the code block as R code, which could report spurious
+  parse errors, for example for a Quarto shortcode shown in a code block.
+  (#1856)
+
 * `renv::restore(retry = TRUE)` (and the interactive retry prompt) now retries
   only the packages that failed to install at the latest available version.
   Previously, packages that were never attempted because one of their
