@@ -1,5 +1,9 @@
 # renv (development version)
 
+* `renv::update()` and `renv::install()` no longer fail when pak is enabled and
+  the project has a `DESCRIPTION` file without a `Package` field, as is common
+  when `DESCRIPTION` is only used to declare explicit dependencies. (#1692)
+
 * renv no longer rewrites Posit Package Manager Linux binary repository URLs of
   the form `<repo>/<snapshot>/bin/linux/<platform>/<R version>` into invalid
   `__linux__` URLs, which made it impossible to query available packages.
