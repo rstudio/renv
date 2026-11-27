@@ -1,5 +1,11 @@
 # renv (development version)
 
+* `renv::restore(retry = TRUE)` (and the interactive retry prompt) now retries
+  only the packages that failed to install at the latest available version.
+  Previously, packages that were never attempted because one of their
+  dependencies failed were also retried at the latest available version,
+  rather than the version recorded in the lockfile. (#2452)
+
 * `renv::dependencies()` is now stricter when extracting chunk options from
   R Markdown, Quarto and Sweave documents, and package names from
   `targets::tar_option_set(packages = )`. A chunk option such as

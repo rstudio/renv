@@ -800,6 +800,52 @@ test_that("restore(retry = TRUE) retries failed dependencies outside the request
   expect_equal(renv_package_version("bread"), "1.0.0")
 })
 
+test_that("restore(retry = TRUE) retries blocked packages at their lockfile versions", {
+  skip_on_cran()
+
+  # older versions of R attempt every package, so nothing is ever blocked
+  skip_if(getRversion() < "4.0")
+
+  renv_tests_scope("toast")
+  init()
+
+  # build from source, so that an install of bread can fail
+  renv_scope_options(renv.config.cache.enabled = FALSE)
+
+  # record older versions of bread and of toast, which depends on bread
+  install(c("bread@0.1.0", "toast@0.1.0"))
+  snapshot()
+  remove(c("bread", "toast"))
+
+  # make bread fail to install during the first pass only
+  passes <- 0L
+  install <- get("renv_graph_install", envir = asNamespace("renv"))
+  renv_scope_binding(
+    envir       = asNamespace("renv"),
+    symbol      = "renv_graph_install",
+    replacement = function(descriptions) {
+      passes <<- passes + 1L
+      if (passes == 1L)
+        renv_scope_options(install.opts = list(bread = "--libs-only"))
+      install(descriptions)
+    }
+  )
+
+  # toast is never attempted in the first pass, as bread failed; only bread
+  # failed at its lockfile version, so only bread is retried at the latest
+  # available version
+  # https://github.com/rstudio/renv/issues/2452
+  renv_scope_options(renv.verbose = TRUE)
+  expect_output(
+    restore(retry = TRUE),
+    "Retrying with the latest available versions of: bread\n",
+    fixed = TRUE
+  )
+  expect_equal(passes, 2L)
+  expect_equal(renv_package_version("bread"), "1.0.0")
+  expect_equal(renv_package_version("toast"), "0.1.0")
+})
+
 test_that("restore installs lockfile versions despite project DESCRIPTION constraints", {
 
   renv_tests_scope("bread")
