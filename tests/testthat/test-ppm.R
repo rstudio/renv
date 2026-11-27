@@ -641,3 +641,58 @@ test_that("manylinux URLs are normalized when installing source packages", {
   source_url <- "https://p3m.dev/cran/latest"
   expect_equal(unname(renv_ppm_transform(manylinux_url)), source_url)
 })
+
+# https://github.com/rstudio/renv/issues/2188
+test_that("bin/linux repository URLs are not rewritten as __linux__ URLs", {
+  skip_on_cran()
+  skip_on_os("windows")
+
+  renv_scope_envvars(
+    RENV_PPM_OS = "__linux__",
+    RENV_PPM_PLATFORM = "noble"
+  )
+
+  renv_scope_binding(the, "install_pkg_type", "binary")
+
+  urls <- c(
+    "https://packagemanager.posit.co/cran/latest/bin/linux/noble-x86_64/4.5",
+    "https://packagemanager.posit.co/cran/2025-01-01/bin/linux/noble-aarch64/4.4"
+  )
+
+  for (url in urls)
+    expect_equal(unname(renv_ppm_transform(url)), url)
+
+})
+
+test_that("bin/linux repository URLs are normalized to source URLs", {
+  skip_on_cran()
+  skip_on_os("windows")
+
+  expect_equal(
+    renv_ppm_normalize("https://packagemanager.posit.co/cran/latest/bin/linux/noble-x86_64/4.5"),
+    "https://packagemanager.posit.co/cran/latest"
+  )
+
+  expect_equal(
+    renv_ppm_normalize("https://packagemanager.posit.co/cran/2025-01-01/bin/linux/noble-aarch64/4.4/"),
+    "https://packagemanager.posit.co/cran/2025-01-01"
+  )
+
+  # URLs without a binary component are left alone
+  expect_equal(
+    renv_ppm_normalize("https://packagemanager.posit.co/cran/latest"),
+    "https://packagemanager.posit.co/cran/latest"
+  )
+
+  renv_scope_envvars(
+    RENV_PPM_OS = "__linux__",
+    RENV_PPM_PLATFORM = "noble"
+  )
+
+  renv_scope_binding(the, "install_pkg_type", "source")
+
+  binurl <- "https://packagemanager.posit.co/cran/latest/bin/linux/noble-x86_64/4.5"
+  srcurl <- "https://packagemanager.posit.co/cran/latest"
+  expect_equal(unname(renv_ppm_transform(binurl)), srcurl)
+
+})

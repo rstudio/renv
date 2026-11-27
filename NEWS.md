@@ -1,5 +1,12 @@
 # renv (development version)
 
+* renv no longer rewrites Posit Package Manager Linux binary repository URLs of
+  the form `<repo>/<snapshot>/bin/linux/<platform>/<R version>` into invalid
+  `__linux__` URLs, which made it impossible to query available packages. These
+  URLs are also converted to the corresponding source repository URL when
+  installing packages with `type = "source"`, or when restoring a lockfile.
+  (#2188)
+
 * `renv::dependencies()` is now stricter when extracting chunk options from
   R Markdown, Quarto and Sweave documents, and package names from
   `targets::tar_option_set(packages = )`. A chunk option such as
