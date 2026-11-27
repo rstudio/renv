@@ -70,7 +70,10 @@ renv_repos_validate <- function(repos = getOption("repos")) {
 }
 
 renv_repos_baseurl <- function(url) {
-  pattern <- "/(?:bin|src)/"
+
+  # match only the suffixes added by contrib.url(): a repository's own path
+  # can contain 'bin', as in '<repo>/bin/linux/<platform>/<R version>' (#2188)
+  pattern <- "/(?:src/contrib|bin/(?:windows|macosx))(?:/|$)"
   index <- regexpr(pattern, url, perl = TRUE)
   ifelse(index == -1L, url, substring(url, 1L, index - 1L))
 }
