@@ -230,6 +230,7 @@ renv_sysreqs_report <- function(sysdeps, distro, collapse) {
 
   # include pre-install commands as well, if any
   preinstall <- unique(unlist(map(sysdeps, `[[`, "pre_install")))
+  preinstall <- renv_sysreqs_sudo(preinstall)
   if (length(preinstall)) {
     if (interactive()) {
       preamble <- "System pre-requisites can be installed with:"
@@ -242,7 +243,7 @@ renv_sysreqs_report <- function(sysdeps, distro, collapse) {
   # generate installation commands
   installer <- renv_sysreqs_installer(distro)
   body <- if (collapse) paste(allpkgs, collapse = " ") else allpkgs
-  message <- paste("sudo", installer, "-y", body)
+  message <- renv_sysreqs_sudo(paste(installer, "-y", body))
 
   if (interactive()) {
     preamble <- "The requisite system packages can be installed with:"
@@ -250,6 +251,27 @@ renv_sysreqs_report <- function(sysdeps, distro, collapse) {
   } else {
     writeLines(message)
   }
+
+}
+
+renv_sysreqs_root <- function() {
+  identical(Sys.info()[["effective_user"]], "root")
+}
+
+# Prefix commands with 'sudo', unless we're already running as root (as in
+# many containers, where 'sudo' is often not installed). Commands which chain
+# or redirect are wrapped, so the whole command is elevated rather than just
+# its first part.
+renv_sysreqs_sudo <- function(commands) {
+
+  if (empty(commands) || renv_sysreqs_root())
+    return(commands)
+
+  compound <- grepl("[|&;<>]", commands)
+  if (any(compound))
+    commands[compound] <- paste("sh -c", map_chr(commands[compound], shQuote))
+
+  paste("sudo", commands)
 
 }
 
@@ -656,7 +678,7 @@ renv_sysreqs_check <- function(sysreqs, prompt) {
   )
 
   preamble <- "An administrator can install these packages with:"
-  command <- paste("sudo", installer, paste(misspkgs, collapse = " "))
+  command <- renv_sysreqs_sudo(paste(installer, paste(misspkgs, collapse = " ")))
   bulletin(preamble, command)
 
   cancel_if(prompt && !proceed())
