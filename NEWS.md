@@ -7,6 +7,16 @@
   parse errors, for example for a Quarto shortcode shown in a code block.
   (#1856)
 
+* `renv::snapshot()` now keeps recording a virtualenv by name when it lives in
+  the virtualenv home (`WORKON_HOME`, or `~/.virtualenvs` by default). Before,
+  it replaced the name with an absolute path when that location was spelled
+  differently from the path of the environment in use, for example with `~` or
+  a trailing slash, which made the lockfile specific to one machine. (#2137)
+
+* Setting `renv.config.dependencies.limit` (or `RENV_CONFIG_DEPENDENCIES_LIMIT`)
+  to `Inf` now works as documented. Previously, renv warned that `Inf` is not
+  an integer and fell back to the default limit of 1000. (#1657)
+
 * `renv::restore(retry = TRUE)` (and the interactive retry prompt) now retries
   only the packages that failed to install at the latest available version.
   Previously, packages that were never attempted because one of their
