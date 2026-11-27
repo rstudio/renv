@@ -36,9 +36,8 @@ is used:
 \item \code{"crandb"}: query \url{https://crandb.r-pkg.org} for the package.
 }
 
-The default consults all three, in the order listed above, leaving out
-\code{"crandb"} when the \code{renv.config.crandb.enabled} option is \code{FALSE}. Note
-that lockfiles produced by older versions of \code{renv} may not include the
+The default consults all three, in the order listed above. Note that
+lockfiles produced by older versions of \code{renv} may not include the
 \code{SystemRequirements} field in their records; such records are used only
 to infer the package version. When the package version is known, an
 installed copy of the package is only used if its version matches, and

@@ -388,19 +388,22 @@ renv_graph_description_repository <- function(record) {
   # specific version's dependency fields. this must come before any fallback
   # that reuses the latest entry's fields with an overridden version, since
   # dependency constraints can change between versions (e.g. #2278). crandb
-  # records whose dependencies it has mangled are rejected here (#2432)
-  if (!is.null(version) && !renv_available_packages_crandb_disabled()) {
+  # records whose dependencies it has mangled are rejected here (#2432).
+  #
+  # this lookup is made unless the user has explicitly turned crandb off --
+  # unlike crandb version selection, which has to be turned on -- as crandb
+  # may not be reachable from their network (#2450)
+  if (!is.null(version) && config$crandb.enabled(default = TRUE)) {
     crandb <- catch(renv_graph_description_crandb(package, version))
     if (!inherits(crandb, "error"))
       return(as.list(crandb))
   }
 
-  # crandb couldn't help -- e.g. it's disabled, we're offline, using an
-  # internal mirror that can't reach crandb.r-pkg.org, or the package isn't
-  # from CRAN. download the archived source tarball for the requested version
-  # and read its DESCRIPTION directly. this is authoritative and works wherever
-  # the package itself is reachable, and the tarball is reused by the later
-  # retrieve step (#2315)
+  # crandb couldn't help -- e.g. we're offline, using an internal mirror that
+  # can't reach crandb.r-pkg.org, or the package isn't from CRAN. download the
+  # archived source tarball for the requested version and read its DESCRIPTION
+  # directly. this is authoritative and works wherever the package itself is
+  # reachable, and the tarball is reused by the later retrieve step (#2315)
   if (!is.null(version)) {
     archive <- catch(renv_graph_description_archive(record))
     if (!inherits(archive, "error"))

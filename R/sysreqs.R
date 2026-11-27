@@ -78,9 +78,8 @@ the$sysreqs <- NULL
 #'   - `"library"`: use the `DESCRIPTION` of the installed package,
 #'   - `"crandb"`: query <https://crandb.r-pkg.org> for the package.
 #'
-#'   The default consults all three, in the order listed above, leaving out
-#'   `"crandb"` when the `renv.config.crandb.enabled` option is `FALSE`. Note
-#'   that lockfiles produced by older versions of `renv` may not include the
+#'   The default consults all three, in the order listed above. Note that
+#'   lockfiles produced by older versions of `renv` may not include the
 #'   `SystemRequirements` field in their records; such records are used only
 #'   to infer the package version. When the package version is known, an
 #'   installed copy of the package is only used if its version matches, and
@@ -154,17 +153,8 @@ sysreqs <- function(packages = NULL,
 
   project <- renv_project_resolve(project)
 
-  # resolve sources -- 'local' is a legacy alias for 'source = "library"'.
-  # crandb is left out of the defaults when it is disabled, but can still be
-  # requested explicitly
-  source <- source %||% {
-    if (local)
-      "library"
-    else if (renv_available_packages_crandb_disabled())
-      c("lockfile", "library")
-    else
-      c("lockfile", "library", "crandb")
-  }
+  # resolve sources -- 'local' is a legacy alias for 'source = "library"'
+  source <- source %||% (if (local) "library" else c("lockfile", "library", "crandb"))
   source <- unique(match.arg(source, c("lockfile", "library", "crandb"), several.ok = TRUE))
 
   # read records from the project lockfile, if any

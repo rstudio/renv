@@ -454,34 +454,6 @@ test_that("a failed crandb lookup doesn't provide a record", {
 
 })
 
-# https://github.com/rstudio/renv/issues/2450
-test_that("sysreqs() only consults crandb on request when it is disabled", {
-
-  project <- renv_tests_scope()
-  renv_scope_options(renv.config.crandb.enabled = FALSE)
-
-  crandb_called <- FALSE
-  renv_scope_binding(
-    envir = asNamespace("renv"),
-    symbol = "renv_sysreqs_crandb",
-    replacement = function(package, version = NULL) {
-      crandb_called <<- TRUE
-      list(Package = package, Version = version, SystemRequirements = "zlib")
-    }
-  )
-
-  # 'toast' is neither recorded in a lockfile nor installed, so by default
-  # crandb would be the only source left to ask about it
-  sysdeps <- sysreqs("toast", project = project, distro = "ubuntu:24.04", report = FALSE)
-  expect_false(crandb_called)
-  expect_null(sysdeps$toast)
-
-  sysdeps <- sysreqs("toast", source = "crandb", project = project, distro = "ubuntu:24.04", report = FALSE)
-  expect_true(crandb_called)
-  expect_equal(sysdeps$toast$packages, list("zlib1g-dev"))
-
-})
-
 test_that("dependencies reported by crandb are converted", {
 
   json <- '{
