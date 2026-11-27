@@ -137,6 +137,28 @@ test_that("renv_graph_waves groups independent packages in same wave", {
 
 })
 
+test_that("renv_graph_waves waits for dependencies of packages outside the graph", {
+
+  # gridExtra -> gtable -> rlang, where gtable is linked from the cache: gridExtra
+  # can only be loaded once rlang is installed
+  descriptions <- list(
+    gridExtra = list(Package = "gridExtra", Imports = "gtable"),
+    rlang     = list(Package = "rlang")
+  )
+  via <- list(gtable = list(Package = "gtable", Imports = "rlang, cli"))
+
+  waves <- renv_graph_waves(descriptions)
+  expect_equal(waves, list(c("gridExtra", "rlang")))
+
+  waves <- renv_graph_waves(descriptions, via = via)
+  expect_equal(waves, list("rlang", "gridExtra"))
+
+  g <- renv_graph_adjacency(descriptions, via = via)
+  expect_equal(g$adj$gridExtra, "rlang")
+  expect_equal(g$indegree[["gridExtra"]], 1L)
+
+})
+
 test_that("renv_graph_install installs packages end to end", {
 
   renv_tests_scope()

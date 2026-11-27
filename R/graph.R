@@ -753,6 +753,31 @@ renv_graph_description_local <- function(record) {
 
 }
 
+# add the dependencies of the packages in 'deps' that are described in 'via',
+# recursively; used for packages that are not installed with the rest of the
+# graph (e.g. linked from the cache), but whose dependencies may be
+renv_graph_deps_via <- function(deps, via) {
+
+  if (length(via) == 0L)
+    return(deps)
+
+  seen <- character()
+  queue <- intersect(deps, names(via))
+  while (length(queue) > 0L) {
+    package <- queue[[1L]]
+    queue <- queue[-1L]
+    if (package %in% seen)
+      next
+    seen <- c(seen, package)
+    more <- renv_graph_deps(via[[package]])
+    deps <- union(deps, more)
+    queue <- c(queue, setdiff(intersect(more, names(via)), seen))
+  }
+
+  deps
+
+}
+
 renv_graph_deps <- function(desc, fields = NULL) {
 
   fields <- fields %||% c("Depends", "Imports", "LinkingTo")
@@ -1047,14 +1072,17 @@ renv_graph_needs_update <- function(pkg, record, requirements) {
 
 }
 
-renv_graph_adjacency <- function(descriptions) {
+renv_graph_adjacency <- function(descriptions, via = NULL) {
 
   packages <- names(descriptions)
   n <- length(packages)
 
-  # build adjacency: for each package, its deps within the set
+  # build adjacency: for each package, its deps within the set; a dependency
+  # outside the set (e.g. linked from the cache) is followed through 'via',
+  # since loading it still needs its own dependencies from the set
   adj <- lapply(descriptions, function(desc) {
     deps <- renv_graph_deps(desc)
+    deps <- renv_graph_deps_via(deps, via)
     intersect(deps, packages)
   })
   names(adj) <- packages
@@ -1120,13 +1148,13 @@ renv_graph_sort <- function(descriptions) {
 
 }
 
-renv_graph_waves <- function(descriptions) {
+renv_graph_waves <- function(descriptions, via = NULL) {
 
   packages <- names(descriptions)
   if (length(packages) == 0L)
     return(list())
 
-  g <- renv_graph_adjacency(descriptions)
+  g <- renv_graph_adjacency(descriptions, via = via)
   indegree <- g$indegree
 
   # iterative peeling: each iteration collects all packages with in-degree 0
@@ -1955,7 +1983,9 @@ renv_graph_install <- function(descriptions) {
   if (getRversion() >= "4.0") {
 
     # ready-queue event loop (live Kahn's algorithm)
-    graph <- renv_graph_adjacency(installdescs)
+    # packages linked from the cache are not part of the graph, but packages
+    # depending on them still have to wait for their dependencies
+    graph <- renv_graph_adjacency(installdescs, via = descriptions[names(cachehits)])
     indegree <- graph$indegree
     revadj <- graph$revadj
 
@@ -2346,7 +2376,7 @@ renv_graph_install <- function(descriptions) {
   } else {
 
     # R < 4.0 fallback: wave-based, pipe-based collection
-    waves <- renv_graph_waves(installdescs)
+    waves <- renv_graph_waves(installdescs, via = descriptions[names(cachehits)])
 
     remaining <- installnames
 
