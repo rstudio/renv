@@ -2339,12 +2339,20 @@ renv_graph_install <- function(descriptions) {
       stop(aborted)
     }
 
-    # mark packages stuck due to failed dependencies; these were never
-    # attempted, so remember them separately from the packages which
-    # failed themselves (#2452)
+    # packages downstream of a failed package were never attempted, so
+    # remember them separately from the packages which failed themselves.
+    # packages stuck for another reason (a dependency cycle) aren't waiting
+    # on a failure, so they are not blocked (#2452)
+    pending <- failed$data()
+    while (length(pending)) {
+      pending <- unlist(revadj[pending], use.names = FALSE)
+      pending <- setdiff(pending, blocked)
+      blocked <- c(blocked, pending)
+    }
+
+    # mark packages stuck due to failed dependencies
     stuck <- names(indegree)[indegree > 0L]
     stuck <- setdiff(stuck, failed$data())
-    blocked <- stuck
     for (pkg in stuck) failed$push(pkg)
 
   } else {
