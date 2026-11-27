@@ -2,6 +2,16 @@
 
 ## renv (development version)
 
+- renv no longer rewrites Posit Package Manager Linux binary repository
+  URLs of the form `<repo>/<snapshot>/bin/linux/<platform>/<R version>`
+  into invalid `__linux__` URLs, which made it impossible to query
+  available packages. Packages found in such a repository are also
+  downloaded from it, rather than from the source repository it belongs
+  to. As with `__linux__` URLs, renv records the corresponding source
+  repository URL in the lockfile, and uses it when installing packages
+  with `type = "source"`.
+  ([\#2188](https://github.com/rstudio/renv/issues/2188))
+
 - [`renv::dependencies()`](https://rstudio.github.io/renv/dev/reference/dependencies.md)
   no longer mistakes the opening of a code fence in an R Markdown or
   Quarto document for the start of inline R code. Previously, a fence
