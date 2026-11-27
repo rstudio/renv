@@ -60,7 +60,7 @@ config <- list(
     )
   },
 
-  crandb.enabled = function(..., default = FALSE) {
+  crandb.enabled = function(..., default = NULL) {
     renv_config_get(
       name    = "crandb.enabled",
       type    = "logical[1]",

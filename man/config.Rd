@@ -59,8 +59,8 @@ Defaults to \code{NULL}.}
 Defaults to \code{"api.bitbucket.org/2.0"}.}
 \subsection{renv.config.copy.method}{The method to use when attempting to copy directories. See \strong{Copy Methods} for more information.
 Defaults to \code{"auto"}.}
-\subsection{renv.config.crandb.enabled}{Use the \href{https://github.com/r-hub/crandb}{crandb} service when looking up packages from CRAN which are not available in the configured repositories? When enabled, renv will query the crandb API to find the latest version of a package compatible with the current version of R. This can be useful when an older version of R is being used, and the latest version of a package on CRAN requires a newer version of R. Disabled by default.
-Defaults to \code{FALSE}.}
+\subsection{renv.config.crandb.enabled}{Control how renv uses the \href{https://github.com/r-hub/crandb}{crandb} service. By default, renv only asks crandb about package versions it already knows it needs: for the dependencies of a version which is no longer available from the configured repositories, and (in \code{\link[=sysreqs]{sysreqs()}}) for the system requirements of packages which are neither installed nor recorded in the lockfile. When \code{TRUE}, renv will also query crandb to find the latest version of a package compatible with the current version of R. This can be useful when an older version of R is being used, and the latest version of a package on CRAN requires a newer version of R. When \code{FALSE}, renv will not contact crandb unless explicitly asked to (e.g. via \code{renv::sysreqs(source = "crandb")}), and will read the dependencies of such package versions from the configured repositories instead. This can be useful when crandb cannot be reached from your network.
+Defaults to \code{NULL}.}
 \subsection{renv.config.connect.timeout}{The amount of time to spend (in seconds) when attempting to download a file. Only applicable when the \code{curl} downloader is used.
 Defaults to \code{20L}.}
 \subsection{renv.config.connect.retry}{The number of times to attempt re-downloading a file, when transient download errors occur. Only applicable when the \code{curl} downloader is used.

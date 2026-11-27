@@ -1754,6 +1754,33 @@ test_that("repository graph prefers crandb over latest-with-overridden-version",
 
 })
 
+# https://github.com/rstudio/renv/issues/2450
+test_that("repository graph doesn't consult crandb when it is disabled", {
+
+  renv_tests_scope()
+  renv_scope_options(renv.config.crandb.enabled = FALSE)
+
+  crandb_called <- FALSE
+  renv_scope_binding(
+    envir = asNamespace("renv"),
+    symbol = "renv_graph_description_crandb",
+    replacement = function(package, version) {
+      crandb_called <<- TRUE
+      list(Package = package, Version = version, Depends = "crandb-marker")
+    }
+  )
+
+  # as above, bread 0.1.0 isn't in the test repository's PACKAGES; it is in
+  # the repository's archive, which is where it should be read from instead
+  record <- list(Package = "bread", Version = "0.1.0", Source = "Repository")
+  desc <- renv_graph_description_repository(record)
+
+  expect_false(crandb_called)
+  expect_equal(desc$Version, "0.1.0")
+  expect_false(identical(desc$Depends, "crandb-marker"))
+
+})
+
 # https://github.com/rstudio/renv/issues/2287
 test_that("crandb graph lookups reuse the version history", {
 

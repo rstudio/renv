@@ -1,5 +1,16 @@
 # renv (development version)
 
+* Fixed an issue where `renv::restore()` and `renv::install()` contacted
+  <https://crandb.r-pkg.org> even when the `renv.config.crandb.enabled` option
+  was set to `FALSE`. On networks where requests to crandb hang rather than
+  fail (e.g. behind some corporate proxies), each package whose recorded
+  version was no longer the repository's current one then waited for a
+  timeout, making the restore appear to freeze. When the option is `FALSE`,
+  renv now reads the dependencies of such versions from the configured
+  repositories instead, and `renv::sysreqs()` no longer consults crandb
+  unless asked to via `source = "crandb"`. When the option is unset, renv
+  uses crandb for these lookups as before. (#2450)
+
 * `renv::dependencies()` is now stricter when extracting chunk options from
   R Markdown, Quarto and Sweave documents, and package names from
   `targets::tar_option_set(packages = )`. A chunk option such as
