@@ -111,7 +111,7 @@
     [`dependencies()`] for more details.
 
 - name: "dependencies.limit"
-  type: "integer[1]"
+  type: "numeric[1]"
   default: 1000
   description: >
     By default, renv reports if it discovers more than this many files when

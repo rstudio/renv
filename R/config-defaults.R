@@ -117,7 +117,7 @@ config <- list(
   dependencies.limit = function(..., default = 1000L) {
     renv_config_get(
       name    = "dependencies.limit",
-      type    = "integer[1]",
+      type    = "numeric[1]",
       default = default,
       args    = list(...)
     )
