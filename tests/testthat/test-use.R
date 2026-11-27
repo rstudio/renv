@@ -198,3 +198,41 @@ test_that("use(repos = NULL) installs from cache only", {
   expect_true(file.exists(file.path(libpath, "bread")))
 
 })
+
+# https://github.com/rstudio/renv/issues/1951
+test_that("use() does not ask for a restart when a loaded package can't be replaced", {
+
+  skip_on_cran()
+
+  renv_tests_scope()
+  renv_scope_libpaths()
+  renv_scope_options(renv.caution.verbose = TRUE)
+
+  # load an older version of 'bread'
+  old <- renv_scope_tempfile("renv-library-")
+  ensure_directory(old)
+  quietly(install("bread@0.1.0", library = old))
+  loadNamespace("bread", lib.loc = old)
+  defer(unloadNamespace("bread"))
+  expect_equal(renv_namespace_version("bread"), "0.1.0")
+
+  # use() installs into a temporary library, which a restart would discard
+  renv_scope_binding(the, "use_libpath", NULL)
+  output <- capture.output(
+    use("bread@1.0.0", isolate = TRUE, sandbox = FALSE, verbose = TRUE)
+  )
+  text <- paste(output, collapse = "\n")
+
+  expect_match(text, "loaded package(s) could not be replaced", fixed = TRUE)
+  expect_match(text, "bread", fixed = TRUE)
+  expect_no_match(text, "Restart your R session", fixed = TRUE)
+
+  # install() has no such constraint, so it still suggests a restart
+  library <- renv_scope_tempfile("renv-library-")
+  ensure_directory(library)
+  output <- capture.output(
+    install("bread@1.0.0", library = library)
+  )
+  expect_match(paste(output, collapse = "\n"), "Restart your R session", fixed = TRUE)
+
+})

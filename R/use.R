@@ -1,6 +1,10 @@
 
 the$use_libpath <- NULL
 
+# is a call to 'use()' in progress? it installs into a temporary library, which
+# changes what we should tell users about loaded packages that were updated
+the$use_active <- FALSE
+
 #' @rdname embed
 #'
 #' @param ...
@@ -59,6 +63,7 @@ use <- function(...,
 {
   # allow use of the cache in this context
   renv_scope_options(renv.cache.linkable = TRUE)
+  renv_scope_binding(the, "use_active", TRUE)
 
   # treat NULL repos as an implicit request to only use the cache
   cacheonly <- is.null(repos)
