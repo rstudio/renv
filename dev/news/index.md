@@ -2,6 +2,23 @@
 
 ## renv (development version)
 
+- [`renv::dependencies()`](https://rstudio.github.io/renv/dev/reference/dependencies.md)
+  now handles escaped delimiters that are adjacent to an expression in
+  [`glue::glue()`](https://glue.tidyverse.org/reference/glue.html)
+  strings, such as `glue("Hello {{{name}}}")` or
+  `glue("{{.strong {name}}}")`. Previously, renv treated the closing
+  `}}` of these as an escape, and reported a parse error for the code
+  inside the expression.
+  ([\#1891](https://github.com/rstudio/renv/issues/1891))
+
+- [`renv::update()`](https://rstudio.github.io/renv/dev/reference/update.md)
+  and
+  [`renv::install()`](https://rstudio.github.io/renv/dev/reference/install.md)
+  no longer fail when pak is enabled and the project has a `DESCRIPTION`
+  file without a `Package` field, as is common when `DESCRIPTION` is
+  only used to declare explicit dependencies.
+  ([\#1692](https://github.com/rstudio/renv/issues/1692))
+
 - renv no longer rewrites Posit Package Manager Linux binary repository
   URLs of the form `<repo>/<snapshot>/bin/linux/<platform>/<R version>`
   into invalid `__linux__` URLs, which made it impossible to query
