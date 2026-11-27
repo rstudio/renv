@@ -812,8 +812,8 @@ test_that("restore(retry = TRUE) retries blocked packages at their lockfile vers
   # build from source, so that an install of bread can fail
   renv_scope_options(renv.config.cache.enabled = FALSE)
 
-  # record an older version of toast, which depends on bread
-  install("toast@0.1.0")
+  # record older versions of bread and of toast, which depends on bread
+  install(c("bread@0.1.0", "toast@0.1.0"))
   snapshot()
   remove(c("bread", "toast"))
 
