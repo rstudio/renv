@@ -7,6 +7,12 @@
   fails to parse no longer hides the dependencies of the other inline code in
   the same document. (#2468)
 
+* `renv::use()` now warns when a requested package is already loaded at a
+  different version, as the loaded version stays in use. Previously, it told
+  you to restart R, which would discard the temporary library `renv::use()`
+  installs into, or said nothing at all if the requested version was already
+  installed or came from the cache. (#1951)
+
 * `renv::dependencies()` now handles escaped delimiters that are adjacent to an
   expression in `glue::glue()` strings, such as `glue("Hello {{{name}}}")` or
   `glue("{{.strong {name}}}")`. Previously, renv treated the closing `}}` of
