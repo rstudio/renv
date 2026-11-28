@@ -1985,12 +1985,14 @@ renv_graph_install <- function(descriptions) {
     }
   }
 
+  # packages linked from the cache are not part of the graph, but packages
+  # depending on them still have to wait for their dependencies
+  via <- descriptions[names(cachehits)]
+
   if (getRversion() >= "4.0") {
 
     # ready-queue event loop (live Kahn's algorithm)
-    # packages linked from the cache are not part of the graph, but packages
-    # depending on them still have to wait for their dependencies
-    graph <- renv_graph_adjacency(installdescs, via = descriptions[names(cachehits)])
+    graph <- renv_graph_adjacency(installdescs, via = via)
     indegree <- graph$indegree
     revadj <- graph$revadj
 
@@ -2369,7 +2371,7 @@ renv_graph_install <- function(descriptions) {
     # report installs that failed while workers were draining before
     # re-signaling, as the finalization error would otherwise hide them
     if (!is.null(aborted)) {
-      renv_graph_install_errors(errors$data(), failed$data(), descriptions)
+      renv_graph_install_errors(errors$data(), failed$data(), descriptions, via)
       stop(aborted)
     }
 
@@ -2393,7 +2395,7 @@ renv_graph_install <- function(descriptions) {
   } else {
 
     # R < 4.0 fallback: wave-based, pipe-based collection
-    waves <- renv_graph_waves(installdescs, via = descriptions[names(cachehits)])
+    waves <- renv_graph_waves(installdescs, via = via)
 
     remaining <- installnames
 
@@ -2591,7 +2593,7 @@ renv_graph_install <- function(descriptions) {
     attr(all, "blocked") <- blocked
 
   # report errors
-  renv_graph_install_errors(errors$data(), failed$data(), descriptions)
+  renv_graph_install_errors(errors$data(), failed$data(), descriptions, via)
 
   invisible(all)
 
@@ -2634,7 +2636,7 @@ renv_graph_install_failed <- function(records, packages) {
 
 }
 
-renv_graph_install_errors <- function(errors, failed, descriptions) {
+renv_graph_install_errors <- function(errors, failed, descriptions, via = NULL) {
 
   if (length(errors) == 0L && length(failed) == 0L)
     return(invisible())
@@ -2644,12 +2646,15 @@ renv_graph_install_errors <- function(errors, failed, descriptions) {
     sprintf("[%s]: %s", item$package, item$message)
   })
 
-  # find packages skipped due to failed dependencies (not in errors themselves)
+  # find packages skipped due to failed dependencies (not in errors themselves);
+  # a package may have been waiting on a dependency it only reaches through
+  # the packages in 'via', as in renv_graph_adjacency()
   errpkgs <- map_chr(errors, `[[`, "package")
   skipped <- setdiff(failed, errpkgs)
   if (length(skipped) > 0L) {
     skipmsgs <- map_chr(skipped, function(pkg) {
       deps <- renv_graph_deps(descriptions[[pkg]])
+      deps <- renv_graph_deps_via(deps, via)
       deps_failed <- intersect(deps, failed)
       sprintf("[%s]: dependency failed (%s)", pkg, paste(deps_failed, collapse = ", "))
     })
