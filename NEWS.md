@@ -1,5 +1,13 @@
 # renv (development version)
 
+* `renv::dependencies()` now reads the strings passed to `glue::glue()` the way
+  glue itself does when looking for the code within them. A `#` in the literal
+  text is no longer taken as the start of a comment, and quoted text within an
+  expression can now contain a `#` or a delimiter; previously, dependencies
+  used later in such strings were missed. In addition, a `glue()` call whose
+  `.open`, `.close` or `.comment` argument is not a string no longer causes
+  all of the dependencies in that file to be dropped. (#2471)
+
 * `renv::use()` now warns when a requested package is already loaded at a
   different version, as the loaded version stays in use. Previously, it told
   you to restart R, which would discard the temporary library `renv::use()`
