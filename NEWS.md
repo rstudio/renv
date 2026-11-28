@@ -1,5 +1,14 @@
 # renv (development version)
 
+* Fixed an issue where `renv::restore()` and `renv::install()` contacted
+  <https://crandb.r-pkg.org> even when the `renv.config.crandb.enabled` option
+  was set to `FALSE`. On networks where requests to crandb hang rather than
+  fail (e.g. behind some corporate proxies), each package whose recorded
+  version was no longer the repository's current one then waited for a
+  timeout, making the restore appear to freeze. When the option is explicitly
+  set to `FALSE`, renv now reads the dependencies of such versions from the
+  repository's archive instead. (#2450)
+
 * `renv::dependencies()` is now more careful when looking for inline R code in
   R Markdown, Quarto and Sweave documents. Inline code is no longer looked for
   within code chunks; Sweave (`.Rnw`) documents are searched for `\Sexpr{}`
