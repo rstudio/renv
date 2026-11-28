@@ -757,25 +757,27 @@ renv_graph_description_local <- function(record) {
 
 }
 
-# add the dependencies of the packages in 'deps' that are described in 'via',
-# recursively; used for packages that are not installed with the rest of the
-# graph (e.g. linked from the cache), but whose dependencies may be
-renv_graph_deps_via <- function(deps, via) {
+# add the dependencies of the packages in 'deps' that are described in
+# 'external', recursively. 'external' describes packages left out of the
+# install graph (e.g. linked from the cache): they are put in the library
+# without waiting for their own dependencies, so the packages depending on
+# them have to wait instead. this restores the edges lost by leaving them out
+renv_graph_deps_expand <- function(deps, external) {
 
-  if (length(via) == 0L)
+  if (length(external) == 0L)
     return(deps)
 
   seen <- character()
-  queue <- intersect(deps, names(via))
+  queue <- intersect(deps, names(external))
   while (length(queue) > 0L) {
     package <- queue[[1L]]
     queue <- queue[-1L]
     if (package %in% seen)
       next
     seen <- c(seen, package)
-    more <- renv_graph_deps(via[[package]])
+    more <- renv_graph_deps(external[[package]])
     deps <- union(deps, more)
-    queue <- c(queue, setdiff(intersect(more, names(via)), seen))
+    queue <- c(queue, setdiff(intersect(more, names(external)), seen))
   }
 
   deps
@@ -1076,17 +1078,17 @@ renv_graph_needs_update <- function(pkg, record, requirements) {
 
 }
 
-renv_graph_adjacency <- function(descriptions, via = NULL) {
+renv_graph_adjacency <- function(descriptions, external = NULL) {
 
   packages <- names(descriptions)
   n <- length(packages)
 
   # build adjacency: for each package, its deps within the set; a dependency
-  # outside the set (e.g. linked from the cache) is followed through 'via',
-  # since loading it still needs its own dependencies from the set
+  # outside the set (e.g. linked from the cache) is followed when 'external'
+  # describes it, since loading it still needs its own dependencies from the set
   adj <- lapply(descriptions, function(desc) {
     deps <- renv_graph_deps(desc)
-    deps <- renv_graph_deps_via(deps, via)
+    deps <- renv_graph_deps_expand(deps, external)
     intersect(deps, packages)
   })
   names(adj) <- packages
@@ -1152,13 +1154,13 @@ renv_graph_sort <- function(descriptions) {
 
 }
 
-renv_graph_waves <- function(descriptions, via = NULL) {
+renv_graph_waves <- function(descriptions, external = NULL) {
 
   packages <- names(descriptions)
   if (length(packages) == 0L)
     return(list())
 
-  g <- renv_graph_adjacency(descriptions, via = via)
+  g <- renv_graph_adjacency(descriptions, external = external)
   indegree <- g$indegree
 
   # iterative peeling: each iteration collects all packages with in-degree 0
@@ -1987,12 +1989,12 @@ renv_graph_install <- function(descriptions) {
 
   # packages linked from the cache are not part of the graph, but packages
   # depending on them still have to wait for their dependencies
-  via <- descriptions[names(cachehits)]
+  external <- descriptions[names(cachehits)]
 
   if (getRversion() >= "4.0") {
 
     # ready-queue event loop (live Kahn's algorithm)
-    graph <- renv_graph_adjacency(installdescs, via = via)
+    graph <- renv_graph_adjacency(installdescs, external = external)
     indegree <- graph$indegree
     revadj <- graph$revadj
 
@@ -2371,7 +2373,7 @@ renv_graph_install <- function(descriptions) {
     # report installs that failed while workers were draining before
     # re-signaling, as the finalization error would otherwise hide them
     if (!is.null(aborted)) {
-      renv_graph_install_errors(errors$data(), failed$data(), descriptions, via)
+      renv_graph_install_errors(errors$data(), failed$data(), descriptions, external)
       stop(aborted)
     }
 
@@ -2395,7 +2397,7 @@ renv_graph_install <- function(descriptions) {
   } else {
 
     # R < 4.0 fallback: wave-based, pipe-based collection
-    waves <- renv_graph_waves(installdescs, via = via)
+    waves <- renv_graph_waves(installdescs, external = external)
 
     remaining <- installnames
 
@@ -2593,7 +2595,7 @@ renv_graph_install <- function(descriptions) {
     attr(all, "blocked") <- blocked
 
   # report errors
-  renv_graph_install_errors(errors$data(), failed$data(), descriptions, via)
+  renv_graph_install_errors(errors$data(), failed$data(), descriptions, external)
 
   invisible(all)
 
@@ -2636,7 +2638,7 @@ renv_graph_install_failed <- function(records, packages) {
 
 }
 
-renv_graph_install_errors <- function(errors, failed, descriptions, via = NULL) {
+renv_graph_install_errors <- function(errors, failed, descriptions, external = NULL) {
 
   if (length(errors) == 0L && length(failed) == 0L)
     return(invisible())
@@ -2648,13 +2650,13 @@ renv_graph_install_errors <- function(errors, failed, descriptions, via = NULL) 
 
   # find packages skipped due to failed dependencies (not in errors themselves);
   # a package may have been waiting on a dependency it only reaches through
-  # the packages in 'via', as in renv_graph_adjacency()
+  # the packages in 'external', as in renv_graph_adjacency()
   errpkgs <- map_chr(errors, `[[`, "package")
   skipped <- setdiff(failed, errpkgs)
   if (length(skipped) > 0L) {
     skipmsgs <- map_chr(skipped, function(pkg) {
       deps <- renv_graph_deps(descriptions[[pkg]])
-      deps <- renv_graph_deps_via(deps, via)
+      deps <- renv_graph_deps_expand(deps, external)
       deps_failed <- intersect(deps, failed)
       sprintf("[%s]: dependency failed (%s)", pkg, paste(deps_failed, collapse = ", "))
     })
