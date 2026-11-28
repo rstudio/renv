@@ -145,26 +145,26 @@ test_that("renv_graph_waves waits for dependencies of packages outside the graph
     gridExtra = list(Package = "gridExtra", Imports = "gtable"),
     rlang     = list(Package = "rlang")
   )
-  via <- list(gtable = list(Package = "gtable", Imports = "rlang, cli"))
+  external <- list(gtable = list(Package = "gtable", Imports = "rlang, cli"))
 
   waves <- renv_graph_waves(descriptions)
   expect_equal(waves, list(c("gridExtra", "rlang")))
 
-  waves <- renv_graph_waves(descriptions, via = via)
+  waves <- renv_graph_waves(descriptions, external = external)
   expect_equal(waves, list("rlang", "gridExtra"))
 
-  g <- renv_graph_adjacency(descriptions, via = via)
+  g <- renv_graph_adjacency(descriptions, external = external)
   expect_equal(g$adj$gridExtra, "rlang")
   expect_equal(g$indegree[["gridExtra"]], 1L)
 
   # gridExtra -> gtable -> lifecycle -> rlang, where gtable and lifecycle are
   # both outside the graph
-  via <- list(
+  external <- list(
     gtable    = list(Package = "gtable", Imports = "lifecycle, cli"),
     lifecycle = list(Package = "lifecycle", Imports = "rlang")
   )
 
-  waves <- renv_graph_waves(descriptions, via = via)
+  waves <- renv_graph_waves(descriptions, external = external)
   expect_equal(waves, list("rlang", "gridExtra"))
 
 })
@@ -1265,7 +1265,7 @@ test_that("renv_graph_install_errors reports dependency cascade failures", {
 
 })
 
-test_that("renv_graph_install_errors names dependencies reached through 'via'", {
+test_that("renv_graph_install_errors names dependencies reached through external packages", {
 
   renv_scope_options(renv.verbose = TRUE, renv.caution.verbose = TRUE)
 
@@ -1280,10 +1280,10 @@ test_that("renv_graph_install_errors names dependencies reached through 'via'", 
     list(package = "rlang", message = "install failed")
   )
   failed <- c("rlang", "gridExtra")
-  via <- descriptions["gtable"]
+  external <- descriptions["gtable"]
 
   output <- capture.output(
-    renv_graph_install_errors(errors, failed, descriptions, via = via)
+    renv_graph_install_errors(errors, failed, descriptions, external = external)
   )
 
   expect_true(any(grepl("[gridExtra]: dependency failed (rlang)", output, fixed = TRUE)))
