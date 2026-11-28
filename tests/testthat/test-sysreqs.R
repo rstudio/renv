@@ -493,6 +493,12 @@ test_that("system requirements are reported as expected", {
   status <- system("dpkg-query -W blender 2> /dev/null")
   skip_if(status == 0L)
 
+  renv_scope_binding(
+    envir       = asNamespace("renv"),
+    symbol      = "renv_sysreqs_root",
+    replacement = function() FALSE
+  )
+
   sysreqs <- list("<unknown>" = "blender")
   expect_snapshot(
     . <- renv_sysreqs_check(sysreqs, FALSE),
@@ -506,11 +512,109 @@ test_that("system requirements for alternate distributions are reported", {
   skip_on_cran()
   skip_if(!renv_platform_linux())
 
+  renv_scope_binding(
+    envir       = asNamespace("renv"),
+    symbol      = "renv_sysreqs_root",
+    replacement = function() FALSE
+  )
+
   # the requirements of these packages' dependencies change over time
   packages <- c("magick", "tesseract")
   expect_snapshot(
     . <- sysreqs(packages, source = "crandb", recursive = FALSE, distro = "redhat:8"),
     transform = function(x) gsub("\\[\\d+/\\d+\\] ", "", x)
   )
+
+})
+
+# https://github.com/rstudio/renv/issues/2124
+test_that("system commands are elevated with sudo unless running as root", {
+
+  commands <- c(
+    "dnf install -y epel-release",
+    "subscription-manager repos --enable codeready-builder-for-rhel-8-$(arch)-rpms",
+    "rpm -q epel-release || yum install -y epel-release",
+    "curl -sSf 'https://example.org/setup.sh' | sh"
+  )
+
+  local({
+
+    renv_scope_binding(
+      envir       = asNamespace("renv"),
+      symbol      = "renv_sysreqs_root",
+      replacement = function() FALSE
+    )
+
+    # command substitution is expanded by the calling shell, so it is left alone;
+    # commands that chain or pipe are wrapped so that all of them are elevated
+    expect_equal(
+      renv_sysreqs_sudo(commands),
+      c(
+        "sudo dnf install -y epel-release",
+        "sudo subscription-manager repos --enable codeready-builder-for-rhel-8-$(arch)-rpms",
+        "sudo sh -c 'rpm -q epel-release || yum install -y epel-release'",
+        "sudo sh -c \"curl -sSf 'https://example.org/setup.sh' | sh\""
+      )
+    )
+
+    expect_equal(renv_sysreqs_sudo(character()), character())
+
+  })
+
+  local({
+
+    renv_scope_binding(
+      envir       = asNamespace("renv"),
+      symbol      = "renv_sysreqs_root",
+      replacement = function() TRUE
+    )
+
+    expect_equal(renv_sysreqs_sudo(commands), commands)
+    expect_equal(renv_sysreqs_sudo(character()), character())
+
+  })
+
+})
+
+test_that("pre-install and install commands are reported consistently", {
+
+  sysdeps <- list(
+    list(
+      packages    = c("zeromq-devel", "libfoo-devel"),
+      pre_install = list(list(command = "dnf install -y epel-release"))
+    )
+  )
+
+  local({
+
+    renv_scope_binding(
+      envir       = asNamespace("renv"),
+      symbol      = "renv_sysreqs_root",
+      replacement = function() FALSE
+    )
+
+    output <- capture.output(renv_sysreqs_report(sysdeps, "rockylinux", TRUE))
+    expect_equal(unname(output), c(
+      "sudo dnf install -y epel-release",
+      "sudo dnf install -y libfoo-devel zeromq-devel"
+    ))
+
+  })
+
+  local({
+
+    renv_scope_binding(
+      envir       = asNamespace("renv"),
+      symbol      = "renv_sysreqs_root",
+      replacement = function() TRUE
+    )
+
+    output <- capture.output(renv_sysreqs_report(sysdeps, "rockylinux", TRUE))
+    expect_equal(unname(output), c(
+      "dnf install -y epel-release",
+      "dnf install -y libfoo-devel zeromq-devel"
+    ))
+
+  })
 
 })

@@ -1,5 +1,12 @@
 # renv (development version)
 
+* `renv::sysreqs()` now reports its pre-install commands and its package
+  install command consistently. Previously, only the install command was
+  prefixed with `sudo`. Both are now prefixed with `sudo` (with shell snippets
+  wrapped in `sudo sh -c`), unless R is running as root, in which case neither
+  is. The same applies to the install command suggested when system packages
+  are missing. (#2124)
+
 * When a project uses Bioconductor and BiocManager is not yet installed,
   `renv::restore()` and `renv::load()` now install the version of BiocManager
   recorded in the lockfile, if any, rather than looking up the latest version
