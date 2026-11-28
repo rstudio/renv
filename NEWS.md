@@ -1,5 +1,11 @@
 # renv (development version)
 
+* When a project uses Bioconductor and BiocManager is not yet installed,
+  `renv::restore()` and `renv::load()` now install the version of BiocManager
+  recorded in the lockfile, if any, rather than looking up the latest version
+  from the active package repositories. This lets a restore succeed from the
+  cache when the repositories are unavailable. (#1902)
+
 * Fixed several issues seen when the `renv.config.crandb.enabled` option is
   set, where renv asked crandb whether a package was available from the
   repositories in use. crandb is not restricted to those repositories, so
