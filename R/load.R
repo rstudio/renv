@@ -274,8 +274,11 @@ renv_load_r_repos <- function(repos) {
   # transform PPM URLs if enabled
   # this ensures that install.packages() uses binaries by default on Linux,
   # where 'getOption("pkgType")' is "source" by default
+  #
+  # normalize first: a lockfile written by an older version of renv can name
+  # a binary repository for the platform it was created on
   if (renv_ppm_enabled())
-    repos <- renv_ppm_transform(repos)
+    repos <- renv_ppm_transform(renv_ppm_normalize(repos))
 
   # normalize option
   repos <- renv_repos_normalize(repos)

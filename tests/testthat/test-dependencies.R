@@ -42,6 +42,32 @@ test_that("inline chunks are parsed for dependencies", {
   expect_setequal(pkgs, c("rmarkdown", "inline", "multiple", "separate"))
 })
 
+# https://github.com/rstudio/renv/issues/1856
+test_that("a fenced code block is not mistaken for inline code", {
+
+  lines <- c(
+    "---",
+    "title: test",
+    "format: html",
+    "---",
+    "",
+    "Shortcodes can be shown in a code block:",
+    "",
+    "```r ",
+    "{{{< include _demo.R >}}}",
+    "```",
+    "",
+    "Real inline code is still found: `r digest::digest(1)`."
+  )
+
+  path <- renv_scope_tempfile("renv-", fileext = ".qmd")
+  writeLines(lines, path)
+
+  deps <- dependencies(path, errors = "fatal")
+  expect_true("digest" %in% deps$Package)
+
+})
+
 test_that("usages of S4 tools are discovered", {
   file <- renv_test_code({setClass("ClassSet")})
   deps <- dependencies(file)
@@ -325,6 +351,25 @@ test_that("glue::glue() package usages are found", {
   deps <- dependencies("resources/glue.R")
   expect_true(all(c("A", "B", "C", "D", "E", "F", "G") %in% deps$Package))
   expect_false(any(letters %in% deps$Package))
+})
+
+# https://github.com/rstudio/renv/issues/1891
+test_that("glue::glue() escapes next to expressions are handled", {
+
+  # written as strings, since R CMD check requires packages used via '::'
+  # in test code to be declared in DESCRIPTION
+  code <- c(
+    'glue::glue("Hello {{{A::f()}}}")',
+    'glue::glue("Hello {{.strong {B::f()}}}")',
+    'glue::glue("{{ {C::f({D::g()})} }}")'
+  )
+
+  file <- renv_scope_tempfile("renv-test-", fileext = ".R")
+  writeLines(code, con = file)
+
+  deps <- dependencies(file, errors = "fatal")
+  expect_setequal(deps$Package, c("glue", "A", "B", "C", "D"))
+
 })
 
 test_that("set_engine() package usages are found", {

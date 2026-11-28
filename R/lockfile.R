@@ -38,10 +38,8 @@ renv_lockfile_init_r_repos <- function(project, repos = getOption("repos")) {
   repos[repos == "@CRAN@"] <- cran
 
   # remove PPM bits from URL
-  if (renv_ppm_enabled()) {
-    pattern <- "/__[^_]+__/[^/]+/"
-    repos <- sub(pattern, "/", repos)
-  }
+  if (renv_ppm_enabled())
+    repos <- renv_ppm_normalize(repos)
 
   # all done; return as list
   convert(repos, "list")

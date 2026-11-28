@@ -30,7 +30,8 @@ renv_ppm_parse <- function(url) {
 }
 
 renv_ppm_normalize <- function(url) {
-  sub("/__[^_]+__/[^/]+/", "/", url)
+  url <- sub("/__[^_]+__/[^/]+/", "/", url)
+  sub("/bin/linux/[^/]+/[^/]+/?$", "", url)
 }
 
 renv_ppm_is_manylinux <- function(url) {
@@ -69,6 +70,10 @@ renv_ppm_transform_impl <- function(url) {
 
   # manylinux URLs are already in the desired format
   if (renv_ppm_is_manylinux(url))
+    return(url)
+
+  # as are bin/linux URLs: <repo>/<snapshot>/bin/linux/<platform>/<R version>
+  if (grepl("/bin/linux/[^/]+/[^/]+/?$", url))
     return(url)
 
   # if this already appears to be a binary URL, then avoid
