@@ -388,14 +388,16 @@ test_that("glue::glue() strings are read the way glue reads them", {
     # a backslash in the literal text does not escape a delimiter
     'glue::glue("C:\\\\{G::f()}")',
     # an empty expression is not code
-    'glue::glue("{} {H::f()}")'
+    'glue::glue("{} {H::f()}")',
+    # the same delimiter can open and close an expression
+    'glue::glue("|I::f()| and |J::f()|", .open = "|", .close = "|")'
   )
 
   file <- renv_scope_tempfile("renv-test-", fileext = ".R")
   writeLines(code, con = file)
 
   deps <- dependencies(file, errors = "fatal")
-  expect_setequal(deps$Package, c("glue", LETTERS[1:8]))
+  expect_setequal(deps$Package, c("glue", LETTERS[1:10]))
 
 })
 

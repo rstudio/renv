@@ -2073,8 +2073,13 @@ renv_dependencies_discover_r_glue_impl <- function(string, open, close, comment,
       next
     }
 
-    # check for nested open delimiter
-    if (renv_dependencies_discover_r_glue_match(raw, i, ropen)) {
+    # check for nested open delimiter; there is no nesting
+    # when the same delimiter both opens and closes an expression
+    nested <-
+      !identical(ropen, rclose) &&
+      renv_dependencies_discover_r_glue_match(raw, i, ropen)
+
+    if (nested) {
       count <- count + 1L
       i <- i + length(ropen) - 1L
       next
