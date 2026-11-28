@@ -388,8 +388,12 @@ renv_graph_description_repository <- function(record) {
   # specific version's dependency fields. this must come before any fallback
   # that reuses the latest entry's fields with an overridden version, since
   # dependency constraints can change between versions (e.g. #2278). crandb
-  # records whose dependencies it has mangled are rejected here (#2432)
-  if (!is.null(version)) {
+  # records whose dependencies it has mangled are rejected here (#2432).
+  #
+  # this lookup is made unless the user has explicitly turned crandb off --
+  # unlike crandb version selection, which has to be turned on -- as crandb
+  # may not be reachable from their network (#2450)
+  if (!is.null(version) && config$crandb.enabled(default = TRUE)) {
     crandb <- catch(renv_graph_description_crandb(package, version))
     if (!inherits(crandb, "error"))
       return(as.list(crandb))

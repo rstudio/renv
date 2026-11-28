@@ -6,6 +6,32 @@
   from the active package repositories. This lets a restore succeed from the
   cache when the repositories are unavailable. (#1902)
 
+* Fixed several issues seen when the `renv.config.crandb.enabled` option is
+  set, where renv asked crandb whether a package was available from the
+  repositories in use. crandb is not restricted to those repositories, so
+  `renv::snapshot()` could record a package with no recorded source as coming
+  from a repository which does not provide it, a `bioc::<version>/<package>`
+  remote could resolve to a CRAN release recorded as a Bioconductor package,
+  and `renv::upgrade()` could try to install renv from repositories which do
+  not have it rather than from GitHub. These checks, and the choice of a `pak`
+  release stream, no longer use crandb.
+
+* When the `renv.config.crandb.enabled` option is set, renv no longer lets
+  crandb choose the version of a package which has been archived on CRAN,
+  unless the `renv.install.allowArchivedPackages` option is also set. Looking
+  up archived packages in a repository has been opt-in since renv 1.1.4, but
+  crandb reported the last release of such packages regardless. A specific
+  version of an archived package can still be requested, as before.
+
+* Fixed an issue where `renv::restore()` and `renv::install()` contacted
+  <https://crandb.r-pkg.org> even when the `renv.config.crandb.enabled` option
+  was set to `FALSE`. On networks where requests to crandb hang rather than
+  fail (e.g. behind some corporate proxies), each package whose recorded
+  version was no longer the repository's current one then waited for a
+  timeout, making the restore appear to freeze. When the option is explicitly
+  set to `FALSE`, renv now reads the dependencies of such versions from the
+  repository's archive instead. (#2450)
+
 * `renv::dependencies()` is now more careful when looking for inline R code in
   R Markdown, Quarto and Sweave documents. Inline code is no longer looked for
   within code chunks; Sweave (`.Rnw`) documents are searched for `\Sexpr{}`
