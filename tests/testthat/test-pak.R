@@ -318,6 +318,45 @@ test_that("renv::update() works in projects using pak", {
 
 })
 
+# https://github.com/rstudio/renv/issues/1692
+test_that("update() with pak ignores a DESCRIPTION without a Package field (#1692)", {
+
+  skip_on_cran()
+  skip_on_windows()
+  skip_if_not_installed("pak")
+  pak <- renv_namespace_load("pak")
+  renv_scope_options(renv.config.pak.enabled = TRUE)
+  project <- renv_tests_scope()
+  quietly(install("bread"))
+
+  called <- character()
+  local_mocked_bindings(renv_pak_init = function(...) invisible(NULL))
+  local_mocked_bindings(
+    .package = "pak",
+    local_install_dev_deps = function(...) {
+      called <<- c(called, "local_install_dev_deps")
+      invisible(NULL)
+    },
+    pkg_install = function(...) {
+      called <<- c(called, "pkg_install")
+      invisible(NULL)
+    }
+  )
+
+  # explicit dependencies: pak can't treat the project as a package without
+  # a 'Package' field, so the installed packages are updated instead
+  writeLines("Imports: bread", con = file.path(project, "DESCRIPTION"))
+  quietly(update())
+  expect_equal(called, "pkg_install")
+
+  # with a 'Package' field, pak can install the development dependencies
+  called <- character()
+  writeLines(c("Package: example", "Imports: bread"), con = file.path(project, "DESCRIPTION"))
+  quietly(update())
+  expect_equal(called, "local_install_dev_deps")
+
+})
+
 # https://github.com/rstudio/renv/issues/2282
 test_that("renv::init() routes through pak when pak.enabled = TRUE", {
 
@@ -665,5 +704,30 @@ test_that("restore() installs the version of pak recorded in the lockfile (#2169
 
   expect_equal(args$pak$Package, "pak")
   expect_equal(args$pak$Version, "99.99.99")
+
+})
+
+test_that("crandb doesn't stand in for a pak stream without a usable pak", {
+
+  renv_tests_scope()
+  renv_scope_options(renv.config.crandb.enabled = TRUE)
+
+  # none of the pak streams provide pak
+  archive <- renv_tests_archive_repo()
+  local_mocked_bindings(renv_pak_repos = function(stream) archive$url)
+
+  # crandb knows the version of pak on CRAN, which isn't what a stream holds
+  local_mocked_bindings(
+    renv_available_packages_latest_crandb = function(package, ...) {
+      list(
+        Package    = package,
+        Version    = "9.9.9",
+        Source     = "Repository",
+        Repository = "CRAN"
+      )
+    }
+  )
+
+  expect_error(renv_pak_stream(), "not available")
 
 })

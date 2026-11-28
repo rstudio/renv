@@ -1452,6 +1452,32 @@ test_that("renv_graph_install reports packages discarded by a transactional roll
 
 })
 
+test_that("renv_graph_install reports packages blocked by a failed dependency", {
+
+  # older versions of R attempt every package, so nothing is ever blocked
+  skip_if(getRversion() < "4.0")
+
+  renv_tests_scope()
+
+  # use a fresh cache so that bread is actually built (and fails)
+  # rather than being copied from the cache
+  renv_scope_envvars(RENV_PATHS_CACHE = renv_scope_tempfile())
+
+  # bread fails to install, so toast (which depends on it) is never attempted
+  renv_scope_options(install.opts = list(bread = "--libs-only"))
+
+  descriptions <- renv_graph_init("toast")
+  records <- renv_graph_install(descriptions)
+
+  # both packages are reported as failed, but only toast as blocked, so
+  # callers can tell it apart from the package which failed itself
+  # https://github.com/rstudio/renv/issues/2452
+  expect_length(records, 0L)
+  expect_setequal(attr(records, "failed"), c("bread", "toast"))
+  expect_equal(attr(records, "blocked"), "toast")
+
+})
+
 test_that("renv_graph_install_failed reports the cause of a rollback", {
 
   # requested packages which failed, or are otherwise missing, are reported
@@ -1773,6 +1799,34 @@ test_that("repository graph prefers crandb over latest-with-overridden-version",
   expect_true(crandb_called)
   expect_equal(desc$Version, "0.1.0")
   expect_equal(desc$Depends, "crandb-marker")
+
+})
+
+# https://github.com/rstudio/renv/issues/2450
+test_that("repository graph doesn't consult crandb when it is disabled", {
+
+  renv_tests_scope()
+  renv_scope_options(renv.config.crandb.enabled = FALSE)
+
+  crandb_called <- FALSE
+  renv_scope_binding(
+    envir = asNamespace("renv"),
+    symbol = "renv_graph_description_crandb",
+    replacement = function(package, version) {
+      crandb_called <<- TRUE
+      list(Package = package, Version = version, Depends = "crandb-marker")
+    }
+  )
+
+  # 'today' is 1.0.0 in the repository with 'Depends: R (>= 99.99.99)', while
+  # the archived 0.1.0 has 'Depends: R (>= 1.0.0)'. with crandb out of the
+  # picture, the dependencies of 0.1.0 must be read from the archive.
+  record <- list(Package = "today", Version = "0.1.0", Source = "Repository")
+  desc <- renv_graph_description_repository(record)
+
+  expect_false(crandb_called)
+  expect_equal(desc$Version, "0.1.0")
+  expect_equal(desc$Depends, "R (>= 1.0.0)")
 
 })
 

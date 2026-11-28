@@ -42,6 +42,104 @@ test_that("inline chunks are parsed for dependencies", {
   expect_setequal(pkgs, c("rmarkdown", "inline", "multiple", "separate"))
 })
 
+# https://github.com/rstudio/renv/issues/1856
+test_that("a fenced code block is not mistaken for inline code", {
+
+  lines <- c(
+    "---",
+    "title: test",
+    "format: html",
+    "---",
+    "",
+    "Shortcodes can be shown in a code block:",
+    "",
+    "```r ",
+    "{{{< include _demo.R >}}}",
+    "```",
+    "",
+    "Real inline code is still found: `r digest::digest(1)`."
+  )
+
+  path <- renv_scope_tempfile("renv-", fileext = ".qmd")
+  writeLines(lines, path)
+
+  deps <- dependencies(path, errors = "fatal")
+  expect_true("digest" %in% deps$Package)
+
+})
+
+# https://github.com/rstudio/renv/issues/2468
+test_that("inline code is not looked for within chunks", {
+
+  lines <- c(
+    "An unfinished `r opener does not reach past the next chunk.",
+    "",
+    "```{r, eval = FALSE}",
+    "writeLines(\"Inline code looks like `r digest::digest(1)`.\")",
+    "```",
+    "",
+    "```{r}",
+    "writeLines(\"Inline code looks like `r not valid`.\")",
+    "```",
+    "",
+    "Real inline code is still found: `r glue::glue('')`."
+  )
+
+  path <- renv_scope_tempfile("renv-", fileext = ".Rmd")
+  writeLines(lines, path)
+
+  deps <- dependencies(path, errors = "fatal")
+  expect_setequal(deps$Package, c("glue", "rmarkdown"))
+  expect_named(deps, c("Source", "Package", "Require", "Version", "Dev"))
+
+})
+
+# https://github.com/rstudio/renv/issues/2468
+test_that("inline code in Sweave documents is written with \\Sexpr{}", {
+
+  lines <- c(
+    "\\documentclass{article}",
+    "\\begin{document}",
+    "The digest is \\Sexpr{digest::digest(1)}; not `r glue::glue('')`.",
+    "% a comment: \\Sexpr{not valid}",
+    "\\end{document}"
+  )
+
+  path <- renv_scope_tempfile("renv-", fileext = ".Rnw")
+  writeLines(lines, path)
+
+  deps <- dependencies(path, errors = "fatal")
+  expect_equal(deps$Package, "digest")
+
+})
+
+# https://github.com/rstudio/renv/issues/2468
+test_that("inline code that fails to parse does not hide other inline code", {
+
+  renv_scope_caution(FALSE)
+
+  lines <- c(
+    "The digest is `r digest::digest(1)`.",
+    "",
+    "This one is broken: `r not valid`.",
+    "",
+    "And `r glue::glue('')` comes after it."
+  )
+
+  path <- renv_scope_tempfile("renv-", fileext = ".Rmd")
+  writeLines(lines, path)
+
+  problems <- NULL
+  deps <- withCallingHandlers(
+    dependencies(path, errors = "reported"),
+    renv.dependencies.problems = function(cnd) problems <<- cnd$data
+  )
+
+  expect_length(problems, 1L)
+  expect_setequal(deps$Package, c("digest", "glue", "rmarkdown"))
+
+})
+
 test_that("usages of S4 tools are discovered", {
   file <- renv_test_code({setClass("ClassSet")})
   deps <- dependencies(file)
@@ -96,6 +194,17 @@ test_that("renv warns when large number of files found in total", {
   file.create(sprintf("a/%.3i.R", 1:3))
   file.create(sprintf("b/%.3i.R", 1:3))
   expect_snapshot(. <- dependencies())
+
+})
+
+# https://github.com/rstudio/renv/issues/1657
+test_that("renv does not warn about large numbers of files when the limit is Inf", {
+
+  renv_scope_options(renv.config.dependencies.limit = Inf)
+
+  paths <- sprintf("%.4i.R", 1:1500)
+  expect_silent(ok <- renv_dependencies_discover_preflight(paths, "reported"))
+  expect_true(ok)
 
 })
 
@@ -314,6 +423,73 @@ test_that("glue::glue() package usages are found", {
   deps <- dependencies("resources/glue.R")
   expect_true(all(c("A", "B", "C", "D", "E", "F", "G") %in% deps$Package))
   expect_false(any(letters %in% deps$Package))
+})
+
+# https://github.com/rstudio/renv/issues/1891
+test_that("glue::glue() escapes next to expressions are handled", {
+
+  # written as strings, since R CMD check requires packages used via '::'
+  # in test code to be declared in DESCRIPTION
+  code <- c(
+    'glue::glue("Hello {{{A::f()}}}")',
+    'glue::glue("Hello {{.strong {B::f()}}}")',
+    'glue::glue("{{ {C::f({D::g()})} }}")'
+  )
+
+  file <- renv_scope_tempfile("renv-test-", fileext = ".R")
+  writeLines(code, con = file)
+
+  deps <- dependencies(file, errors = "fatal")
+  expect_setequal(deps$Package, c("glue", "A", "B", "C", "D"))
+
+})
+
+# https://github.com/rstudio/renv/issues/2471
+test_that("glue::glue() strings are read the way glue reads them", {
+
+  code <- c(
+    # a '#' in the literal text does not start a comment
+    'glue::glue("Item #{i}: {A::f()}")',
+    # quotes within an expression protect what they contain
+    'glue::glue("{paste0(\'#\', B::f())}")',
+    'glue::glue("{paste(\'}\', C::f())}")',
+    # a comment within an expression hides a delimiter
+    'glue::glue("{D::f() # }\\n}")',
+    # there are no comments when .comment is empty
+    'glue::glue("{E::f() # }{F::f()}", .comment = "")',
+    # a backslash in the literal text does not escape a delimiter
+    'glue::glue("C:\\\\{G::f()}")',
+    # an empty expression is not code
+    'glue::glue("{} {H::f()}")',
+    # the same delimiter can open and close an expression
+    'glue::glue("|I::f()| and |J::f()|", .open = "|", .close = "|")'
+  )
+
+  file <- renv_scope_tempfile("renv-test-", fileext = ".R")
+  writeLines(code, con = file)
+
+  deps <- dependencies(file, errors = "fatal")
+  expect_setequal(deps$Package, c("glue", LETTERS[1:10]))
+
+})
+
+# https://github.com/rstudio/renv/issues/2471
+test_that("glue::glue() calls with unknown delimiters are skipped", {
+
+  code <- c(
+    'library(A)',
+    'glue::glue("Hello <<B::f()>>", .open = open, .close = close)',
+    'glue::glue("Hello <<C::f()>>", .open = strrep("<", 2), .close = ">>")',
+    'glue::glue("Hello {D::f()}", .comment = marker)',
+    'glue::glue("Hello {E::f()}", .open = "")'
+  )
+
+  file <- renv_scope_tempfile("renv-test-", fileext = ".R")
+  writeLines(code, con = file)
+
+  deps <- expect_no_warning(dependencies(file, errors = "fatal"))
+  expect_setequal(deps$Package, c("glue", "A"))
+
 })
 
 test_that("set_engine() package usages are found", {
@@ -1262,5 +1438,36 @@ test_that("dependency errors are reported once when the file cache is disabled",
 
   expect_length(problems, 1L)
   expect_equal(basename(problems[[1L]]$file), "broken.R")
+
+})
+
+# https://github.com/rstudio/renv/issues/2472
+test_that("an error while scanning a file is reported as a problem", {
+
+  renv_tests_scope()
+  renv_scope_caution(FALSE)
+
+  writeLines("library(A)", con = "script.R")
+
+  # stand in for a bug in the code that scans the file
+  renv_scope_binding(
+    envir       = asNamespace("renv"),
+    symbol      = "renv_dependencies_discover_r",
+    replacement = function(...) stop("scan failed")
+  )
+
+  problems <- NULL
+  deps <- withCallingHandlers(
+    expect_no_warning(dependencies("script.R", errors = "reported")),
+    renv.dependencies.problems = function(cnd) problems <<- cnd$data
+  )
+
+  expect_equal(nrow(deps), 0L)
+  expect_length(problems, 1L)
+  expect_equal(basename(problems[[1L]]$file), "script.R")
+  expect_equal(conditionMessage(problems[[1L]]$error), "scan failed")
+
+  expect_error(dependencies("script.R", errors = "fatal"))
+  expect_no_warning(dependencies("script.R", errors = "ignored"))
 
 })

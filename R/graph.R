@@ -388,8 +388,12 @@ renv_graph_description_repository <- function(record) {
   # specific version's dependency fields. this must come before any fallback
   # that reuses the latest entry's fields with an overridden version, since
   # dependency constraints can change between versions (e.g. #2278). crandb
-  # records whose dependencies it has mangled are rejected here (#2432)
-  if (!is.null(version)) {
+  # records whose dependencies it has mangled are rejected here (#2432).
+  #
+  # this lookup is made unless the user has explicitly turned crandb off --
+  # unlike crandb version selection, which has to be turned on -- as crandb
+  # may not be reachable from their network (#2450)
+  if (!is.null(version) && config$crandb.enabled(default = TRUE)) {
     crandb <- catch(renv_graph_description_crandb(package, version))
     if (!inherits(crandb, "error"))
       return(as.list(crandb))
@@ -1616,6 +1620,7 @@ renv_graph_install <- function(descriptions) {
   # track results, failures, and error messages
   all <- list()
   failed <- stack("character")
+  blocked <- character()
   errors <- stack()
   verbose <- config$install.verbose()
   timer <- timer()
@@ -2371,6 +2376,18 @@ renv_graph_install <- function(descriptions) {
     # mark packages stuck due to failed dependencies
     stuck <- names(indegree)[indegree > 0L]
     stuck <- setdiff(stuck, failed$data())
+
+    # of those, the packages downstream of a failed package were never
+    # attempted, so remember them separately from the packages which failed
+    # themselves. packages stuck for another reason (a dependency cycle)
+    # aren't waiting on a failure, so they are not blocked (#2452)
+    pending <- failed$data()
+    while (length(pending)) {
+      pending <- intersect(unlist(revadj[pending], use.names = FALSE), stuck)
+      pending <- setdiff(pending, blocked)
+      blocked <- c(blocked, pending)
+    }
+
     for (pkg in stuck) failed$push(pkg)
 
   } else {
@@ -2562,11 +2579,16 @@ renv_graph_install <- function(descriptions) {
   if (!is.null(trash))
     unlink(trash, recursive = TRUE)
 
-  # also report which packages failed directly, so callers can retry them
-  # differently from packages that were merely rolled back; this includes
-  # dependencies outside the requested set, e.g. excluded packages
+  # also report which packages failed, so callers can retry them differently
+  # from packages that were merely rolled back; this includes dependencies
+  # outside the requested set, e.g. excluded packages
   if (!failed$empty())
     attr(all, "failed") <- failed$data()
+
+  # of those, the 'blocked' packages were never attempted, as one of their
+  # dependencies failed; callers can retry them as originally requested (#2452)
+  if (length(blocked))
+    attr(all, "blocked") <- blocked
 
   # report errors
   renv_graph_install_errors(errors$data(), failed$data(), descriptions)

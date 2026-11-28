@@ -131,8 +131,14 @@ restore <- function(project = NULL,
     renv_sysreqs_check(sysreqs, prompt = prompt)
   }
 
+  # a lockfile written by an older version of renv can name a binary
+  # repository for the platform it was created on; use its source repository
+  lockrepos <- lockfile$R$Repositories
+  if (renv_ppm_enabled())
+    lockrepos <- map(lockrepos, renv_ppm_normalize)
+
   # override repositories if requested
-  repos <- repos %||% config$repos.override() %||% lockfile$R$Repositories
+  repos <- repos %||% config$repos.override() %||% lockrepos
 
   # transform PPM repositories if appropriate
   if (renv_ppm_enabled())
@@ -170,7 +176,7 @@ restore <- function(project = NULL,
   # set up Bioconductor version + repositories
   biocversion <- getOption("renv.bioconductor.version") %||% lockfile$Bioconductor$Version
   if (!is.null(biocversion)) {
-    renv_bioconductor_init(library = library)
+    renv_bioconductor_init(library = library, lockfile = lockfile)
     biocversion <- package_version(biocversion)
     renv_scope_options(renv.bioconductor.version = biocversion)
   }
@@ -297,12 +303,15 @@ renv_restore_run_actions <- function(project, actions, current, lockfile, descri
     rolledback <- attr(records, "rolledback", exact = TRUE)
     retrying <- c(failed, rolledback)
 
-    # dependencies outside the requested set that failed directly (e.g. an
-    # excluded package) must also be retried at their latest versions, or
-    # the retry fails the same way the first pass did
-    direct <- attr(records, "failed", exact = TRUE)
-    retryrecords <- lockrecords[setdiff(names(lockrecords), direct)]
-    recovered <- renv_restore_recover(failed, project, retry, retrying, retryrecords)
+    # dependencies outside the requested set that failed (e.g. an excluded
+    # package) must also be retried at their latest versions, or the retry
+    # fails the same way the first pass did
+    latest <- union(failed, attr(records, "failed", exact = TRUE))
+
+    # packages blocked by a failed dependency were never attempted at their
+    # lockfile versions, so those versions are what the retry installs (#2452)
+    latest <- setdiff(latest, attr(records, "blocked", exact = TRUE))
+    recovered <- renv_restore_recover(latest, project, retry, retrying, lockrecords)
     if (!is.null(recovered)) {
       records <- c(records[setdiff(names(records), names(recovered))], recovered)
       failed <- renv_graph_install_failed(recovered, retrying)
