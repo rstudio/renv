@@ -123,7 +123,7 @@ Defaults to <code>"auto"</code>.</p>
 </div>
 <div class="section">
 <h3 id="renv-config-crandb-enabled">renv.config.crandb.enabled<a class="anchor" aria-label="anchor" href="#renv-config-crandb-enabled"></a></h3>
-<p>Use the <a href="https://github.com/r-hub/crandb" class="external-link">crandb</a> service when looking up packages from CRAN which are not available in the configured repositories? When enabled, renv will query the crandb API to find the latest version of a package compatible with the current version of R. This can be useful when an older version of R is being used, and the latest version of a package on CRAN requires a newer version of R. Disabled by default.
+<p>Use the <a href="https://github.com/r-hub/crandb" class="external-link">crandb</a> service when looking up packages from CRAN which are not available in the configured repositories? When enabled, renv will query the crandb API to find the latest version of a package compatible with the current version of R. This can be useful when an older version of R is being used, and the latest version of a package on CRAN requires a newer version of R. Disabled by default. Explicitly setting this to <code>FALSE</code> also keeps renv from asking crandb for the dependencies of package versions which are no longer available from the configured repositories during install and restore; renv reads those from the repository's archive instead.
 Defaults to <code>FALSE</code>.</p>
 </div>
 <div class="section">

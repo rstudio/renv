@@ -103,7 +103,11 @@ repositories? When enabled, renv will query the crandb API to find the
 latest version of a package compatible with the current version of R.
 This can be useful when an older version of R is being used, and the
 latest version of a package on CRAN requires a newer version of R.
-Disabled by default. Defaults to `FALSE`.
+Disabled by default. Explicitly setting this to `FALSE` also keeps renv
+from asking crandb for the dependencies of package versions which are no
+longer available from the configured repositories during install and
+restore; renv reads those from the repository's archive instead.
+Defaults to `FALSE`.
 
 ### renv.config.connect.timeout
 
