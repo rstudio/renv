@@ -59,7 +59,7 @@ Defaults to \code{NULL}.}
 Defaults to \code{"api.bitbucket.org/2.0"}.}
 \subsection{renv.config.copy.method}{The method to use when attempting to copy directories. See \strong{Copy Methods} for more information.
 Defaults to \code{"auto"}.}
-\subsection{renv.config.crandb.enabled}{Use the \href{https://github.com/r-hub/crandb}{crandb} service when looking up packages from CRAN which are not available in the configured repositories? When enabled, renv will query the crandb API to find the latest version of a package compatible with the current version of R. This can be useful when an older version of R is being used, and the latest version of a package on CRAN requires a newer version of R. Disabled by default.
+\subsection{renv.config.crandb.enabled}{Use the \href{https://github.com/r-hub/crandb}{crandb} service when looking up packages from CRAN which are not available in the configured repositories? When enabled, renv will query the crandb API to find the latest version of a package compatible with the current version of R. This can be useful when an older version of R is being used, and the latest version of a package on CRAN requires a newer version of R. Disabled by default. Explicitly setting this to \code{FALSE} also keeps renv from asking crandb for the dependencies of package versions which are no longer available from the configured repositories during install and restore; renv reads those from the repository's archive instead.
 Defaults to \code{FALSE}.}
 \subsection{renv.config.connect.timeout}{The amount of time to spend (in seconds) when attempting to download a file. Only applicable when the \code{curl} downloader is used.
 Defaults to \code{20L}.}

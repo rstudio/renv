@@ -7,6 +7,58 @@
   is. The same applies to the install command suggested when system packages
   are missing. (#2124)
 
+* When a project uses Bioconductor and BiocManager is not yet installed,
+  `renv::restore()` and `renv::load()` now install the version of BiocManager
+  recorded in the lockfile, if any, rather than looking up the latest version
+  from the active package repositories. This lets a restore succeed from the
+  cache when the repositories are unavailable. (#1902)
+
+* Fixed several issues seen when the `renv.config.crandb.enabled` option is
+  set, where renv asked crandb whether a package was available from the
+  repositories in use. crandb is not restricted to those repositories, so
+  `renv::snapshot()` could record a package with no recorded source as coming
+  from a repository which does not provide it, a `bioc::<version>/<package>`
+  remote could resolve to a CRAN release recorded as a Bioconductor package,
+  and `renv::upgrade()` could try to install renv from repositories which do
+  not have it rather than from GitHub. These checks, and the choice of a `pak`
+  release stream, no longer use crandb.
+
+* When the `renv.config.crandb.enabled` option is set, renv no longer lets
+  crandb choose the version of a package which has been archived on CRAN,
+  unless the `renv.install.allowArchivedPackages` option is also set. Looking
+  up archived packages in a repository has been opt-in since renv 1.1.4, but
+  crandb reported the last release of such packages regardless. A specific
+  version of an archived package can still be requested, as before.
+
+* Fixed an issue where `renv::restore()` and `renv::install()` contacted
+  <https://crandb.r-pkg.org> even when the `renv.config.crandb.enabled` option
+  was set to `FALSE`. On networks where requests to crandb hang rather than
+  fail (e.g. behind some corporate proxies), each package whose recorded
+  version was no longer the repository's current one then waited for a
+  timeout, making the restore appear to freeze. When the option is explicitly
+  set to `FALSE`, renv now reads the dependencies of such versions from the
+  repository's archive instead. (#2450)
+
+* `renv::dependencies()` is now more careful when looking for inline R code in
+  R Markdown, Quarto and Sweave documents. Inline code is no longer looked for
+  within code chunks; Sweave (`.Rnw`) documents are searched for `\Sexpr{}`
+  rather than for Markdown-style `` `r ` `` inline code; and inline code that
+  fails to parse no longer hides the dependencies of the other inline code in
+  the same document. (#2468)
+
+* `renv::dependencies()` now reads the strings passed to `glue::glue()` the way
+  glue itself does when looking for the code within them. A `#` in the literal
+  text is no longer taken as the start of a comment, and quoted text within an
+  expression can now contain a `#` or a delimiter; previously, dependencies
+  used later in such strings were missed. In addition, a `glue()` call whose
+  `.open`, `.close` or `.comment` argument is not a string no longer causes
+  all of the dependencies in that file to be dropped. (#2471)
+
+* `renv::dependencies()` now reports an unexpected error encountered while
+  scanning a file together with the other problems it finds, alongside the
+  name of that file, and following the `errors` argument. Previously, such an
+  error was emitted as a warning that did not name the file. (#2472)
+
 * `renv::use()` now warns when a requested package is already loaded at a
   different version, as the loaded version stays in use. Previously, it told
   you to restart R, which would discard the temporary library `renv::use()`

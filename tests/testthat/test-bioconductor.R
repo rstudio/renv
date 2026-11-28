@@ -212,3 +212,116 @@ test_that("standard bioc remotes are standardized appropriately", {
   expect_identical(actual[names(expected)], expected)
 
 })
+
+# https://github.com/rstudio/renv/issues/1902
+test_that("BiocManager is installed at the version recorded in the lockfile", {
+
+  skip_if(getRversion() < "3.5.0")
+  renv_tests_scope()
+
+  args <- NULL
+  local_mocked_bindings(
+    install = function(packages, ...) { args <<- packages; invisible(NULL) }
+  )
+
+  library <- renv_scope_tempfile("renv-library-")
+  record <- list(
+    Package    = "BiocManager",
+    Version    = "1.30.22",
+    Source     = "Repository",
+    Repository = "CRAN"
+  )
+
+  # without a lockfile, the latest version of BiocManager is requested, which
+  # requires querying the active package repositories
+  renv_bioconductor_init(library = library)
+  expect_equal(args, "BiocManager")
+
+  # with one, we install the recorded version, which can be found in the cache
+  lockfile <- list(Packages = list(BiocManager = record))
+  renv_bioconductor_init(library = library, lockfile = lockfile)
+  expect_equal(args, list(BiocManager = record))
+
+  # a lockfile which doesn't record BiocManager is no different
+  lockfile <- list(Packages = list(bread = list(Package = "bread", Version = "1.0.0")))
+  renv_bioconductor_init(library = library, lockfile = lockfile)
+  expect_equal(args, "BiocManager")
+
+})
+
+test_that("a recorded package can be installed from the cache without repositories", {
+
+  skip_on_cran()
+  skip_on_windows()
+  renv_tests_scope("bread")
+  init()
+
+  lockfile <- renv_lockfile_read("renv.lock")
+  record <- lockfile$Packages$bread
+
+  # with no reachable repositories, only the cache can supply the package
+  renv_scope_options(repos = c(CRAN = "file:///nonexistent"))
+  library <- renv_scope_tempfile("renv-library-")
+  ensure_directory(library)
+  quietly(install(list(bread = record), library = library, prompt = FALSE))
+  expect_true(renv_package_installed("bread", lib.loc = library))
+
+})
+
+test_that("restore() initializes Bioconductor using the lockfile", {
+
+  skip_if(getRversion() < "3.5.0")
+  renv_tests_scope()
+
+  lockfile <- list(
+    R = list(Version = format(getRversion()), Repositories = list()),
+    Bioconductor = list(Version = "3.18"),
+    Packages = list(
+      BiocManager = list(
+        Package    = "BiocManager",
+        Version    = "1.30.22",
+        Source     = "Repository",
+        Repository = "CRAN"
+      )
+    )
+  )
+
+  args <- NULL
+  local_mocked_bindings(
+    renv_bioconductor_init = function(library = NULL, lockfile = NULL) {
+      args <<- lockfile
+      stop("initialized")
+    }
+  )
+
+  expect_error(restore(lockfile = lockfile, prompt = FALSE), "initialized")
+  expect_equal(args$Packages$BiocManager$Version, "1.30.22")
+
+})
+
+test_that("load() initializes Bioconductor using the lockfile", {
+
+  skip_if(getRversion() < "3.5.0")
+  project <- renv_tests_scope()
+  renv_scope_options(
+    repos = getOption("repos"),
+    renv.bioconductor.repos =c(BioCsoft = "https://bioconductor.org/packages/3.18/bioc"),
+    renv.bioconductor.validate = FALSE
+  )
+
+  args <- NULL
+  local_mocked_bindings(
+    renv_bioconductor_init = function(library = NULL, lockfile = NULL) {
+      args <<- lockfile
+    }
+  )
+
+  lockfile <- list(
+    Bioconductor = list(Version = "3.18"),
+    Packages = list(BiocManager = list(Package = "BiocManager", Version = "1.30.22"))
+  )
+
+  renv_load_bioconductor(project, lockfile$Bioconductor, lockfile)
+  expect_equal(args$Packages$BiocManager$Version, "1.30.22")
+
+})

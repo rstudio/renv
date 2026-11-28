@@ -27,3 +27,33 @@ test_that("the version of renv in a project can be changed (upgraded)", {
   expect_false(upgrade(version = "5049cef8a"))
 
 })
+
+test_that("renv is taken from GitHub when only crandb knows of a release", {
+
+  renv_tests_scope()
+  renv_scope_options(renv.config.crandb.enabled = TRUE)
+
+  # repositories which don't provide renv
+  archive <- renv_tests_archive_repo()
+  renv_scope_options(repos = c(ARCHIVED = archive$url))
+
+  # crandb will always name a release of renv, but that doesn't mean the
+  # repositories in use can supply it
+  local_mocked_bindings(
+    renv_available_packages_latest_crandb = function(package, ...) {
+      list(
+        Package    = package,
+        Version    = "9.9.9",
+        Source     = "Repository",
+        Repository = "CRAN"
+      )
+    }
+  )
+
+  local_mocked_bindings(
+    renv_upgrade_find_record_dev = function(version = NULL) "github"
+  )
+
+  expect_identical(renv_upgrade_find_record_default(), "github")
+
+})
