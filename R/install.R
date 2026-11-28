@@ -838,6 +838,11 @@ renv_install_package_options <- function(package) {
 
 renv_install_postamble <- function(packages) {
 
+  # restarting R wouldn't help after use(), which warns about the loaded
+  # packages it couldn't replace by itself; see renv_use_check_loaded()
+  if (the$use_active)
+    return(TRUE)
+
   # only diagnose packages currently loaded
   packages <- renv_vector_intersect(packages, loadedNamespaces())
 
