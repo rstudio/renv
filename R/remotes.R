@@ -402,7 +402,11 @@ renv_remotes_resolve_bioc <- function(remote) {
   package <- remote$repo
   biocversion <- renv_remotes_resolve_bioc_version(remote$user)
   biocrepos <- renv_bioconductor_repos(version = biocversion)
-  record <- renv_available_packages_latest(package, repos = biocrepos)
+  record <- renv_available_packages_latest(
+    package,
+    repos  = biocrepos,
+    crandb = FALSE
+  )
 
   # update fields
   record$Source <- "Bioconductor"

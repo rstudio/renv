@@ -1075,3 +1075,71 @@ test_that("snapshot(description) creates a record from a path", {
   expect_equal(record$Package, "utils")
 
 })
+
+test_that("a package known only to crandb is not attributed to the repositories", {
+
+  renv_tests_scope()
+  renv_scope_options(renv.config.crandb.enabled = TRUE)
+
+  # crandb isn't restricted to the repositories in use, so it can't tell us
+  # that a package with no recorded source was installed from one of them
+  local_mocked_bindings(
+    renv_available_packages_latest_crandb = function(package, ...) {
+      list(
+        Package    = package,
+        Version    = "9.9.9",
+        Source     = "Repository",
+        Repository = "CRAN"
+      )
+    }
+  )
+
+  dcf <- list(Package = "nonexistent.package", Version = "1.0.0")
+  expect_identical(renv_snapshot_description_source(dcf), list(Source = "unknown"))
+
+})
+
+test_that("crandb is not used to check the release of Bioconductor packages", {
+
+  project <- renv_tests_scope()
+  renv_scope_options(renv.config.crandb.enabled = TRUE, renv.verbose = FALSE)
+
+  # the check compares each package against what the Bioconductor repositories
+  # provide; a CRAN version of the same name says nothing about that
+  local_mocked_bindings(
+    renv_available_packages_latest_crandb = function(package, ...) {
+      list(
+        Package    = package,
+        Version    = "9.9.9",
+        Source     = "Repository",
+        Repository = "CRAN"
+      )
+    }
+  )
+
+  local_mocked_bindings(
+    renv_bioconductor_enabled = function(...) TRUE,
+    renv_bioconductor_manager = function() "BiocManager",
+    renv_bioconductor_repos   = function(...) getOption("repos")
+  )
+
+  lockfile <- list(
+    Bioconductor = list(Version = "3.20"),
+    Packages = list(
+      BiocManager = list(
+        Package = "BiocManager",
+        Version = "1.30.0",
+        Source  = "Repository"
+      ),
+      nonexistent.package = list(
+        Package = "nonexistent.package",
+        Version = "9.9.0",
+        Source  = "Bioconductor"
+      )
+    )
+  )
+
+  problems <- renv_snapshot_validate_bioconductor(project, lockfile, NULL)
+  expect_match(problems, "nonexistent.package", fixed = TRUE)
+
+})

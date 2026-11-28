@@ -394,7 +394,8 @@ renv_available_packages_latest_repos_impl <- function(package, type, repos) {
 
 renv_available_packages_latest <- function(package,
                                            type = NULL,
-                                           repos = NULL)
+                                           repos = NULL,
+                                           crandb = TRUE)
 {
   # the sources consulted for this lookup, in strict precedence order: the
   # first one to name a version wins, and the configured repositories always
@@ -414,11 +415,18 @@ renv_available_packages_latest <- function(package,
   # historical binary over the version hint from crandb or a source archive.
   # the repositories still get the first word, so P3M cannot override a version
   # selected by a configured repository (#1901)
+  #
+  # crandb differs from the other sources: it only names a version, without
+  # saying where that version can be installed from, and it knows nothing of
+  # the repositories being asked about. that is useful when looking for a
+  # version to install, but not when asking whether those repositories provide
+  # a package; callers asking the latter must pass 'crandb = FALSE'
   methods <- list(
     renv_available_packages_latest_repos,
     if (renv_p3m_enabled(type))
       renv_available_packages_latest_p3m,
-    renv_available_packages_latest_crandb,
+    if (crandb)
+      renv_available_packages_latest_crandb,
     if (getOption("renv.install.allowArchivedPackages", default = FALSE))
       renv_available_packages_latest_archive
   )
@@ -623,6 +631,13 @@ renv_available_packages_latest_crandb <- function(package,
   # query crandb for all versions of this package
   json <- renv_available_packages_crandb_query(package)
   if (is.null(json))
+    return(NULL)
+
+  # crandb also has records of packages which have been archived on CRAN;
+  # installing those is opt-in, as it is for the repository archive lookup
+  # in renv_available_packages_latest()
+  archived <- identical(json$archived, TRUE)
+  if (archived && !getOption("renv.install.allowArchivedPackages", default = FALSE))
     return(NULL)
 
   versions <- json$versions
