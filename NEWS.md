@@ -1,5 +1,12 @@
 # renv (development version)
 
+* `renv::dependencies()` is now more careful when looking for inline R code in
+  R Markdown, Quarto and Sweave documents. Inline code is no longer looked for
+  within code chunks; Sweave (`.Rnw`) documents are searched for `\Sexpr{}`
+  rather than for Markdown-style `` `r ` `` inline code; and inline code that
+  fails to parse no longer hides the dependencies of the other inline code in
+  the same document. (#2468)
+
 * `renv::dependencies()` now reads the strings passed to `glue::glue()` the way
   glue itself does when looking for the code within them. A `#` in the literal
   text is no longer taken as the start of a comment, and quoted text within an

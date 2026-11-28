@@ -1049,7 +1049,7 @@ renv_dependencies_discover_chunks <- function(path, mode) {
   })
 
   # check for dependencies in inline chunks as well
-  ideps <- renv_dependencies_discover_chunks_inline(path, contents)
+  ideps <- renv_dependencies_discover_chunks_inline(path, contents, patterns, ranges)
 
   # if this is a .qmd, infer dependencies implied by the bound engine
   qdeps <- NULL
@@ -1129,22 +1129,35 @@ renv_dependencies_discover_chunks_quarto_header <- function(contents) {
 
 }
 
-renv_dependencies_discover_chunks_inline <- function(path, contents) {
+renv_dependencies_discover_chunks_inline <- function(path, contents, patterns, ranges) {
 
-  # the lookbehind avoids matching the opening of a code fence (```r ), as
-  # the code in that fence would otherwise be taken as inline code
-  pasted <- paste(contents, collapse = "\n")
-  matches <- gregexpr("(?<!``)`r ([^`]+)`", pasted, perl = TRUE)
-  if (identical(c(matches[[1L]]), -1L))
-    return(list())
+  # inline code within a comment is not used
+  comment <- patterns$inline.comment
+  if (!is.null(comment))
+    contents[grepl(comment, contents)] <- ""
 
-  text <- unlist(regmatches(pasted, matches), use.names = FALSE, recursive = FALSE)
-  code <- substring(text, 4L, nchar(text) - 1L)
-  deps <- renv_dependencies_discover_r(path = path, text = code)
-  if (inherits(deps, "error"))
-    return(renv_dependencies_error(path, error = deps))
+  # inline code is only recognized in the text between chunks; search each
+  # stretch of text separately, as inline code cannot span a chunk
+  chunks <- unlist(.mapply(seq.int, list(ranges$lhs, ranges$rhs), NULL))
+  prose <- !seq_along(contents) %in% chunks
+  regions <- split(contents[prose], cumsum(!prose)[prose])
+  text <- map_chr(regions, paste, collapse = "\n")
 
-  deps
+  pattern <- patterns$inline.code
+  matches <- regmatches(text, gregexpr(pattern, text, perl = TRUE))
+  code <- sub(pattern, "\\1", unlist(matches, use.names = FALSE), perl = TRUE)
+
+  # handle each piece of code on its own, so that one which cannot be
+  # handled does not hide the dependencies of the others
+  bapply(code, function(text) {
+
+    deps <- catch(renv_dependencies_discover_r(path = path, text = text))
+    if (inherits(deps, "error"))
+      return(renv_dependencies_error(path, error = deps))
+
+    deps
+
+  })
 
 }
 
