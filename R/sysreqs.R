@@ -267,9 +267,13 @@ renv_sysreqs_sudo <- function(commands) {
   if (empty(commands) || renv_sysreqs_root())
     return(commands)
 
+  # these commands are for a POSIX shell, even when they're reported on
+  # Windows (e.g. for another distro), where shQuote() quotes for cmd.exe
   compound <- grepl("[|&;<>]", commands)
-  if (any(compound))
-    commands[compound] <- paste("sh -c", map_chr(commands[compound], shQuote))
+  if (any(compound)) {
+    quoted <- map_chr(commands[compound], shQuote, type = "sh")
+    commands[compound] <- paste("sh -c", quoted)
+  }
 
   paste("sudo", commands)
 
