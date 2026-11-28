@@ -12,6 +12,13 @@ on:
 
 name: R-CMD-check
 
+# A new push to a pull request cancels the run for the previous one, which
+# would otherwise keep spending the GitHub API budget every job shares.
+# Pushes to main each get their own group, so those always run to completion.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.run_id }}
+  cancel-in-progress: true
+
 jobs:
   R-CMD-check:
     runs-on: ${{ matrix.config.os }}

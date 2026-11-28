@@ -318,6 +318,45 @@ test_that("renv::update() works in projects using pak", {
 
 })
 
+# https://github.com/rstudio/renv/issues/1692
+test_that("update() with pak ignores a DESCRIPTION without a Package field (#1692)", {
+
+  skip_on_cran()
+  skip_on_windows()
+  skip_if_not_installed("pak")
+  pak <- renv_namespace_load("pak")
+  renv_scope_options(renv.config.pak.enabled = TRUE)
+  project <- renv_tests_scope()
+  quietly(install("bread"))
+
+  called <- character()
+  local_mocked_bindings(renv_pak_init = function(...) invisible(NULL))
+  local_mocked_bindings(
+    .package = "pak",
+    local_install_dev_deps = function(...) {
+      called <<- c(called, "local_install_dev_deps")
+      invisible(NULL)
+    },
+    pkg_install = function(...) {
+      called <<- c(called, "pkg_install")
+      invisible(NULL)
+    }
+  )
+
+  # explicit dependencies: pak can't treat the project as a package without
+  # a 'Package' field, so the installed packages are updated instead
+  writeLines("Imports: bread", con = file.path(project, "DESCRIPTION"))
+  quietly(update())
+  expect_equal(called, "pkg_install")
+
+  # with a 'Package' field, pak can install the development dependencies
+  called <- character()
+  writeLines(c("Package: example", "Imports: bread"), con = file.path(project, "DESCRIPTION"))
+  quietly(update())
+  expect_equal(called, "local_install_dev_deps")
+
+})
+
 # https://github.com/rstudio/renv/issues/2282
 test_that("renv::init() routes through pak when pak.enabled = TRUE", {
 
