@@ -372,6 +372,54 @@ test_that("glue::glue() escapes next to expressions are handled", {
 
 })
 
+# https://github.com/rstudio/renv/issues/2471
+test_that("glue::glue() strings are read the way glue reads them", {
+
+  code <- c(
+    # a '#' in the literal text does not start a comment
+    'glue::glue("Item #{i}: {A::f()}")',
+    # quotes within an expression protect what they contain
+    'glue::glue("{paste0(\'#\', B::f())}")',
+    'glue::glue("{paste(\'}\', C::f())}")',
+    # a comment within an expression hides a delimiter
+    'glue::glue("{D::f() # }\\n}")',
+    # there are no comments when .comment is empty
+    'glue::glue("{E::f() # }{F::f()}", .comment = "")',
+    # a backslash in the literal text does not escape a delimiter
+    'glue::glue("C:\\\\{G::f()}")',
+    # an empty expression is not code
+    'glue::glue("{} {H::f()}")',
+    # the same delimiter can open and close an expression
+    'glue::glue("|I::f()| and |J::f()|", .open = "|", .close = "|")'
+  )
+
+  file <- renv_scope_tempfile("renv-test-", fileext = ".R")
+  writeLines(code, con = file)
+
+  deps <- dependencies(file, errors = "fatal")
+  expect_setequal(deps$Package, c("glue", LETTERS[1:10]))
+
+})
+
+# https://github.com/rstudio/renv/issues/2471
+test_that("glue::glue() calls with unknown delimiters are skipped", {
+
+  code <- c(
+    'library(A)',
+    'glue::glue("Hello <<B::f()>>", .open = open, .close = close)',
+    'glue::glue("Hello <<C::f()>>", .open = strrep("<", 2), .close = ">>")',
+    'glue::glue("Hello {D::f()}", .comment = marker)',
+    'glue::glue("Hello {E::f()}", .open = "")'
+  )
+
+  file <- renv_scope_tempfile("renv-test-", fileext = ".R")
+  writeLines(code, con = file)
+
+  deps <- expect_no_warning(dependencies(file, errors = "fatal"))
+  expect_setequal(deps$Package, c("glue", "A"))
+
+})
+
 test_that("set_engine() package usages are found", {
   deps <- dependencies("resources/parsnip.R")
   expect_setequal(deps$Package, c("glmnet"))

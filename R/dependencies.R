@@ -1853,6 +1853,19 @@ renv_dependencies_discover_r_glue <- function(node, envir) {
   if (is.null(node))
     return(FALSE)
 
+  # the code within a string can only be found when the delimiters are known
+  open    <- node$.open    %||% "{"
+  close   <- node$.close   %||% "}"
+  comment <- node$.comment %||% "#"
+
+  known <-
+    pstring(open) && nzchar(open) &&
+    pstring(close) && nzchar(close) &&
+    pstring(comment)
+
+  if (!known)
+    return(TRUE)
+
   # analyze all unnamed strings in the call
   args <- as.list(node)[-1L]
   nm <- names(args) %||% rep.int("", length(args))
@@ -1860,7 +1873,7 @@ renv_dependencies_discover_r_glue <- function(node, envir) {
 
   # start iterating through the strings, looking for code chunks
   for (string in strings)
-    renv_dependencies_discover_r_glue_impl(string, node, envir)
+    renv_dependencies_discover_r_glue_impl(string, open, close, comment, envir)
 
   TRUE
 
@@ -1978,129 +1991,135 @@ renv_dependencies_discover_r_knitr <- function(node, envir) {
 
 }
 
-renv_dependencies_discover_r_glue_impl <- function(string, node, envir) {
+# this follows the states of glue's own parser: quotes and comments only
+# exist within an expression, and hide any delimiters they contain
+renv_dependencies_discover_r_glue_impl <- function(string, open, close, comment, envir) {
 
-  # get open, close delimiters
-  ropen    <- charToRaw(node$.open    %||% "{")
-  rclose   <- charToRaw(node$.close   %||% "}")
-  rcomment <- charToRaw(node$.comment %||% "#")
+  ropen    <- charToRaw(open)
+  rclose   <- charToRaw(close)
+  rcomment <- charToRaw(comment)
 
   # constants
-  rcomment   <- charToRaw("#")
   rbackslash <- charToRaw("\\")
-  rquotes <- c(
-    charToRaw("'"),
-    charToRaw("\""),
-    charToRaw("`")
-  )
+  rnewline   <- charToRaw("\n")
+  rquotes    <- charToRaw("'\"`")
 
   # iterate through characters in string
-  raw <- c(charToRaw(string), as.raw(0L))
+  raw <- charToRaw(string)
   i <- 0L
   n <- length(raw)
-  quote <- raw()
 
-  # index for open delimiter match
-  index <- 0L
+  # the quote that opened the string we're in (if any),
+  # and whether we're in a comment
+  quote <- NULL
+  commented <- FALSE
+
+  # nesting level of open delimiters, and index of the outermost one
   count <- 0L
+  index <- 0L
 
   while (i < n) {
 
     # ensure we always advance index
     i <- i + 1L
 
-    # handle quoted states
-    if (length(quote)) {
+    # outside of an expression, only the delimiters are special
+    if (count == 0L) {
 
-      # skip escaped characters
-      if (raw[[i]] == rbackslash) {
-        i <- i + 1L
+      if (renv_dependencies_discover_r_glue_match(raw, i, ropen)) {
+
+        # check for duplicate (escape)
+        j <- i + length(ropen)
+        if (renv_dependencies_discover_r_glue_match(raw, j, ropen)) {
+          i <- j + length(ropen) - 1L
+          next
+        }
+
+        index <- i
+        count <- 1L
+        i <- j - 1L
         next
+
       }
 
-      # check for escape from quote
-      if (raw[[i]] == quote) {
-        quote <- raw()
-        next
-      }
+      # check for duplicate (escape)
+      j <- i + length(rclose)
+      escaped <-
+        renv_dependencies_discover_r_glue_match(raw, i, rclose) &&
+        renv_dependencies_discover_r_glue_match(raw, j, rclose)
+
+      if (escaped)
+        i <- j + length(rclose) - 1L
+
+      next
 
     }
 
-    # skip comments
-    if (raw[[i]] == rcomment) {
-      i <- grepRaw("(?:$|\n)", raw, i)
+    # skip over strings, minding escaped characters
+    if (!is.null(quote)) {
+
+      if (raw[[i]] == rbackslash)
+        i <- i + 1L
+      else if (raw[[i]] == quote)
+        quote <- NULL
+
+      next
+
+    }
+
+    # skip over comments
+    if (commented) {
+      commented <- raw[[i]] != rnewline
       next
     }
 
-    # skip escaped characters
-    if (raw[[i]] == rbackslash) {
-      i <- i + 1L
+    # check for nested open delimiter; there is no nesting
+    # when the same delimiter both opens and closes an expression
+    nested <-
+      !identical(ropen, rclose) &&
+      renv_dependencies_discover_r_glue_match(raw, i, ropen)
+
+    if (nested) {
+      count <- count + 1L
+      i <- i + length(ropen) - 1L
+      next
+    }
+
+    # check for close delimiter
+    if (renv_dependencies_discover_r_glue_match(raw, i, rclose)) {
+
+      count <- count - 1L
+
+      # parse dependencies within the code once the expression is closed
+      lhs <- index + length(ropen)
+      rhs <- i - 1L
+      if (count == 0L && lhs <= rhs) {
+        code <- rawToChar(raw[lhs:rhs])
+        renv_dependencies_discover_r(text = code, envir = envir)
+      }
+
+      i <- i + length(rclose) - 1L
+      next
+
+    }
+
+    # check for comments
+    if (renv_dependencies_discover_r_glue_match(raw, i, rcomment)) {
+      commented <- TRUE
       next
     }
 
     # check for quotes
-    idx <- match(raw[[i]], rquotes, nomatch = 0L)
-    if (idx > 0) {
-      quote <- rquotes[[idx]]
-      next
-    }
-
-    # check for open delimiter
-    if (i %in% grepRaw(ropen, raw, i, fixed = TRUE)) {
-
-      # check for duplicate (escape); doubled delimiters are only escapes
-      # outside of an expression, where each one changes the nesting level
-      j <- i + length(ropen)
-      if (count == 0L && j %in% grepRaw(ropen, raw, j, fixed = TRUE)) {
-        i <- j + length(ropen) - 1L
-        next
-      }
-
-      # save index if we're starting a match
-      if (count == 0L) {
-        index <- i
-      }
-
-      # increment match count
-      count <- count + 1L
-      next
-
-    }
-
-    # check for close delimiter
-    if (i %in% grepRaw(rclose, raw, i, fixed = TRUE)) {
-
-      # check for duplicate (escape), as above
-      j <- i + length(rclose)
-      if (count == 0L && j %in% grepRaw(rclose, raw, j, fixed = TRUE)) {
-        i <- j + length(rclose) - 1L
-        next
-      }
-
-      if (count > 0L) {
-
-        # decrement count if we have a match
-        count <- count - 1L
-
-        # check for match and parse dependencies within
-        if (count == 0L) {
-
-          # extract inner code
-          lhs <- index + length(ropen)
-          rhs <- i - 1L
-          code <- rawToChar(raw[lhs:rhs])
-
-          # parse dependencies
-          renv_dependencies_discover_r(text = code, envir = envir)
-
-        }
-
-      }
-
-    }
+    if (raw[[i]] %in% rquotes)
+      quote <- raw[[i]]
 
   }
 
+}
+
+renv_dependencies_discover_r_glue_match <- function(raw, i, delimiter) {
+  j <- i + length(delimiter) - 1L
+  i <= j && j <= length(raw) && identical(raw[i:j], delimiter)
 }
 
 renv_dependencies_discover_r_parsnip <- function(node, envir) {

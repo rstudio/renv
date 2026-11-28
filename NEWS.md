@@ -1,5 +1,13 @@
 # renv (development version)
 
+* `renv::dependencies()` now reads the strings passed to `glue::glue()` the way
+  glue itself does when looking for the code within them. A `#` in the literal
+  text is no longer taken as the start of a comment, and quoted text within an
+  expression can now contain a `#` or a delimiter; previously, dependencies
+  used later in such strings were missed. In addition, a `glue()` call whose
+  `.open`, `.close` or `.comment` argument is not a string no longer causes
+  all of the dependencies in that file to be dropped. (#2471)
+
 * `renv::dependencies()` now reports an unexpected error encountered while
   scanning a file together with the other problems it finds, alongside the
   name of that file, and following the `errors` argument. Previously, such an
