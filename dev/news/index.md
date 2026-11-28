@@ -2,6 +2,13 @@
 
 ## renv (development version)
 
+- [`renv::dependencies()`](https://rstudio.github.io/renv/dev/reference/dependencies.md)
+  now reports an unexpected error encountered while scanning a file
+  together with the other problems it finds, alongside the name of that
+  file, and following the `errors` argument. Previously, such an error
+  was emitted as a warning that did not name the file.
+  ([\#2472](https://github.com/rstudio/renv/issues/2472))
+
 - [`renv::use()`](https://rstudio.github.io/renv/dev/reference/embed.md)
   now warns when a requested package is already loaded at a different
   version, as the loaded version stays in use. Previously, it told you
