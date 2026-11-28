@@ -247,7 +247,7 @@ renv_python_envname <- function(project, path, type) {
   # check for file within virtualenv
   ok <-
     type == "virtualenv" &&
-    identical(renv_python_virtualenv_path(bn), path)
+    renv_path_same(renv_python_virtualenv_path(bn), path)
 
   if (ok)
     return(bn)

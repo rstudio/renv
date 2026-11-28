@@ -1131,8 +1131,10 @@ renv_dependencies_discover_chunks_quarto_header <- function(contents) {
 
 renv_dependencies_discover_chunks_inline <- function(path, contents) {
 
+  # the lookbehind avoids matching the opening of a code fence (```r ), as
+  # the code in that fence would otherwise be taken as inline code
   pasted <- paste(contents, collapse = "\n")
-  matches <- gregexpr("`r ([^`]+)`", pasted, perl = TRUE)
+  matches <- gregexpr("(?<!``)`r ([^`]+)`", pasted, perl = TRUE)
   if (identical(c(matches[[1L]]), -1L))
     return(list())
 
@@ -2046,9 +2048,10 @@ renv_dependencies_discover_r_glue_impl <- function(string, node, envir) {
     # check for open delimiter
     if (i %in% grepRaw(ropen, raw, i, fixed = TRUE)) {
 
-      # check for duplicate (escape)
+      # check for duplicate (escape); doubled delimiters are only escapes
+      # outside of an expression, where each one changes the nesting level
       j <- i + length(ropen)
-      if (j %in% grepRaw(ropen, raw, j, fixed = TRUE)) {
+      if (count == 0L && j %in% grepRaw(ropen, raw, j, fixed = TRUE)) {
         i <- j + length(ropen) - 1L
         next
       }
@@ -2067,9 +2070,9 @@ renv_dependencies_discover_r_glue_impl <- function(string, node, envir) {
     # check for close delimiter
     if (i %in% grepRaw(rclose, raw, i, fixed = TRUE)) {
 
-      # check for duplicate (escape)
+      # check for duplicate (escape), as above
       j <- i + length(rclose)
-      if (j %in% grepRaw(rclose, raw, j, fixed = TRUE)) {
+      if (count == 0L && j %in% grepRaw(rclose, raw, j, fixed = TRUE)) {
         i <- j + length(rclose) - 1L
         next
       }
