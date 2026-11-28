@@ -2,6 +2,16 @@
 
 ## renv (development version)
 
+- [`renv::restore()`](https://rstudio.github.io/renv/dev/reference/restore.md)
+  and
+  [`renv::install()`](https://rstudio.github.io/renv/dev/reference/install.md)
+  now wait for the dependencies of packages linked from the cache before
+  installing the packages that depend on them. Previously, a package
+  depending on a cached package could be installed and load-tested
+  before that package’s own dependencies were installed, and the load
+  test failed (e.g. gridExtra, with gtable linked from the cache and a
+  newer rlang not installed yet: “there is no package called ‘rlang’”).
+
 - When a project uses Bioconductor and BiocManager is not yet installed,
   [`renv::restore()`](https://rstudio.github.io/renv/dev/reference/restore.md)
   and
