@@ -1,5 +1,10 @@
 # renv (development version)
 
+* `renv::dependencies()` now reports an unexpected error encountered while
+  scanning a file together with the other problems it finds, alongside the
+  name of that file, and following the `errors` argument. Previously, such an
+  error was emitted as a warning that did not name the file. (#2472)
+
 * `renv::use()` now warns when a requested package is already loaded at a
   different version, as the loaded version stays in use. Previously, it told
   you to restart R, which would discard the temporary library `renv::use()`
