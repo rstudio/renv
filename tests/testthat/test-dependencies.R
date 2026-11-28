@@ -1320,3 +1320,34 @@ test_that("dependency errors are reported once when the file cache is disabled",
   expect_equal(basename(problems[[1L]]$file), "broken.R")
 
 })
+
+# https://github.com/rstudio/renv/issues/2472
+test_that("an error while scanning a file is reported as a problem", {
+
+  renv_tests_scope()
+  renv_scope_caution(FALSE)
+
+  writeLines("library(A)", con = "script.R")
+
+  # stand in for a bug in the code that scans the file
+  renv_scope_binding(
+    envir       = asNamespace("renv"),
+    symbol      = "renv_dependencies_discover_r",
+    replacement = function(...) stop("scan failed")
+  )
+
+  problems <- NULL
+  deps <- withCallingHandlers(
+    expect_no_warning(dependencies("script.R", errors = "reported")),
+    renv.dependencies.problems = function(cnd) problems <<- cnd$data
+  )
+
+  expect_equal(nrow(deps), 0L)
+  expect_length(problems, 1L)
+  expect_equal(basename(problems[[1L]]$file), "script.R")
+  expect_equal(conditionMessage(problems[[1L]]$error), "scan failed")
+
+  expect_error(dependencies("script.R", errors = "fatal"))
+  expect_no_warning(dependencies("script.R", errors = "ignored"))
+
+})

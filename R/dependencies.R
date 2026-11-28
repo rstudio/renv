@@ -523,7 +523,7 @@ renv_dependencies_discover_impl <- function(path) {
 
   status <- catch(filebacked("dependencies", path, renv_dependencies_discover_cached, callback))
   if (inherits(status, "error")) {
-    signalCondition(warnify(status))
+    renv_dependencies_error_push(path, status)
     return(NULL)
   }
 
